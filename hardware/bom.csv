@@ -1,13 +1,16 @@
 item,quantity,purpose,selection_status,procurement_gate
 Matching HaLow node platform,3,Vehicle lead + vehicle tail + camp relay,Unselected,Choose supported hardware revision and AU compliance evidence
-Raspberry Pi host if modular build,3,Compute for Pi candidate,Conditional,Use upstream supported model and interface
+Raspberry Pi 4B,3,Compute for selected modular baseline,Selected platform,Verify exact board and firmware image
 Heltec HC01P V2 + HAT 902-928 MHz candidate,3,Sub-GHz IP link,Identified candidate not selected,AU$34.16 captured bundle price before tax; verify carrier firmware V2 calibration and AU compliance
 HaLow antenna and feed assembly,3,External radio antenna,Unselected,Correct connector band gain and legal EIRP
 Ordinary Wi-Fi phone interface,3,Local phone connectivity,Conditional,Verify built-in interface or supported adapter
 Storage if platform requires it,3,Firmware and logs,Conditional,Size and endurance per supported build
 Fused vehicle DC regulator assembly,2,Vehicle power,Unselected,Input transients output rating and fuse review
-Protected battery and suitable regulator,1,Camp or relay power,Unselected,Measure runtime and safe operating temperature
-Enclosure and mounting hardware,3,Protection and strain relief,Unselected,Exact CAD fit thermal and weather validation
-GNSS or RTC,0-3,Position or offline clock,Optional,Determine phone position and node time requirements
+Professionally assembled protected balanced 3S2P 18650 pack,1 per portable node,Portable power 6 cells,Selected architecture supplier TBD,Matched genuine 3.4Ah cells nominal 73.4Wh; BMS temperature protection fuse and keyed connector
+Pololu D24V50F5 regulator,1 per portable node,Regulated 5V supply,Candidate,Validate voltage tolerance cable drop and thermal derating at load
+Matched 12.6V Li-ion CC-CV charger,1 per portable node,Charge with load isolated,Supplier matched,Charge current and port wiring per pack maker; interlock
+3S battery monitor and shutdown interface,1 per portable node,Battery warning and graceful shutdown,Part TBD,3.3V host logic and OpenWrt integration
+OpenNot5-style adapted enclosure and removable trays,3,Protection and strain relief,Proposed packaging,240x120x95mm initial envelope not released CAD; verify actual fit
+GlobalSat BU-353N 10Hz USB GPS puck,1 per portable node,Radio position,Procurement candidate,Verify exact suffix USB bridge driver gpsd and external mounting
 Spare power cable and recovery storage,1 set,Field repair,Unselected,Match chosen platform
 Existing compatible smartphones,2+,User interface,User supplied,Verify OS app background and Wi-Fi behaviour

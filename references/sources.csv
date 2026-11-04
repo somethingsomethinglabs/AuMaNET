@@ -16,3 +16,9 @@ S14,Heltec V2 resources,https://resource.heltec.cn/download/HT-HC01P_V2,Reviewed
 S15,OpenMANET HC01P community report,https://github.com/orgs/OpenMANET/discussions/50,Reviewed 2026-11-05,Author reports SPI success; exact V2 bundle not established
 S16,OpenMANET Heltec gateway support,https://openmanet.github.io/docs/hardware/heltec,Reviewed 2026-11-05,HT-HD01 V2 is a different product from HC01P V2
 S17,OpenMANET initial setup,https://openmanet.github.io/docs/initial-setup.html,Reviewed 2026-11-05,Advises against 8 MHz and automatic channels
+S18,Heltec HC01P Raspberry Pi HAT,https://heltec.org/project/ht-hc01p-hat/,Reviewed 2026-11-05,Manufacturer says fits HC01P V2; exact mechanical stack still needs measurement
+S19,OpenNot5 pinned enclosure reference,https://github.com/OpenMANET/enclosures/tree/523bd28d7d4d13216945864ec77e8698ddc7b4c9/OpenNot5,Reviewed 2026-11-05,Reference style and STL names; stock build differs from Heltec
+S20,Pololu D24V50F5,https://www.pololu.com/product/2851,Reviewed 2026-11-05,5V buck candidate; load voltage and thermal test required
+S21,GlobalSat BU-353N 10Hz,https://www.globalsat.com.tw/en/product-289513/USB-GPS-Receiver-BU-353N-10Hz.html,Reviewed 2026-11-05,USB NMEA candidate; exact image driver unverified
+S22,GlobalSat manufacturer manual,https://www.globalsat.com.tw/files/10Hz_User%20Manual-BU-353N_BR-355N%20V1.1_20240912.pdf,Reviewed 2026-11-05,Dimensions supply typical draw and cable length
+S23,OpenMANET GNSS,https://openmanet.github.io/docs/gnss,Reviewed 2026-11-05,gpsd local receiver integration

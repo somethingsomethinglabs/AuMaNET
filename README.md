@@ -15,6 +15,7 @@ Provide a second way to reach travelling companions when UHF calls go unanswered
 - [Overview, architecture, BOM, roadmap and references](docs/index.html)
 - [Requirements and acceptance criteria](docs/requirements.md)
 - [Build and field procedure](docs/build-and-test.md)
+- [Illustrated Pi 4 enclosure, six-cell battery and USB GPS specification](hardware/portable-node.md)
 - [Heltec HC01P V2 + HAT evidence and compatibility](hardware/heltec-hc01p-v2.md)
 - [Hardware and procurement register](hardware/bom.csv)
 - [Community source register](references/sources.csv)
