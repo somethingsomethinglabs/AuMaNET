@@ -1,7 +1,7 @@
 item,quantity,purpose,selection_status,procurement_gate
 Matching HaLow node platform,3,Vehicle lead + vehicle tail + camp relay,Unselected,Choose supported hardware revision and AU compliance evidence
 Raspberry Pi host if modular build,3,Compute for Pi candidate,Conditional,Use upstream supported model and interface
-HaLow radio and matching carrier if modular build,3,Sub-GHz IP link,Conditional,Verify exact radio driver and carrier compatibility
+Heltec HC01P V2 + HAT 902-928 MHz candidate,3,Sub-GHz IP link,Identified candidate not selected,AU$34.16 captured bundle price before tax; verify carrier firmware V2 calibration and AU compliance
 HaLow antenna and feed assembly,3,External radio antenna,Unselected,Correct connector band gain and legal EIRP
 Ordinary Wi-Fi phone interface,3,Local phone connectivity,Conditional,Verify built-in interface or supported adapter
 Storage if platform requires it,3,Firmware and logs,Conditional,Size and endurance per supported build

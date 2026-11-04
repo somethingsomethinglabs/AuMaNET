@@ -2,7 +2,7 @@
 
 ## 1. Resolve purchasing gates
 
-Obtain the AliExpress item's exact model, board photographs, chipset, supported bands, host interface, firmware source/recovery instructions, mesh support and Australian conformity evidence. Listing 1005012384315442 could not be retrieved during research on 2026-11-05; no specifications or price have been inferred.
+The supplied PDF identifies AliExpress item 1005012384315442 as Heltec HC01P V2 + HAT, selected 902-928 MHz variant. See [hardware review](../hardware/heltec-hc01p-v2.md) for captured price, specifications, interface and sources. Confirm the exact HAT revision, image/overlay, V2 calibration, recovery instructions, mesh behaviour and Australian conformity evidence. The module is not established as a plug-in PCIe device.
 
 Compare a documented OpenMANET Pi build against HaLow Link 2. Choose three identical supported revisions. Confirm regional calibration and firmware support before ordering. US defaults, custom high-power BCFs and seller range claims are not Australian approval.
 

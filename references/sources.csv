@@ -10,4 +10,9 @@ S08,Seeed HaLow Mini PCIe guide,https://wiki.seeedstudio.com/getting_started_wit
 S09,Reticulum,https://github.com/markqvist/Reticulum,Reviewed 2026-11-05,Alternative networking/application ecosystem to evaluate
 S10,ACMA LIPD guidance,https://www.acma.gov.au/licences/low-interference-potential-devices-lipd-class-licence,Reviewed 2026-11-05,Shared spectrum and equipment obligations
 S11,LIPD Class Licence 2025,https://www.legislation.gov.au/F2025L01047,Register identified 2026-11-05,Check latest in-force text and applicable entry before operation
-S12,User supplied AliExpress hardware,https://www.aliexpress.com/item/1005012384315442.html,Unverified listing inaccessible,No model price chipset or capability confirmed
+S12,User supplied AliExpress hardware,https://www.aliexpress.com/item/1005012384315442.html,Identified from supplied PDF 2026-11-05,HC01P V2 and HAT 902-928 MHz selected; AU$34.16 captured before tax; not a live quote
+S13,Heltec HC01P V2 official product,https://heltec.org/project/hc01p-v2/,Reviewed 2026-11-05,Manufacturer specs and regional distinctions
+S14,Heltec V2 resources,https://resource.heltec.cn/download/HT-HC01P_V2,Reviewed 2026-11-05,Separate V2 BCF pinmap and Pi firmware directories
+S15,OpenMANET HC01P community report,https://github.com/orgs/OpenMANET/discussions/50,Reviewed 2026-11-05,Author reports SPI success; exact V2 bundle not established
+S16,OpenMANET Heltec gateway support,https://openmanet.github.io/docs/hardware/heltec,Reviewed 2026-11-05,HT-HD01 V2 is a different product from HC01P V2
+S17,OpenMANET initial setup,https://openmanet.github.io/docs/initial-setup.html,Reviewed 2026-11-05,Advises against 8 MHz and automatic channels
