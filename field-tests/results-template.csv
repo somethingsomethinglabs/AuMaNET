@@ -1,0 +1,1 @@
+date,test_id,operator,node_ids,hardware_revision,firmware_commit,radio_profile,channel_mhz,bandwidth_mhz,tx_dbm,antenna_gain_dbi,feed_loss_db,terrain,distance_m,antenna_height_m,verified_hops,messages_sent,messages_delivered,manual_acks,p95_delivery_ms,goodput_mbps,recovery_s,avg_power_w,runtime_h,phone_os_app,notes

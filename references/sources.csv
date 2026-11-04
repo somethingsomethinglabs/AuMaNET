@@ -1,0 +1,13 @@
+id,title,url,status,notes
+S01,OpenMANET project,https://openmanet.net/,Reviewed 2026-11-05,Community starting point
+S02,OpenMANET documentation,https://openmanet.github.io/docs/,Reviewed 2026-11-05,Build networking and range-test instructions
+S03,OpenMANET firmware,https://github.com/OpenMANET/firmware,Reviewed 2026-11-05,Pin compatible release and check upstream licences before adoption
+S04,OpenMANET enclosures,https://github.com/OpenMANET/enclosures,Reviewed 2026-11-05,STL and assembly catalogue; root states CC BY-NC 4.0; check chosen design
+S05,GetStarted enclosure,https://github.com/OpenMANET/enclosures/tree/main/GetStarted,Indexed in upstream catalogue,Inspect exact variant files and licence before printing
+S06,OpenChubNET assembly,https://github.com/OpenMANET/enclosures/blob/main/OpenChubNET/README.md,Reviewed via index 2026-11-05,Pi 4B UPS enclosure candidate
+S07,HaLow Link 2 hardware,https://openmanet.github.io/docs/hardware/halowlink2,Reviewed 2026-11-05,Supported candidate; documented US band/defaults require AU review
+S08,Seeed HaLow Mini PCIe guide,https://wiki.seeedstudio.com/getting_started_with_wifi_halow_mini_pcie_module/,Reviewed 2026-11-05,Vendor integration reference; do not assume carrier compatibility from connector shape
+S09,Reticulum,https://github.com/markqvist/Reticulum,Reviewed 2026-11-05,Alternative networking/application ecosystem to evaluate
+S10,ACMA LIPD guidance,https://www.acma.gov.au/licences/low-interference-potential-devices-lipd-class-licence,Reviewed 2026-11-05,Shared spectrum and equipment obligations
+S11,LIPD Class Licence 2025,https://www.legislation.gov.au/F2025L01047,Register identified 2026-11-05,Check latest in-force text and applicable entry before operation
+S12,User supplied AliExpress hardware,https://www.aliexpress.com/item/1005012384315442.html,Unverified listing inaccessible,No model price chipset or capability confirmed

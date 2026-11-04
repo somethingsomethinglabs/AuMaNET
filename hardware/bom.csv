@@ -1,0 +1,13 @@
+item,quantity,purpose,selection_status,procurement_gate
+Matching HaLow node platform,3,Vehicle lead + vehicle tail + camp relay,Unselected,Choose supported hardware revision and AU compliance evidence
+Raspberry Pi host if modular build,3,Compute for Pi candidate,Conditional,Use upstream supported model and interface
+HaLow radio and matching carrier if modular build,3,Sub-GHz IP link,Conditional,Verify exact radio driver and carrier compatibility
+HaLow antenna and feed assembly,3,External radio antenna,Unselected,Correct connector band gain and legal EIRP
+Ordinary Wi-Fi phone interface,3,Local phone connectivity,Conditional,Verify built-in interface or supported adapter
+Storage if platform requires it,3,Firmware and logs,Conditional,Size and endurance per supported build
+Fused vehicle DC regulator assembly,2,Vehicle power,Unselected,Input transients output rating and fuse review
+Protected battery and suitable regulator,1,Camp or relay power,Unselected,Measure runtime and safe operating temperature
+Enclosure and mounting hardware,3,Protection and strain relief,Unselected,Exact CAD fit thermal and weather validation
+GNSS or RTC,0-3,Position or offline clock,Optional,Determine phone position and node time requirements
+Spare power cable and recovery storage,1 set,Field repair,Unselected,Match chosen platform
+Existing compatible smartphones,2+,User interface,User supplied,Verify OS app background and Wi-Fi behaviour
