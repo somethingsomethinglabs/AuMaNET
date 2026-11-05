@@ -22,3 +22,8 @@ S20,Pololu D24V50F5,https://www.pololu.com/product/2851,Reviewed 2026-11-05,5V b
 S21,GlobalSat BU-353N 10Hz,https://www.globalsat.com.tw/en/product-289513/USB-GPS-Receiver-BU-353N-10Hz.html,Reviewed 2026-11-05,USB NMEA candidate; exact image driver unverified
 S22,GlobalSat manufacturer manual,https://www.globalsat.com.tw/files/10Hz_User%20Manual-BU-353N_BR-355N%20V1.1_20240912.pdf,Reviewed 2026-11-05,Dimensions supply typical draw and cable length
 S23,OpenMANET GNSS,https://openmanet.github.io/docs/gnss,Reviewed 2026-11-05,gpsd local receiver integration
+S24,ties1887 Mesh Radio pinned source,https://github.com/ties1887/Mesh-radio-Halow-LoRa/tree/f0d285c67bc893ddacc5d8121fe1c92385cd54fb,Reviewed 2026-11-05,Preferred modular enclosure reference; CC BY-NC-SA 4.0
+S25,TI PD multi-cell charger reference,https://www.ti.com/tool/USB-PD-CHG-EVM-01,Reviewed 2026-11-05,Development reference only; actual dual-input board remains unselected
+S26,Bulgin sealed C-Type family,https://www.bulgin.com/us/products/range/circular-data-connectors/4000-series-data-buccaneers.html,Reviewed 2026-11-05,Select matching cap cable and panel gasket; no complete assembly IP claim
+S27,Raspberry Pi header power guidance,https://github.com/raspberrypi/hats/blob/master/designguide.md,Reviewed 2026-11-05,5V power header feed possible; not a direct 12V input
+S28,Raspberry Pi USB and hardware guidance,https://www.raspberrypi.com/documentation/computers/raspberry-pi.html,Reviewed 2026-11-05,Pi4 USB power budget and hardware reference

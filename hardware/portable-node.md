@@ -1,43 +1,70 @@
-# Portable Pi 4 radio: enclosure, battery and GPS
+# Portable Pi 4 radio: modular body and sealed top interfaces
 
-Design baseline, 2026-11-05. User-selected core: Raspberry Pi 4B + Heltec HT-HC01PHAT + HC01P V2 (902-928 MHz). This is a packaging and integration proposal, not a released print or verified assembly.
+Plan revision 2, 2026-11-05. User-selected: Pi 4B, Heltec HAT/HC01P V2, six 18650 cells. Packaging proposal; no modified CAD or assembly has been validated.
 
-![Proposed enclosure and power arrangement](../docs/assets/portable-node.svg)
+![Three-zone enclosure and top interfaces](../docs/assets/portable-node.svg)
 
-## Enclosure choice
+## Enclosure direction
 
-Use the **OpenNot5 military-radio style** as the community reference: protective shoulders, top antenna, recessed connectors and removable service panel. Its upstream build uses Pi 4, a WM1302 carrier and a different radio; it is not a proven drop-in fit for the Heltec HAT. Start with an custom adapted body and a new internal carrier rather than printing the stock shell and hoping it fits. OpenChubNET is an alternative community chassis, but its UPS D layout is a different power architecture.
+Use [ties1887/Mesh-radio-Halow-LoRa](https://github.com/ties1887/Mesh-radio-Halow-LoRa), superseding OpenNot5. One carried unit has a **bottom battery base**, **central compute/radio core**, and **top connector/routing cap**. A single centre/base body with an internal partition is acceptable. Use screws/inserts and gasketed service joints. Battery twist locking, magnetic contacts and hot swapping are unnecessary.
 
-- [Pinned OpenNot5 folder and STL files](https://github.com/OpenMANET/enclosures/tree/523bd28d7d4d13216945864ec77e8698ddc7b4c9/OpenNot5)
-- Body: `obj_1_openMANET main body .stl`; service panels: `obj_2_openMANET back panel .stl` and `obj_3_openMANET front panel.stl`.
-- [MakerWorld original project](https://makerworld.com/en/models/2128181-openmanet-radio-case)
-- Check the selected design's licence before remixing; the upstream enclosure catalogue states CC BY-NC 4.0. This project has not copied or modified upstream CAD.
+Reference commit: **f0d285c67bc893ddacc5d8121fe1c92385cd54fb**. The V2 SolidWorks screenshot was inspected; the plan does not rely on its AI render. No upstream CAD is copied or modified in this update.
 
-### Proposed packaging envelope
+| Source | Use in our adaptation |
+|---|---|
+| [P4-Wio](https://github.com/ties1887/Mesh-radio-Halow-LoRa/tree/f0d285c67bc893ddacc5d8121fe1c92385cd54fb/Second-Generation-Builds/P4-Wio) | Primary core/cap reference. STEP files include enclosure_main_chassis.STEP, middel part.STEP, enclosure_top_cover.STEP and gaskets. Its different HAT/radio needs a new Heltec carrier. |
+| [Standalone battery base](https://github.com/ties1887/Mesh-radio-Halow-LoRa/tree/f0d285c67bc893ddacc5d8121fe1c92385cd54fb/Twist-Lock-Battery-Pack) | Battery_Case_Main.STEP and Battery_Case_Bottom_Cover.STEP provide shape references. Resize for our 3S2P pack and replace the locking joint with a fixed serviceable joint. No assumption about upstream cell count or circuitry. |
+| [First-generation V2](https://github.com/ties1887/Mesh-radio-Halow-LoRa/tree/f0d285c67bc893ddacc5d8121fe1c92385cd54fb/First-Generation-Builds/V2_30-5-2026) | Style reference; step/middel part.STEP, batcase.STEP and top.STEP are alternatives to inspect. Mating parts across generations are not assumed interchangeable. |
 
-Reserve **240 x 120 x 95 mm external** and **230 x 110 x 85 mm clear internal** for a larger field-radio body. These are original design allowances, not dimensions measured from the upstream STL. They exclude external antenna, GPS puck, knobs and mounting ears. A smaller finished enclosure may be possible after physical measurement.
+Source licence: **CC BY-NC-SA 4.0**. Retain ties1887 attribution and revision; shared derivative CAD follows its licence separately from original AuMaNET documentation. This enclosure selection adds no LoRa subsystem.
 
-Split the internal length into a 100 mm electronics bay and a 120 mm battery bay with a 5 mm insulating divider and 5 mm remaining clearance. Use a continuous service lid and separate removable trays:
+## Three vertical zones
 
-| Zone | Reserved envelope | Contents and constraints |
+Initial design budget: **240 mm tall x 120 mm wide x 95 mm deep**, about **230 x 110 x 85 mm** inside. These are original reserves, not upstream measurements or released print dimensions.
+
+| Bottom to top | Reserved height | Contents |
 |---|---|---|
-| Electronics | 100 x 75 x 50 mm | Pi 4 underneath Heltec HAT and radio. Leave connector service access and verify all header/standoff heights. |
-| Battery | 120 x 75 x 55 mm | Six-cell professionally assembled 3S2P pack, balancing BMS and connector in an insulated removable tray. Reserve space for a separate regulator beside/above it, away from the cells. Confirm actual supplier drawing. |
-| Cable aisle | Remaining internal width | Short USB-C power lead, USB GPS lead, antenna pigtail and optional I2C harness. Connector bend radii can require a larger shell. |
+| Battery base | 70 mm | Protected 3S2P six-cell pack, BMS, fuse and keyed internal connector. Reserve approximately 75 x 65 x 45 mm for a compact pack, subject to supplier drawing. |
+| Central core | 105 mm | Pi 4B + Heltec HAT + HC01P V2 on removable tray, oriented along body. Reserve 100 x 75 x 50 mm for electronics, then check every connector and standoff. |
+| Top routing/interface cap | 45 mm | Connector backs, USB harnesses, RF pigtail, strain relief. Start with 30 mm behind connector panel; actual drawing and bend radius decide final depth. |
+| Partition/joint allowance | 10 mm | Insulating divider, gasket and service clearances. |
 
-The Heltec HAT product page gives 90 x 50 x 20 mm under product characteristics; treat that as a conservative procurement envelope, not a reliable mechanical drawing. The radio is about 50.95 x 30 x 3.75 mm. Measure the assembled Pi/HAT/radio, connector overhangs and cables before releasing a carrier or STL. Mount the HAT directly on the Pi's supported header/standoffs; the battery board is mounted separately and does not occupy that header stack.
+Put charging electronics and the 5 V buck on a separate isolated service rail with a heat path, away from cells and connector backs. Charger board dimensions remain open and may enlarge the shell. Measure the Pi/HAT/radio stack, bulkhead nuts, internal cable bends and mating geometry before releasing CAD. Heltec's 90 x 50 x 20 mm HAT product characteristics are not a validated assembly drawing.
 
-Use a flat conductive heat-spreader coupled to the Pi CPU with an electrically insulating thermal interface, without shorting the HAT. Keep battery cells away from the hot plate. For a printed body, provide a deliberate heat path to an external metal plate; sealed plastic is not assumed to cool the Pi. Use ASA as a print-material candidate after printer/material validation. Gaskets, bulkheads and print porosity need weather testing; no military or IP certification is claimed.
+Use an external heat-spreader coupled to the Pi CPU and a thermal barrier at the battery base. Preserve a polymer RF path for local Wi-Fi. No screen is included. A gasket and printed shell do not establish an IP or military rating.
 
-## Six-cell battery system selection
+## Top interface schedule
 
-The user selected **six 18650 cells**. Use a professionally assembled **3S2P Li-ion pack**: three series groups, each containing two parallel cells. This gives **10.8 V nominal / 12.6 V full**, and **6.8 Ah** when using 3.4 Ah cells rated at 3.6 V nominal. Six cells in series would be a different 25.2 V full pack and is not this design.
+| Panel label | Role and internal route |
+|---|---|
+| **DC IN / SEALED 12 V BARREL** | Dedicated centre-positive nominal 12 V input -> fuse/reverse-polarity/transient protection -> input selector -> buck-boost 3S charger. Exact connector size/current rating and source range remain to be selected. Never direct to cells. |
+| **CHARGE / USB-C PD IN** | Sealed Type-C input -> PD sink -> 3S CC/CV charger with temperature supervision -> BMS-approved pack connection. Managed power path needed for running while charging. |
+| **ACCESSORY / USB-C HOST** | Pi USB-A host -> compliant downstream Type-C interface with correct CC/current signalling and current protection -> sealed top USB-C. Initially USB 2.0 for digital headset, keyboard or other supported peripheral. |
+| **SERVICE / USB-C CONSOLE** | Sealed USB-C -> USB-to-3.3 V UART bridge -> verified Pi console pins/ground. PC powers bridge only; VBUS must not back-power Pi. Console rather than an accessory host. |
+| **RF / HaLow** | Sealed bulkhead -> short correct-connector pigtail -> radio. |
+| **GPS** | Sealed gland or USB feedthrough -> external USB GPS puck -> separate Pi USB host port. |
 
-Procure the complete pack from a reputable pack builder, including matched genuine cells, a **3S balancing BMS**, temperature sensing/charge inhibit, insulated terminals, suitable fuse, strain relief and a keyed connector. Specify at least 5 A continuous pack discharge capability, with protection limits, connector and wiring coordinated by the pack builder. Select charge current from the actual cells and pack specification; a matched 12.6 V CC/CV Li-ion charger up to 2 A is the starting requirement, subject to that approval. A BMS is not a charger. Do not assemble this as six loose cells in generic spring holders or connect extra cells to a three-cell UPS holder.
+Preferred non-invasive Pi power: regulated 5 V through a keyed GPIO power interposer/pass-through header, with USB-C power left unused. Header fit with the Heltec HAT must be verified; internal USB-C is the fallback. USB-C describes a connector, not a power/data role. Do not split one port across host/device/charging functions. Do not connect a PC host to ACCESSORY. A generic power-only bulkhead or passive adapter is not a verified downstream Type-C port: select a proper implementation and test C-to-C enumeration in both orientations.
 
-**Power path:** protected 3S2P pack -> fuse/master disconnect -> **Pololu D24V50F5 regulated 5 V buck** -> short suitable USB-C power harness -> Pi 4 -> Heltec HAT and USB GPS. Pololu publishes a typical output capability up to 5 A, subject to thermal derating; measure the delivered voltage and current at the Pi. Its fixed 5 V output tolerance and cable losses must be checked at maximum load; reject the harness/regulator combination if it causes undervoltage. The 5 A headline is not a guarantee of operation in a sealed hot case. This small regulator leaves the GPIO header free for the Heltec HAT.
+SERVICE uses a 3.3 V USB-UART console as the initial maintenance plan, subject to HAT pin allocation and firmware console verification. Use a blankable panel insert if deferred. Normal configuration stays over Wi-Fi/Ethernet. Native Pi USB gadget service would require a separate power/data design; it is not promised by this layout.
 
-The previously considered **Waveshare UPS Module 3S is superseded** for this six-cell baseline: its supplied holder is for three cells, and external 3S2P adaptation is not established by its product documentation. No unverified holder modification is part of this design.
+Headsets must be **digital USB Audio Class** devices with playback/microphone drivers and voice-app routing validated on the pinned OpenWrt build. Passive analogue USB-C headsets are not sufficient. GPS/headset/accessories share Pi 4's published **1.2 A total USB budget**; a 5 A regulator does not increase it. Add a properly powered non-backfeeding hub only if necessary, updating space and power budgets.
+
+## Watertight top cap
+
+Use a replaceable recessed top insert, splash shoulders, strain relief, enough space to grip caps, and distinct charge/host/service labels. All external electrical interfaces are at the top; internal harnesses reach the Pi's existing side ports. Battery/core remain attached for normal use.
+
+[Bulgin 4000 C-Type Buccaneer](https://www.bulgin.com/us/products/range/circular-data-connectors/4000-series-data-buccaneers.html) is a reference family, not a selected SKU. Select receptacle, sealing cable, gasket and cap together. Require documented sealing **capped when unused** and **mated using the specified cable**. An ordinary USB-C lead does not automatically preserve the connector's mated rating; it may be dry-weather only. Chassis twist locking is omitted; connector coupling required for sealing can remain.
+
+Panel holes, nut clearances, wall thickness and spacing follow selected connector drawings. Test the completed body and every used/capped port state before an ingress claim. Keep joints out of pooling areas. Retain sky visibility for the external GPS and clearance around the HaLow antenna.
+
+## Six-cell battery and regulator
+
+Procure a professionally assembled **3S2P pack**: three series groups of two parallel 18650 cells. With matched genuine 3.6 V nominal / 3.4 Ah cells, this is **10.8 V nominal, 12.6 V full, 6.8 Ah**. Six cells in series is not this design.
+
+Specify balancing BMS, temperature sensing/charge inhibit, insulated terminals, fuse, retention, keyed connector and at least 5 A continuous pack discharge capability, coordinated by the pack builder. Charge current starts at no more than 2 A, subject to cell/pack approval. No loose-cell spring-holder adaptation or extra cells connected to the three-cell Waveshare UPS holder is approved.
+
+Use **Pololu D24V50F5** as the separate 5 V buck candidate, feeding the preferred header interposer or USB-C fallback. Its typical up-to-5 A output is thermally limited. Verify its fixed-output tolerance and harness voltage drop at the Pi during maximum load. It is a regulator, not a charger. Raw pack voltage never connects to USB, Pi power or 3.3 V radio pins.
 
 ### Runtime estimate
 
@@ -51,13 +78,29 @@ The previously considered **Waveshare UPS Module 3S is superseded** for this six
 
 These are calculations, not test results. Age, temperature, BMS cutoff and radio duty cycle affect runtime. Six cells still do **not** establish the 12 h target at 8 W: the same budget requires about **141 Wh nominal**. Treat the internal pack as the portable baseline and retain an external supply option for all-day use. Runtime testing decides whether the earlier 12 h acceptance target needs a larger pack or a reduced load.
 
-### Charging and power control
+## Non-invasive Pi power
 
-Baseline operation uses **shutdown, power isolation, then charging** with the pack maker's matched charger. The charging connector and wiring must follow the actual BMS port arrangement. A physical interlock or equivalent verified disconnect should prevent the Pi load being connected while charging. This avoids claiming charge termination or seamless UPS behaviour without a power-path controller. Unplug the charger before returning to battery operation. Simultaneous charging/running and automatic source switchover are **not implemented** in this baseline; a managed load-sharing controller is a separate design change.
+Preferred route: protected pack/system rail -> 5 V buck -> keyed power interposer -> Pi **physical header pins 2/4 (5 V)** and adequate **ground contacts**. These are power pins, not numbered GPIO signal pins. A correctly rated pass-through/interposer can preserve the HAT connection without soldering to the Pi. Contact current rating, current sharing, standoff height and Heltec signal integrity must be checked before selecting it; loose Dupont jumpers are not the finished harness.
 
-Label the charge inlet **12.6 V Li-ion charger only** and keep it mechanically distinct from Pi USB service. No raw 9-12.6 V rail goes to the Pi, USB-C or 3.3 V radio. Vehicle charging requires an automotive-rated charger suitable for this pack, with fused input and transient protection; an unregulated cigarette-lighter feed is not acceptable as a charger.
+The Pi has no direct 12 V input. Maintain proper regulation, fusing, reverse-polarity/overvoltage protection and voltage at the board. Header feed reaches the 5 V rail directly, so the external supply must provide the protection appropriate to this route. Never apply battery/raw 12 V to 5 V, 3.3 V or GPIO signal pins. Do not connect another Pi power supply simultaneously without a designed power selector. Any USB service bridge or powered hub must not back-power the Pi. Keep USB-C power as the fallback until mechanical/electrical header validation passes.
 
-Use a graceful Linux shutdown command before master disconnect. A later momentary shutdown button must use a GPIO verified spare against the Heltec HAT schematic. Add a battery monitor/fuel gauge compatible with 3S packs and 3.3 V host logic; exact part and OpenWrt integration remain procurement/development gates. A voltage-only percentage is an estimate. Set warnings/shutdown above BMS hard cutoff based on actual load tests and cell specifications. Do not feed a raw pack-voltage divider into a Pi GPIO; the Pi has no built-in analogue input.
+## Dual-input charging: USB-C PD and sealed 12 V barrel
+
+A sealed nominal 12 V barrel input is required alongside USB-C PD. This replaces the earlier charge-only 12.6 V panel concept. Required chain: **USB-C PD source -> rated sealed input/cable -> PD sink + 3S Li-ion CC/CV charger -> protected pack**. A PD trigger alone is not a battery charger; 5 V USB must not connect directly to this pack.
+
+Barrel path: nominal 12 V source -> appropriately rated sealed centre-positive connector -> fuse, reverse-polarity and transient protection -> source selector -> **buck-boost 3S charger**. A 12 V source cannot fully charge a 12.6 V pack through a buck-only charger. The barrel is a charger input, not a direct battery connection or Pi feed. Specify accepted voltage range and current on the selected hardware before labelling the finished panel. Vehicle input requires automotive transient protection; a bench 12 V rating does not establish vehicle suitability.
+
+Both source paths require priority selection/ideal-diode isolation or a charger with an appropriate dual-input selector. Do not wire USB-C VBUS and barrel positive together. Specify deterministic source priority and safe behaviour with both attached, including no reverse current into either connector.
+
+Target a **15 V / 3 A PD source (45 W)** with charge current capped by the actual pack, cable, connector and thermal limits. A source without the required profile must report no charge or a documented reduced-power mode. The USB-C receptacle itself neither negotiates voltage nor controls charging.
+
+**Charger PCB selection remains open.** [TI USB-PD-CHG-EVM-01](https://www.ti.com/tool/USB-PD-CHG-EVM-01) demonstrates a TPS25751/BQ25798 multi-cell charging approach; it is a development reference, not an approved enclosure-ready module. Select a documented 3S-configurable board, or design one, with temperature protection, dual-input handling and mechanical drawings before fixing its mounting rail.
+
+Desired behaviour is continued radio operation when charge power is inserted/removed. This requires **managed load sharing**, a system rail feeding the 5 V regulator, controlled battery charging and no backfeed. It remains a required validation gate. Until passed, use orderly shutdown and physical load isolation before charging. No arbitrary charger is approved for simultaneous use.
+
+Vehicle charging needs an automotive-rated PD source supporting the selected profile, fused and transient protected. Verify charge/run power budget: available input power must cover both load and selected charge rate after losses.
+
+Use graceful Linux shutdown before master disconnect. A later shutdown button must use a pin verified spare against the HAT schematic. A 3S monitor/fuel-gauge part and 3.3 V/OpenWrt integration remain open. Set warnings/shutdown above BMS cutoff from tests; Pi GPIO has no analogue input and cannot accept raw pack voltage.
 
 ## GPS selection and location behaviour
 
@@ -69,27 +112,23 @@ Connection: Pi USB 2 port -> USB serial device -> gpsd -> OpenMANET local receiv
 
 Validate cold boot, fix acquisition, disconnect/reconnect, fix loss, UTC and position age. Node GPS locates the **radio**, not a person who walks away from it. Phone/person location remains a separate source. GNSS position/time is not assumed to discipline the system clock until the clock service is configured and tested.
 
-## Panel and harness layout
+## Before CAD release / deployment
 
-- Top: HaLow bulkhead with a short, correct-connector pigtail; external GPS puck bracket/cable exit on the opposite side. Bulkhead connector type must match the chosen antenna and module pigtail.
-- Service side: recessed USB/Ethernet access and labelled charger inlet, with sealed caps where appropriate. Keep GPS USB and Pi USB-C power entirely inside except their deliberate feedthroughs.
-- Rear: removable battery tray cover, captured screws and belt/vehicle mounting points; preserve clearance for cell replacement without disturbing RF wiring.
-- No screen is included in this baseline. A screen would change panel layout, load and thermal requirements.
-
-## Verification required before printing the final body
-
-1. Bench-run the exact Pi 4/HAT/V2 image and calibration combination with GPS, protected 3S2P pack and regulator. Confirm 3.3 V radio supply capacity; the radio is supplied through the verified Pi/HAT power path.
-2. Record all real assembled dimensions, connector bend radii, antenna retention, screw lengths and HAT clearances. Print a carrier/cross-section fit coupon first.
-3. Measure voltage at the Pi during boot, sustained radio TX and GPS acquisition. Check for undervoltage, resets and backfeed; measure current at low pack voltage.
-4. Verify graceful shutdown, hardware cutoff recovery, charging with the load isolated, and the charging interlock. Log battery/CPU/regulator temperatures during their respective charge and radio operating modes; follow the cell maker's charge-temperature range rather than the radio's wider temperature rating.
-5. Validate GPS driver/gpsd/OpenMANET output and stale-location behaviour with the lid closed and radio active.
-6. Conduct mounting, vibration, cable pull and controlled weather tests; no waterproof claim before testing. Re-run the project relay and message tests.
+1. Inspect the pinned STEP assemblies and record exact measured mating surfaces, Heltec carrier fit, pack supplier dimensions and connector footprints. Print fit coupons before the body.
+2. Freeze the PD charger, host Type-C implementation, service bridge and panel sealing family. Test both USB-C orientations and intended cable types.
+3. Bench-test Pi/HAT firmware, calibration, radio supply current, GPS driver and headset capture/playback with the chosen app.
+4. Check voltage at Pi during boot and peak TX with all USB loads. Test current limiting, no backfeed, failed PD negotiation, source insertion/removal, both sources present and low battery.
+5. Validate pack temperature protection, charge termination, managed power path or fallback isolation, graceful shutdown and cutoff recovery.
+6. Verify GPS fix/age and distinguish radio position from phone/person position. Test thermal performance with closed lid and source-connected operation if enabled.
+7. Test vibration, mounting, harness pulls and water ingress in capped and correctly mated states. Re-run messaging and relay trials.
 
 ## Primary references
 
-- [OpenNot5 build reference](https://github.com/OpenMANET/enclosures/blob/523bd28d7d4d13216945864ec77e8698ddc7b4c9/OpenNot5/README.md)
-- [Heltec HAT](https://heltec.org/project/ht-hc01p-hat/) and [V2 module](https://heltec.org/project/hc01p-v2/)
-- [Pololu D24V50F5 regulator](https://www.pololu.com/product/2851)
-- [Raspberry Pi supply recommendations](https://www.raspberrypi.com/documentation/computers/getting-started.html)
-- [GlobalSat BU-353N 10 Hz](https://www.globalsat.com.tw/en/product-289513/USB-GPS-Receiver-BU-353N-10Hz.html) and [manufacturer manual](https://www.globalsat.com.tw/files/10Hz_User%20Manual-BU-353N_BR-355N%20V1.1_20240912.pdf)
-- [OpenMANET GNSS integration](https://openmanet.github.io/docs/gnss)
+- [ties1887 source revision](https://github.com/ties1887/Mesh-radio-Halow-LoRa/tree/f0d285c67bc893ddacc5d8121fe1c92385cd54fb)
+- [Heltec HAT](https://heltec.org/project/ht-hc01p-hat/) and [HC01P V2](https://heltec.org/project/hc01p-v2/)
+- [Pololu regulator](https://www.pololu.com/product/2851)
+- [TI USB-C charging reference](https://www.ti.com/tool/USB-PD-CHG-EVM-01)
+- [Bulgin connector family](https://www.bulgin.com/us/products/range/circular-data-connectors/4000-series-data-buccaneers.html)
+- [Pi USB limits and roles](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html)
+- [GlobalSat receiver](https://www.globalsat.com.tw/en/product-289513/USB-GPS-Receiver-BU-353N-10Hz.html)
+- [OpenMANET GNSS](https://openmanet.github.io/docs/gnss)

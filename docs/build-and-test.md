@@ -36,3 +36,7 @@ Before departure, pair phones, load offline maps, check batteries and send a che
 ## Power sizing example
 
 Illustrative only: 8 W average x 12 h / 0.85 conversion efficiency x 1.25 reserve = about 141 Wh nominal battery capacity. Measure actual load and battery derating. A 10,000 mAh pack rated at 3.7 V stores about 37 Wh before losses; it is not 50 Wh just because its USB output is 5 V.
+
+## Portable revision 2 integration gate
+
+Follow [modular power and port plan](../hardware/portable-node.md) for the six-cell bottom base and top USB-C/DC panel. Earlier generic power assembly steps do not approve direct battery/DC wiring. Validate the selected header interposer, protected dual-input charger, source isolation and managed load sharing before charge-and-run. Test sealed ports in both capped and specified-mated states.
