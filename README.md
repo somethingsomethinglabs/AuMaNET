@@ -27,6 +27,8 @@ Download the project folder and open the HTML in a browser. Normal reading requi
 | Compare antenna kits | [RF selection](docs/antennas.html) |
 | Replace or upgrade a module | [Upgrade guide](docs/upgrades.html) |
 | Record a build | [Build record](docs/build-record.html) |
+| Review the firmware pin mismatch | [Inspected image and adaptation](docs/firmware-review.html) |
+| Compare power modules | [Power selection review](docs/power-review.html) |
 | Check the evidence still missing | [Release readiness](docs/release-readiness.html) |
 | Edit the documentation | [Maintainer guide](docs/maintaining-docs.html) |
 

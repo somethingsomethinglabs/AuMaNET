@@ -39,7 +39,7 @@ Use the per-node parts register, not photos of a finished radio. Verify the mode
 
 Start with the Pi, storage, supported power supply and an Ethernet cable on a non-conductive surface. Do not begin with loose lithium cells or a closed enclosure. Follow the released image recipe when available; record its version and checksum. Connect from your computer/phone using the documented local interface.
 
-**Finish when:** the node boots repeatedly, its local management page is reachable and its default administrator password is changed. **Current stop:** an exact tested HC01P V2 image/overlay/calibration recipe remains open.
+**Finish when:** the node boots repeatedly, its local management page is reachable and its default administrator password is changed. **Current stop:** the inspected OpenMANET 1.8.0 overlay uses different GPIO pins from the Heltec HAT; a corrected and tested image/overlay/calibration recipe is required. See [firmware review](firmware-review.md).
 
 ### 3. Add the radio and position receiver
 

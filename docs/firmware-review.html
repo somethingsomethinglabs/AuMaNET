@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Firmware compatibility review · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Firmware compatibility review</h1>
+<p>Status: engineering review, not a released builder recipe. No board was flashed and no radio transmission was performed.</p>
+<h2>Inspected release</h2>
+<p>Downloaded and inspected the <strong>OpenMANET 1.8.0 Pi 4 / MM6108 SPI</strong> image. Its SHA-256 matched the digest published by GitHub for the release asset:</p>
+<pre><code class="language-text">Asset: openmanet-1.8.0-rpi4-mm6108-spi-squashfs-sysupgrade.img.gz
+SHA256: 461aea8cc2805f64e83e68d1f45acdedad7bef5560861926a5de79a3489d8316
+</code></pre>
+<p>The FAT boot partition was read from the compressed image. Its <code>distroconfig.txt</code> selects <code>dtoverlay=mm610x-spi</code>. The compiled <code>overlays/mm610x-spi.dtbo</code> was extracted and its device-tree properties inspected, rather than inferring its contents solely from a source filename.</p>
+<pre><code class="language-text">Compiled upstream overlay SHA256:
+687eeccccd02619fdeaba0ceefdfae128b2435f595200a5742cbbd5f329b6b31
+</code></pre>
+<h2>Confirmed mapping difference</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Compiled upstream overlay (BCM)</th>
+<th>Heltec HAT V1.0 schematic (BCM)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reset</td>
+<td>17</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Interrupt</td>
+<td>5</td>
+<td>25</td>
+</tr>
+<tr>
+<td>Wake</td>
+<td>23</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Busy</td>
+<td>24</td>
+<td>7</td>
+</tr>
+<tr>
+<td>SPI select</td>
+<td>8</td>
+<td>8</td>
+</tr>
+<tr>
+<td>SPI MISO / MOSI / clock</td>
+<td>9 / 10 / 11</td>
+<td>9 / 10 / 11</td>
+</tr>
+</tbody></table></div>
+<p>The generic SPI image is therefore <strong>not a verified plug-and-play recipe</strong> for the selected HAT. The actual received carrier must match the reviewed schematic and populated SPI configuration.</p>
+<h2>Additional boot-setting conflict</h2>
+<p>The extracted boot configuration enables <code>i2c1</code> in its Pi 4 section. That uses the primary I2C pins, while Heltec reserves GPIO2 for RGB green and GPIO3 for radio wake. The effective boot configuration needs a Heltec-specific review, including disabling that conflicting I2C function. Do not add a battery I2C HAT to these same lines.</p>
+<p>The image also contains UART-related overlays/settings. Verify the effective primary UART, console and receiver device on actual hardware before publishing the LC76G setup. Enabling UART alone does not prove that gpsd is reading the intended receiver.</p>
+<h2>Adaptation prepared for review</h2>
+<p>The maintainer tool <code>scripts/prepare-heltec-overlay.py</code> accepts only the inspected upstream DTBO hash. It changes the four signal assignments in both device properties and pin-control groups, reparses the result, and checks that no unrelated bytes changed. It never writes a boot partition or flashes a board. It refuses to overwrite the source/output.</p>
+<p>It is deliberately <strong>not</strong> a normal-builder instruction or automatic firmware installer. It does not prove signal polarity, firmware driver behaviour, regional calibration, boot-setting correctness or RF operation. The board-specific V2 BCF and Australian profile remain separate requirements.</p>
+<p>The resulting overlay is derived from the upstream firmware asset and remains subject to its upstream licensing. No upstream binary or generated derivative binary is committed here; the repository stores the preparation tool, factual profile and review record. Preserve the upstream licences if distributing a derivative firmware kit.</p>
+<h2>Recorded checks</h2>
+<p>The prepared review overlay has SHA-256 <code>ce63bc7abfa9fd8763dfa5f75cfff8032198f21a782b77a4eb8c8a88017be438</code>. Its length remains 2,487 bytes and only the eight intended GPIO-value bytes differ from the inspected input. A changed input was rejected before output, an existing output was preserved, and attempting to overwrite the source was rejected. These checks establish the tool&#39;s byte-edit scope, not hardware compatibility.</p>
+<p>The read-only inspector can reproduce the extraction from the exact downloaded image into a new review directory:</p>
+<pre><code class="language-sh">python scripts/inspect-openmanet-image.py path/to/openmanet-1.8.0-rpi4-mm6108-spi-squashfs-sysupgrade.img.gz path/to/new-review-directory
+</code></pre>
+<p>It verifies the image hash and expected boot geometry before extracting only <code>config.txt</code>, <code>distroconfig.txt</code> and the SPI overlay. Its JSON report records the observed assignments and conflicting I2C setting. The image is read as data and never executed.</p>
+<h2>Maintainer command</h2>
+<p>With the exact upstream DTBO extracted into a review directory:</p>
+<pre><code class="language-sh">python scripts/prepare-heltec-overlay.py path/to/mm610x-spi.dtbo path/to/mm610x-spi-heltec-hc01phat-v1.dtbo
+</code></pre>
+<p>The output is review-only. Test on the received hardware with a recovery image before promoting a complete image/configuration to the first-build guide. The intended public release should contain a preconfigured image and checksum so normal builders do not need to edit device trees.</p>
+<h2>Required next evidence</h2>
+<ol>
+<li>Confirm HAT revision, resistor population and signal/polarity behaviour.</li>
+<li>Review and apply the matching boot settings without loading two radio overlays.</li>
+<li>Select the correct V2 regional BCF from authoritative board resources.</li>
+<li>Bench-test radio detection, GNSS, power/shutdown and cold restart together.</li>
+<li>Resolve Australian equipment/profile conditions before controlled RF trials.</li>
+<li>Produce the complete flash/recovery recipe and a passed build record.</li>
+</ol>
+<h2>Primary references</h2>
+<ul>
+<li><a href="https://github.com/OpenMANET/firmware/releases/tag/1.8.0">OpenMANET 1.8.0 release</a></li>
+<li><a href="https://github.com/OpenMANET/firmware/blob/1.8.0/target/linux/bcm27xx/patches-6.6/991-0003-dt-overlays-morse-add-spi-overlay-fragment.patch">SPI overlay source at the inspected tag</a></li>
+<li><a href="https://github.com/OpenMANET/firmware/blob/1.8.0/target/linux/bcm27xx/image/boards/ekh01/distroconfig-mm610x-spi.txt">SPI boot selection source</a></li>
+<li><a href="https://resource.heltec.cn/download/HT-HC01PHAT_V1_0/HT-HC01PHAT_V1_0.PDF">Heltec HAT schematic</a></li>
+</ul>
+</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

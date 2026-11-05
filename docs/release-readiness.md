@@ -34,3 +34,7 @@ Sources: [Heltec HAT schematic](https://resource.heltec.cn/download/HT-HC01PHAT_
 ## What is not acceptable proof of completion
 
 An HTML illustration is not validated CAD. An IC datasheet is not proof that a seller's assembled charger implements it correctly. A Pi-compatible label is not proof of HAT compatibility. A link checker does not prove a working radio. Published maximum range does not prove field coverage. Release only the outcomes the evidence supports.
+
+## Image inspection update
+
+The OpenMANET 1.8.0 candidate image was downloaded, its checksum matched and its compiled SPI overlay inspected. Its pin assignments differ from the Heltec HAT, and its effective Pi4 boot defaults enable conflicting I2C. A hash-guarded overlay preparation tool is available for maintainer review, not a released image. See [firmware evidence](firmware-review.md) and [power review](power-review.md).

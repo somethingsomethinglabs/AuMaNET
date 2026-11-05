@@ -64,3 +64,7 @@ User prioritises practical range for voice/data and low cost, with interchangeab
 ## Product-readiness audit
 
 Consolidated the current baseline and non-developer build stages, changed BOM to one-node quantities with stable part IDs, and separated optional parts/tools. Found the X1209/Heltec GPIO conflict; it remains excluded. Offline HTML handbook is generated from source files. These documentation changes do not establish purchasing, CAD or hardware readiness; see release-readiness.md.
+
+## Firmware image inspected
+
+OpenMANET 1.8.0 Pi4 MM6108 SPI asset SHA256 matched the release digest. The extracted compiled overlay has reset17 interrupt5 wake23 busy24 versus Heltec reset5 interrupt25 wake3 busy7. The boot file also enables conflicting I2C1. Prepared hash-bound adaptation tooling for review; no flashing or hardware compatibility claim. Power candidate review retained all unresolved gates.

@@ -34,3 +34,7 @@ The checker verifies local destinations, HTML anchors, titles/language and rende
 ## Before publishing a build recipe
 
 Keep confirmed choices separate from verified combinations. Replace a gate with specific evidence, rather than deleting the caveat after writing a plausible instruction. Use the release-readiness page to track exact listings, received revisions, image checksums, harness drawings and repeatable results.
+
+## Firmware-review tools
+
+The Python tools in scripts inspect a hash-pinned image and prepare an explicitly unvalidated overlay. They never flash a device. See [firmware review](firmware-review.md) before using them. Do not turn their successful exit status into a claim that the radio works. No upstream image or derivative binary belongs in the documentation commit.

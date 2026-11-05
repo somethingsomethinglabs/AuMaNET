@@ -1,0 +1,30 @@
+{
+  "status": "engineering-only-not-hardware-validated",
+  "platform": "Raspberry Pi 4B + HT-HC01PHAT V1.0 + HC01P V2",
+  "release": "OpenMANET 1.8.0",
+  "asset": "openmanet-1.8.0-rpi4-mm6108-spi-squashfs-sysupgrade.img.gz",
+  "asset_url": "https://github.com/OpenMANET/firmware/releases/download/1.8.0/openmanet-1.8.0-rpi4-mm6108-spi-squashfs-sysupgrade.img.gz",
+  "asset_sha256": "461aea8cc2805f64e83e68d1f45acdedad7bef5560861926a5de79a3489d8316",
+  "upstream_overlay": "mm610x-spi.dtbo",
+  "upstream_overlay_sha256": "687eeccccd02619fdeaba0ceefdfae128b2435f595200a5742cbbd5f329b6b31",
+  "output_overlay": "mm610x-spi-heltec-hc01phat-v1.dtbo",
+  "schematic_url": "https://resource.heltec.cn/download/HT-HC01PHAT_V1_0/HT-HC01PHAT_V1_0.PDF",
+  "signal_mapping_bcm": {
+    "reset": { "upstream": 17, "heltec": 5 },
+    "interrupt": { "upstream": 5, "heltec": 25 },
+    "wake": { "upstream": 23, "heltec": 3 },
+    "busy": { "upstream": 24, "heltec": 7 },
+    "spi_cs": { "upstream": 8, "heltec": 8 },
+    "spi_miso": { "upstream": 9, "heltec": 9 },
+    "spi_mosi": { "upstream": 10, "heltec": 10 },
+    "spi_clock": { "upstream": 11, "heltec": 11 }
+  },
+  "unresolved": [
+    "Confirm received HAT schematic revision and populated SPI/SDIO resistor configuration",
+    "Review driver wake/busy semantics and polarity against the actual hardware",
+    "Disable conflicting effective I2C1 boot configuration on GPIO2/3",
+    "Select and validate the exact V2 regional BCF; do not reuse another board calibration",
+    "Verify firmware recovery before deployment",
+    "Bench-test radio detection, controlled transmission, restart and GNSS together"
+  ]
+}

@@ -59,6 +59,10 @@ These are interface requirements, not released connector pinouts. Connector part
 | Field usability | Panel/control proposals | Glove-use, cable access, indicator comprehension and runtime tests |
 | Safe Australian operation | Regulatory references | Equipment/profile review for the chosen occupied channel and antenna |
 
+## Firmware and power evidence
+
+The downloaded OpenMANET 1.8.0 SPI image has a confirmed GPIO mapping mismatch with the Heltec HAT. The firmware review includes exact image/overlay hashes and a review-only adaptation tool. It is not a tested build image. See [firmware review](firmware-review.md) and [power selection review](power-review.md).
+
 ## Most useful next engineering work
 
 Select a power system compatible with the Heltec GPIO allocation, verify exact AliExpress candidates, and freeze a single bench recipe. Then produce the matching carrier and harness drawings. The case must follow the selected hardware, rather than forcing unknown boards into a finished print.

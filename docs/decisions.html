@@ -104,4 +104,6 @@
 <p>User prioritises practical range for voice/data and low cost, with interchangeable mobile and camp kits. GT-800 compact whip and Heltec 900-930 MHz 5.5 dBi mast omni are evaluation candidates; exact AliExpress listings, installed match and compliant per-antenna power profiles remain open.</p>
 <h2>Product-readiness audit</h2>
 <p>Consolidated the current baseline and non-developer build stages, changed BOM to one-node quantities with stable part IDs, and separated optional parts/tools. Found the X1209/Heltec GPIO conflict; it remains excluded. Offline HTML handbook is generated from source files. These documentation changes do not establish purchasing, CAD or hardware readiness; see release-readiness.md.</p>
+<h2>Firmware image inspected</h2>
+<p>OpenMANET 1.8.0 Pi4 MM6108 SPI asset SHA256 matched the release digest. The extracted compiled overlay has reset17 interrupt5 wake23 busy24 versus Heltec reset5 interrupt25 wake3 busy7. The boot file also enables conflicting I2C1. Prepared hash-bound adaptation tooling for review; no flashing or hardware compatibility claim. Power candidate review retained all unresolved gates.</p>
 </main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

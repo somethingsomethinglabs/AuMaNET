@@ -1,0 +1,23 @@
+{
+  "status": "inspected-not-hardware-validated",
+  "asset_sha256": "461aea8cc2805f64e83e68d1f45acdedad7bef5560861926a5de79a3489d8316",
+  "overlay_sha256": "687eeccccd02619fdeaba0ceefdfae128b2435f595200a5742cbbd5f329b6b31",
+  "compiled_bcm": {
+    "reset": 17,
+    "interrupt": 5,
+    "power_gpio_pair": [
+      23,
+      24
+    ]
+  },
+  "boot_contains_i2c1_enable": true,
+  "warning": "No boot configuration, BCF, board or Australian RF profile validated",
+  "review_date": "2026-11-05",
+  "adaptation_sha256": "ce63bc7abfa9fd8763dfa5f75cfff8032198f21a782b77a4eb8c8a88017be438",
+  "guards_checked": [
+    "modified input rejected before output",
+    "existing output preserved",
+    "source overwrite rejected",
+    "only eight intended bytes changed"
+  ]
+}

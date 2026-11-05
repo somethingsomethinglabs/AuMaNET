@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Power selection review · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Power selection review</h1>
+<p>Purpose: find a simple off-the-shelf power assembly for six 18650 cells, USB-C charging, regulated Pi 4 power, clean shutdown and the selected Heltec HAT. Purchasing remains AliExpress-only; exact listings, received revisions and cost are not verified.</p>
+<h2>Current outcome</h2>
+<p><strong>No complete power kit is selected yet.</strong> This review narrows the choices rather than calling an incomplete module a solution. Six cells are required; the 3S2P arrangement is an engineering proposal, not a user requirement that forbids evaluating a better documented six-cell topology. Any topology change must update the charger, protection, harness and diagrams together.</p>
+<h2>Evidence-based comparison</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Candidate</th>
+<th>What is documented</th>
+<th>Why it is not the first-build choice yet</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Geekworm X1209</td>
+<td>Pi 4 support, external parallel-cell battery input, regulated output, charging and control functions</td>
+<td>Its GPIO2/3/6/16 uses conflict with the Heltec HAT. It cannot accept a 3S2P pack. A power-only header connection does not automatically preserve shutdown/monitor functions.</td>
+</tr>
+<tr>
+<td>Geekworm X728</td>
+<td>Pi UPS functions and a two-cell arrangement, with revision-specific software</td>
+<td>Header functions also overlap Heltec&#39;s allocation; discontinued expansion hardware does not establish a current six-cell kit.</td>
+</tr>
+<tr>
+<td>Waveshare UPS Module 3S</td>
+<td>Three-cell holder, charge/output operation and regulated 5 V</td>
+<td>Does not establish a supported six-cell external pack or the required USB-C PD interface. Do not extend its holders arbitrarily.</td>
+</tr>
+<tr>
+<td>Mini-box OpenUPS</td>
+<td>External battery management, programmable supply, USB reporting and power-path control</td>
+<td>More configurable rather than inherently beginner-ready. Defaults are not for this Pi/Li-ion setup, its manual cautions about parallel packs, and no AliExpress offer/price is verified. Treat as a technical benchmark, not a purchase recommendation.</td>
+</tr>
+<tr>
+<td>IP2368-family bidirectional modules</td>
+<td>The IC family integrates multi-cell charging and fast-charge functions</td>
+<td>An IC datasheet does not establish the seller board&#39;s topology/configuration, exposed system rail, charger limits or uninterrupted operation. No exact board/schematic verified.</td>
+</tr>
+<tr>
+<td>TI USB-PD-CHG-EVM-01</td>
+<td>Multi-cell PD charging reference implementation</td>
+<td>Development/reference hardware, not a selected low-cost ready-to-fit kit.</td>
+</tr>
+</tbody></table></div>
+<p>For X1209, see the <a href="https://wiki.geekworm.com/X1209_Hardware">manufacturer hardware pin table</a> and compare <a href="https://resource.heltec.cn/download/HT-HC01PHAT_V1_0/HT-HC01PHAT_V1_0.PDF">Heltec&#39;s schematic</a>. For X728, use its <a href="https://wiki.geekworm.com/X728-hardware">revision-specific hardware guide</a>. The <a href="https://resources.mini-box.com/online/PWR-OpenUPS/PWR-OpenUPS-hardware-manual.pdf">OpenUPS manual</a> requires explicit battery/output configuration and cautions about parallel arrangements; it is not a drop-in approval for our pack.</p>
+<h2>What a candidate must supply</h2>
+<p>One board can combine several functions, but the complete assembly needs all of them:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Evidence needed from the actual assembled product</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cell management</td>
+<td>Supported chemistry/topology and pack voltage; balancing for a series pack; temperature limits/protection</td>
+</tr>
+<tr>
+<td>Charging</td>
+<td>Correct CC/CV limits, input negotiation/current limit and documented termination behaviour</td>
+</tr>
+<tr>
+<td>Charge-and-run</td>
+<td>A managed load/system path, not a claim based on a connector or bidirectional IC alone</td>
+</tr>
+<tr>
+<td>Pi supply</td>
+<td>Regulated voltage at the Pi under peak radio/accessory load and low battery; documented connector ratings</td>
+</tr>
+<tr>
+<td>Control</td>
+<td>Start while Pi is off, orderly shutdown request, delayed load disconnect and recoverable restart</td>
+</tr>
+<tr>
+<td>Monitoring</td>
+<td>Actual measured battery status without occupying the HAT&#39;s reserved GPIO functions</td>
+</tr>
+<tr>
+<td>Integration</td>
+<td>Dimensioned board, connector polarity/pinout, documented firmware dependencies and recovery</td>
+</tr>
+<tr>
+<td>Procurement</td>
+<td>Exact AliExpress model/revision and included parts; no silent substitution</td>
+</tr>
+</tbody></table></div>
+<h2>Shortest route to a usable prototype</h2>
+<ol>
+<li>Verify one Pi/HAT/GNSS bench node with the supported regulated supply and corrected firmware profile. Do not use an unselected lithium module to debug the radio.</li>
+<li>Obtain an exact documented charger/UPS candidate and complete its product-level review. A seller&#39;s headline power rating or BMS label is insufficient.</li>
+<li>Validate the candidate with a suitable test load before attaching the Pi; then run the full power/GNSS/radio tests.</li>
+<li>Freeze the power harness and mechanical envelope, then release the battery base and top charging arrangement together.</li>
+</ol>
+<p>This sequence preserves the final portable product while avoiding simultaneous debugging of unverified radio firmware, battery circuitry and an untested closed case. It is not a reduction of the six-cell, modular product goal.</p>
+</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
