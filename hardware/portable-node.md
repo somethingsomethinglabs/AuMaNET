@@ -155,3 +155,7 @@ Use sealed light pipes/windows for **battery status**, **node power/boot** and *
 Reserve a **blanked headset/PTT panel position** on the upper side, with an internal service route to a USB audio/PTT module such as OpenVLM. A real external headset socket is conditional on choosing the headset, microphone bias/audio levels, connector pinout, electrical interface and sealing cable. No generic military headset compatibility is claimed. The accessory USB-C remains available for an external digital audio/PTT adapter during the pilot. Use a sealed blanking plug until the voice interface is selected; it is not a released wiring connection.
 
 Reference: [OpenMANET comms](https://openmanet.github.io/docs/comms) and [OpenVLM](https://github.com/OpenMANET/OpenVLM). These additions require button-controller, monitor, audio/PTT and completed ingress testing before deployment.
+
+## Sourcing constraint
+
+Purchase components through **AliExpress only**, per user direction. Element14 and other distributors are outside the purchasing plan. Existing manufacturer links provide specifications; they do not establish an available or genuine AliExpress equivalent. Pololu, GlobalSat, charger, sealed connector and controller candidates must have exact matching AliExpress listings verified before selection. Do not replace them silently with similarly named boards. The user-supplied HC01P V2 bundle is the only listing identified so far; current stock, price and supplied revision still require confirmation. No order is authorised by this documentation update.

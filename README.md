@@ -33,3 +33,7 @@ This is an experimental group communications layer. Keep UHF, trip plans and an 
 Edit the static HTML directly; no packages or cloud service are required. Open `docs/index.html` in a browser. Proposed application code, integrations, printable enclosures and radio settings must pass the documented gates before deployment.
 
 Original project material is currently all rights reserved; no blanket open-source licence has been selected. Referenced community material retains its upstream licence. Never commit credentials, real trip tracks or personal location logs.
+
+## Purchasing source
+
+User preference: **AliExpress only** for purchased parts. Manufacturer and community links are technical references, not alternate purchasing recommendations. Verify exact models, revisions, electrical ratings and listing contents; unresolved listings stay marked for sourcing.

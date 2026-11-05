@@ -44,3 +44,7 @@ Latest user direction supersedes earlier port schedules: retain USB-C PD chargin
 ## Revision 5: field controls approved
 
 Add recessed upper-side sealed power/shutdown button and top/front battery power and link indicators. Reserve blanked headset/PTT position; headset pinout and audio interface still need selection. Power controller must support starting from off and graceful shutdown. User allows flexible button placement.
+
+## Sourcing preference
+
+User specifies AliExpress only for purchasing; Element14 excluded. Keep manufacturer specifications and community sources for technical verification. Exact matching listings remain procurement gates; no substitutions or verified availability are implied.

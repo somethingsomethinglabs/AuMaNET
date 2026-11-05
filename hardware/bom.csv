@@ -1,23 +1,23 @@
-item,quantity,purpose,selection_status,procurement_gate
-Matching HaLow node platform,3,Vehicle lead + vehicle tail + camp relay,Unselected,Choose supported hardware revision and AU compliance evidence
-Raspberry Pi 4B,3,Compute for selected modular baseline,Selected platform,Verify exact board and firmware image
-Heltec HC01P V2 + HAT 902-928 MHz candidate,3,Sub-GHz IP link,Identified candidate not selected,AU$34.16 captured bundle price before tax; verify carrier firmware V2 calibration and AU compliance
-HaLow antenna and feed assembly,3,External radio antenna,Unselected,Correct connector band gain and legal EIRP
-Ordinary Wi-Fi phone interface,3,Local phone connectivity,Conditional,Verify built-in interface or supported adapter
-Storage if platform requires it,3,Firmware and logs,Conditional,Size and endurance per supported build
-Fused vehicle DC regulator assembly,2,Vehicle power,Unselected,Input transients output rating and fuse review
-Professionally assembled protected balanced 3S2P 18650 pack,1 per portable node,Portable power 6 cells,Selected architecture supplier TBD,Matched genuine 3.4Ah cells nominal 73.4Wh; BMS temperature protection fuse and keyed connector
-Pololu D24V50F5 regulator,1 per portable node,Regulated 5V supply,Candidate,Validate voltage tolerance cable drop and thermal derating at load
-USB-C PD 3S charger with load sharing,1 per portable node,USB-C charging,Board TBD,Pack matched CC-CV temperature supervision and input backfeed protection
-Sealed USB-C panel system,2 per portable node,PD charging and accessory host,SKUs TBD,Each port correctly rated with gasket cap and sealed mating cable
-USB-C downstream host interface,1 per portable node,USB accessory and digital headset,Module TBD,Correct CC source signalling protection and both-orientation data tests
-Solder-free GPIO power interposer,1 per portable node,Regulated 5V Pi feed,Part TBD,Contact current ratings keyed harness and Heltec header fit
-3S battery monitor and shutdown interface,1 per portable node,Battery warning and graceful shutdown,Part TBD,3.3V host logic and OpenWrt integration
-ties1887-style centre base and top adaptation,3,Protection and strain relief,Proposed packaging,240mm H x120mm W x95mm D reserve; six-cell lower tray and sealed top insert
-GlobalSat BU-353N 10Hz USB GPS puck,1 per portable node,Radio position,Procurement candidate,Verify exact suffix USB bridge driver gpsd and external mounting
-Spare power cable and recovery storage,1 set,Field repair,Unselected,Match chosen platform
-Existing compatible smartphones,2+,User interface,User supplied,Verify OS app background and Wi-Fi behaviour
-Sealed eight-contact Cat5e or Cat6 RJ45 coupler system,1 per node,Top LAN interface,SKU TBD,Matched cap sealing cable gasket and short Pi patch lead; verify Gigabit
-Sealed momentary power button and managed power controller,1 per node,Start and graceful shutdown,Part TBD,Recessed upper side; controller supports off-state start and shutdown handshake
-Sealed battery power and link indicator windows,1 set per node,Field status,Parts TBD,Monitor calibration firmware states and no colour-only signalling
-Blanked sealed headset PTT provision,1 per node,Future voice interface,Connector deferred,Choose headset pinout audio and PTT module before fitting live socket
+item,quantity,purpose,selection_status,procurement_gate,purchase_source,listing_status
+Matching HaLow node platform,3,Vehicle lead + vehicle tail + camp relay,Unselected,Choose supported hardware revision and AU compliance evidence,AliExpress only,Exact listing to verify
+Raspberry Pi 4B,3,Compute for selected modular baseline,Selected platform,Verify exact board and firmware image,AliExpress only,Exact listing to verify
+Heltec HC01P V2 + HAT 902-928 MHz candidate,3,Sub-GHz IP link,Identified candidate not selected,AU$34.16 captured bundle price before tax; verify carrier firmware V2 calibration and AU compliance,AliExpress only,User-supplied listing identified; verify current offer
+HaLow antenna and feed assembly,3,External radio antenna,Unselected,Correct connector band gain and legal EIRP,AliExpress only,Exact listing to verify
+Ordinary Wi-Fi phone interface,3,Local phone connectivity,Conditional,Verify built-in interface or supported adapter,AliExpress only,Exact listing to verify
+Storage if platform requires it,3,Firmware and logs,Conditional,Size and endurance per supported build,AliExpress only,Exact listing to verify
+Fused vehicle DC regulator assembly,2,Vehicle power,Unselected,Input transients output rating and fuse review,AliExpress only,Exact listing to verify
+Professionally assembled protected balanced 3S2P 18650 pack,1 per portable node,Portable power 6 cells,Selected architecture supplier TBD,Matched genuine 3.4Ah cells nominal 73.4Wh; BMS temperature protection fuse and keyed connector,AliExpress only,Exact listing to verify
+Pololu D24V50F5 regulator,1 per portable node,Regulated 5V supply,Candidate,Validate voltage tolerance cable drop and thermal derating at load,AliExpress only,Exact listing to verify
+USB-C PD 3S charger with load sharing,1 per portable node,USB-C charging,Board TBD,Pack matched CC-CV temperature supervision and input backfeed protection,AliExpress only,Exact listing to verify
+Sealed USB-C panel system,2 per portable node,PD charging and accessory host,SKUs TBD,Each port correctly rated with gasket cap and sealed mating cable,AliExpress only,Exact listing to verify
+USB-C downstream host interface,1 per portable node,USB accessory and digital headset,Module TBD,Correct CC source signalling protection and both-orientation data tests,AliExpress only,Exact listing to verify
+Solder-free GPIO power interposer,1 per portable node,Regulated 5V Pi feed,Part TBD,Contact current ratings keyed harness and Heltec header fit,AliExpress only,Exact listing to verify
+3S battery monitor and shutdown interface,1 per portable node,Battery warning and graceful shutdown,Part TBD,3.3V host logic and OpenWrt integration,AliExpress only,Exact listing to verify
+ties1887-style centre base and top adaptation,3,Protection and strain relief,Proposed packaging,240mm H x120mm W x95mm D reserve; six-cell lower tray and sealed top insert,AliExpress only,Exact listing to verify
+GlobalSat BU-353N 10Hz USB GPS puck,1 per portable node,Radio position,Procurement candidate,Verify exact suffix USB bridge driver gpsd and external mounting,AliExpress only,Exact listing to verify
+Spare power cable and recovery storage,1 set,Field repair,Unselected,Match chosen platform,AliExpress only,Exact listing to verify
+Existing compatible smartphones,2+,User interface,User supplied,Verify OS app background and Wi-Fi behaviour,AliExpress only,Exact listing to verify
+Sealed eight-contact Cat5e or Cat6 RJ45 coupler system,1 per node,Top LAN interface,SKU TBD,Matched cap sealing cable gasket and short Pi patch lead; verify Gigabit,AliExpress only,Exact listing to verify
+Sealed momentary power button and managed power controller,1 per node,Start and graceful shutdown,Part TBD,Recessed upper side; controller supports off-state start and shutdown handshake,AliExpress only,Exact listing to verify
+Sealed battery power and link indicator windows,1 set per node,Field status,Parts TBD,Monitor calibration firmware states and no colour-only signalling,AliExpress only,Exact listing to verify
+Blanked sealed headset PTT provision,1 per node,Future voice interface,Connector deferred,Choose headset pinout audio and PTT module before fitting live socket,AliExpress only,Exact listing to verify
