@@ -8,6 +8,7 @@ const pages = [
   ['docs/start-here.md', 'docs/start-here.html'],
   ['docs/maintaining-docs.md', 'docs/maintaining-docs.html'],
   ['docs/current-design.md', 'docs/current-design.html'],
+  ['docs/operating-hardware.md', 'docs/operating-hardware.html'],
   ['docs/firmware-review.md', 'docs/firmware-review.html'],
   ['docs/power-review.md', 'docs/power-review.html'],
   ['docs/upgrades.md', 'docs/upgrades.html'],

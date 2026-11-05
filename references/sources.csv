@@ -38,3 +38,7 @@ S36,OpenMANET 1.8.0 release image,https://github.com/OpenMANET/firmware/releases
 S37,OpenMANET SPI overlay at reviewed tag,https://github.com/OpenMANET/firmware/blob/1.8.0/target/linux/bcm27xx/patches-6.6/991-0003-dt-overlays-morse-add-spi-overlay-fragment.patch,Reviewed 2026-11-05,Source confirms GPIO defaults seen in compiled artifact
 S38,OpenUPS hardware manual,https://resources.mini-box.com/online/PWR-OpenUPS/PWR-OpenUPS-hardware-manual.pdf,Reviewed 2026-11-05,Configurable benchmark only; not selected purchase
 S39,User supplied USB-C 3S charger screenshot,https://a.aliexpress.com/_mtLERAf,User capture reviewed 2026-11-05; site not opened,Selected 3S; advertised 15W 12.6V 1.5A; protection and system power path unverified
+S40,Haven public hardware project,https://github.com/buildwithparallel/haven-manet-ip-mesh-radio,Reviewed 2026-11-05,Pi4 SPI versus Pi5 USB and enclosure references
+S41,OpenMANET rdt enclosure,https://github.com/OpenMANET/enclosures/blob/main/rdt_manet_enclosure/README.md,Reviewed 2026-11-05,CM4 panel cable and mounting comparison
+S42,Data Slayer military router video,https://www.youtube.com/watch?v=ofR7GFNZzJY,Located 2026-11-05; transcript unavailable,Hardware findings drawn from project documentation rather than video frames
+S43,Pi4 manufacturer datasheet,https://datasheets.raspberrypi.com/rpi4/raspberry-pi-4-datasheet.pdf,Reviewed 2026-11-05,5V 3A supply recommendation; total node load to measure

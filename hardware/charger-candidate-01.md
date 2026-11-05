@@ -1,5 +1,7 @@
 # USB-C 3S charger and custom six-cell battery
 
+> **Active power decision — 5 November 2026:** battery pack, cell count, chemistry, charger, BMS and converter are **TBD**. Treat the battery assembly as a regulated **5 V output, 3 A continuous minimum (15 W)** module; 5 A / 25 W is a preferred headroom option, not a requirement already met. This is a nominal regulated voltage, not permission to exceed Pi voltage limits. Measure at the Pi under load. Earlier battery architectures below are archived options, not the active build. USB-C charging remains a reserved interface; its protocol and charge-and-run behaviour await the battery choice.
+
 User-selected prototype candidate, 5 November 2026: [supplied AliExpress link](https://a.aliexpress.com/_mtLERAf) and screenshot, selected **3S** option. Advertised 15 W, 12.6 V and 1.5 A are unverified listing claims. The site was not opened; exact IC and board revision are unidentified.
 
 Use this as the **charging board**, alongside the F23J5V5A1S-C enclosed converter supplying 5 V through the Pi's internal USB-C inlet. It does not replace that converter.

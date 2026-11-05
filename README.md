@@ -47,3 +47,5 @@ Original project material remains all rights reserved pending licence selection.
 ## Documentation maintenance
 
 The committed HTML is ready to read. Maintainers can rebuild the detailed pages from Markdown/CSV with `npm ci --ignore-scripts`, `npm run docs:build` and `npm run docs:check`. See the maintainer guide for scope and verification limits. No runtime AI is required by the radio design.
+
+Next stage: [operating hardware and community comparison](docs/operating-hardware.html). Battery design is deferred behind regulated 5 V / 3 A minimum output.

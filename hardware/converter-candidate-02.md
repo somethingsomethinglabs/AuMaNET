@@ -1,6 +1,8 @@
 # Preferred converter: F23J5V5A1S-C with captive USB-C output
 
-> **Latest baseline (5 November 2026):** custom six-cell 3S2P pack plus separate balancing/protection BMS and USB-C 3S charger candidate. Retain enclosed 5 V Pi converter; barrel adapter optional. Charge with load off; USB PD and managed charge-and-run are not established. See [charging-board assessment](charger-candidate-01.md).
+> **Active power decision — 5 November 2026:** battery pack, cell count, chemistry, charger, BMS and converter are **TBD**. Treat the battery assembly as a regulated **5 V output, 3 A continuous minimum (15 W)** module; 5 A / 25 W is a preferred headroom option, not a requirement already met. This is a nominal regulated voltage, not permission to exceed Pi voltage limits. Measure at the Pi under load. Earlier battery architectures below are archived options, not the active build. USB-C charging remains a reserved interface; its protocol and charge-and-run behaviour await the battery choice.
+
+
 
 User-supplied listing text, screenshot and [AliExpress short link](https://a.aliexpress.com/_mMJ8LTv), reviewed 5 November 2026. The site was not opened. This replaces the open blue converter as the **preferred prototype sourcing candidate**, subject to ordinary input/output/load checks.
 

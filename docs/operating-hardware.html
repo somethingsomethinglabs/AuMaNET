@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Operating hardware: next build stage · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Operating hardware: next build stage</h1>
+<p>Reviewed 5 November 2026. One-node BOM: <a href="parts.html">parts register</a>, with <a href="../hardware/bom.csv">CSV download</a>. Purchasing remains AliExpress-only. Manufacturer/community links below are engineering references, not verified matching shopping listings. No unverified device is labelled compatible solely because its chip family matches.</p>
+<h2>Power boundary: battery deliberately deferred</h2>
+<p>Battery cell format, count, capacity, charging and regulation are TBD. Supply regulated 5 V at <strong>3 A continuous minimum / 15 W</strong>, with <strong>5 A / 25 W</strong> an optional headroom target. Do not apply raw battery voltage or negotiate a higher voltage into Pi power. A larger supply rating does not force more current into the Pi, nor raise the Pi&#39;s USB peripheral limit. The <a href="https://datasheets.raspberrypi.com/rpi4/raspberry-pi-4-datasheet.pdf">Pi4 manufacturer datasheet</a> calls for a good-quality 5 V / 3 A supply; this is not proof that our fully populated node fits 15 W. Measure boot, transmitting radio, GNSS and accessory peaks together before freezing that budget. Runtime and final battery-base dimensions remain TBD.</p>
+<h2>Reference builds and what to take from them</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Published hardware / interfaces</th>
+<th>AuMaNET decision</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://github.com/buildwithparallel/haven-manet-ip-mesh-radio">Haven public project</a></td>
+<td>Haven 1 lists Pi4/CM4, an SPI HaLow HAT and RT5370 USB Wi-Fi. Haven 2 uses Pi5 and USB MM8108. Its case reference adds portable/vehicle mounting.</td>
+<td>Keep Pi4 and the selected Heltec stack. Evaluate onboard Wi-Fi first; reserve USB Wi-Fi as fallback. Do not copy a Pi5 image.</td>
+</tr>
+<tr>
+<td><a href="https://openmanet.github.io/docs/hardware">OpenMANET hardware</a></td>
+<td>Lists Pi4 onboard Wi-Fi AP support on SPI builds; USB GNSS and extra Wi-Fi are documented options.</td>
+<td>No extra Wi-Fi adapter required by default. Keep UART GNSS candidate and verify support on our actual image. Generic support does not validate the exact Heltec HAT.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/OpenMANET/enclosures/blob/main/rdt_manet_enclosure/README.md">OpenMANET rdt enclosure</a></td>
+<td>CM4 carrier, separate Wi-Fi6E card, USB HaLow, multiple RF ports, rugged Ethernet and panel USB/power.</td>
+<td>Borrow cable-clearance, bulkhead and heat-path ideas. Keep our sealed RJ45 and one HaLow port; its extra antennas and carrier are not needed for Pi4. Its listed 868 MHz antenna is not our selected RF kit.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/ties1887/Mesh-radio-Halow-LoRa">ties1887 modular enclosure</a></td>
+<td>P4-Wio uses Pi4, WM1302 HAT and Wio-WM6108; publishes mechanical source and print files.</td>
+<td>Retain preferred bottom/core/top styling. Adapt mounting for Heltec rather than assuming the Wio carrier fits. Battery-base internals remain TBD.</td>
+</tr>
+</tbody></table></div>
+<p>The likely Data Slayer reference is <a href="https://www.youtube.com/watch?v=ofR7GFNZzJY">I Built a $20,000 Military Router for $106.23</a>, associated with Haven. The video page was located, but a usable transcript/frame inspection was not available during this review. Hardware findings above come from the public project documentation, not an asserted frame-by-frame video BOM. The headline price and military comparison are not a delivered cost or performance specification for AuMaNET. The Haven case is linked from its project; check the actual CAD release and licence before reuse. No new upstream CAD is copied here.</p>
+<h2>One-node operating BOM and connections</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Assembly</th>
+<th align="right">Quantity</th>
+<th>Current choice / wiring</th>
+<th>Remaining decision</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Compute</td>
+<td align="right">1</td>
+<td>Raspberry Pi4B</td>
+<td>Exact RAM/revision; keep selected platform</td>
+</tr>
+<tr>
+<td>HaLow carrier and radio</td>
+<td align="right">1 bundle</td>
+<td>HT-HC01PHAT + HC01P V2; SPI via carrier</td>
+<td>Received revision, overlay and calibration file; not standard PC PCIe</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td align="right">1</td>
+<td>High-endurance microSD; 32 GB design allowance</td>
+<td>Exact card and image requirements</td>
+</tr>
+<tr>
+<td>Cooling</td>
+<td align="right">1 set</td>
+<td>Low-profile heat spreader/pads with external heat path</td>
+<td>Measure HAT clearance; enclosed thermal soak</td>
+</tr>
+<tr>
+<td>Mobile RF</td>
+<td align="right">1</td>
+<td>GT-800 915 MHz candidate; short matched pigtail to SMA bulkhead</td>
+<td>Actual microcoax plug, SMA gender, band match and installed performance</td>
+</tr>
+<tr>
+<td>Camp RF</td>
+<td align="right">optional 1</td>
+<td>Existing fiberglass omni/mast/feed candidate</td>
+<td>Feed loss, support and operating profile; swap with mobile antenna</td>
+</tr>
+<tr>
+<td>GNSS receiver</td>
+<td align="right">1</td>
+<td>Assembled LC76G breakout; HAT P2 UART plus correct receiver supply</td>
+<td>Exact board, VCC/logic, UART configuration and image support</td>
+</tr>
+<tr>
+<td>GNSS antenna</td>
+<td align="right">1</td>
+<td>Receiver-matched antenna and coax through sealed gland</td>
+<td>Included antenna, connector and bias requirements</td>
+</tr>
+<tr>
+<td>Ethernet</td>
+<td align="right">1 set</td>
+<td>Sealed eight-contact RJ45 coupler plus short Cat5e/6 lead to Pi</td>
+<td>Exact coupler body, cap, seal and cable bends</td>
+</tr>
+<tr>
+<td>Accessory USB</td>
+<td align="right">1 set</td>
+<td>Pi USB-A host to compliant downstream USB-C panel assembly</td>
+<td>Correct host signalling; both orientations; driver support for chosen headset</td>
+</tr>
+<tr>
+<td>Regulated power feed</td>
+<td align="right">1</td>
+<td>Future 5 V battery output to Pi internal USB-C</td>
+<td>Short rated harness and loaded voltage; battery implementation deferred</td>
+</tr>
+<tr>
+<td>Charging interface</td>
+<td align="right">1 reserved</td>
+<td>Top USB-C CHARGE</td>
+<td>Connector/protocol must follow future battery choice</td>
+</tr>
+<tr>
+<td>Controls</td>
+<td align="right">1 button + status set</td>
+<td>Sealed power/shutdown button; power/link/battery indication</td>
+<td>Controller and GPIO allocation; battery indication source deferred</td>
+</tr>
+<tr>
+<td>Mechanical</td>
+<td align="right">1 set</td>
+<td>Core tray, spacers, screws, inserts, gasket, port caps, cable clamps, mounting/tether</td>
+<td>Measure and freeze exact quantities with CAD</td>
+</tr>
+<tr>
+<td>Phone</td>
+<td align="right">at least 1 per user/group</td>
+<td>Onboard Wi-Fi AP to chosen offline mapping/comms app</td>
+<td>ATAK/other app, voice routing and locked-screen tests</td>
+</tr>
+</tbody></table></div>
+<p>A GNSS <strong>antenna is not a receiver</strong>. The LC76G converts satellite signals into UART position data; the HAT&#39;s exposed UART carries that data to the Pi. No direct GNSS-antenna-to-UART connection is possible.</p>
+<p>Use the <a href="antennas.html">existing antenna detail</a> for the two interchangeable RF kits. No camera, screen, LoRa sidecar, extra MIMO antennas or dedicated audio socket is required for the initial voice/data node. Use phone audio first; trial a digital USB headset later through the accessory port. Retain the blanked headset/PTT position.</p>
+<h2>Freeze these decisions next, in order</h2>
+<ol>
+<li><strong>Core compatibility bench:</strong> one Pi4 + exact Heltec bundle + microSD on a known supply. Resolve the already documented GPIO overlay/calibration mismatch before calling the firmware recipe ready. Then verify a second node can exchange IP traffic.</li>
+<li><strong>GNSS and antenna harness:</strong> obtain receiver dimensions/pinout and actual radio socket identification; fix connector part numbers, cable lengths and power draw. Verify GNSS outdoors and compare node position with phone position.</li>
+<li><strong>Top-panel parts:</strong> select actual sealed RJ45, USB-C host assembly, charging provision, SMA bulkhead, GNSS gland, button and caps. Record panel thickness, nut access and connector backs. Keep current top layout as a concept, not a drilling template.</li>
+<li><strong>Dry-fit core and cooling:</strong> measure Pi/HAT height, heat spreader, UART plugs and cable bends. Add mounting hardware and strain relief to CAD. Battery volume stays a reserved removable zone until selected.</li>
+<li><strong>Two-node application trial, then three-node relay:</strong> exercise offline message/position/voice with phone sleep, loss/rejoin and radio traffic while logging voltage and temperature. Finalise accessory demand and required supply headroom from measurements.</li>
+<li><strong>Release mechanical files and exact shopping BOM:</strong> populate model/revision/listing, received dimensions, quantities and fit photos. Freeze printable carrier/top only after the real parts fit. Battery work resumes later against the stable 5 V requirement.</li>
+</ol>
+<p>The immediate purchase/identification gaps are <strong>GNSS receiver kit, RF pigtail, cooling, sealed panel assemblies, internal leads and mounting hardware</strong>. Complete BOM rows now exist for these; listing-level selection and physical qualification are still pending.</p>
+</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

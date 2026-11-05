@@ -1,5 +1,7 @@
 > **Alternative only:** the [enclosed USB-C converter](converter-candidate-02.md) now takes priority for the first build. The original assessment below is retained for comparison.
 
+> **Active power decision — 5 November 2026:** battery pack, cell count, chemistry, charger, BMS and converter are **TBD**. Treat the battery assembly as a regulated **5 V output, 3 A continuous minimum (15 W)** module; 5 A / 25 W is a preferred headroom option, not a requirement already met. This is a nominal regulated voltage, not permission to exceed Pi voltage limits. Measure at the Pi under load. Earlier battery architectures below are archived options, not the active build. USB-C charging remains a reserved interface; its protocol and charge-and-run behaviour await the battery choice.
+
 # Converter candidate 01: blue 12/24 V to 5 V module
 
 User-supplied screenshot and link, reviewed 5 November 2026. [AliExpress link supplied by user](https://a.aliexpress.com/_m0dMLnp). Assessment is from the supplied material; the site was not opened.

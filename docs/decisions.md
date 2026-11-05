@@ -88,3 +88,7 @@ User supplied F23J5V5A1S-C enclosed converter. Prefer battery barrel -> correct 
 ## 5 November 2026 â€” DIY cells and simple USB-C charging
 
 User selected six individual cells in 3S2P and the new USB-C 3S charger candidate, with a separate balancing/protection BMS still to source. Wrapped pack becomes an alternative. Retain enclosed Pi converter; barrel harness optional. Charge with load off until managed charge-and-run is established. See [assessment](../hardware/charger-candidate-01.md).
+
+## 5 November 2026 — defer battery design; freeze operating hardware
+
+User deferred pack topology, cells, charging and converter decisions. Battery interface is regulated 5 V / 3 A continuous minimum (15 W); 5 A / 25 W headroom optional. Historical power candidates are not an active shopping prescription. Continue core, GNSS, RF, cooling, interfaces and mechanical BOM research. See [operating hardware](operating-hardware.md).
