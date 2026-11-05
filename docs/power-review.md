@@ -42,3 +42,7 @@ One board can combine several functions, but the complete assembly needs all of 
 4. Freeze the power harness and mechanical envelope, then release the battery base and top charging arrangement together.
 
 This sequence preserves the final portable product while avoiding simultaneous debugging of unverified radio firmware, battery circuitry and an untested closed case. It is not a reduction of the six-cell, modular product goal.
+
+## User-supplied pack candidate
+
+A new screenshot identifies a blue wrapped 3S2P pack offered as “13.8Ah 2PCS”. Its general format matches the lower-base idea, but capacity per pack, cell identity, BMS, chemistry and dimensions are unverified. See [candidate 01 assessment](../hardware/battery-candidate-01.md). It does not supply the missing charger/regulated power path.

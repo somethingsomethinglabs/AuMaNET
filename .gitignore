@@ -7,5 +7,6 @@ field-tests/raw/
 *.key
 *.pem
 node_modules/
+.codex-remote-attachments/
 .DS_Store
 Thumbs.db

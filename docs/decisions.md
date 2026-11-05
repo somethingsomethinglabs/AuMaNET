@@ -68,3 +68,7 @@ Consolidated the current baseline and non-developer build stages, changed BOM to
 ## Firmware image inspected
 
 OpenMANET 1.8.0 Pi4 MM6108 SPI asset SHA256 matched the release digest. The extracted compiled overlay has reset17 interrupt5 wake23 busy24 versus Heltec reset5 interrupt25 wake3 busy7. The boot file also enables conflicting I2C1. Prepared hash-bound adaptation tooling for review; no flashing or hardware compatibility claim. Power candidate review retained all unresolved gates.
+
+## Battery candidate 01 received
+
+User supplied a screenshot of blue wrapped 12V 3S2P packs. Correct general form factor; per-pack 13.8Ah claim is ambiguous and requires cell identity/test evidence. Record as candidate only; no capacity uplift or purchase approval. See hardware/battery-candidate-01.md.
