@@ -40,3 +40,7 @@ User requires sealed Ethernet on the top. Add eight-contact Cat5e/6 RJ45 coupler
 ## Revision 4: simplified top panel
 
 Latest user direction supersedes earlier port schedules: retain USB-C PD charging through pack management, one USB-C accessory host, sealed Ethernet and HaLow antenna. Remove the external USB console and 12 V barrel input. Preserve GPS via its sealed cable gland. Charging still needs a 3S charger and validated load sharing; regulated 5 V header power remains preferred.
+
+## Revision 5: field controls approved
+
+Add recessed upper-side sealed power/shutdown button and top/front battery power and link indicators. Reserve blanked headset/PTT position; headset pinout and audio interface still need selection. Power controller must support starting from off and graceful shutdown. User allows flexible button placement.

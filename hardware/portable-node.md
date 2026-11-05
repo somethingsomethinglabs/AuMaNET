@@ -1,6 +1,6 @@
 # Portable Pi 4 radio: modular body and sealed top interfaces
 
-Plan revision 4, 2026-11-05. User-selected: Pi 4B, Heltec HAT/HC01P V2, six 18650 cells. Packaging proposal; no modified CAD or assembly has been validated.
+Plan revision 5, 2026-11-05. User-selected: Pi 4B, Heltec HAT/HC01P V2, six 18650 cells. Packaging proposal; no modified CAD or assembly has been validated.
 
 ![Three-zone enclosure and top interfaces](../docs/assets/portable-node.svg)
 
@@ -143,3 +143,15 @@ Validate cold boot, fix acquisition, disconnect/reconnect, fix loss, UTC and pos
 - [Pi USB limits and roles](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html)
 - [GlobalSat receiver](https://www.globalsat.com.tw/en/product-289513/USB-GPS-Receiver-BU-353N-10Hz.html)
 - [OpenMANET GNSS](https://openmanet.github.io/docs/gnss)
+
+## Revision 5: field controls and voice provision
+
+User approved a sealed power/shutdown button and visible battery/link indicators, plus provision for headset/PTT. Place the **recessed sealed power button on the upper side shoulder**, reachable while wearing gloves and protected from accidental pressure. Top placement remains an option if actual connector clearances allow it. This is one control with a power-management interface, not a direct GPIO connection to raw battery voltage.
+
+The button must request orderly shutdown while running, then a power controller disconnects the load after shutdown. Power-on must work when the Pi is off; a GPIO-only button cannot provide that by itself. Select the controller, shutdown handshake and timeout before wiring. A held-button forced-off action may be a recovery function only, with its data-loss implication documented. Keep the BMS cutoff as last-resort battery protection.
+
+Use sealed light pipes/windows for **battery status**, **node power/boot** and **mesh link** indicators on the top/front shoulder. Define distinct labelled patterns without relying only on colour. Battery indication needs the selected monitor and calibration; a lit link indicator means network connectivity, not message acknowledgement or a person's safety. Indicator definitions and drive electronics must be verified on the pinned firmware.
+
+Reserve a **blanked headset/PTT panel position** on the upper side, with an internal service route to a USB audio/PTT module such as OpenVLM. A real external headset socket is conditional on choosing the headset, microphone bias/audio levels, connector pinout, electrical interface and sealing cable. No generic military headset compatibility is claimed. The accessory USB-C remains available for an external digital audio/PTT adapter during the pilot. Use a sealed blanking plug until the voice interface is selected; it is not a released wiring connection.
+
+Reference: [OpenMANET comms](https://openmanet.github.io/docs/comms) and [OpenVLM](https://github.com/OpenMANET/OpenVLM). These additions require button-controller, monitor, audio/PTT and completed ingress testing before deployment.

@@ -18,3 +18,6 @@ GlobalSat BU-353N 10Hz USB GPS puck,1 per portable node,Radio position,Procureme
 Spare power cable and recovery storage,1 set,Field repair,Unselected,Match chosen platform
 Existing compatible smartphones,2+,User interface,User supplied,Verify OS app background and Wi-Fi behaviour
 Sealed eight-contact Cat5e or Cat6 RJ45 coupler system,1 per node,Top LAN interface,SKU TBD,Matched cap sealing cable gasket and short Pi patch lead; verify Gigabit
+Sealed momentary power button and managed power controller,1 per node,Start and graceful shutdown,Part TBD,Recessed upper side; controller supports off-state start and shutdown handshake
+Sealed battery power and link indicator windows,1 set per node,Field status,Parts TBD,Monitor calibration firmware states and no colour-only signalling
+Blanked sealed headset PTT provision,1 per node,Future voice interface,Connector deferred,Choose headset pinout audio and PTT module before fitting live socket
