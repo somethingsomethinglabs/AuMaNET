@@ -79,7 +79,7 @@ Procure a professionally assembled **3S2P pack**: three series groups of two par
 
 Specify balancing BMS, temperature sensing/charge inhibit, insulated terminals, fuse, retention, keyed connector and at least 5 A continuous pack discharge capability, coordinated by the pack builder. Charge current starts at no more than 2 A, subject to cell/pack approval. No loose-cell spring-holder adaptation or extra cells connected to the three-cell Waveshare UPS holder is approved.
 
-Use **Pololu D24V50F5** as the separate 5 V buck candidate, feeding the preferred header interposer or USB-C fallback. Its typical up-to-5 A output is thermally limited. Verify its fixed-output tolerance and harness voltage drop at the Pi during maximum load. It is a regulator, not a charger. Raw pack voltage never connects to USB, Pi power or 3.3 V radio pins.
+Current sourcing lead: the [user-supplied blue 12/24V-to-5V converter](converter-candidate-01.md), feeding the preferred header interposer or USB-C fallback. Pololu D24V50F5 remains a technical comparison only. The seller’s 5 A claim for the blue module is not a measured continuous rating. Verify its fixed-output tolerance and harness voltage drop at the Pi during maximum load. It is a regulator, not a charger. Raw pack voltage never connects to USB, Pi power or 3.3 V radio pins.
 
 ### Runtime estimate
 

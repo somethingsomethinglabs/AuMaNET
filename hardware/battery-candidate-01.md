@@ -17,7 +17,9 @@ User direction, 5 November 2026: use the supplied blue wrapped pack as the plann
 
 The image's 3S2P option and 12.6 V charging title match the proposed battery architecture. The pack is the battery module; its barrel lead is neither regulated Pi power nor a USB-C charging controller. Internal protection/balancing, operating current, physical dimensions and charger chemistry still affect the electrical/mechanical design, independently of the assumed capacity.
 
-## Next part: regulated 5 V converter
+## Regulated 5 V converter candidate received
+
+The user has now supplied [converter candidate 01](converter-candidate-01.md), a blue module advertised as 12/24V to 5V 5A. Use its assessment for the current sourcing lead. The requirements below still apply.
 
 Search AliExpress for **12V to 5V 5A DC DC buck converter** or **3S lithium 5V 5A step down converter**.
 

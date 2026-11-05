@@ -48,3 +48,7 @@ This sequence preserves the final portable product while avoiding simultaneous d
 User accepts the blue wrapped 3S2P six-cell pack format with barrel output. Continue using the project's 3,400 mAh-per-cell planning assumption: about 6.8 Ah and 73.4 Wh per pack. Ignore the seller's 13.8 Ah claim; capacity clarification is not a design blocker.
 
 The next part to find is an assembled **12V-to-5V 5A buck converter**, followed by a compatible **USB-C 3S charging/power-path module**. The barrel lead feeds the regulated power system, not the Pi directly. See the [pack and next-component connection plan](../hardware/battery-candidate-01.md).
+
+## Converter sourcing lead received
+
+User supplied a screenshot and link for a blue 12/24V-to-5V module advertised at 5A. It is now the PWR-03 prototype candidate, with screw-terminal output for the preferred Pi header harness. See [converter assessment](../hardware/converter-candidate-01.md). Input range, polarity, fixed/adjustable variant and continuous performance still need checking. Next component is the USB-C 3S charger with managed load/system path; this converter is not a charger.

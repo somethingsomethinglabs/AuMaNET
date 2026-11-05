@@ -63,6 +63,10 @@ These are interface requirements, not released connector pinouts. Connector part
 
 The downloaded OpenMANET 1.8.0 SPI image has a confirmed GPIO mapping mismatch with the Heltec HAT. The firmware review includes exact image/overlay hashes and a review-only adaptation tool. It is not a tested build image. See [firmware review](firmware-review.md) and [power selection review](power-review.md).
 
+## Converter candidate received
+
+The user supplied a blue 12/24V-to-5V module advertised at 5A; it is now the prototype PWR-03 sourcing lead. See [connection assessment](../hardware/converter-candidate-01.md). The USB-C 3S charger/power path remains the next component to find.
+
 ## Most useful next engineering work
 
 Select a power system compatible with the Heltec GPIO allocation, verify exact AliExpress candidates, and freeze a single bench recipe. Then produce the matching carrier and harness drawings. The case must follow the selected hardware, rather than forcing unknown boards into a finished print.

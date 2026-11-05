@@ -34,7 +34,7 @@ For six cells, retain **3S2P**: approximately 10.8 V nominal, 12.6 V full and 73
 
 1. Matched six-cell assembly with coordinated fuse, temperature sensing and 3S balancing/protection BMS.
 2. USB-C PD sink plus a **documented 3S CC/CV charger**, with temperature supervision and managed load sharing if operation while charging is required.
-3. Regulated 5 V buck, presently Pololu D24V50F5 technical candidate, followed by the rated Pi power harness/interposer.
+3. Regulated 5 V buck, presently the [user-supplied blue 12/24V-to-5V module](converter-candidate-01.md) as sourcing candidate, followed by the rated Pi power harness/interposer.
 4. Power controller for off-state start, graceful shutdown and load disconnect; pack monitor for useful battery indicators.
 
 A BMS is not a charger. A PD trigger is not a charger. A charger is not automatically a UPS or a graceful-shutdown controller. No generic AliExpress board is approved solely because its listing says all-in-one. DIY refers to assembling the system and serviceable wiring; the cells should be supplied as a properly constructed matched pack/subassembly, not soldered directly or arbitrarily paralleled in loose holders.

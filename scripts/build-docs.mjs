@@ -20,6 +20,7 @@ const pages = [
   ['hardware/heltec-hc01p-v2.md', 'docs/heltec-hc01p-v2.html'],
   ['hardware/antennas.md', 'docs/antennas.html'],
   ['hardware/battery-candidate-01.md', 'docs/battery-candidate-01.html'],
+  ['hardware/converter-candidate-01.md', 'docs/converter-candidate-01.html'],
   ['field-tests/build-record-template.md', 'docs/build-record.html']
 ];
 const mapped = new Map(pages.map(([source, output]) => [path.resolve(root, source), output]));

@@ -76,3 +76,7 @@ User supplied a screenshot of blue wrapped 12V 3S2P packs. Correct general form 
 ## Battery planning assumption accepted
 
 User confirms continuing with the screenshot pack format and assuming ordinary cell capacity instead of investigating seller mAh marketing. Use 3S2P six cells with barrel output and retain 3400mAh/cell as an explicit estimate. Next component is an assembled 5V buck, then compatible USB-C 3S charger/power path. Capacity clarification is no longer a gate; voltage polarity current protection and physical fit still determine matching parts.
+
+## Converter candidate received
+
+User supplied screenshot and short link for a blue 12/24V to 5V 5A converter. Record as PWR-03 sourcing lead; verify actual input minimum output variant polarity and loaded performance. Its USB-A is a power output rather than Pi data. Next missing component is USB-C 3S charging/power path.
