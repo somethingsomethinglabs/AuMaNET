@@ -52,3 +52,7 @@ The next part to find is an assembled **12V-to-5V 5A buck converter**, followed 
 ## Converter sourcing lead received
 
 User supplied a screenshot and link for a blue 12/24V-to-5V module advertised at 5A. It is now the PWR-03 prototype candidate, with screw-terminal output for the preferred Pi header harness. See [converter assessment](../hardware/converter-candidate-01.md). Input range, polarity, fixed/adjustable variant and continuous performance still need checking. Next component is the USB-C 3S charger with managed load/system path; this converter is not a charger.
+
+## Preferred converter update
+
+The user supplied an enclosed F23J5V5A1S-C module with USB-C output. Prefer this direct internal Pi power cable over the earlier custom header harness. Add a matching battery barrel adapter and fused input wiring. [Candidate 02 details](../hardware/converter-candidate-02.md). This resolves the intended converter connection architecture; input/output performance and the separate charging system still need verification.

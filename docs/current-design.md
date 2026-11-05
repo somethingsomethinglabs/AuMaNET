@@ -15,7 +15,7 @@ Updated 5 November 2026. This page describes the active design. Earlier entries 
 | Local phone connection | Pi onboard ordinary Wi-Fi | Verify AP behaviour with chosen radio image |
 | Position | LC76G assembled breakout, UART to HAT P2, matching antenna outside | Manufacturer schematic/wiring reviewed; voltage, baud and actual revision to test |
 | Portable energy | Blue wrapped 3S2P six-cell pack with barrel output | User accepts the format and standard capacity estimate; protection/harness details and charger still to select |
-| Main Pi power | Regulated 5 V via rated keyed header interposer | Fit, contacts and protective circuitry unresolved; internal USB-C fallback |
+| Main Pi power | F23J5V5A1S-C captive USB-C converter into Pi power inlet | Barrel input adapter, loaded voltage, range and received dimensions to verify |
 | Case | ties1887-inspired battery base, central core, top wiring cap | One screw-fastened serviceable unit; derivative carrier/print files not yet made |
 | Purchasing | AliExpress only | Exact matching listings required; manufacturer pages are technical references |
 
@@ -65,8 +65,12 @@ The downloaded OpenMANET 1.8.0 SPI image has a confirmed GPIO mapping mismatch w
 
 ## Converter candidate received
 
-The user supplied a blue 12/24V-to-5V module advertised at 5A; it is now the prototype PWR-03 sourcing lead. See [connection assessment](../hardware/converter-candidate-01.md). The USB-C 3S charger/power path remains the next component to find.
+The user supplied a blue 12/24V-to-5V module advertised at 5A; it is now an alternative PWR-03 sourcing lead. See [connection assessment](../hardware/converter-candidate-01.md). The USB-C 3S charger/power path remains the next component to find.
 
 ## Most useful next engineering work
 
 Select a power system compatible with the Heltec GPIO allocation, verify exact AliExpress candidates, and freeze a single bench recipe. Then produce the matching carrier and harness drawings. The case must follow the selected hardware, rather than forcing unknown boards into a finished print.
+
+## Simpler first-build Pi power
+
+The user supplied the enclosed F23J5V5A1S-C USB-C output converter. It is now preferred over the blue open board: battery barrel -> matching adapter/fused harness -> converter -> Pi internal USB-C inlet. This removes the GPIO power interposer from the first-build requirements. See [candidate 02](../hardware/converter-candidate-02.md). Top-panel ports are unchanged.

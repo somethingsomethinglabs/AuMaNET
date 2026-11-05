@@ -17,27 +17,9 @@ User direction, 5 November 2026: use the supplied blue wrapped pack as the plann
 
 The image's 3S2P option and 12.6 V charging title match the proposed battery architecture. The pack is the battery module; its barrel lead is neither regulated Pi power nor a USB-C charging controller. Internal protection/balancing, operating current, physical dimensions and charger chemistry still affect the electrical/mechanical design, independently of the assumed capacity.
 
-## Regulated 5 V converter candidate received
+## Preferred next connection: enclosed USB-C converter
 
-The user has now supplied [converter candidate 01](converter-candidate-01.md), a blue module advertised as 12/24V to 5V 5A. Use its assessment for the current sourcing lead. The requirements below still apply.
-
-Search AliExpress for **12V to 5V 5A DC DC buck converter** or **3S lithium 5V 5A step down converter**.
-
-Choose an assembled module with a documented input range covering the pack's full operating range, approximately 9-12.6 V, and a stable regulated 5 V output with adequate continuous/peak current and thermal margin. Look for a dimensioned board and useful screw terminals or a properly rated wired output. A 6-24 V input label is a candidate range; verify the actual module rather than relying on its title. Adjustable outputs must be set and measured before connecting equipment.
-
-Connection plan:
-
-```text
-3S2P pack barrel output
-  -> matching barrel-to-wire adapter
-  -> reviewed fuse / power disconnect
-  -> 5 V buck converter
-  -> rated keyed 5 V + ground harness
-  -> Pi header power interposer
-  -> Pi 4 and Heltec HAT
-```
-
-The internal Pi USB-C inlet is an optional harness fallback. The exterior accessory USB-C remains a data/accessory port. The regulator output must be checked at the Pi during boot, radio traffic and accessory load; do not send the raw battery voltage into the Pi.
+Use [converter candidate 02](converter-candidate-02.md), the F23J5V5A1S-C enclosed module with captive USB-C output, as the first-build power candidate. A matching barrel adapter joins the pack's output to the converter's red/black input wires, through a reviewed fused/disconnect harness. The converter's USB-C lead plugs into the Pi power inlet inside the case. No default GPIO power interposer is needed. Check the exact barrel dimensions/polarity and converter input range; the blue open-board candidate remains an alternative.
 
 ## Following part: USB-C charging / power path
 

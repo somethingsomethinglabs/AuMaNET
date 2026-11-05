@@ -51,7 +51,7 @@ Rear row: HaLow RF, sealed LAN and GPS gland. Front/operator row: USB-C charge a
 | **RF / HaLow** | Sealed bulkhead -> short correct-connector pigtail -> radio. |
 | **GPS** | Preferred: sealed antenna coax exit -> internal LC76G receiver -> HAT UART P2. Fallback: external USB receiver through an appropriate sealed cable exit. |
 
-Preferred non-invasive Pi power: regulated 5 V through a keyed GPIO power interposer/pass-through header, with USB-C power left unused. Header fit with the Heltec HAT must be verified; internal USB-C is the fallback. USB-C describes a connector, not a power/data role. Do not split one port across host/device/charging functions. Do not connect a PC host to ACCESSORY. A generic power-only bulkhead or passive adapter is not a verified downstream Type-C port: select a proper implementation and test C-to-C enumeration in both orientations.
+Preferred non-invasive Pi power: the [F23J5V5A1S-C enclosed converter](converter-candidate-02.md) feeds the Pi’s internal USB-C inlet directly. A barrel mating adapter joins the battery output to its input wires. A GPIO power interposer is an optional alternative, not required for the first build. USB-C describes a connector, not a power/data role. Do not split one port across host/device/charging functions. Do not connect a PC host to ACCESSORY. A generic power-only bulkhead or passive adapter is not a verified downstream Type-C port: select a proper implementation and test C-to-C enumeration in both orientations.
 
 Administration uses Wi-Fi or the sealed Ethernet port. No external USB service console is included.
 
@@ -79,7 +79,7 @@ Procure a professionally assembled **3S2P pack**: three series groups of two par
 
 Specify balancing BMS, temperature sensing/charge inhibit, insulated terminals, fuse, retention, keyed connector and at least 5 A continuous pack discharge capability, coordinated by the pack builder. Charge current starts at no more than 2 A, subject to cell/pack approval. No loose-cell spring-holder adaptation or extra cells connected to the three-cell Waveshare UPS holder is approved.
 
-Current sourcing lead: the [user-supplied blue 12/24V-to-5V converter](converter-candidate-01.md), feeding the preferred header interposer or USB-C fallback. Pololu D24V50F5 remains a technical comparison only. The seller’s 5 A claim for the blue module is not a measured continuous rating. Verify its fixed-output tolerance and harness voltage drop at the Pi during maximum load. It is a regulator, not a charger. Raw pack voltage never connects to USB, Pi power or 3.3 V radio pins.
+Current sourcing lead: the [enclosed converter with captive USB-C output](converter-candidate-02.md). Feed the Pi's internal USB-C power inlet from it. The open blue converter and Pololu part remain technical alternatives. Verify the input range down to the pack's usable lower voltage, loaded output at the Pi, and heat. The 5 A maximum is a seller rating. This is not the battery charger.
 
 ### Runtime estimate
 
@@ -95,9 +95,9 @@ These are calculations, not test results. Age, temperature, BMS cutoff and radio
 
 ## Non-invasive Pi power
 
-Preferred route: protected pack/system rail -> 5 V buck -> keyed power interposer -> Pi **physical header pins 2/4 (5 V)** and adequate **ground contacts**. These are power pins, not numbered GPIO signal pins. A correctly rated pass-through/interposer can preserve the HAT connection without soldering to the Pi. Contact current rating, current sharing, standoff height and Heltec signal integrity must be checked before selecting it; loose Dupont jumpers are not the finished harness.
+Preferred route: protected pack or managed system rail -> matching barrel adapter and fused input harness -> enclosed 5 V converter -> captive USB-C lead -> Pi power inlet. No soldering to the Pi and no GPIO interposer are required. This internal supply is separate from the top accessory/data connector.
 
-The Pi has no direct 12 V input. Maintain proper regulation, fusing, reverse-polarity/overvoltage protection and voltage at the board. Header feed reaches the 5 V rail directly, so the external supply must provide the protection appropriate to this route. Never apply battery/raw 12 V to 5 V, 3.3 V or GPIO signal pins. Do not connect another Pi power supply simultaneously without a designed power selector. Any powered hub must not back-power the Pi. Keep USB-C power as the fallback until mechanical/electrical header validation passes.
+Header power remains possible through physical pins 2/4 and grounds, but is not the first-build route. Do not use both supplies together. Raw battery voltage never connects directly to Pi, 3.3 V or signal pins.
 
 ## USB-C PD charging
 
@@ -162,4 +162,4 @@ Reference: [OpenMANET comms](https://openmanet.github.io/docs/comms) and [OpenVL
 
 ## Sourcing constraint
 
-Purchase components through **AliExpress only**, per user direction. Element14 and other distributors are outside the purchasing plan. Existing manufacturer links provide specifications; they do not establish an available or genuine AliExpress equivalent. Pololu, GlobalSat, charger, sealed connector and controller candidates must have exact matching AliExpress listings verified before selection. Do not replace them silently with similarly named boards. The user-supplied HC01P V2 bundle is the only listing identified so far; current stock, price and supplied revision still require confirmation. No order is authorised by this documentation update.
+Purchase components through **AliExpress only**, per user direction. Element14 and other distributors are outside the purchasing plan. Existing manufacturer links provide specifications; they do not establish an available or genuine AliExpress equivalent. Pololu, GlobalSat, charger, sealed connector and controller candidates must have exact matching AliExpress listings verified before selection. Do not replace them silently with similarly named boards. User captures now identify the HC01P V2 bundle, a battery format and converter candidates; current stock, price and supplied revision still require confirmation. No order is authorised by this documentation update.

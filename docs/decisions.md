@@ -80,3 +80,7 @@ User confirms continuing with the screenshot pack format and assuming ordinary c
 ## Converter candidate received
 
 User supplied screenshot and short link for a blue 12/24V to 5V 5A converter. Record as PWR-03 sourcing lead; verify actual input minimum output variant polarity and loaded performance. Its USB-A is a power output rather than Pi data. Next missing component is USB-C 3S charging/power path.
+
+## Captive USB-C converter preferred
+
+User supplied F23J5V5A1S-C enclosed converter. Prefer battery barrel -> correct adapter/fused harness -> converter -> Pi internal USB-C. No GPIO power interposer required for first build. Earlier header-first decisions are superseded; top CHARGE and ACCESSORY roles stay unchanged. Exact converter input range loaded output dimensions and charging system remain to verify.

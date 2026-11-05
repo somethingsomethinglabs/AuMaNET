@@ -1,10 +1,13 @@
 <!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Converter candidate 01: blue 12/24 V to 5 V module · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
 <body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Converter candidate 01: blue 12/24 V to 5 V module</h1>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><blockquote>
+<p><strong>Alternative only:</strong> the <a href="converter-candidate-02.html">enclosed USB-C converter</a> now takes priority for the first build. The original assessment below is retained for comparison.</p>
+</blockquote>
+<h1>Converter candidate 01: blue 12/24 V to 5 V module</h1>
 <p>User-supplied screenshot and link, reviewed 5 November 2026. <a href="https://a.aliexpress.com/_m0dMLnp">AliExpress link supplied by user</a>. Assessment is from the supplied material; the site was not opened.</p>
 <h2>Decision</h2>
-<p><strong>Suitable type of module to evaluate for PWR-03.</strong> It is a step-down DC converter between the 3S2P battery and the Pi&#39;s 5 V supply. Select it as the current prototype converter candidate, replacing the Pololu part as the first sourcing lead. Its actual continuous-current capability and loaded output voltage are not yet measured.</p>
+<p><strong>Suitable type of module to evaluate for PWR-03.</strong> It is a step-down DC converter between the 3S2P battery and the Pi&#39;s 5 V supply. Previously selected as the prototype converter candidate, replacing the Pololu part as the first sourcing lead. Its actual continuous-current capability and loaded output voltage are not yet measured.</p>
 <p>The screenshot advertises 12/24 V input, 5 V output and 5 A, with a captured price of AU$4.17 before applicable tax (another discount amount is also shown). The board visibly has a barrel jack, screw terminals and a USB-A socket. Connector presence does not establish pin polarity, jack dimensions, terminal assignments or current rating for each output. No circuit/chip model or dimensions can be reliably established from this screenshot.</p>
 <h2>Connection to our pack</h2>
 <pre><code class="language-text">3S2P battery pack
@@ -15,7 +18,7 @@
   -&gt; Pi 4 + Heltec HAT
 </code></pre>
 <p>If the pack&#39;s male barrel and this module&#39;s jack match in diameter and polarity, the jack may avoid a barrel-to-wire adapter. Otherwise use the correct mating lead into its input terminals. Do not infer input/output terminals solely from their position in the photograph. Use one reviewed input connection, not multiple competing supplies.</p>
-<p>For the preferred header-power route, use the verified regulated output terminals rather than adding a USB-A cable chain. Output harness contact ratings, polarity and load voltage still need checking. The module&#39;s USB-A socket does not replace the external USB-C accessory host: it is on a power converter, not a Pi USB data bus.</p>
+<p>For the optional header-power route, use the verified regulated output terminals rather than adding a USB-A cable chain. Output harness contact ratings, polarity and load voltage still need checking. The module&#39;s USB-A socket does not replace the external USB-C accessory host: it is on a power converter, not a Pi USB data bus.</p>
 <h2>Three checks before connection to the Pi</h2>
 <ol>
 <li><strong>Input range:</strong> confirm operation over the pack&#39;s actual usable voltage range, roughly 9-12.6 V for this design. A title mentioning 12/24 V does not prove the minimum input. Confirm input terminal/jack polarity and connector dimensions.</li>

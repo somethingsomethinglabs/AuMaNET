@@ -28,13 +28,13 @@ The external antenna's bias requirements and connector must match the receiver. 
 
 ## Power: what is and is not confirmed
 
-The Pi takes **regulated 5 V**, never direct 12 V. Preferred non-invasive route remains a properly rated keyed GPIO power interposer feeding physical 5 V pins 2/4 and adequate grounds, while passing the HAT signals through. Its contact ratings and fit still need selection. The internal USB-C power cable is a fallback, not an additional external port.
+The Pi takes **regulated 5 V**, never direct 12 V. Preferred non-invasive route now uses the [enclosed USB-C converter](converter-candidate-02.md) directly into the Pi's internal power inlet. Connect battery output to its input wires through a correctly matched barrel adapter and reviewed fused harness. This removes the custom GPIO power interposer from the first-build requirements; header power remains an alternative.
 
 For six cells, retain **3S2P**: approximately 10.8 V nominal, 12.6 V full and 73.4 Wh using 3.4 Ah cells. The DIY route uses separate replaceable modules:
 
 1. Matched six-cell assembly with coordinated fuse, temperature sensing and 3S balancing/protection BMS.
 2. USB-C PD sink plus a **documented 3S CC/CV charger**, with temperature supervision and managed load sharing if operation while charging is required.
-3. Regulated 5 V buck, presently the [user-supplied blue 12/24V-to-5V module](converter-candidate-01.md) as sourcing candidate, followed by the rated Pi power harness/interposer.
+3. Regulated 5 V buck, presently the [enclosed F23J5V5A1S-C](converter-candidate-02.md) candidate with captive USB-C output to the Pi.
 4. Power controller for off-state start, graceful shutdown and load disconnect; pack monitor for useful battery indicators.
 
 A BMS is not a charger. A PD trigger is not a charger. A charger is not automatically a UPS or a graceful-shutdown controller. No generic AliExpress board is approved solely because its listing says all-in-one. DIY refers to assembling the system and serviceable wiring; the cells should be supplied as a properly constructed matched pack/subassembly, not soldered directly or arbitrarily paralleled in loose holders.

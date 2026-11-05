@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Preferred converter: F23J5V5A1S-C with captive USB-C output · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Preferred converter: F23J5V5A1S-C with captive USB-C output</h1>
+<p>User-supplied listing text, screenshot and <a href="https://a.aliexpress.com/_mMJ8LTv">AliExpress short link</a>, reviewed 5 November 2026. The site was not opened. This replaces the open blue converter as the <strong>preferred prototype sourcing candidate</strong>, subject to ordinary input/output/load checks.</p>
+<h2>Why this is simpler</h2>
+<p>The pictured module is enclosed, has mounting ears, red/black input wires and a captive USB-C output lead. The label advertises 12/24 V input and 5 V / 5 A maximum output. The user-supplied title identifies F23J5V5A1S-C. Captured price: AU$8.39 before applicable tax, with a separate discount amount shown; no current delivered quote is established.</p>
+<p>Use the captive lead directly in the <strong>Pi 4&#39;s internal USB-C power inlet</strong>. This becomes the default Pi power route and removes the need for a custom GPIO power interposer in the first build. It does not add an external USB-C port. The top CHARGE port still feeds battery charging; the top ACCESSORY port still connects to a Pi USB host port.</p>
+<h2>Barrel adapter and wiring</h2>
+<pre><code class="language-text">3S2P battery&#39;s barrel output
+  -&gt; matching female barrel-to-wire or barrel-to-screw-terminal adapter
+  -&gt; reviewed fuse and power disconnect
+  -&gt; converter red input lead (+) and black input lead (−), verified before connection
+  -&gt; captive regulated 5 V USB-C lead
+  -&gt; Pi 4 USB-C power inlet
+</code></pre>
+<p>Search for <strong>DC5521 female 5.5 x 2.1 mm barrel jack to screw terminal adapter</strong> as a candidate if the pack output is a matching male plug. Confirm the actual pack&#39;s output connector size and polarity; do not assume 5.5 x 2.1 rather than 5.5 x 2.5 from the photograph. If its output is a female socket instead, select the matching male input lead. The selected adapter and wire joints must be rated for the actual input current, insulated, strain-relieved and accessible for service.</p>
+<p>Identify the pack&#39;s discharge lead before connecting; a second lead may be a charge port rather than an interchangeable output. The pack connectors and this adapter stay <strong>inside the enclosure</strong>. They do not reinstate the removed external barrel port.</p>
+<h2>Basic qualification</h2>
+<ul>
+<li>Confirm the module works down to the pack&#39;s usable lower voltage, roughly 9 V in the current design, as well as at 12.6 V full charge. A 12/24 V label alone does not establish the full input range.</li>
+<li>Measure the regulated voltage at the Pi during boot, radio traffic and accessory use. The seller&#39;s 5 A maximum is not a measured continuous rating. The Pi 4 needs an adequate regulated supply; it does not need a negotiated 5 A USB-C contract merely because this label says 5 A.</li>
+<li>Verify the captive connector&#39;s correct USB-C implementation and reliable boot, rather than inferring it from its shape. No laptop-style PD output capability is established by the screenshot.</li>
+<li>Record dimensions including mounting ears and connector/cable bend clearances. Enclosed construction does not establish the whole node&#39;s weather or thermal performance.</li>
+<li>Use this as the Pi&#39;s only power source; do not simultaneously inject another supply through the header.</li>
+</ul>
+<h2>Next component</h2>
+<p>This module converts battery voltage to Pi power. It <strong>does not charge the pack</strong>. Next find the documented <strong>USB-C input 3S / 12.6 V Li-ion charger with managed load/system output</strong>. For charge-and-run, that system output feeds this converter instead of an improvised parallel connection across the pack. The charging board, pack BMS and shutdown controller still need to be selected as a compatible system.</p>
+<p>The blue open-board converter remains an alternative for a later header-powered build; it is no longer the default. The user&#39;s personal screenshot is not committed.</p>
+</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
