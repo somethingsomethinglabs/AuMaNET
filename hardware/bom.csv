@@ -8,11 +8,9 @@ Storage if platform requires it,3,Firmware and logs,Conditional,Size and enduran
 Fused vehicle DC regulator assembly,2,Vehicle power,Unselected,Input transients output rating and fuse review
 Professionally assembled protected balanced 3S2P 18650 pack,1 per portable node,Portable power 6 cells,Selected architecture supplier TBD,Matched genuine 3.4Ah cells nominal 73.4Wh; BMS temperature protection fuse and keyed connector
 Pololu D24V50F5 regulator,1 per portable node,Regulated 5V supply,Candidate,Validate voltage tolerance cable drop and thermal derating at load
-Dual-input 3S buck-boost charger with PD sink and load sharing,1 per portable node,USB-C PD and nominal 12V barrel charging,Board TBD,Pack matched CC-CV temperature supervision source selection and no backfeed
-Sealed USB-C panel system,3 per portable node,Charge accessory and UART service,SKUs TBD,Each port correctly rated with gasket cap and sealed mating cable
-Sealed centre-positive 12V barrel input,1 per portable node,DC charge source,SKU TBD,Input fuse polarity transient protection and charger input isolation
+USB-C PD 3S charger with load sharing,1 per portable node,USB-C charging,Board TBD,Pack matched CC-CV temperature supervision and input backfeed protection
+Sealed USB-C panel system,2 per portable node,PD charging and accessory host,SKUs TBD,Each port correctly rated with gasket cap and sealed mating cable
 USB-C downstream host interface,1 per portable node,USB accessory and digital headset,Module TBD,Correct CC source signalling protection and both-orientation data tests
-USB-C to 3.3V UART service bridge,1 per portable node,Maintenance console,Candidate architecture,Verify HAT pin allocation and no VBUS backfeed
 Solder-free GPIO power interposer,1 per portable node,Regulated 5V Pi feed,Part TBD,Contact current ratings keyed harness and Heltec header fit
 3S battery monitor and shutdown interface,1 per portable node,Battery warning and graceful shutdown,Part TBD,3.3V host logic and OpenWrt integration
 ties1887-style centre base and top adaptation,3,Protection and strain relief,Proposed packaging,240mm H x120mm W x95mm D reserve; six-cell lower tray and sealed top insert

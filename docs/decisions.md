@@ -36,3 +36,7 @@ Preferred Pi feed: regulated 5 V through a solder-free power interposer at heade
 ## Revision 3: top Ethernet and panel layout
 
 User requires sealed Ethernet on the top. Add eight-contact Cat5e/6 RJ45 coupler to Pi built-in Ethernet, with matched cap/cable. Top-down illustration fixes proposed rear RF/LAN/GPS and front CHARGE/HOST/SERVICE/DC ordering. Final cap dimensions and routing depth depend on connector selection; no drilling dimensions released. No PoE subsystem selected.
+
+## Revision 4: simplified top panel
+
+Latest user direction supersedes earlier port schedules: retain USB-C PD charging through pack management, one USB-C accessory host, sealed Ethernet and HaLow antenna. Remove the external USB console and 12 V barrel input. Preserve GPS via its sealed cable gland. Charging still needs a 3S charger and validated load sharing; regulated 5 V header power remains preferred.

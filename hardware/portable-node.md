@@ -1,6 +1,6 @@
 # Portable Pi 4 radio: modular body and sealed top interfaces
 
-Plan revision 3, 2026-11-05. User-selected: Pi 4B, Heltec HAT/HC01P V2, six 18650 cells. Packaging proposal; no modified CAD or assembly has been validated.
+Plan revision 4, 2026-11-05. User-selected: Pi 4B, Heltec HAT/HC01P V2, six 18650 cells. Packaging proposal; no modified CAD or assembly has been validated.
 
 ![Three-zone enclosure and top interfaces](../docs/assets/portable-node.svg)
 
@@ -37,23 +37,21 @@ Use an external heat-spreader coupled to the Pi CPU and a thermal barrier at the
 
 ![Proposed top-down connector layout](../docs/assets/top-panel.svg)
 
-Rear row: HaLow RF, sealed LAN and GPS gland. Front/operator row: USB-C charge, USB-C accessory host, USB-C service console and sealed DC barrel. The external GPS puck mounts off-panel so it does not cover connectors. Dashed circles reserve cap/grip clearance; the perimeter reserves the gasket land. Layout is a proposal, not a scaled cut-out drawing. The 120 x 95 mm cap and 45 mm routing depth may need enlargement for actual sealing collars, RJ45 backshells, cap tethers, wrench access and cable bend radii. Check all seven interfaces with every cable fitted before freezing the cap.
+Rear row: HaLow RF, sealed LAN and GPS gland. Front/operator row: USB-C charge and USB-C accessory host. The external GPS puck mounts off-panel so it does not cover connectors. Dashed circles reserve cap/grip clearance; the perimeter reserves the gasket land. Layout is a proposal, not a scaled cut-out drawing. The 120 x 95 mm cap and 45 mm routing depth may need enlargement for actual sealing collars, RJ45 backshells, cap tethers, wrench access and cable bend radii. Check all retained interfaces with every cable fitted before freezing the cap.
 
 ## Top interface schedule
 
 | Panel label | Role and internal route |
 |---|---|
-| **DC IN / SEALED 12 V BARREL** | Dedicated centre-positive nominal 12 V input -> fuse/reverse-polarity/transient protection -> input selector -> buck-boost 3S charger. Exact connector size/current rating and source range remain to be selected. Never direct to cells. |
 | **CHARGE / USB-C PD IN** | Sealed Type-C input -> PD sink -> 3S CC/CV charger with temperature supervision -> BMS-approved pack connection. Managed power path needed for running while charging. |
 | **ACCESSORY / USB-C HOST** | Pi USB-A host -> compliant downstream Type-C interface with correct CC/current signalling and current protection -> sealed top USB-C. Initially USB 2.0 for digital headset, keyboard or other supported peripheral. |
-| **SERVICE / USB-C CONSOLE** | Sealed USB-C -> USB-to-3.3 V UART bridge -> verified Pi console pins/ground. PC powers bridge only; VBUS must not back-power Pi. Console rather than an accessory host. |
 | **LAN / SEALED RJ45** | Eight-contact Cat5e/6 sealed panel coupler -> short flexible patch cable -> Pi 4 built-in RJ45. Target 1000BASE-T with all four pairs connected. Data only; no PoE power subsystem selected. |
 | **RF / HaLow** | Sealed bulkhead -> short correct-connector pigtail -> radio. |
 | **GPS** | Sealed gland or USB feedthrough -> external USB GPS puck -> separate Pi USB host port. |
 
 Preferred non-invasive Pi power: regulated 5 V through a keyed GPIO power interposer/pass-through header, with USB-C power left unused. Header fit with the Heltec HAT must be verified; internal USB-C is the fallback. USB-C describes a connector, not a power/data role. Do not split one port across host/device/charging functions. Do not connect a PC host to ACCESSORY. A generic power-only bulkhead or passive adapter is not a verified downstream Type-C port: select a proper implementation and test C-to-C enumeration in both orientations.
 
-SERVICE uses a 3.3 V USB-UART console as the initial maintenance plan, subject to HAT pin allocation and firmware console verification. Use a blankable panel insert if deferred. Normal configuration stays over Wi-Fi/Ethernet. Native Pi USB gadget service would require a separate power/data design; it is not promised by this layout.
+Administration uses Wi-Fi or the sealed Ethernet port. No external USB service console is included.
 
 Headsets must be **digital USB Audio Class** devices with playback/microphone drivers and voice-app routing validated on the pinned OpenWrt build. Passive analogue USB-C headsets are not sufficient. GPS/headset/accessories share Pi 4's published **1.2 A total USB budget**; a 5 A regulator does not increase it. Add a properly powered non-backfeeding hub only if necessary, updating space and power budgets.
 
@@ -97,19 +95,17 @@ These are calculations, not test results. Age, temperature, BMS cutoff and radio
 
 Preferred route: protected pack/system rail -> 5 V buck -> keyed power interposer -> Pi **physical header pins 2/4 (5 V)** and adequate **ground contacts**. These are power pins, not numbered GPIO signal pins. A correctly rated pass-through/interposer can preserve the HAT connection without soldering to the Pi. Contact current rating, current sharing, standoff height and Heltec signal integrity must be checked before selecting it; loose Dupont jumpers are not the finished harness.
 
-The Pi has no direct 12 V input. Maintain proper regulation, fusing, reverse-polarity/overvoltage protection and voltage at the board. Header feed reaches the 5 V rail directly, so the external supply must provide the protection appropriate to this route. Never apply battery/raw 12 V to 5 V, 3.3 V or GPIO signal pins. Do not connect another Pi power supply simultaneously without a designed power selector. Any USB service bridge or powered hub must not back-power the Pi. Keep USB-C power as the fallback until mechanical/electrical header validation passes.
+The Pi has no direct 12 V input. Maintain proper regulation, fusing, reverse-polarity/overvoltage protection and voltage at the board. Header feed reaches the 5 V rail directly, so the external supply must provide the protection appropriate to this route. Never apply battery/raw 12 V to 5 V, 3.3 V or GPIO signal pins. Do not connect another Pi power supply simultaneously without a designed power selector. Any powered hub must not back-power the Pi. Keep USB-C power as the fallback until mechanical/electrical header validation passes.
 
-## Dual-input charging: USB-C PD and sealed 12 V barrel
+## USB-C PD charging
 
-A sealed nominal 12 V barrel input is required alongside USB-C PD. This replaces the earlier charge-only 12.6 V panel concept. Required chain: **USB-C PD source -> rated sealed input/cable -> PD sink + 3S Li-ion CC/CV charger -> protected pack**. A PD trigger alone is not a battery charger; 5 V USB must not connect directly to this pack.
+The simplified panel has one **USB-C PD charge input** and one **USB-C accessory host**. The dedicated service console and 12 V barrel input are removed from the current baseline. The GPS cable gland remains for the previously selected external receiver.
 
-Barrel path: nominal 12 V source -> appropriately rated sealed centre-positive connector -> fuse, reverse-polarity and transient protection -> source selector -> **buck-boost 3S charger**. A 12 V source cannot fully charge a 12.6 V pack through a buck-only charger. The barrel is a charger input, not a direct battery connection or Pi feed. Specify accepted voltage range and current on the selected hardware before labelling the finished panel. Vehicle input requires automotive transient protection; a bench 12 V rating does not establish vehicle suitability.
-
-Both source paths require priority selection/ideal-diode isolation or a charger with an appropriate dual-input selector. Do not wire USB-C VBUS and barrel positive together. Specify deterministic source priority and safe behaviour with both attached, including no reverse current into either connector.
+Charging path: rated sealed USB-C input/cable -> PD sink + 3S Li-ion CC/CV charger -> BMS-protected pack. Use the charger's managed system rail to feed the 5 V regulator if load sharing is supported and validated. A PD trigger alone is not a battery charger. No direct USB-to-cell or raw battery-to-Pi connection is allowed.
 
 Target a **15 V / 3 A PD source (45 W)** with charge current capped by the actual pack, cable, connector and thermal limits. A source without the required profile must report no charge or a documented reduced-power mode. The USB-C receptacle itself neither negotiates voltage nor controls charging.
 
-**Charger PCB selection remains open.** [TI USB-PD-CHG-EVM-01](https://www.ti.com/tool/USB-PD-CHG-EVM-01) demonstrates a TPS25751/BQ25798 multi-cell charging approach; it is a development reference, not an approved enclosure-ready module. Select a documented 3S-configurable board, or design one, with temperature protection, dual-input handling and mechanical drawings before fixing its mounting rail.
+**Charger PCB selection remains open.** [TI USB-PD-CHG-EVM-01](https://www.ti.com/tool/USB-PD-CHG-EVM-01) demonstrates a TPS25751/BQ25798 multi-cell charging approach; it is a development reference, not an approved enclosure-ready module. Select a documented 3S-configurable board, or design one, with temperature protection, input backfeed protection and mechanical drawings before fixing its mounting rail.
 
 Desired behaviour is continued radio operation when charge power is inserted/removed. This requires **managed load sharing**, a system rail feeding the 5 V regulator, controlled battery charging and no backfeed. It remains a required validation gate. Until passed, use orderly shutdown and physical load isolation before charging. No arbitrary charger is approved for simultaneous use.
 
@@ -130,9 +126,9 @@ Validate cold boot, fix acquisition, disconnect/reconnect, fix loss, UTC and pos
 ## Before CAD release / deployment
 
 1. Inspect the pinned STEP assemblies and record exact measured mating surfaces, Heltec carrier fit, pack supplier dimensions and connector footprints. Print fit coupons before the body.
-2. Freeze the PD charger, host Type-C implementation, service bridge and panel sealing family. Test both USB-C orientations and intended cable types.
+2. Freeze the PD charger, host Type-C implementation and panel sealing family. Test both USB-C orientations and intended cable types.
 3. Bench-test Pi/HAT firmware, calibration, radio supply current, GPS driver and headset capture/playback with the chosen app.
-4. Check voltage at Pi during boot and peak TX with all USB loads. Test current limiting, no backfeed, failed PD negotiation, source insertion/removal, both sources present and low battery.
+4. Check voltage at Pi during boot and peak TX with all USB loads. Test current limiting, no backfeed, failed PD negotiation, PD source insertion/removal and low battery.
 5. Validate pack temperature protection, charge termination, managed power path or fallback isolation, graceful shutdown and cutoff recovery.
 6. Verify GPS fix/age and distinguish radio position from phone/person position. Test thermal performance with closed lid and source-connected operation if enabled.
 7. Test vibration, mounting, harness pulls and water ingress in capped and correctly mated states. Re-run messaging and relay trials.
