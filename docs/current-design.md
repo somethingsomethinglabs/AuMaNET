@@ -14,7 +14,7 @@ Updated 5 November 2026. This page describes the active design. Earlier entries 
 | HaLow radio | Heltec HC01P V2, 902–928 MHz variant, with matching HT-HC01PHAT | Identified from supplied listing capture; actual board and firmware combination untested |
 | Local phone connection | Pi onboard ordinary Wi-Fi | Verify AP behaviour with chosen radio image |
 | Position | LC76G assembled breakout, UART to HAT P2, matching antenna outside | Manufacturer schematic/wiring reviewed; voltage, baud and actual revision to test |
-| Portable energy | Six 18650 cells; proposed 3S2P managed assembly | Six cells are user-required. 3S2P is an engineering proposal; no selected charger yet |
+| Portable energy | Blue wrapped 3S2P six-cell pack with barrel output | User accepts the format and standard capacity estimate; protection/harness details and charger still to select |
 | Main Pi power | Regulated 5 V via rated keyed header interposer | Fit, contacts and protective circuitry unresolved; internal USB-C fallback |
 | Case | ties1887-inspired battery base, central core, top wiring cap | One screw-fastened serviceable unit; derivative carrier/print files not yet made |
 | Purchasing | AliExpress only | Exact matching listings required; manufacturer pages are technical references |

@@ -72,3 +72,7 @@ OpenMANET 1.8.0 Pi4 MM6108 SPI asset SHA256 matched the release digest. The extr
 ## Battery candidate 01 received
 
 User supplied a screenshot of blue wrapped 12V 3S2P packs. Correct general form factor; per-pack 13.8Ah claim is ambiguous and requires cell identity/test evidence. Record as candidate only; no capacity uplift or purchase approval. See hardware/battery-candidate-01.md.
+
+## Battery planning assumption accepted
+
+User confirms continuing with the screenshot pack format and assuming ordinary cell capacity instead of investigating seller mAh marketing. Use 3S2P six cells with barrel output and retain 3400mAh/cell as an explicit estimate. Next component is an assembled 5V buck, then compatible USB-C 3S charger/power path. Capacity clarification is no longer a gate; voltage polarity current protection and physical fit still determine matching parts.

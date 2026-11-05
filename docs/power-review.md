@@ -43,6 +43,8 @@ One board can combine several functions, but the complete assembly needs all of 
 
 This sequence preserves the final portable product while avoiding simultaneous debugging of unverified radio firmware, battery circuitry and an untested closed case. It is not a reduction of the six-cell, modular product goal.
 
-## User-supplied pack candidate
+## Selected battery format and next component
 
-A new screenshot identifies a blue wrapped 3S2P pack offered as “13.8Ah 2PCS”. Its general format matches the lower-base idea, but capacity per pack, cell identity, BMS, chemistry and dimensions are unverified. See [candidate 01 assessment](../hardware/battery-candidate-01.md). It does not supply the missing charger/regulated power path.
+User accepts the blue wrapped 3S2P six-cell pack format with barrel output. Continue using the project's 3,400 mAh-per-cell planning assumption: about 6.8 Ah and 73.4 Wh per pack. Ignore the seller's 13.8 Ah claim; capacity clarification is not a design blocker.
+
+The next part to find is an assembled **12V-to-5V 5A buck converter**, followed by a compatible **USB-C 3S charging/power-path module**. The barrel lead feeds the regulated power system, not the Pi directly. See the [pack and next-component connection plan](../hardware/battery-candidate-01.md).

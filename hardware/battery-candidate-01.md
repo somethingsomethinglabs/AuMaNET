@@ -1,36 +1,48 @@
-# Battery candidate 01: blue 12 V 3S2P pack
+# Selected battery format: six-cell 3S2P pack with barrel output
 
-Evidence: user-supplied AliExpress screenshot reviewed 5 November 2026. No listing URL or seller datasheet supplied. Status: correct general form factor; **not approved for purchase**.
+User direction, 5 November 2026: use the supplied blue wrapped pack as the planning format and ignore the seller's inflated capacity claim. Exact cell identity is not a prerequisite for continuing the design. This confirms the **advertised configuration we intend to use**, not a physical inspection of the pack.
 
-## What the screenshot establishes
+## Working specification
 
-- Selected option reads **3S2P 13.8Ah 2PCS**.
-- Product title advertises a 12 V lithium pack, 18650 cells and **12.6 V charging**.
-- Two blue wrapped packs are shown with DC barrel leads and apparent switches.
-- Captured price is **AU$36.16**, tax excluded where applicable, with **AU$12.05 shipping** displayed. These are screenshot amounts, not a current delivered quote.
+| Item | Planning basis |
+|---|---|
+| Cell arrangement | 3S2P: three series groups of two parallel cells, six 18650 cells total |
+| Cell capacity | Retain the project's assumed 3,400 mAh per cell; an estimate rather than a measured rating |
+| Pack capacity | About 6.8 Ah; series groups add voltage rather than Ah |
+| Voltage | About 10.8 V nominal using 3.6 V cells; 12.6 V fully charged for the proposed ordinary 4.2 V/cell Li-ion chemistry |
+| Energy | About 73.4 Wh nominal; keep the existing estimated runtime until measured |
+| Connection | Barrel DC output through a matching mating lead; exact diameter and polarity to establish when choosing the harness |
+| Quantity | One pack per radio; the screenshot's two-pack option can supply two radios |
+| Seller capacity | Do not use 13.8 Ah in the power or runtime budget |
 
-The top search text mentions LiFePO4. Search text is not a chemistry specification. Obtain the exact pack chemistry from the seller: the charging profile must match it. Do not assume the pack is LiFePO4 or ordinary Li-ion from appearance alone.
+The image's 3S2P option and 12.6 V charging title match the proposed battery architecture. The pack is the battery module; its barrel lead is neither regulated Pi power nor a USB-C charging controller. Internal protection/balancing, operating current, physical dimensions and charger chemistry still affect the electrical/mechanical design, independently of the assumed capacity.
 
-## Capacity needs clarification
+## Next part: regulated 5 V converter
 
-If **13.8 Ah means each 3S2P pack**, two parallel cells would each need **6.9 Ah**. That is not a credible basis for our runtime budget without the cell manufacturer's datasheet and an actual capacity test.
+Search AliExpress for **12V to 5V 5A DC DC buck converter** or **3S lithium 5V 5A step down converter**.
 
-If **13.8 Ah is the combined total for the two packs**, each pack could instead be about **6.9 Ah**, implying about **3.45 Ah per cell**. That interpretation is plausible, but the image appears to label each pack 13,800 mAh, so it must be clarified rather than assumed.
+Choose an assembled module with a documented input range covering the pack's full operating range, approximately 9-12.6 V, and a stable regulated 5 V output with adequate continuous/peak current and thermal margin. Look for a dimensioned board and useful screw terminals or a properly rated wired output. A 6-24 V input label is a candidate range; verify the actual module rather than relying on its title. Adjustable outputs must be set and measured before connecting equipment.
 
-As a technical comparison, [Molicel's M35A datasheet](https://www.molicel.com/wp-content/uploads/INR18650M35A_1.4_Product-Data-Sheet-of-INR-18650-M35A-80096.pdf) lists 3.45 Ah typical at 3.6 V. Two such cells in parallel give about 6.9 Ah; three series groups give about **74.5 Wh nominal per pack**, not 13.8 Ah per pack. This comparison does not identify or endorse the cells in this listing.
+Connection plan:
 
-## Information to obtain before selection
+```text
+3S2P pack barrel output
+  -> matching barrel-to-wire adapter
+  -> reviewed fuse / power disconnect
+  -> 5 V buck converter
+  -> rated keyed 5 V + ground harness
+  -> Pi header power interposer
+  -> Pi 4 and Heltec HAT
+```
 
-1. Exact cell manufacturer/model and number of cells **inside each pack**; capacity and Wh **per pack**, with discharge-test conditions.
-2. Chemistry, nominal/full-charge voltage, maximum charge current and continuous discharge current. Our proposed pack requirement is at least 5 A continuous, subject to the final power design.
-3. Internal BMS details: series-cell monitoring/balancing, overcharge, undervoltage, overcurrent and temperature protection. A blue wrapper or switch proves none of these.
-4. Dimensions and weight of one pack; connector size, polarity, current rating and whether the two leads share a common BMS port or separate charge/discharge ports.
-5. Whether any charger is included, and its exact output/profile. The barrel leads alone do not provide USB-C charging, regulated Pi power or a managed charge-and-run path.
+The internal Pi USB-C inlet is an optional harness fallback. The exterior accessory USB-C remains a data/accessory port. The regulator output must be checked at the Pi during boot, radio traffic and accessory load; do not send the raw battery voltage into the Pi.
 
-## Integration decision
+## Following part: USB-C charging / power path
 
-A verified six-cell 3S2P pack of this style could fit the lower battery base and reduce loose-cell assembly work. It is only the **battery component**, not the complete power system. Keep one pack per radio. Do not parallel the two finished packs or connect the nominal 12 V output directly to the Pi.
+After selecting the converter, select the **3S 12.6 V Li-ion USB-C charger with managed load sharing**. It must suit the pack protection/charge-port arrangement and power the converter through its documented system path if simultaneous charge/run is required. A second barrel lead on a pack does not prove that load sharing is built in. Do not simply join the charge and load wires and assume correct charge termination.
 
-Keep the existing runtime estimate until real cell identity and measured Wh are available. This candidate does not resolve the charger, 5 V regulator, shutdown controller or power-path selection.
+Power/shutdown control and monitoring can be combined with these modules if a suitable documented board is found. Capacity marketing is no longer a selection blocker; the remaining work is choosing and connecting compatible power electronics.
 
-The personal shopping screenshot is kept outside committed documentation. Only the relevant product claims and assessment are recorded here.
+## Source record
+
+User-supplied screenshot: selected 3S2P / 13.8Ah / 2PCS option, 12.6 V charging title, AU$36.16 price and AU$12.05 shipping at capture time. No current offer or exact seller URL has been verified. The personal screenshot is not committed.
