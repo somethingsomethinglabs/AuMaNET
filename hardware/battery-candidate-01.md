@@ -1,5 +1,7 @@
 # Selected battery format: six-cell 3S2P pack with barrel output
 
+> **Latest baseline (5 November 2026):** custom six-cell 3S2P pack plus separate balancing/protection BMS and USB-C 3S charger candidate. Retain enclosed 5 V Pi converter; barrel adapter optional. Charge with load off; USB PD and managed charge-and-run are not established. See [charging-board assessment](charger-candidate-01.md).
+
 User direction, 5 November 2026: use the supplied blue wrapped pack as the planning format and ignore the seller's inflated capacity claim. Exact cell identity is not a prerequisite for continuing the design. This confirms the **advertised configuration we intend to use**, not a physical inspection of the pack.
 
 ## Working specification
@@ -30,3 +32,4 @@ Power/shutdown control and monitoring can be combined with these modules if a su
 ## Source record
 
 User-supplied screenshot: selected 3S2P / 13.8Ah / 2PCS option, 12.6 V charging title, AU$36.16 price and AU$12.05 shipping at capture time. No current offer or exact seller URL has been verified. The personal screenshot is not committed.
+

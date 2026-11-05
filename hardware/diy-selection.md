@@ -1,5 +1,7 @@
 # DIY hardware selection and connection plan
 
+> **Latest baseline (5 November 2026):** custom six-cell 3S2P pack plus separate balancing/protection BMS and USB-C 3S charger candidate. Retain enclosed 5 V Pi converter; barrel adapter optional. Charge with load off; USB PD and managed charge-and-run are not established. See [charging-board assessment](charger-candidate-01.md).
+
 2026-11-05. User confirms Raspberry Pi 4B and the supplied AliExpress Heltec HC01P V2 + HAT bundle. Preference is DIY assembly of documented boards in a printed enclosure, with AliExpress as the only purchasing source. Exact listings beyond the Heltec bundle remain unverified; this is not a completed shopping cart or a verified price quote.
 
 ## Core
@@ -64,3 +66,4 @@ Verify exact listings for LC76G breakout/antenna, cells/BMS, charger/power-path 
 - [Waveshare LC76G wiring guide](https://www.waveshare.com/wiki/LC76G_GNSS_Module)
 - [Geekworm X728 revision and expansion notes](https://wiki.geekworm.com/X728)
 - [OpenMANET GNSS](https://openmanet.github.io/docs/gnss)
+

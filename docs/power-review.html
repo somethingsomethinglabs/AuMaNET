@@ -2,6 +2,9 @@
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Power selection review · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
 <body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
 <main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Power selection review</h1>
+<blockquote>
+<p><strong>Latest baseline (5 November 2026):</strong> custom six-cell 3S2P pack plus separate balancing/protection BMS and USB-C 3S charger candidate. Retain enclosed 5 V Pi converter; barrel adapter optional. Charge with load off; USB PD and managed charge-and-run are not established. See <a href="charger-candidate-01.html">charging-board assessment</a>.</p>
+</blockquote>
 <p>Purpose: find a simple off-the-shelf power assembly for six 18650 cells, USB-C charging, regulated Pi 4 power, clean shutdown and the selected Heltec HAT. Purchasing remains AliExpress-only; exact listings, received revisions and cost are not verified.</p>
 <h2>Current outcome</h2>
 <p><strong>No complete power kit is selected yet.</strong> This review narrows the choices rather than calling an incomplete module a solution. Six cells are required; the 3S2P arrangement is an engineering proposal, not a user requirement that forbids evaluating a better documented six-cell topology. Any topology change must update the charger, protection, harness and diagrams together.</p>

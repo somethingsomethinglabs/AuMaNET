@@ -22,6 +22,7 @@ const pages = [
   ['hardware/battery-candidate-01.md', 'docs/battery-candidate-01.html'],
   ['hardware/converter-candidate-01.md', 'docs/converter-candidate-01.html'],
   ['hardware/converter-candidate-02.md', 'docs/converter-candidate-02.html'],
+  ['hardware/charger-candidate-01.md', 'docs/charger-candidate-01.html'],
   ['field-tests/build-record-template.md', 'docs/build-record.html']
 ];
 const mapped = new Map(pages.map(([source, output]) => [path.resolve(root, source), output]));
@@ -71,3 +72,4 @@ if (parts.some(row => row.length !== columns.length)) throw new Error('BOM colum
 const table = `<div class="table-wrap"><table><thead><tr>${columns.map(x => `<th>${esc(x.replaceAll('_', ' '))}</th>`).join('')}</tr></thead><tbody>${parts.map(row => `<tr>${row.map(x => `<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 fs.writeFileSync('docs/parts.html', frame('Parts and shopping register', `<h1>Parts and shopping register</h1><p>Quantities are for <strong>one node</strong>. Multiply required items by three for the proposed pilot only after one node is verified. Optional experiments and shared tools are identified separately. A candidate is not an instruction to buy.</p><p><strong>AliExpress only for purchased components.</strong> Existing phones are user-owned; the enclosure is printed or made to the released CAD when available. Technical reference brands do not establish a matching AliExpress listing. No complete buy-ready kit is released.</p><p><a href="../hardware/bom.csv">Download CSV</a> · <a href="start-here.html">First-build stages</a> · <a href="release-readiness.html">Unresolved build gates</a></p>${table}`));
 console.log(`Built ${pages.length + 1} offline handbook pages.`);
+

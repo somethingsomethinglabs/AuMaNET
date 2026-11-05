@@ -37,3 +37,4 @@ S35,Raspberry Pi HAT power design guidance,https://github.com/raspberrypi/hats/b
 S36,OpenMANET 1.8.0 release image,https://github.com/OpenMANET/firmware/releases/tag/1.8.0,Downloaded and inspected 2026-11-05,Asset SHA256 verified; compiled SPI overlay mismatches selected HAT
 S37,OpenMANET SPI overlay at reviewed tag,https://github.com/OpenMANET/firmware/blob/1.8.0/target/linux/bcm27xx/patches-6.6/991-0003-dt-overlays-morse-add-spi-overlay-fragment.patch,Reviewed 2026-11-05,Source confirms GPIO defaults seen in compiled artifact
 S38,OpenUPS hardware manual,https://resources.mini-box.com/online/PWR-OpenUPS/PWR-OpenUPS-hardware-manual.pdf,Reviewed 2026-11-05,Configurable benchmark only; not selected purchase
+S39,User supplied USB-C 3S charger screenshot,https://a.aliexpress.com/_mtLERAf,User capture reviewed 2026-11-05; site not opened,Selected 3S; advertised 15W 12.6V 1.5A; protection and system power path unverified

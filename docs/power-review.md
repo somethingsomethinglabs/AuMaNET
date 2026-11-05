@@ -1,5 +1,7 @@
 # Power selection review
 
+> **Latest baseline (5 November 2026):** custom six-cell 3S2P pack plus separate balancing/protection BMS and USB-C 3S charger candidate. Retain enclosed 5 V Pi converter; barrel adapter optional. Charge with load off; USB PD and managed charge-and-run are not established. See [charging-board assessment](../hardware/charger-candidate-01.md).
+
 Purpose: find a simple off-the-shelf power assembly for six 18650 cells, USB-C charging, regulated Pi 4 power, clean shutdown and the selected Heltec HAT. Purchasing remains AliExpress-only; exact listings, received revisions and cost are not verified.
 
 ## Current outcome
@@ -56,3 +58,4 @@ User supplied a screenshot and link for a blue 12/24V-to-5V module advertised at
 ## Preferred converter update
 
 The user supplied an enclosed F23J5V5A1S-C module with USB-C output. Prefer this direct internal Pi power cable over the earlier custom header harness. Add a matching battery barrel adapter and fused input wiring. [Candidate 02 details](../hardware/converter-candidate-02.md). This resolves the intended converter connection architecture; input/output performance and the separate charging system still need verification.
+

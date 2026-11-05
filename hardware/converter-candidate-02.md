@@ -1,5 +1,7 @@
 # Preferred converter: F23J5V5A1S-C with captive USB-C output
 
+> **Latest baseline (5 November 2026):** custom six-cell 3S2P pack plus separate balancing/protection BMS and USB-C 3S charger candidate. Retain enclosed 5 V Pi converter; barrel adapter optional. Charge with load off; USB PD and managed charge-and-run are not established. See [charging-board assessment](charger-candidate-01.md).
+
 User-supplied listing text, screenshot and [AliExpress short link](https://a.aliexpress.com/_mMJ8LTv), reviewed 5 November 2026. The site was not opened. This replaces the open blue converter as the **preferred prototype sourcing candidate**, subject to ordinary input/output/load checks.
 
 ## Why this is simpler
@@ -36,3 +38,4 @@ Identify the pack's discharge lead before connecting; a second lead may be a cha
 This module converts battery voltage to Pi power. It **does not charge the pack**. Next find the documented **USB-C input 3S / 12.6 V Li-ion charger with managed load/system output**. For charge-and-run, that system output feeds this converter instead of an improvised parallel connection across the pack. The charging board, pack BMS and shutdown controller still need to be selected as a compatible system.
 
 The blue open-board converter remains an alternative for a later header-powered build; it is no longer the default. The user's personal screenshot is not committed.
+

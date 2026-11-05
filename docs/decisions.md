@@ -84,3 +84,7 @@ User supplied screenshot and short link for a blue 12/24V to 5V 5A converter. Re
 ## Captive USB-C converter preferred
 
 User supplied F23J5V5A1S-C enclosed converter. Prefer battery barrel -> correct adapter/fused harness -> converter -> Pi internal USB-C. No GPIO power interposer required for first build. Earlier header-first decisions are superseded; top CHARGE and ACCESSORY roles stay unchanged. Exact converter input range loaded output dimensions and charging system remain to verify.
+
+## 5 November 2026 — DIY cells and simple USB-C charging
+
+User selected six individual cells in 3S2P and the new USB-C 3S charger candidate, with a separate balancing/protection BMS still to source. Wrapped pack becomes an alternative. Retain enclosed Pi converter; barrel harness optional. Charge with load off until managed charge-and-run is established. See [assessment](../hardware/charger-candidate-01.md).

@@ -1,5 +1,7 @@
 # Current design: one place to check the baseline
 
+> **Latest baseline (5 November 2026):** custom six-cell 3S2P pack plus separate balancing/protection BMS and USB-C 3S charger candidate. Retain enclosed 5 V Pi converter; barrel adapter optional. Charge with load off; USB PD and managed charge-and-run are not established. See [charging-board assessment](../hardware/charger-candidate-01.md).
+
 Updated 5 November 2026. This page describes the active design. Earlier entries in the decision history record what changed; they are not alternative assembly instructions.
 
 ## Current state
@@ -14,7 +16,7 @@ Updated 5 November 2026. This page describes the active design. Earlier entries 
 | HaLow radio | Heltec HC01P V2, 902–928 MHz variant, with matching HT-HC01PHAT | Identified from supplied listing capture; actual board and firmware combination untested |
 | Local phone connection | Pi onboard ordinary Wi-Fi | Verify AP behaviour with chosen radio image |
 | Position | LC76G assembled breakout, UART to HAT P2, matching antenna outside | Manufacturer schematic/wiring reviewed; voltage, baud and actual revision to test |
-| Portable energy | Blue wrapped 3S2P six-cell pack with barrel output | User accepts the format and standard capacity estimate; protection/harness details and charger still to select |
+| Portable energy | Custom six-cell 3S2P pack with separate balancing/protection BMS | User accepts the format and standard capacity estimate; protection/harness details and charger still to select |
 | Main Pi power | F23J5V5A1S-C captive USB-C converter into Pi power inlet | Barrel input adapter, loaded voltage, range and received dimensions to verify |
 | Case | ties1887-inspired battery base, central core, top wiring cap | One screw-fastened serviceable unit; derivative carrier/print files not yet made |
 | Purchasing | AliExpress only | Exact matching listings required; manufacturer pages are technical references |
@@ -74,3 +76,4 @@ Select a power system compatible with the Heltec GPIO allocation, verify exact A
 ## Simpler first-build Pi power
 
 The user supplied the enclosed F23J5V5A1S-C USB-C output converter. It is now preferred over the blue open board: battery barrel -> matching adapter/fused harness -> converter -> Pi internal USB-C inlet. This removes the GPIO power interposer from the first-build requirements. See [candidate 02](../hardware/converter-candidate-02.md). Top-panel ports are unchanged.
+

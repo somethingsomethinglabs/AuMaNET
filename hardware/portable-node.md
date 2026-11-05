@@ -1,5 +1,7 @@
 [Start here](../docs/start-here.md) · [Current baseline](../docs/current-design.md) · [Build readiness](../docs/release-readiness.md)
 
+> **Latest baseline (5 November 2026):** custom six-cell 3S2P pack plus separate balancing/protection BMS and USB-C 3S charger candidate. Retain enclosed 5 V Pi converter; barrel adapter optional. Charge with load off; USB PD and managed charge-and-run are not established. See [charging-board assessment](charger-candidate-01.md).
+
 # Portable Pi 4 radio: modular body and sealed top interfaces
 
 Plan revision 5, 2026-11-05. User-selected: Pi 4B, Heltec HAT/HC01P V2, six 18650 cells. Packaging proposal; no modified CAD or assembly has been validated.
@@ -163,3 +165,4 @@ Reference: [OpenMANET comms](https://openmanet.github.io/docs/comms) and [OpenVL
 ## Sourcing constraint
 
 Purchase components through **AliExpress only**, per user direction. Element14 and other distributors are outside the purchasing plan. Existing manufacturer links provide specifications; they do not establish an available or genuine AliExpress equivalent. Pololu, GlobalSat, charger, sealed connector and controller candidates must have exact matching AliExpress listings verified before selection. Do not replace them silently with similarly named boards. User captures now identify the HC01P V2 bundle, a battery format and converter candidates; current stock, price and supplied revision still require confirmation. No order is authorised by this documentation update.
+
