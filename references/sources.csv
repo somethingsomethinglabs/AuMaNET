@@ -27,3 +27,4 @@ S25,TI PD multi-cell charger reference,https://www.ti.com/tool/USB-PD-CHG-EVM-01
 S26,Bulgin sealed C-Type family,https://www.bulgin.com/us/products/range/circular-data-connectors/4000-series-data-buccaneers.html,Reviewed 2026-11-05,Select matching cap cable and panel gasket; no complete assembly IP claim
 S27,Raspberry Pi header power guidance,https://github.com/raspberrypi/hats/blob/master/designguide.md,Reviewed 2026-11-05,5V power header feed possible; not a direct 12V input
 S28,Raspberry Pi USB and hardware guidance,https://www.raspberrypi.com/documentation/computers/raspberry-pi.html,Reviewed 2026-11-05,Pi4 USB power budget and hardware reference
+S29,Bulgin Standard Ethernet primary datasheet,https://www.bulgin.com/products/media/bulgin/data/Standard_ethernet.pdf,Reviewed 2026-11-05,Sealed RJ45 reference family; verify chosen SKU and mated or capped conditions

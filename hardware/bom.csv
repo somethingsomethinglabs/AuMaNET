@@ -19,3 +19,4 @@ ties1887-style centre base and top adaptation,3,Protection and strain relief,Pro
 GlobalSat BU-353N 10Hz USB GPS puck,1 per portable node,Radio position,Procurement candidate,Verify exact suffix USB bridge driver gpsd and external mounting
 Spare power cable and recovery storage,1 set,Field repair,Unselected,Match chosen platform
 Existing compatible smartphones,2+,User interface,User supplied,Verify OS app background and Wi-Fi behaviour
+Sealed eight-contact Cat5e or Cat6 RJ45 coupler system,1 per node,Top LAN interface,SKU TBD,Matched cap sealing cable gasket and short Pi patch lead; verify Gigabit

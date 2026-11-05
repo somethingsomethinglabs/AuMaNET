@@ -32,3 +32,7 @@ User-selected styling: ties1887/Mesh-radio-Halow-LoRa at f0d285c67bc893ddacc5d81
 Top panel: sealed USB-C PD charge input, USB-C downstream accessory port, USB-C UART service console, sealed nominal 12 V barrel charge input, RF and GPS feedthrough. Source selector/backfeed protection and a 3S buck-boost charger are mandatory before input wiring is approved. Managed load sharing is required for charge-and-run; fallback is shutdown and load isolation.
 
 Preferred Pi feed: regulated 5 V through a solder-free power interposer at header power pins, subject to Heltec clearance/current checks; internal USB-C remains fallback. Never feed 12 V directly to Pi. Charger board, connector SKUs, header interposer, audio/USB drivers and final CAD fit remain open gates. Six-cell estimate remains 6.2 h at 8 W with reserve.
+
+## Revision 3: top Ethernet and panel layout
+
+User requires sealed Ethernet on the top. Add eight-contact Cat5e/6 RJ45 coupler to Pi built-in Ethernet, with matched cap/cable. Top-down illustration fixes proposed rear RF/LAN/GPS and front CHARGE/HOST/SERVICE/DC ordering. Final cap dimensions and routing depth depend on connector selection; no drilling dimensions released. No PoE subsystem selected.

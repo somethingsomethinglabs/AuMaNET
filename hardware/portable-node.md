@@ -1,6 +1,6 @@
 # Portable Pi 4 radio: modular body and sealed top interfaces
 
-Plan revision 2, 2026-11-05. User-selected: Pi 4B, Heltec HAT/HC01P V2, six 18650 cells. Packaging proposal; no modified CAD or assembly has been validated.
+Plan revision 3, 2026-11-05. User-selected: Pi 4B, Heltec HAT/HC01P V2, six 18650 cells. Packaging proposal; no modified CAD or assembly has been validated.
 
 ![Three-zone enclosure and top interfaces](../docs/assets/portable-node.svg)
 
@@ -33,6 +33,12 @@ Put charging electronics and the 5 V buck on a separate isolated service rail wi
 
 Use an external heat-spreader coupled to the Pi CPU and a thermal barrier at the battery base. Preserve a polymer RF path for local Wi-Fi. No screen is included. A gasket and printed shell do not establish an IP or military rating.
 
+## Top-down panel layout
+
+![Proposed top-down connector layout](../docs/assets/top-panel.svg)
+
+Rear row: HaLow RF, sealed LAN and GPS gland. Front/operator row: USB-C charge, USB-C accessory host, USB-C service console and sealed DC barrel. The external GPS puck mounts off-panel so it does not cover connectors. Dashed circles reserve cap/grip clearance; the perimeter reserves the gasket land. Layout is a proposal, not a scaled cut-out drawing. The 120 x 95 mm cap and 45 mm routing depth may need enlargement for actual sealing collars, RJ45 backshells, cap tethers, wrench access and cable bend radii. Check all seven interfaces with every cable fitted before freezing the cap.
+
 ## Top interface schedule
 
 | Panel label | Role and internal route |
@@ -41,6 +47,7 @@ Use an external heat-spreader coupled to the Pi CPU and a thermal barrier at the
 | **CHARGE / USB-C PD IN** | Sealed Type-C input -> PD sink -> 3S CC/CV charger with temperature supervision -> BMS-approved pack connection. Managed power path needed for running while charging. |
 | **ACCESSORY / USB-C HOST** | Pi USB-A host -> compliant downstream Type-C interface with correct CC/current signalling and current protection -> sealed top USB-C. Initially USB 2.0 for digital headset, keyboard or other supported peripheral. |
 | **SERVICE / USB-C CONSOLE** | Sealed USB-C -> USB-to-3.3 V UART bridge -> verified Pi console pins/ground. PC powers bridge only; VBUS must not back-power Pi. Console rather than an accessory host. |
+| **LAN / SEALED RJ45** | Eight-contact Cat5e/6 sealed panel coupler -> short flexible patch cable -> Pi 4 built-in RJ45. Target 1000BASE-T with all four pairs connected. Data only; no PoE power subsystem selected. |
 | **RF / HaLow** | Sealed bulkhead -> short correct-connector pigtail -> radio. |
 | **GPS** | Sealed gland or USB feedthrough -> external USB GPS puck -> separate Pi USB host port. |
 
@@ -57,6 +64,14 @@ Use a replaceable recessed top insert, splash shoulders, strain relief, enough s
 [Bulgin 4000 C-Type Buccaneer](https://www.bulgin.com/us/products/range/circular-data-connectors/4000-series-data-buccaneers.html) is a reference family, not a selected SKU. Select receptacle, sealing cable, gasket and cap together. Require documented sealing **capped when unused** and **mated using the specified cable**. An ordinary USB-C lead does not automatically preserve the connector's mated rating; it may be dry-weather only. Chassis twist locking is omitted; connector coupling required for sealing can remain.
 
 Panel holes, nut clearances, wall thickness and spacing follow selected connector drawings. Test the completed body and every used/capped port state before an ingress claim. Keep joints out of pooling areas. Retain sky visibility for the external GPS and clearance around the HaLow antenna.
+
+## Ethernet integration
+
+Use a shielded eight-contact RJ45 coupler and matched sealing cable/cap system; [Bulgin Standard Ethernet Buccaneer](https://www.bulgin.com/products/media/bulgin/data/Standard_ethernet.pdf) is a reference family, with final SKU and dimensions still open. Do not substitute single-pair Ethernet, a four-contact 100-Mbit part, or an unsealed RJ45 extension. Choose Cat5e or better for the complete internal/external harness. Preserve pair twist and shield strategy; retain the existing Pi magnetics rather than wiring directly to the PHY.
+
+Sealing must be documented capped and with the specified mating cable. A bare standard RJ45 cable may work electrically but is not assumed sealed. PoE capability of a connector does not make the Pi a PoE input; no passive PoE or supply wiring is part of this build.
+
+Initial use is local wired administration or a wired peer; default network role is trusted LAN. Connecting an internet router, another mesh gateway or a second Layer-2 path requires explicit routing/DHCP/loop review. Test negotiated 1 Gbit/s, sustained throughput, packet loss, reconnect and simultaneous HaLow traffic. Check all eight contacts and capped/mated ingress states.
 
 ## Six-cell battery and regulator
 
