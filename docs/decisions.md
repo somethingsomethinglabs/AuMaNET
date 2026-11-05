@@ -48,3 +48,11 @@ Add recessed upper-side sealed power/shutdown button and top/front battery power
 ## Sourcing preference
 
 User specifies AliExpress only for purchasing; Element14 excluded. Keep manufacturer specifications and community sources for technical verification. Exact matching listings remain procurement gates; no substitutions or verified availability are implied.
+
+## DIY hardware refinement
+
+Pi 4 and supplied Heltec bundle confirmed. Prefer LC76G breakout on HAT UART with external antenna, pending actual board logic/power and firmware tests. USB GPS stays fallback. Six-cell modular power retained; no cheap all-in-one board or complete AliExpress shopping list verified. See hardware/diy-selection.md.
+
+## Antenna requirement
+
+User prioritises practical range for voice/data and low cost, with interchangeable mobile and camp kits. GT-800 compact whip and Heltec 900-930 MHz 5.5 dBi mast omni are evaluation candidates; exact AliExpress listings, installed match and compliant per-antenna power profiles remain open.

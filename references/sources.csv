@@ -28,3 +28,6 @@ S26,Bulgin sealed C-Type family,https://www.bulgin.com/us/products/range/circula
 S27,Raspberry Pi header power guidance,https://github.com/raspberrypi/hats/blob/master/designguide.md,Reviewed 2026-11-05,5V power header feed possible; not a direct 12V input
 S28,Raspberry Pi USB and hardware guidance,https://www.raspberrypi.com/documentation/computers/raspberry-pi.html,Reviewed 2026-11-05,Pi4 USB power budget and hardware reference
 S29,Bulgin Standard Ethernet primary datasheet,https://www.bulgin.com/products/media/bulgin/data/Standard_ethernet.pdf,Reviewed 2026-11-05,Sealed RJ45 reference family; verify chosen SKU and mated or capped conditions
+S30,Heltec HC01PHAT V1 schematic,https://resource.heltec.cn/download/HT-HC01PHAT_V1_0/HT-HC01PHAT_V1_0.PDF,Reviewed 2026-11-05,P2 UART and local regulator; actual received revision to verify
+S31,Waveshare LC76G breakout,https://www.waveshare.com/product/ai/expansions/lc76g-gnss-module.htm,Reviewed 2026-11-05,Preferred DIY GNSS candidate
+S32,Geekworm X728,https://wiki.geekworm.com/X728,Reviewed 2026-11-05,Integrated power comparator not selected six-cell solution

@@ -115,7 +115,9 @@ Use graceful Linux shutdown before master disconnect. A later shutdown button mu
 
 ## GPS selection and location behaviour
 
-Use a **GlobalSat BU-353N (10 Hz) USB GPS puck** as the concrete procurement candidate, with exact product suffix verified. Manufacturer documentation describes USB-powered NMEA 0183, default 115200 baud, a magnetic puck and built-in antenna. Its manual gives a 53 mm diameter x 19.2 mm body, 1.5 m cable and 42 mA typical at 5 V. This is a GPS/SBAS product; do not substitute BU-353N5 or another variant while retaining these specifications.
+Updated preference: evaluate the **LC76G internal receiver with external antenna and HAT UART**, as detailed in [DIY selection](diy-selection.md). This supersedes the USB puck as the first candidate; UART, power and received-board compatibility remain bench gates. The top GPS gland can carry antenna coax.
+
+Retain a **GlobalSat BU-353N (10 Hz) USB GPS puck** as the fallback procurement candidate, with exact product suffix verified. Manufacturer documentation describes USB-powered NMEA 0183, default 115200 baud, a magnetic puck and built-in antenna. Its manual gives a 53 mm diameter x 19.2 mm body, 1.5 m cable and 42 mA typical at 5 V. This is a GPS/SBAS product; do not substitute BU-353N5 or another variant while retaining these specifications.
 
 Mount the puck **outside the case** with a sky view, using a cable gland/split gland sized for its cable and USB connector, or an appropriately rated sealed USB bulkhead. A metal case or roof between it and the sky will impair reception. Provide a removable top bracket for handheld use and a roof mount option for vehicles. The puck is the receiver and antenna together; a passive GPS antenna alone cannot replace it. Keep it separated from the HaLow antenna and verify reception while transmitting. Store excess cable without tight bends or pressure on the connector.
 

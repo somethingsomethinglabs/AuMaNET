@@ -14,7 +14,7 @@ USB-C downstream host interface,1 per portable node,USB accessory and digital he
 Solder-free GPIO power interposer,1 per portable node,Regulated 5V Pi feed,Part TBD,Contact current ratings keyed harness and Heltec header fit,AliExpress only,Exact listing to verify
 3S battery monitor and shutdown interface,1 per portable node,Battery warning and graceful shutdown,Part TBD,3.3V host logic and OpenWrt integration,AliExpress only,Exact listing to verify
 ties1887-style centre base and top adaptation,3,Protection and strain relief,Proposed packaging,240mm H x120mm W x95mm D reserve; six-cell lower tray and sealed top insert,AliExpress only,Exact listing to verify
-GlobalSat BU-353N 10Hz USB GPS puck,1 per portable node,Radio position,Procurement candidate,Verify exact suffix USB bridge driver gpsd and external mounting,AliExpress only,Exact listing to verify
+Waveshare LC76G receiver breakout with matching antenna,1 per portable node,Internal UART GNSS receiver and external antenna,Preferred DIY candidate; USB puck fallback,Verify HAT P2 routing 3.3V logic supply baud gpsd and antenna bias,AliExpress only,Exact listing to verify
 Spare power cable and recovery storage,1 set,Field repair,Unselected,Match chosen platform,AliExpress only,Exact listing to verify
 Existing compatible smartphones,2+,User interface,User supplied,Verify OS app background and Wi-Fi behaviour,AliExpress only,Exact listing to verify
 Sealed eight-contact Cat5e or Cat6 RJ45 coupler system,1 per node,Top LAN interface,SKU TBD,Matched cap sealing cable gasket and short Pi patch lead; verify Gigabit,AliExpress only,Exact listing to verify

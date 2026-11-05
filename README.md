@@ -22,6 +22,10 @@ Provide a second way to reach travelling companions when UHF calls go unanswered
 - [Field results template](field-tests/results-template.csv)
 - [Decision log](docs/decisions.md)
 
+- [DIY hardware and GPS connection selection](hardware/diy-selection.md)
+
+- [HaLow antenna kits and RF matching](hardware/antennas.md)
+
 ## Working approach
 
 Pilot three matching nodes first. Evaluate OpenMANET-supported hardware before designing custom firmware. Keep upstream firmware and CAD in their original repositories; record exact revisions, licences and modifications when adopting them. Do not assume that a HaLow bridge supports mesh or that a US radio preset is legal in Australia.
