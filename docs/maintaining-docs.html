@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Maintaining the handbook · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Maintaining the handbook</h1>
+<p>Reading the committed handbook does not require Node, npm, a server or an internet connection. Open <code>docs/index.html</code> from the project folder and follow the HTML links. Keep the <code>docs/assets</code> folder and adjacent project files when copying the handbook.</p>
+<h2>Which file to change</h2>
+<ul>
+<li><code>docs/current-design.md</code>: the active baseline and what remains unverified.</li>
+<li><code>hardware/bom.csv</code>: the one-node shopping register with stable item IDs.</li>
+<li><code>hardware/portable-node.md</code>: enclosure, port and power interface details.</li>
+<li><code>hardware/diy-selection.md</code>: GPS connections and power-module comparison.</li>
+<li><code>hardware/pin-allocation.csv</code>: HAT reservations and proposed GPS signals.</li>
+<li><code>docs/start-here.md</code>: first-build stages and expected results.</li>
+<li><code>docs/upgrades.md</code>: replacements and regression checks.</li>
+<li><code>docs/decisions.md</code>: historical changes, with the active baseline linked first.</li>
+<li><code>docs/index.html</code>: the hand-authored project overview.</li>
+<li><code>docs/assets/*.svg</code>: original editable diagrams; they are conceptual, not fabrication drawings.</li>
+</ul>
+<p>The other HTML pages are generated. Edit their Markdown/CSV sources, then rebuild instead of hand-editing generated pages.</p>
+<h2>Rebuild and check</h2>
+<p>Maintainers need Node.js compatible with the pinned documentation dependency. From the repository root:</p>
+<pre><code class="language-sh">npm ci --ignore-scripts
+npm run docs:build
+npm run docs:check
+</code></pre>
+<p>Commit source changes, generated HTML, and any changed dependency lockfile together. The generator is deterministic and uses no remote assets. Third-party renderer licensing is recorded by the package metadata/lockfile; it does not change the licences of referenced community hardware designs.</p>
+<p>The checker verifies local destinations, HTML anchors, titles/language and rendered reading paths. It does <strong>not</strong> prove external listing availability, physical fit, electrical compatibility or successful radio operation. Those require the separate build and field records.</p>
+<h2>Before publishing a build recipe</h2>
+<p>Keep confirmed choices separate from verified combinations. Replace a gate with specific evidence, rather than deleting the caveat after writing a plausible instruction. Use the release-readiness page to track exact listings, received revisions, image checksums, harness drawings and repeatable results.</p>
+</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

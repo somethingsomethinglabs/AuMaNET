@@ -1,0 +1,17 @@
+signal,bcm_gpio,pi_physical_pin,selected_use,source,status
+HAT RGB green,2,3,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Verify received revision; not free for UPS I2C
+Radio wake,3,5,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Verify overlay; not free for UPS I2C
+HAT RGB red,6,31,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Conflicts with X1209 power-detect function
+HAT RGB blue,16,36,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Conflicts with X1209 charge-control function
+Radio busy,7,26,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Verify firmware allocation
+Radio reset,5,29,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Verify firmware allocation
+Radio interrupt,25,22,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Verify firmware allocation
+Radio SPI chip select,8,24,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Verify SPI build and overlay
+Radio SPI MISO,9,21,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Verify SPI build and overlay
+Radio SPI MOSI,10,19,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Verify SPI build and overlay
+Radio SPI clock,11,23,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Verify SPI build and overlay
+HAT button,21,40,Reserved by Heltec HAT,HT-HC01PHAT V1.0 schematic,Do not assume this powers on a fully off Pi
+UART TX from Pi,14,8,Proposed GNSS RX through HAT P2 TX,HT-HC01PHAT V1.0 schematic,Verify UART enable and 3.3V logic
+UART RX into Pi,15,10,Proposed GNSS TX through HAT P2 RX,HT-HC01PHAT V1.0 schematic,Verify UART enable and 3.3V logic
+Power input,not a GPIO,2 and 4,Regulated 5V via reviewed interposer,Raspberry Pi HAT design guide,Not raw battery; contact and harness design unresolved
+Power ground,not a GPIO,multiple GND contacts,Return path via reviewed interposer,Raspberry Pi header reference,Select adequate current path; connector drawing unresolved

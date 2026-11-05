@@ -4,7 +4,7 @@
 
 The supplied PDF identifies AliExpress item 1005012384315442 as Heltec HC01P V2 + HAT, selected 902-928 MHz variant. See [hardware review](../hardware/heltec-hc01p-v2.md) for captured price, specifications, interface and sources. Confirm the exact HAT revision, image/overlay, V2 calibration, recovery instructions, mesh behaviour and Australian conformity evidence. The module is not established as a plug-in PCIe device.
 
-Compare a documented OpenMANET Pi build against HaLow Link 2. Choose three identical supported revisions. Confirm regional calibration and firmware support before ordering. US defaults, custom high-power BCFs and seller range claims are not Australian approval.
+Use the user-selected Pi 4B and Heltec V2 bundle as the prototype target. Validate one node before purchasing parts for two more; do not silently substitute a HaLow Link 2 or a different HAT. Confirm regional calibration and firmware support before ordering. US defaults, custom high-power BCFs and seller range claims are not Australian approval.
 
 Record the exact current class-licence entry and technical conditions for the chosen radio. EIRP (dBm) = conducted TX (dBm) + antenna gain (dBi) - feed loss (dB). Check the entire occupied channel against the permitted band, not just its centre. Do not transmit until the hardware, settings and installation have been checked.
 

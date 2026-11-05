@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Build record · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Build record</h1>
+<p>Store a filled copy privately if it contains identifiable device, participant or location information. Do not record passwords or tokens here.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Build ID / date</td>
+<td></td>
+</tr>
+<tr>
+<td>Builder / reviewer</td>
+<td></td>
+</tr>
+<tr>
+<td>Baseline and enclosure revision</td>
+<td></td>
+</tr>
+<tr>
+<td>Pi model / board revision</td>
+<td></td>
+</tr>
+<tr>
+<td>HAT model / board revision</td>
+<td></td>
+</tr>
+<tr>
+<td>Radio model / region / board revision</td>
+<td></td>
+</tr>
+<tr>
+<td>Firmware release / source commit</td>
+<td></td>
+</tr>
+<tr>
+<td>Image file / checksum</td>
+<td></td>
+</tr>
+<tr>
+<td>Overlay / calibration file / checksum</td>
+<td></td>
+</tr>
+<tr>
+<td>Approved region / occupied channel / width / TX setting</td>
+<td></td>
+</tr>
+<tr>
+<td>Antenna / gain / feed loss / reviewed EIRP</td>
+<td></td>
+</tr>
+<tr>
+<td>GNSS model / firmware / interface / supply / baud</td>
+<td></td>
+</tr>
+<tr>
+<td>Pack model / chemistry / series-parallel arrangement / Wh</td>
+<td></td>
+</tr>
+<tr>
+<td>Charger / regulator / controller / settings</td>
+<td></td>
+</tr>
+<tr>
+<td>Harness version / connector polarity check</td>
+<td></td>
+</tr>
+<tr>
+<td>Fasteners / carrier / gasket / top insert</td>
+<td></td>
+</tr>
+<tr>
+<td>Phone OS / application version</td>
+<td></td>
+</tr>
+</tbody></table></div>
+<h2>Acceptance record</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Expected result</th>
+<th>Observed result / evidence</th>
+<th>Pass / fail / not run</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Power polarity and no shorts</td>
+<td>Matches reviewed harness</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Voltage at Pi under peak load</td>
+<td>Within selected Pi supply limits; no undervoltage/reset</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Local management after three cold boots</td>
+<td>Reachable each time</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Radio identification and approved profile</td>
+<td>Matches record</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>GNSS outdoor fix and reconnect</td>
+<td>Fresh position and time after recovery</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Two-node internet-disconnected messages</td>
+<td>Meets requirement/sample count</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Manual acknowledgement distinct from delivery</td>
+<td>UI makes distinction clear</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Voice with selected accessory/application</td>
+<td>Intelligible and reconnects</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Phone locked / reconnect</td>
+<td>Behaviour documented and usable</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Charge source inserted / removed</td>
+<td>No reset/backfeed under supported operating mode</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Low battery / orderly shutdown / restart</td>
+<td>Predictable; no filesystem corruption</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Representative portable runtime</td>
+<td>Measured load and duration recorded</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Closed-case temperatures</td>
+<td>Below each selected component&#39;s limits</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Capped and correct-mated sealing tests</td>
+<td>Defined test conditions pass</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Module replacement / rollback</td>
+<td>Known-good behaviour restored</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Third-node verified relay</td>
+<td>Route dependency and recovery demonstrated</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table></div>
+<h2>Failure and repair notes</h2>
+<p>Record the last passing check, one change made, the result, and the rollback result. Attach redacted logs/photos and the field-results CSV where useful. A blank or not-run row is not evidence of a pass.</p>
+</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

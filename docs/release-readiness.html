@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Release readiness · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Release readiness</h1>
+<p>Goal: a cohesive, serviceable AuMaNET product using off-the-shelf AliExpress parts, approachable for tech-savvy people who are not developers.</p>
+<p><strong>Current release status: design prototype.</strong> The project is not complete. Previous work produced source references and prototype specifications; that was progress, not a verified build release.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Required outcome</th>
+<th>Current state</th>
+<th>Required evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Clear active specification</td>
+<td>Consolidated current-design page</td>
+<td>Cross-check against every active diagram, parts row and connection note</td>
+</tr>
+<tr>
+<td>Exact off-the-shelf purchasing</td>
+<td>Incomplete</td>
+<td>Verified AliExpress listing/model/revision for each required item and compatible received parts</td>
+</tr>
+<tr>
+<td>Reproducible non-developer setup</td>
+<td>Incomplete</td>
+<td>Pinned image/overlay/calibration, browser-led steps and successful independent build</td>
+</tr>
+<tr>
+<td>Working six-cell power</td>
+<td>Incomplete</td>
+<td>Selected module set and passed power/charging/shutdown record</td>
+</tr>
+<tr>
+<td>Simple carrier and enclosure</td>
+<td>Incomplete</td>
+<td>Adapted CAD, fit, print settings, dimensions and assembly photographs</td>
+</tr>
+<tr>
+<td>GNSS and two RF kits</td>
+<td>Documented candidates</td>
+<td>Actual GNSS and antenna matching/range results</td>
+</tr>
+<tr>
+<td>Offline messages and voice/data</td>
+<td>Requirements only</td>
+<td>Phone/client evidence in disconnected two- and three-node trials</td>
+</tr>
+<tr>
+<td>Repair and upgrade path</td>
+<td>Checklist and module boundaries</td>
+<td>One demonstrated replacement/rollback and matching version record</td>
+</tr>
+<tr>
+<td>User-friendly operation</td>
+<td>Controls proposed</td>
+<td>Glove-use, indicator comprehension, charging/connection and recovery observations</td>
+</tr>
+<tr>
+<td>Australian configuration</td>
+<td>Unresolved</td>
+<td>Equipment and RF-profile review for installed antennas</td>
+</tr>
+</tbody></table></div>
+<h2>Open engineering decisions</h2>
+<ol>
+<li>Choose the power/charging/shutdown modules. Check actual Heltec GPIO use before any stacking purchase.</li>
+<li>Resolve exact AliExpress listings. The browser site policy currently prevents direct AliExpress inspection; do not bypass that restriction. User-supplied captures can identify candidates, while manufacturer documentation and received-parts tests establish technical evidence.</li>
+<li>Pin and test the exact HC01P V2 image and board configuration.</li>
+<li>Produce adapted carrier/top/base files only after the component envelopes and harnesses are known.</li>
+<li>Run the build record with physical hardware, then let another builder follow the guide without code changes.</li>
+</ol>
+<h2>Known compatibility finding</h2>
+<p>The Heltec HAT schematic assigns BCM GPIO2 to RGB green, GPIO3 to radio wake, GPIO6 to RGB red and GPIO16 to RGB blue. Geekworm X1209 uses GPIO2/3 for I2C and GPIO6/16 for power functions. These are <strong>shared functions in conflict</strong>, not a verified compatible stack. The X1209 also accepts a parallel/single-cell battery system, not the proposed 3S2P pack. It remains excluded from the first-build recipe unless a revised interface design is independently validated.</p>
+<p>Sources: <a href="https://resource.heltec.cn/download/HT-HC01PHAT_V1_0/HT-HC01PHAT_V1_0.PDF">Heltec HAT schematic</a>, <a href="https://wiki.geekworm.com/X1209_Hardware">X1209 hardware</a>, <a href="https://wiki.geekworm.com/X1209">X1209 battery requirements</a>.</p>
+<h2>What is not acceptable proof of completion</h2>
+<p>An HTML illustration is not validated CAD. An IC datasheet is not proof that a seller&#39;s assembled charger implements it correctly. A Pi-compatible label is not proof of HAT compatibility. A link checker does not prove a working radio. Published maximum range does not prove field coverage. Release only the outcomes the evidence supports.</p>
+</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>HaLow antenna shortlist: voice and data, practical range · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>HaLow antenna shortlist: voice and data, practical range</h1>
+<p>Reviewed 2026-11-05. AliExpress-only purchasing; exact listings, landed costs and received antenna performance remain unverified. These are engineering candidates rather than a completed purchase selection. GPS antennas are separate and cannot substitute for HaLow antennas.</p>
+<h2>Two interchangeable sets</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Set</th>
+<th>Candidate</th>
+<th>Intended use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A: compact mobile</td>
+<td><strong>Heltec GT-800 whip</strong>, correct 915 MHz option; manufacturer specifies 863-928 MHz and 50 ohms</td>
+<td>Default portable/vehicle-group antenna to evaluate. Compact omnidirectional antenna avoids needing to aim at moving peers. Published gain in the actual installed configuration still needs checking; no invented dBi or range claim.</td>
+</tr>
+<tr>
+<td>B: elevated camp/relay</td>
+<td><strong>Heltec fiberglass omni, 900-930 MHz / 5.5 dBi / N male option</strong></td>
+<td>Mount on a supported short mast at camp, with an appropriate short low-loss feed. Keep mechanical weight off the radio&#39;s SMA port. Higher-gain omni is a tradeoff in vertical coverage, not an unconditional range improvement in gullies or on slopes.</td>
+</tr>
+</tbody></table></div>
+<p>The <a href="https://heltec.org/project/gt-800-whip-antenna/">GT-800 manufacturer page</a> explicitly includes HaLow use. The <a href="https://heltec.org/project/fiberglass-omni-antennas/">fiberglass product page</a> mixes several variants and contains inconsistent generic details; require the selected antenna&#39;s gain/pattern/dimensions and matching listing before ordering. Do not select its 868-only option. A <a href="https://mikrotik.com/product/915_omni_antenna">MikroTik 915 Omni</a>, documented at 5.2 dBi with mounting/feed accessories, is a technical comparison only; AliExpress sourcing and relative price are not established.</p>
+<p>These are two alternative single-antenna setups for the same radio, not a two-antenna MIMO system. Start with one compact antenna per pilot node and one mast kit to test as a relay. A directional panel/Yagi can be evaluated later for a fixed known path, but would not serve dispersed moving vehicles in every direction. Do not buy a vague high-gain antenna on its dBi label alone.</p>
+<h2>Connector and mounting plan</h2>
+<p>Proposed enclosure interface: <strong>standard SMA female bulkhead</strong>, with SMA-male compact whip. Internally use the exact micro-coax plug matching the received HC01P V2 socket, with a short flexible pigtail. The photos and Heltec feeder catalogue suggest U.FL/IPEX generation 1 as a candidate; verify socket dimensions and mating part rather than treating all IPEX connectors as interchangeable. <a href="https://heltec.org/project/ipex1-to-sma-antenna-feeder-cable-rf113-10mm/">Heltec feeder reference</a>.</p>
+<p>For the N-male fiberglass option, the remote cable needs N-female at the antenna and SMA-male at the enclosure bulkhead. Confirm pin/socket and thread at both ends; SMA and RP-SMA are different. Strain-relieve the mast feed and use the selected sealing system, not an unsupported heavy antenna on a miniature connector. Mount vertically, clear of bodies/metalwork, and keep GPS separate. A roof mount&#39;s ground-plane requirements follow its antenna design.</p>
+<p>Turn off radio power before antenna changes. Do not operate an enabled transmitter with an open RF port. No splitter is included. Characterise feed loss at the operating band and minimise cable length; raising a radio nearer the antenna can be better than a long thin coax run.</p>
+<h2>Range and Australian operating gate</h2>
+<p>Use a documented antenna match across the <strong>entire occupied HaLow channel</strong>, not just a resonance at 915 MHz. Verify return loss/VSWR in the installed state, ideally with a calibrated antenna analyser; a good VSWR alone does not prove gain or efficiency. A LoRa-labelled passive antenna can be a candidate if its frequency coverage, impedance, radiation and connector suit the HaLow channel; LoRa branding alone establishes none of these.</p>
+<p>No antenna is inherently high-speed. Assess voice/data goodput, loss and delay alongside reach. Test the narrowest supported/compliant channel that meets application demand, with 1/2/4 MHz as evaluation widths rather than approved presets. Do not assume 8 MHz or maximum PHY rate gives the best useful distance. Record channel, MCS, power and traffic load in each trial.</p>
+<p><a href="https://www.acma.gov.au/licences/low-interference-potential-devices-lipd-class-licence">ACMA guidance</a> and the current applicable class-licence provision must be checked for the exact waveform/equipment. Each antenna needs its own power profile: <strong>EIRP = conducted power + antenna gain - feed loss</strong>, in dB units. Example only: 27 dBm + 5.5 dBi - 1 dB = 31.5 dBm; that calculation does not establish permission to operate there. Do not retain maximum TX power automatically after fitting the mast antenna. No approved Australian TX settings or guaranteed distance are stated yet.</p>
+<h2>GPS antenna is a separate selection</h2>
+<p>The preferred DIY GPS receiver is the <strong>assembled LC76G breakout</strong>. Begin with its supplied compatible antenna and verify whether the offer includes it. The receiver, antenna bias, connector, coax and external placement must agree. A bare GNSS antenna connected to Pi GPIO cannot generate location data. See <a href="diy-selection.html">GPS wiring and power-board comparison</a>.</p>
+<h2>Purchase/field acceptance</h2>
+<p>Obtain matching AliExpress listing captures for both antenna variants and pigtails. Confirm band, gain evidence, impedance, RF connector, dimensions, mounting and cable attenuation. First test two matching compact antennas, then change one end to the mast kit while holding location and settings constant. Repeat in open ground, forest and gullies with bidirectional messages and voice. Record failures and installed height; no general kilometre promise is appropriate before those trials.</p>
+</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Heltec HT-HC01P V2 + HAT candidate · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Heltec HT-HC01P V2 + HAT candidate</h1>
+<p>Reviewed 2026-11-05. Status: identified candidate; exact bundle compatibility, Australian compliance and field performance remain unverified.</p>
+<h2>Evidence</h2>
+<p>The user supplied a nine-page PDF capture of AliExpress item 1005012384315442, titled <code>Heltec HC01P V2 WiFi HaLow Module 863-928MHz Mini PCIe.pdf</code>. It is a seller-page capture, not a manufacturer datasheet. Page 1 visibly selects <strong>HC01P V2 and HAT</strong>, <strong>902-928MHZ</strong>, and displays <strong>AU$34.16</strong>, tax excluded where applicable. This is a historical screenshot price, not a current quote. Three bundles at that captured price would be AU$102.48 before tax and any delivery charges, excluding hosts, antennas, power and cases. Confirm the included parts with the seller.</p>
+<p>Do not use the page&#39;s explicitly AI-generated overview as engineering evidence. Some generic listing attributes are inconsistent (for example, accessory type USB-to-DC cable); the selected option, photographs and technical table are stronger identification evidence. No customer/account or checkout information from the PDF is stored in the repository.</p>
+<h2>Documented specifications</h2>
+<p>The PDF technical table (page 2), feature list (page 3) and <a href="https://heltec.org/project/hc01p-v2/">Heltec product documentation</a> agree on:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Published value / interpretation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Chip</td>
+<td>Morse Micro MM6108IQ</td>
+</tr>
+<tr>
+<td>Standard</td>
+<td>IEEE 802.11ah Wi-Fi HaLow</td>
+</tr>
+<tr>
+<td>Module supply</td>
+<td>3.3 V; this is not a complete node input specification</td>
+</tr>
+<tr>
+<td>Regional variants</td>
+<td>863-870 MHz and 902-928 MHz; not one continuous 863-928 MHz operating band</td>
+</tr>
+<tr>
+<td>902-928 MHz variant bandwidths</td>
+<td>1 / 2 / 4 / 8 MHz advertised; legal usable settings still require AU review</td>
+</tr>
+<tr>
+<td>Maximum conducted output</td>
+<td>27 +/- 1 dBm advertised for 915 MHz variant; not an approved operating setting</td>
+</tr>
+<tr>
+<td>Advertised maximum PHY rate</td>
+<td>32.5 Mbps at 8 MHz, 15 Mbps at 4 MHz; not application goodput or a range guarantee</td>
+</tr>
+<tr>
+<td>Module envelope</td>
+<td>50.95 x 30.00 x 3.75 mm; verify carrier stack and connectors separately</td>
+</tr>
+<tr>
+<td>Operating environment</td>
+<td>-40 to +85 C; 10-90% RH non-condensing; does not establish enclosure weather protection</td>
+</tr>
+</tbody></table></div>
+<p>The manufacturer&#39;s regional note limits the 868 MHz variant to 1 MHz bandwidth and 16 dBm. Neither variant&#39;s full tuning range is blanket permission to transmit in Australia. Advertised kilometre-range claims are unmeasured for this project.</p>
+<h2>Host interface and carrier</h2>
+<p>The PDF pin map on page 3 labels multiplexed SPI/SDIO signals, wake, busy, reset and 3.3 V. <strong>Do not insert it into an arbitrary Mini PCIe socket and assume PCIe enumeration or electrical compatibility.</strong> Pages 4-7 show the V2 module and HT-HC01PHAT carrier; verify the actual carrier revision, schematic, pin mapping and supply capacity before assembly. No wiring instructions are approved from this capture alone.</p>
+<p>For SPI, the manufacturer FAQ calls for full-duplex transfers, level-triggered interrupts and DMA-backed transactions. Confirm the carrier&#39;s actual host transport against the firmware image and device-tree configuration.</p>
+<h2>Firmware and calibration gate</h2>
+<ul>
+<li><a href="https://resource.heltec.cn/download/HT-HC01P_V2">Heltec V2 resources</a> provide separate BCF, pinmap and Raspberry Pi firmware directories. Record exact files and checksums after selecting a compatible build.</li>
+<li>The generic FAQ names <code>bcf_mf08551.bin</code>. Treat that as a documentation lead requiring revision-specific confirmation, not a file to install automatically.</li>
+<li><a href="https://github.com/orgs/OpenMANET/discussions/50">OpenMANET community discussion #50</a> reports HC01P operation over SPI on Pi 4B and Zero 2 W. It does not establish that the exact V2 module/HAT combination here is validated. Its BCF and manual wiring must not be copied without revision checks.</li>
+<li><a href="https://openmanet.github.io/docs/hardware/heltec">OpenMANET&#39;s Heltec hardware page</a> documents the <strong>HT-HD01 V2 gateway</strong>, a different product. Its firmware image and <code>bcf_HD01_v2.bin</code> are not evidence of HC01P V2 support.</li>
+<li><a href="https://openmanet.github.io/docs/initial-setup.html">Upstream setup guidance</a> advises against 8 MHz and automatic channel selection. The advertised 8 MHz capability should not become the pilot default.</li>
+</ul>
+<h2>Before purchase / deployment</h2>
+<ol>
+<li>Confirm 902-928 MHz V2 module plus exact HAT revision and contents, antenna inclusion and connector type, supply requirements and landed AUD quote.</li>
+<li>Verify Pi model, carrier transport, supported OpenMANET image, overlay and V2-specific calibration together on one bench node before buying the remaining two.</li>
+<li>Resolve Australian equipment conformity and applicable channel, occupied bandwidth, power and EIRP conditions. No transmit profile is approved here.</li>
+<li>Measure consumption and thermal behaviour, then adapt community enclosure CAD for the actual Pi/HAT/module stack. Generic Pi + Seeed case fit is not established.</li>
+<li>Pass the offline, acknowledgement, relay and field tests in the main project specification before relying on it for group communications.</li>
+</ol>
+<p>The PDF is retained in the user&#39;s Downloads folder; it is not committed because it includes personalised shopping-page content. This note preserves the relevant technical evidence without that content.</p>
+</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

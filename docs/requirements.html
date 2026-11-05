@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pilot requirements · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Pilot requirements</h1>
+<p>These are proposed engineering targets, not measured capabilities. Confirm group size, budget, phone platforms, terrain and required distances before procurement.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Acceptance evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>R01</td>
+<td>Operate without cellular, internet or cloud login</td>
+<td>Cold-start all three nodes and phones with mobile data disabled; exchange messages</td>
+</tr>
+<tr>
+<td>R02</td>
+<td>Phone access via ordinary Wi-Fi</td>
+<td>Record each tested Android/iOS device, OS, app and reconnect behaviour</td>
+</tr>
+<tr>
+<td>R03</td>
+<td>Distinguish queued, delivered and human acknowledged</td>
+<td>Send 20 check-ins; no delivery receipt is presented as a human acknowledgement</td>
+</tr>
+<tr>
+<td>R04</td>
+<td>Show position age and uncertainty</td>
+<td>Disconnect a phone; its last position becomes visibly stale after proposed 120 s</td>
+</tr>
+<tr>
+<td>R05</td>
+<td>Recover after a relay disappears</td>
+<td>Remove middle node, restore it and log routes, losses and recovery time; proposed recovery target 60 s</td>
+</tr>
+<tr>
+<td>R06</td>
+<td>Text remains useful under load</td>
+<td>Proposed target: at least 95 of 100 short messages delivered within 10 s over a stable connected path, at each declared test condition</td>
+</tr>
+<tr>
+<td>R07</td>
+<td>Survive a day away from vehicle power</td>
+<td>Proposed 12 h portable runtime, measured under representative traffic and temperature</td>
+</tr>
+<tr>
+<td>R08</td>
+<td>Operate within Australian rules</td>
+<td>Record applicable class-licence provision, occupied bandwidth, power, antenna/cable calculations, equipment evidence and reviewer before transmission</td>
+</tr>
+<tr>
+<td>R09</td>
+<td>Keep participant data private</td>
+<td>Unique administrator secrets; documented mesh and application protection; revoke a lost node and phone</td>
+</tr>
+<tr>
+<td>R10</td>
+<td>No automatic emergency claim</td>
+<td>Help/check-in screen clearly states group-only delivery; user practises independent escalation</td>
+</tr>
+</tbody></table></div>
+<h2>Service priorities</h2>
+<p>P0: group text, check-in request, manual acknowledgement, recent location, battery and link state. P1: offline maps and optional voice after text passes. P2: images and file transfer with rate limits. Video is outside the initial scope.</p>
+<p>Proposed first cohort: two vehicles and one camp/relay node. A fourth walk-away node is a later expansion. Validate locked-phone notifications and background location separately; an open browser page cannot be assumed to run reliably in the background.</p>
+<h2>Security and resilience</h2>
+<p>Select a maintained application after testing phone support. Evaluate ATAK for Android-centric mapping and Reticulum-based messaging as separate candidates; neither integration is implemented here. If a custom client is needed, specify authenticated identities, encryption, durable queues, expiry, duplicate suppression and acknowledgement IDs before coding. A radio mesh alone does not guarantee store-and-forward across partitions.</p>
+<p>Use a distinct private admin network where supported. Restrict management access, disable unused WAN/cloud services, document recovery and backups, and cap retained location history. AI can assist code and log analysis; emergency decisions and message acknowledgement must remain deterministic and human controlled.</p>
+<h2>Builder experience and maintainability</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Acceptance evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>R11</td>
+<td>Use off-the-shelf AliExpress electronics for the first build</td>
+<td>Exact matching listings/revisions and received-parts evidence for each required BOM item</td>
+</tr>
+<tr>
+<td>R12</td>
+<td>Normal assembly and setup do not require software development</td>
+<td>A tech-savvy builder follows the published recipe without editing code or guessing terminal commands</td>
+</tr>
+<tr>
+<td>R13</td>
+<td>Replace modules without rebuilding the entire radio</td>
+<td>As-built harnesses and carrier plus one demonstrated replacement/rollback</td>
+</tr>
+<tr>
+<td>R14</td>
+<td>One authoritative current baseline</td>
+<td>Parts, diagrams and active instructions agree; old revisions are clearly historical</td>
+</tr>
+<tr>
+<td>R15</td>
+<td>Portable case is repeatable</td>
+<td>Released matching CAD, print settings, fastener counts, fit checks and assembly photos</td>
+</tr>
+<tr>
+<td>R16</td>
+<td>Offline documentation works for a new builder</td>
+<td>All handbook pages/images open from the downloaded folder; internal reading links show rendered content</td>
+</tr>
+</tbody></table></div>
+<p>R07 remains the proposed 12 h target. Current six-cell arithmetic predicts about 6.2 h at an assumed 8 W, so that requirement is not met by calculation or measurement. Do not relabel the estimate as a pass.</p>
+</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

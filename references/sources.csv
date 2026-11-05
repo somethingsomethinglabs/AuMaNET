@@ -31,3 +31,6 @@ S29,Bulgin Standard Ethernet primary datasheet,https://www.bulgin.com/products/m
 S30,Heltec HC01PHAT V1 schematic,https://resource.heltec.cn/download/HT-HC01PHAT_V1_0/HT-HC01PHAT_V1_0.PDF,Reviewed 2026-11-05,P2 UART and local regulator; actual received revision to verify
 S31,Waveshare LC76G breakout,https://www.waveshare.com/product/ai/expansions/lc76g-gnss-module.htm,Reviewed 2026-11-05,Preferred DIY GNSS candidate
 S32,Geekworm X728,https://wiki.geekworm.com/X728,Reviewed 2026-11-05,Integrated power comparator not selected six-cell solution
+S33,Geekworm X1209 hardware allocation,https://wiki.geekworm.com/X1209_Hardware,Reviewed 2026-11-05,GPIO2 GPIO3 GPIO6 GPIO16 conflict with selected Heltec HAT
+S34,Geekworm X1209 power and battery requirements,https://wiki.geekworm.com/X1209,Reviewed 2026-11-05,Parallel only battery input; not selected 3S2P solution
+S35,Raspberry Pi HAT power design guidance,https://github.com/raspberrypi/hats/blob/master/designguide.md,Reviewed 2026-11-05,Technical reference for regulated header power; not proof of selected harness

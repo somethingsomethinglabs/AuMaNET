@@ -49,6 +49,10 @@ A BMS is not a charger. A PD trigger is not a charger. A charger is not automati
 
 **Decision:** keep the modular 3S2P power architecture until a documented integrated six-cell solution is verified. I have not confirmed the cheapest board or a complete all-in-one purchasing choice. Switching to a different battery topology or cell count requires a deliberate design update, not a silent substitution.
 
+## Integrated UPS compatibility finding
+
+Geekworm X1209 is another documented Pi 4-capable UPS candidate, but it is **not a drop-in match** for our Heltec HAT. Its [hardware table](https://wiki.geekworm.com/X1209_Hardware) uses BCM GPIO2/3 for I2C and GPIO6/16 for power functions. Heltec's schematic assigns those to RGB/wake functions. It also accepts a parallel/single-cell battery system, not our proposed 3S2P pack. Do not stack these boards or change cell wiring on the strength of the Pi-compatible label. A topology/interface redesign would be a separate reviewed option.
+
 ## AliExpress purchase gates
 
 Verify exact listings for LC76G breakout/antenna, cells/BMS, charger/power-path board, 5 V regulator, power interposer and shutdown controller. Capture model/revision, schematic, input/output ratings, dimensions, supplier evidence and landed AUD total. The browser's site policy previously blocked AliExpress access; this research uses manufacturer sources and the user-supplied Heltec capture, with no bypass of that block. User-provided listing captures can establish candidate identity but not tested compatibility.

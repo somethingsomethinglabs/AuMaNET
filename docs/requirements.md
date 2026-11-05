@@ -26,3 +26,16 @@ Proposed first cohort: two vehicles and one camp/relay node. A fourth walk-away 
 Select a maintained application after testing phone support. Evaluate ATAK for Android-centric mapping and Reticulum-based messaging as separate candidates; neither integration is implemented here. If a custom client is needed, specify authenticated identities, encryption, durable queues, expiry, duplicate suppression and acknowledgement IDs before coding. A radio mesh alone does not guarantee store-and-forward across partitions.
 
 Use a distinct private admin network where supported. Restrict management access, disable unused WAN/cloud services, document recovery and backups, and cap retained location history. AI can assist code and log analysis; emergency decisions and message acknowledgement must remain deterministic and human controlled.
+
+## Builder experience and maintainability
+
+| ID | Requirement | Acceptance evidence |
+|---|---|---|
+| R11 | Use off-the-shelf AliExpress electronics for the first build | Exact matching listings/revisions and received-parts evidence for each required BOM item |
+| R12 | Normal assembly and setup do not require software development | A tech-savvy builder follows the published recipe without editing code or guessing terminal commands |
+| R13 | Replace modules without rebuilding the entire radio | As-built harnesses and carrier plus one demonstrated replacement/rollback |
+| R14 | One authoritative current baseline | Parts, diagrams and active instructions agree; old revisions are clearly historical |
+| R15 | Portable case is repeatable | Released matching CAD, print settings, fastener counts, fit checks and assembly photos |
+| R16 | Offline documentation works for a new builder | All handbook pages/images open from the downloaded folder; internal reading links show rendered content |
+
+R07 remains the proposed 12 h target. Current six-cell arithmetic predicts about 6.2 h at an assumed 8 W, so that requirement is not met by calculation or measurement. Do not relabel the estimate as a pass.

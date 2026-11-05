@@ -1,43 +1,47 @@
 # AuMaNET
 
-An Australian off-grid communications project for 4WD convoys and camping groups, built on community hardware and software with AI-assisted development.
+A DIY off-grid communications project for Australian 4WD and camping groups. Build a local network for messages, voice and recent position when mobile coverage is unavailable.
 
-**Start here: [HTML project overview](docs/index.html)** — download or open locally in a browser. It is self-contained and works without internet; external references require a connection.
+**[Open the offline HTML overview](docs/index.html)** · **[Start your first build](docs/start-here.html)** · **[Current design](docs/current-design.html)** · **[One-node parts register](docs/parts.html)**
 
-Status: research and pilot specification, 5 November 2026. No hardware has been purchased, flashed or field validated. Hardware selection and Australian radio compliance remain open gates.
+Download the project folder and open the HTML in a browser. Normal reading requires no installation, server or programming. Keep the assets and neighbouring files with it. External sources need internet.
 
-## Intended outcome
+## What we are building
 
-Provide a second way to reach travelling companions when UHF calls go unanswered or coverage is lost: acknowledged text, recent position and group check-ins. HaLow is the proposed IP transport, with ordinary Wi-Fi connecting phones to vehicle/camp nodes. Radio connectivity does not establish that a person has seen a message.
+- Raspberry Pi 4B with the Heltec HC01P V2 + matching HAT bundle.
+- Six-cell portable power in a lower battery base, compute/radio in the centre, and a serviceable sealed top interface insert.
+- USB-C charging, one USB-C accessory port, sealed Ethernet, HaLow antenna and a GNSS antenna exit.
+- Internal GNSS receiver, field controls and interchangeable mobile/camp antenna kits.
 
-## Project files
+**Status: design prototype, 5 November 2026.** No complete purchase-ready kit, tested power system, exact firmware recipe or adapted enclosure files have been released. The project has not been physically field validated. Read [release readiness](docs/release-readiness.html) before buying a whole kit.
 
-- [Overview, architecture, BOM, roadmap and references](docs/index.html)
-- [Requirements and acceptance criteria](docs/requirements.md)
-- [Build and field procedure](docs/build-and-test.md)
-- [Illustrated Pi 4 enclosure, six-cell battery and USB GPS specification](hardware/portable-node.md)
-- [Heltec HC01P V2 + HAT evidence and compatibility](hardware/heltec-hc01p-v2.md)
-- [Hardware and procurement register](hardware/bom.csv)
-- [Community source register](references/sources.csv)
-- [Field results template](field-tests/results-template.csv)
-- [Decision log](docs/decisions.md)
+## Find what you need
 
-- [DIY hardware and GPS connection selection](hardware/diy-selection.md)
+| You want to… | Read |
+|---|---|
+| Understand the project without being a developer | [Start here](docs/start-here.html) |
+| Check the active choices | [Current design](docs/current-design.html) |
+| Source parts | [One-node shopping register](docs/parts.html) / [CSV](hardware/bom.csv) |
+| See the case and top panel | [Portable-node specification](docs/portable-node.html) |
+| Understand GPS and power | [DIY connection plan](docs/diy-selection.html) / [pin register](hardware/pin-allocation.csv) |
+| Compare antenna kits | [RF selection](docs/antennas.html) |
+| Replace or upgrade a module | [Upgrade guide](docs/upgrades.html) |
+| Record a build | [Build record](docs/build-record.html) |
+| Check the evidence still missing | [Release readiness](docs/release-readiness.html) |
+| Edit the documentation | [Maintainer guide](docs/maintaining-docs.html) |
 
-- [HaLow antenna kits and RF matching](hardware/antennas.md)
+## Purchasing and community sources
+
+Purchased components are to come from **AliExpress only**. Manufacturer links are technical references, not alternate purchasing recommendations. Exact listings, included parts, revisions and received hardware must be checked. Existing phones/tools may be reused; the enclosure is printed from matching released files when available.
+
+The enclosure direction follows ties1887/Mesh-radio-Halow-LoRa; OpenMANET is the firmware/community starting point. Keep attribution, exact revisions and upstream licences. A HaLow brand or Pi-compatible label does not prove that two boards can work together. In particular, the documented X1209 power-HAT GPIO allocation conflicts with the selected Heltec HAT; it is not a drop-in stack.
 
 ## Working approach
 
-Pilot three matching nodes first. Evaluate OpenMANET-supported hardware before designing custom firmware. Keep upstream firmware and CAD in their original repositories; record exact revisions, licences and modifications when adopting them. Do not assume that a HaLow bridge supports mesh or that a US radio preset is legal in Australia.
+Verify one bench node, then a two-node offline link, then portable power and enclosure, then the three-node pilot. Keep UHF, a trip plan and an appropriate independent emergency option: a disconnected group mesh cannot reach emergency services by itself. Delivery does not establish human acknowledgement.
 
-This is an experimental group communications layer. Keep UHF, trip plans and an appropriate independent emergency option available. A disconnected group mesh cannot contact emergency services by itself.
+Original project material remains all rights reserved pending licence selection. Referenced community designs retain their own licences; shared derivative CAD must follow its source terms. Never commit credentials, private trip tracks or personal location logs.
 
-## Development
+## Documentation maintenance
 
-Edit the static HTML directly; no packages or cloud service are required. Open `docs/index.html` in a browser. Proposed application code, integrations, printable enclosures and radio settings must pass the documented gates before deployment.
-
-Original project material is currently all rights reserved; no blanket open-source licence has been selected. Referenced community material retains its upstream licence. Never commit credentials, real trip tracks or personal location logs.
-
-## Purchasing source
-
-User preference: **AliExpress only** for purchased parts. Manufacturer and community links are technical references, not alternate purchasing recommendations. Verify exact models, revisions, electrical ratings and listing contents; unresolved listings stay marked for sourcing.
+The committed HTML is ready to read. Maintainers can rebuild the detailed pages from Markdown/CSV with `npm ci --ignore-scripts`, `npm run docs:build` and `npm run docs:check`. See the maintainer guide for scope and verification limits. No runtime AI is required by the radio design.

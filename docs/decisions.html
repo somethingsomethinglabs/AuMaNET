@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Decision and action register · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><blockquote>
+<p><strong>Current baseline:</strong> <a href="current-design.html">current-design.md</a>. Revision notes below are history; later decisions supersede earlier port and GPS schedules.</p>
+</blockquote>
+<h1>Decision and action register</h1>
+<p>Date: 2026-11-05. All unmeasured values are proposals.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Decision / action</th>
+<th>State</th>
+<th>Exit evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D01</td>
+<td>HaLow as primary group IP transport</td>
+<td>User-selected design; performance unverified</td>
+<td>Pilot meets requirements in representative terrain</td>
+</tr>
+<tr>
+<td>D02</td>
+<td>OpenMANET as first firmware candidate</td>
+<td>Evaluate</td>
+<td>Exact supported hardware, licence and offline mesh verified</td>
+</tr>
+<tr>
+<td>D03</td>
+<td>Three matching pilot nodes</td>
+<td>Proposed</td>
+<td>Costed BOM and chosen hardware revision</td>
+</tr>
+<tr>
+<td>D04</td>
+<td>Heltec HC01P V2 + HAT; 902-928 MHz selected in supplied PDF</td>
+<td>User selected; compatibility unvalidated</td>
+<td>Exact carrier revision, matching image/overlay/BCF and AU evidence; see hardware review</td>
+</tr>
+<tr>
+<td>D05</td>
+<td>Australian radio settings</td>
+<td>Blocked pending hardware</td>
+<td>Applicable current rule and documented EIRP/channel review</td>
+</tr>
+<tr>
+<td>D06</td>
+<td>Phone app and background behaviour</td>
+<td>Open</td>
+<td>Android/iOS cohort known; offline and locked-screen trials pass</td>
+</tr>
+<tr>
+<td>D07</td>
+<td>ties1887 centre/base/top adaptation for Pi 4 + Heltec</td>
+<td>Proposed layout</td>
+<td>Exact physical stack and CAD fit; thermal and mounting tests</td>
+</tr>
+<tr>
+<td>D08</td>
+<td>Range and bandwidth</td>
+<td>Unknown</td>
+<td>Signed-off field report with raw data held privately</td>
+</tr>
+<tr>
+<td>D09</td>
+<td>Budget</td>
+<td>Open</td>
+<td>Supplier quotes, AUD landed cost, batteries/printing/spares included</td>
+</tr>
+<tr>
+<td>D10</td>
+<td>Source licences and revisions</td>
+<td>Required before reuse</td>
+<td>Exact CAD/firmware commits and per-directory licence checked</td>
+</tr>
+</tbody></table></div>
+<h2>AI development backlog</h2>
+<ol>
+<li>Define message and acknowledgement state model after evaluating existing clients.</li>
+<li>Create reproducible configuration templates with placeholders, never shared secrets.</li>
+<li>Add a health view showing neighbours, battery, message state and position age.</li>
+<li>Build a log summariser that redacts identities and coordinates.</li>
+<li>Add offline queue and reconnection tests if a custom application is approved.</li>
+</ol>
+<p>Review AI-generated network commands, dependencies and radio changes before use. Keep a rollback image and compare behaviour against a known-good build. AI is a development aid; no runtime AI is required for the safety workflow.</p>
+<h2>Historical revisions (superseded where noted)</h2>
+<h3>Portable-node baseline update — revision 2</h3>
+<p>User-selected styling: ties1887/Mesh-radio-Halow-LoRa at f0d285c67bc893ddacc5d8121fe1c92385cd54fb. Lower six-cell 3S2P battery base, central Pi 4/Heltec core, top interface/routing cap; one screw-fastened unit with no twist-lock requirement. Supersedes OpenNot5.</p>
+<p>Top panel: sealed USB-C PD charge input, USB-C downstream accessory port, USB-C UART service console, sealed nominal 12 V barrel charge input, RF and GPS feedthrough. Source selector/backfeed protection and a 3S buck-boost charger are mandatory before input wiring is approved. Managed load sharing is required for charge-and-run; fallback is shutdown and load isolation.</p>
+<p>Preferred Pi feed: regulated 5 V through a solder-free power interposer at header power pins, subject to Heltec clearance/current checks; internal USB-C remains fallback. Never feed 12 V directly to Pi. Charger board, connector SKUs, header interposer, audio/USB drivers and final CAD fit remain open gates. Six-cell estimate remains 6.2 h at 8 W with reserve.</p>
+<h2>Revision 3: top Ethernet and panel layout</h2>
+<p>User requires sealed Ethernet on the top. Add eight-contact Cat5e/6 RJ45 coupler to Pi built-in Ethernet, with matched cap/cable. Top-down illustration fixes proposed rear RF/LAN/GPS and front CHARGE/HOST/SERVICE/DC ordering. Final cap dimensions and routing depth depend on connector selection; no drilling dimensions released. No PoE subsystem selected.</p>
+<h2>Revision 4: simplified top panel</h2>
+<p>Latest user direction supersedes earlier port schedules: retain USB-C PD charging through pack management, one USB-C accessory host, sealed Ethernet and HaLow antenna. Remove the external USB console and 12 V barrel input. Preserve GPS via its sealed cable gland. Charging still needs a 3S charger and validated load sharing; regulated 5 V header power remains preferred.</p>
+<h2>Revision 5: field controls approved</h2>
+<p>Add recessed upper-side sealed power/shutdown button and top/front battery power and link indicators. Reserve blanked headset/PTT position; headset pinout and audio interface still need selection. Power controller must support starting from off and graceful shutdown. User allows flexible button placement.</p>
+<h2>Sourcing preference</h2>
+<p>User specifies AliExpress only for purchasing; Element14 excluded. Keep manufacturer specifications and community sources for technical verification. Exact matching listings remain procurement gates; no substitutions or verified availability are implied.</p>
+<h2>DIY hardware refinement</h2>
+<p>Pi 4 and supplied Heltec bundle confirmed. Prefer LC76G breakout on HAT UART with external antenna, pending actual board logic/power and firmware tests. USB GPS stays fallback. Six-cell modular power retained; no cheap all-in-one board or complete AliExpress shopping list verified. See hardware/diy-selection.md.</p>
+<h2>Antenna requirement</h2>
+<p>User prioritises practical range for voice/data and low cost, with interchangeable mobile and camp kits. GT-800 compact whip and Heltec 900-930 MHz 5.5 dBi mast omni are evaluation candidates; exact AliExpress listings, installed match and compliant per-antenna power profiles remain open.</p>
+<h2>Product-readiness audit</h2>
+<p>Consolidated the current baseline and non-developer build stages, changed BOM to one-node quantities with stable part IDs, and separated optional parts/tools. Found the X1209/Heltec GPIO conflict; it remains excluded. Offline HTML handbook is generated from source files. These documentation changes do not establish purchasing, CAD or hardware readiness; see release-readiness.md.</p>
+</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

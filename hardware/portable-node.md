@@ -1,3 +1,5 @@
+[Start here](../docs/start-here.md) · [Current baseline](../docs/current-design.md) · [Build readiness](../docs/release-readiness.md)
+
 # Portable Pi 4 radio: modular body and sealed top interfaces
 
 Plan revision 5, 2026-11-05. User-selected: Pi 4B, Heltec HAT/HC01P V2, six 18650 cells. Packaging proposal; no modified CAD or assembly has been validated.
@@ -37,7 +39,7 @@ Use an external heat-spreader coupled to the Pi CPU and a thermal barrier at the
 
 ![Proposed top-down connector layout](../docs/assets/top-panel.svg)
 
-Rear row: HaLow RF, sealed LAN and GPS gland. Front/operator row: USB-C charge and USB-C accessory host. The external GPS puck mounts off-panel so it does not cover connectors. Dashed circles reserve cap/grip clearance; the perimeter reserves the gasket land. Layout is a proposal, not a scaled cut-out drawing. The 120 x 95 mm cap and 45 mm routing depth may need enlargement for actual sealing collars, RJ45 backshells, cap tethers, wrench access and cable bend radii. Check all retained interfaces with every cable fitted before freezing the cap.
+Rear row: HaLow RF, sealed LAN and GPS gland. Front/operator row: USB-C charge and USB-C accessory host. The preferred GNSS antenna mounts off-panel so it does not cover connectors; its receiver is inside. The USB puck is a fallback with a different harness. Dashed circles reserve cap/grip clearance; the perimeter reserves the gasket land. Layout is a proposal, not a scaled cut-out drawing. The 120 x 95 mm cap and 45 mm routing depth may need enlargement for actual sealing collars, RJ45 backshells, cap tethers, wrench access and cable bend radii. Check all retained interfaces with every cable fitted before freezing the cap.
 
 ## Top interface schedule
 
@@ -47,17 +49,17 @@ Rear row: HaLow RF, sealed LAN and GPS gland. Front/operator row: USB-C charge a
 | **ACCESSORY / USB-C HOST** | Pi USB-A host -> compliant downstream Type-C interface with correct CC/current signalling and current protection -> sealed top USB-C. Initially USB 2.0 for digital headset, keyboard or other supported peripheral. |
 | **LAN / SEALED RJ45** | Eight-contact Cat5e/6 sealed panel coupler -> short flexible patch cable -> Pi 4 built-in RJ45. Target 1000BASE-T with all four pairs connected. Data only; no PoE power subsystem selected. |
 | **RF / HaLow** | Sealed bulkhead -> short correct-connector pigtail -> radio. |
-| **GPS** | Sealed gland or USB feedthrough -> external USB GPS puck -> separate Pi USB host port. |
+| **GPS** | Preferred: sealed antenna coax exit -> internal LC76G receiver -> HAT UART P2. Fallback: external USB receiver through an appropriate sealed cable exit. |
 
 Preferred non-invasive Pi power: regulated 5 V through a keyed GPIO power interposer/pass-through header, with USB-C power left unused. Header fit with the Heltec HAT must be verified; internal USB-C is the fallback. USB-C describes a connector, not a power/data role. Do not split one port across host/device/charging functions. Do not connect a PC host to ACCESSORY. A generic power-only bulkhead or passive adapter is not a verified downstream Type-C port: select a proper implementation and test C-to-C enumeration in both orientations.
 
 Administration uses Wi-Fi or the sealed Ethernet port. No external USB service console is included.
 
-Headsets must be **digital USB Audio Class** devices with playback/microphone drivers and voice-app routing validated on the pinned OpenWrt build. Passive analogue USB-C headsets are not sufficient. GPS/headset/accessories share Pi 4's published **1.2 A total USB budget**; a 5 A regulator does not increase it. Add a properly powered non-backfeeding hub only if necessary, updating space and power budgets.
+Headsets must be **digital USB Audio Class** devices with playback/microphone drivers and voice-app routing validated on the pinned OpenWrt build. Passive analogue USB-C headsets are not sufficient. USB-connected GPS fallback, headsets and accessories share Pi 4's published **1.2 A total USB budget**; a 5 A regulator does not increase it. Add a properly powered non-backfeeding hub only if necessary, updating space and power budgets.
 
 ## Watertight top cap
 
-Use a replaceable recessed top insert, splash shoulders, strain relief, enough space to grip caps, and distinct charge/host/service labels. All external electrical interfaces are at the top; internal harnesses reach the Pi's existing side ports. Battery/core remain attached for normal use.
+Use a replaceable recessed top insert, splash shoulders, strain relief, enough space to grip caps, and distinct CHARGE/ACCESSORY/LAN labels. Cable interfaces are at the top; the power button and blanked PTT position are on the upper side; internal harnesses reach the Pi's existing side ports. Battery/core remain attached for normal use.
 
 [Bulgin 4000 C-Type Buccaneer](https://www.bulgin.com/us/products/range/circular-data-connectors/4000-series-data-buccaneers.html) is a reference family, not a selected SKU. Select receptacle, sealing cable, gasket and cap together. Require documented sealing **capped when unused** and **mated using the specified cable**. An ordinary USB-C lead does not automatically preserve the connector's mated rating; it may be dry-weather only. Chassis twist locking is omitted; connector coupling required for sealing can remain.
 
