@@ -149,4 +149,56 @@
 <li><strong>Release mechanical files and exact shopping BOM:</strong> populate model/revision/listing, received dimensions, quantities and fit photos. Freeze printable carrier/top only after the real parts fit. Battery work resumes later against the stable 5 V requirement.</li>
 </ol>
 <p>The immediate purchase/identification gaps are <strong>GNSS receiver kit, RF pigtail, cooling, sealed panel assemblies, internal leads and mounting hardware</strong>. Complete BOM rows now exist for these; listing-level selection and physical qualification are still pending.</p>
+<h2>Active cellular and top-panel revision 7</h2>
+<p>The user now includes a <strong>Sierra EM7430 on a USB WWAN adapter</strong> as the cellular/GNSS candidate. It is not a PCIe data connection to the Pi: the adapter carries USB, SIM and module power. Internet uplink is the purpose; native carrier calls and SMS features are outside this project&#39;s scope. Exact adapter, firmware, carrier operation, GNSS output and power remain verification items.</p>
+<p><img src="assets/top-panel.svg" alt="Top view with HaLow, LTE main, LTE auxiliary and GNSS positions"></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Position viewed from above</th>
+<th>Interface</th>
+<th>Internal destination</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Rear left</td>
+<td>HaLow antenna bulkhead</td>
+<td>Existing Heltec radio through its verified matching pigtail</td>
+</tr>
+<tr>
+<td>Rear right</td>
+<td>LTE MAIN antenna bulkhead</td>
+<td>EM7430 MAIN coax socket</td>
+</tr>
+<tr>
+<td>Front left</td>
+<td>LTE AUX antenna bulkhead</td>
+<td>EM7430 AUX diversity/MIMO coax socket</td>
+</tr>
+<tr>
+<td>Front right</td>
+<td>GNSS sealed coax exit</td>
+<td>EM7430 dedicated GNSS socket; cable to compatible sky-facing patch/puck</td>
+</tr>
+<tr>
+<td>Centre rear</td>
+<td>Sealed Ethernet</td>
+<td>Short eight-contact patch cable to Pi LAN</td>
+</tr>
+<tr>
+<td>Centre front left</td>
+<td>C1 USB-C CHARGE</td>
+<td>Future battery charging system; protocol TBD</td>
+</tr>
+<tr>
+<td>Centre front right</td>
+<td>C2 USB-C ACCESSORY HOST</td>
+<td>Compliant downstream host interface from Pi USB</td>
+</tr>
+</tbody></table></div>
+<p>Four RF paths are reserved, not necessarily four upright antennas. GPS may use a remote puck through the gland. LTE MAIN and AUX need two suitable cellular elements; they do not share the HaLow antenna. Exact microcoax mating parts, bulkhead seals, LTE band coverage, GNSS bias and cable loss must be selected from the actual module/antenna documentation. Keep short, strain-relieved coax runs.</p>
+<p>The <strong>Pi4 onboard Wi-Fi/Bluetooth antenna</strong> provides local access; no new Bluetooth or Wi-Fi bulkhead is included. Keep its antenna area away from metal heat spreaders, battery and cabling, and verify phone access through the case. No GPIO antenna pinout is involved. Bluetooth phone networking is not assumed or required.</p>
+<p>Corner placement maximises available separation within this concept, but proves no RF isolation. Test GNSS acquisition/fix retention during LTE uplink and HaLow traffic, LTE signal/throughput with both elements, and local Wi-Fi. The 120 x 95 mm cap is still a provisional envelope: check seven interface bodies, caps, nuts, fingers, gasket and cable bends before freezing CAD. Resize if necessary; no hole coordinates or drilling diameters are released. Power button/PTT blank remain on the upper side and status windows remain near the top shoulder.</p>
+<p><strong>GNSS replacement:</strong> EM7430 GNSS is the integrated candidate; LC76G becomes a fallback. Confirm position data over USB and operation without a SIM or cellular service before removing the separate receiver from the build. Verify selected image modem drivers, routing/failover to cellular without breaking local mesh, SIM/APN, reconnection, power/thermal peaks and antenna coexistence. Battery internals remain TBD behind the regulated 5 V supply boundary; the previous 15 W minimum is not proof of sufficient capacity with LTE.</p>
+<p>Technical source: <a href="https://source.sierrawireless.com/resources/airprime/minicard/74xx/airprime_em7430_product_technical_specification">Sierra EM7430 hardware specification</a>. These are concept positions, not final electrical wiring or fabrication drawings.</p>
 </main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

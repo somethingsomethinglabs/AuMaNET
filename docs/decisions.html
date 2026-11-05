@@ -6,83 +6,30 @@
 </blockquote>
 <h1>Decision and action register</h1>
 <p>Date: 2026-11-05. All unmeasured values are proposals.</p>
-<div class="table-wrap"><table>
-<thead>
-<tr>
-<th>ID</th>
-<th>Decision / action</th>
-<th>State</th>
-<th>Exit evidence</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>D01</td>
-<td>HaLow as primary group IP transport</td>
-<td>User-selected design; performance unverified</td>
-<td>Pilot meets requirements in representative terrain</td>
-</tr>
-<tr>
-<td>D02</td>
-<td>OpenMANET as first firmware candidate</td>
-<td>Evaluate</td>
-<td>Exact supported hardware, licence and offline mesh verified</td>
-</tr>
-<tr>
-<td>D03</td>
-<td>Three matching pilot nodes</td>
-<td>Proposed</td>
-<td>Costed BOM and chosen hardware revision</td>
-</tr>
-<tr>
-<td>D04</td>
-<td>Heltec HC01P V2 + HAT; 902-928 MHz selected in supplied PDF</td>
-<td>User selected; compatibility unvalidated</td>
-<td>Exact carrier revision, matching image/overlay/BCF and AU evidence; see hardware review</td>
-</tr>
-<tr>
-<td>D05</td>
-<td>Australian radio settings</td>
-<td>Blocked pending hardware</td>
-<td>Applicable current rule and documented EIRP/channel review</td>
-</tr>
-<tr>
-<td>D06</td>
-<td>Phone app and background behaviour</td>
-<td>Open</td>
-<td>Android/iOS cohort known; offline and locked-screen trials pass</td>
-</tr>
-<tr>
-<td>D07</td>
-<td>ties1887 centre/base/top adaptation for Pi 4 + Heltec</td>
-<td>Proposed layout</td>
-<td>Exact physical stack and CAD fit; thermal and mounting tests</td>
-</tr>
-<tr>
-<td>D08</td>
-<td>Range and bandwidth</td>
-<td>Unknown</td>
-<td>Signed-off field report with raw data held privately</td>
-</tr>
-<tr>
-<td>D09</td>
-<td>Budget</td>
-<td>Open</td>
-<td>Supplier quotes, AUD landed cost, batteries/printing/spares included</td>
-</tr>
-<tr>
-<td>D10</td>
-<td>Source licences and revisions</td>
-<td>Required before reuse</td>
-<td>Exact CAD/firmware commits and per-directory licence checked</td>
-</tr>
-</tbody></table></div>
+<p>| ID | Decision / action | State | Exit evidence |</p>
+<p>|---|---|---|---|</p>
+<p>| D01 | HaLow as primary group IP transport | User-selected design; performance unverified | Pilot meets requirements in representative terrain |</p>
+<p>| D02 | OpenMANET as first firmware candidate | Evaluate | Exact supported hardware, licence and offline mesh verified |</p>
+<p>| D03 | Three matching pilot nodes | Proposed | Costed BOM and chosen hardware revision |</p>
+<p>| D04 | Heltec HC01P V2 + HAT; 902-928 MHz selected in supplied PDF | User selected; compatibility unvalidated | Exact carrier revision, matching image/overlay/BCF and AU evidence; see hardware review |</p>
+<p>| D05 | Australian radio settings | Blocked pending hardware | Applicable current rule and documented EIRP/channel review |</p>
+<p>| D06 | Phone app and background behaviour | Open | Android/iOS cohort known; offline and locked-screen trials pass |</p>
+<p>| D07 | ties1887 centre/base/top adaptation for Pi 4 + Heltec | Proposed layout | Exact physical stack and CAD fit; thermal and mounting tests |</p>
+<p>| D08 | Range and bandwidth | Unknown | Signed-off field report with raw data held privately |</p>
+<p>| D09 | Budget | Open | Supplier quotes, AUD landed cost, batteries/printing/spares included |</p>
+<p>| D10 | Source licences and revisions | Required before reuse | Exact CAD/firmware commits and per-directory licence checked |</p>
 <h2>AI development backlog</h2>
 <ol>
-<li>Define message and acknowledgement state model after evaluating existing clients.</li>
-<li>Create reproducible configuration templates with placeholders, never shared secrets.</li>
-<li>Add a health view showing neighbours, battery, message state and position age.</li>
-<li>Build a log summariser that redacts identities and coordinates.</li>
-<li>Add offline queue and reconnection tests if a custom application is approved.</li>
+<li><p>Define message and acknowledgement state model after evaluating existing clients.</p>
+</li>
+<li><p>Create reproducible configuration templates with placeholders, never shared secrets.</p>
+</li>
+<li><p>Add a health view showing neighbours, battery, message state and position age.</p>
+</li>
+<li><p>Build a log summariser that redacts identities and coordinates.</p>
+</li>
+<li><p>Add offline queue and reconnection tests if a custom application is approved.</p>
+</li>
 </ol>
 <p>Review AI-generated network commands, dependencies and radio changes before use. Keep a rollback image and compare behaviour against a known-good build. AI is a development aid; no runtime AI is required for the safety workflow.</p>
 <h2>Historical revisions (superseded where noted)</h2>
@@ -116,6 +63,8 @@
 <p>User supplied F23J5V5A1S-C enclosed converter. Prefer battery barrel -&gt; correct adapter/fused harness -&gt; converter -&gt; Pi internal USB-C. No GPIO power interposer required for first build. Earlier header-first decisions are superseded; top CHARGE and ACCESSORY roles stay unchanged. Exact converter input range loaded output dimensions and charging system remain to verify.</p>
 <h2>5 November 2026 — DIY cells and simple USB-C charging</h2>
 <p>User selected six individual cells in 3S2P and the new USB-C 3S charger candidate, with a separate balancing/protection BMS still to source. Wrapped pack becomes an alternative. Retain enclosed Pi converter; barrel harness optional. Charge with load off until managed charge-and-run is established. See <a href="charger-candidate-01.html">assessment</a>.</p>
-<h2>5 November 2026 � defer battery design; freeze operating hardware</h2>
+<h2>5 November 2026 - defer battery design; freeze operating hardware</h2>
 <p>User deferred pack topology, cells, charging and converter decisions. Battery interface is regulated 5 V / 3 A continuous minimum (15 W); 5 A / 25 W headroom optional. Historical power candidates are not an active shopping prescription. Continue core, GNSS, RF, cooling, interfaces and mechanical BOM research. See <a href="operating-hardware.html">operating hardware</a>.</p>
+<h2>5 November 2026 - LTE/GNSS and top-panel revision 7</h2>
+<p>EM7430 on USB WWAN adapter is the integrated cellular internet/GNSS candidate. LC76G remains a fallback. Reserve HaLow, LTE MAIN, LTE AUX and GNSS paths, with two USB-C ports and sealed LAN in the centre. Pi onboard Wi-Fi/Bluetooth stays internal. Carrier calls and SMS excluded. Battery architecture TBD. Concept layout requires mechanical fit and RF coexistence verification before fabrication.</p>
 </main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

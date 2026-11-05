@@ -51,3 +51,30 @@ Use the [existing antenna detail](../hardware/antennas.md) for the two interchan
 6. **Release mechanical files and exact shopping BOM:** populate model/revision/listing, received dimensions, quantities and fit photos. Freeze printable carrier/top only after the real parts fit. Battery work resumes later against the stable 5 V requirement.
 
 The immediate purchase/identification gaps are **GNSS receiver kit, RF pigtail, cooling, sealed panel assemblies, internal leads and mounting hardware**. Complete BOM rows now exist for these; listing-level selection and physical qualification are still pending.
+
+
+## Active cellular and top-panel revision 7
+
+The user now includes a **Sierra EM7430 on a USB WWAN adapter** as the cellular/GNSS candidate. It is not a PCIe data connection to the Pi: the adapter carries USB, SIM and module power. Internet uplink is the purpose; native carrier calls and SMS features are outside this project's scope. Exact adapter, firmware, carrier operation, GNSS output and power remain verification items.
+
+![Top view with HaLow, LTE main, LTE auxiliary and GNSS positions](assets/top-panel.svg)
+
+| Position viewed from above | Interface | Internal destination |
+|---|---|---|
+| Rear left | HaLow antenna bulkhead | Existing Heltec radio through its verified matching pigtail |
+| Rear right | LTE MAIN antenna bulkhead | EM7430 MAIN coax socket |
+| Front left | LTE AUX antenna bulkhead | EM7430 AUX diversity/MIMO coax socket |
+| Front right | GNSS sealed coax exit | EM7430 dedicated GNSS socket; cable to compatible sky-facing patch/puck |
+| Centre rear | Sealed Ethernet | Short eight-contact patch cable to Pi LAN |
+| Centre front left | C1 USB-C CHARGE | Future battery charging system; protocol TBD |
+| Centre front right | C2 USB-C ACCESSORY HOST | Compliant downstream host interface from Pi USB |
+
+Four RF paths are reserved, not necessarily four upright antennas. GPS may use a remote puck through the gland. LTE MAIN and AUX need two suitable cellular elements; they do not share the HaLow antenna. Exact microcoax mating parts, bulkhead seals, LTE band coverage, GNSS bias and cable loss must be selected from the actual module/antenna documentation. Keep short, strain-relieved coax runs.
+
+The **Pi4 onboard Wi-Fi/Bluetooth antenna** provides local access; no new Bluetooth or Wi-Fi bulkhead is included. Keep its antenna area away from metal heat spreaders, battery and cabling, and verify phone access through the case. No GPIO antenna pinout is involved. Bluetooth phone networking is not assumed or required.
+
+Corner placement maximises available separation within this concept, but proves no RF isolation. Test GNSS acquisition/fix retention during LTE uplink and HaLow traffic, LTE signal/throughput with both elements, and local Wi-Fi. The 120 x 95 mm cap is still a provisional envelope: check seven interface bodies, caps, nuts, fingers, gasket and cable bends before freezing CAD. Resize if necessary; no hole coordinates or drilling diameters are released. Power button/PTT blank remain on the upper side and status windows remain near the top shoulder.
+
+**GNSS replacement:** EM7430 GNSS is the integrated candidate; LC76G becomes a fallback. Confirm position data over USB and operation without a SIM or cellular service before removing the separate receiver from the build. Verify selected image modem drivers, routing/failover to cellular without breaking local mesh, SIM/APN, reconnection, power/thermal peaks and antenna coexistence. Battery internals remain TBD behind the regulated 5 V supply boundary; the previous 15 W minimum is not proof of sufficient capacity with LTE.
+
+Technical source: [Sierra EM7430 hardware specification](https://source.sierrawireless.com/resources/airprime/minicard/74xx/airprime_em7430_product_technical_specification). These are concept positions, not final electrical wiring or fabrication drawings.
