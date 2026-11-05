@@ -12,7 +12,9 @@ Keep the agreed 3400 mAh per-cell estimate: 10.8 V nominal, 12.6 V full, 6.8 Ah 
 
 ## Next part: 3S balancing and protection BMS
 
-The photograph shows B+ and B− battery pads but does not establish both intermediate series-group connections. A two-terminal charger alone cannot individually monitor or balance all three groups. The seller's BMS/balanced wording is insufficient evidence of full pack protection.
+The additional user-supplied description screenshot explicitly advertises **balanced charging for 2S** and says the balance function can be used when two series groups are used. It separately supports charging either two or three series groups. This establishes a seller claim of 2S balancing, **not 3S balancing** for our selected 3S2P pack. The earlier assessment based only on the photograph is superseded by this more specific description.
+
+The description also advertises QC fast-charge input and charger input/output protections. QC does not establish USB PD, and these charger protections do not establish per-group battery over-discharge protection while powering the Pi. A separate 3S balancing/protection BMS therefore remains in the plan. Changing to 2S would require revisiting the converter's minimum input voltage; keep the current 3S2P baseline.
 
 Search for **3S 12.6V 18650 balanced BMS protection board B1 B2**. Require documented B− / B1 / B2 / B+ connections, overcharge, over-discharge, overcurrent and short-circuit protection, and an adequate continuous discharge rating. Confirm the actual common-port or separate-port wiring; charger and load must use the protected connections. Temperature sensing also needs confirmation: an NTC pad does not prove a sensor is included.
 
