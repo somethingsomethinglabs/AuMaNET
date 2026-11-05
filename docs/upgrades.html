@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Upgrades, replacements and repair · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Upgrades, replacements and repair</h1>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Before replacing a module</a></li><li><a href="#section-2">What a change affects</a></li><li><a href="#section-3">Keep a build record</a></li><li><a href="#section-4">Upgrade release rule</a></li></ol></details><h1>Upgrades, replacements and repair</h1>
 <p>AuMaNET should be a device you can understand and repair, not a sealed mystery. The current architecture separates the battery base, compute/radio tray, power rail and top interface insert. Exact harnesses and print files are still in development.</p>
-<h2>Before replacing a module</h2>
+<h2 id="section-1">Before replacing a module</h2>
 <ol>
 <li>Save the current configuration and record the working hardware/firmware versions.</li>
 <li>Shut down, disconnect charging and isolate the battery. An unplugged USB-C lead does not remove battery power.</li>
@@ -11,7 +11,7 @@
 <li>Change one assembly at a time. Keep the original available for rollback.</li>
 <li>Run the relevant checks below before putting the radio back into a trip kit.</li>
 </ol>
-<h2>What a change affects</h2>
+<h2 id="section-2">What a change affects</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -67,9 +67,9 @@
 </tr>
 </tbody></table></div>
 <p><strong>Battery capacity is not interchangeable with battery voltage.</strong> A six-cell 1S6P pack and six-cell 3S2P pack can store similar energy but cannot share the same charger input. Never connect the proposed 3S2P pack to a UPS that accepts only a single-cell/parallel pack.</p>
-<h2>Keep a build record</h2>
+<h2 id="section-3">Keep a build record</h2>
 <p>Use <a href="build-record.html">the build record template</a>. Record exact module revisions, image checksum, harness drawing version and enclosure version. Keep serials, passwords, precise locations and order/account details privately. A useful public report contains hardware identities and symptoms without those private details.</p>
-<h2>Upgrade release rule</h2>
+<h2 id="section-4">Upgrade release rule</h2>
 <p>An upgrade becomes a supported option only when it has a complete matching parts list, source/licence references, wiring/fit instructions, rollback path and a passed test record. Until then it belongs in the candidate list. Do not mix experimental options into the first-build recipe.</p>
 <p>Useful first experiments after a released core works: compare compact and mast antennas, add a supported USB headset, or change the top insert. Altering battery charging and radio calibration requires more engineering than these mechanical/accessory changes.</p>
-</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

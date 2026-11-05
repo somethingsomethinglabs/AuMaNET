@@ -1,51 +1,45 @@
 # AuMaNET
 
-A DIY off-grid communications project for Australian 4WD and camping groups. Build a local network for messages, voice and recent position when mobile coverage is unavailable.
+Off-grid group communications for Australian 4WD and camping trips: local messages, location and live group voice, with shared phone internet when available.
 
-**[Open the offline HTML overview](docs/index.html)** · **[Start your first build](docs/start-here.html)** · **[Current design](docs/current-design.html)** · **[One-node parts register](docs/parts.html)**
+**Active phase: design — 6 November 2026.** ESP32-S3 + XIAO HaLow nodes and an Android companion app are the new baseline. Hardware, multi-hop and phone networking feasibility remain unproven. Moving into design does not mark those gates passed.
 
-Download the project folder and open the HTML in a browser. Normal reading requires no installation, server or programming. Keep the assets and neighbouring files with it. External sources need internet.
+## Project map
 
-## What we are building
+| Area | Purpose |
+| --- | --- |
+| [discovery/](discovery/README.md) | Requirements, hardware candidates, feasibility gates and concept tests |
+| [design/](design/README.md) | Active architecture and product design; [work queue and status](design/phase-status.md) |
+| [dev/](dev/README.md) | Software monorepo: app, native host, shared packages, simulator and firmware |
+| [deploy/](deploy/README.md) | Future release, provisioning and field acceptance |
 
-- Raspberry Pi 4B with the Heltec HC01P V2 + matching HAT bundle.
-- Six-cell portable power in a lower battery base, compute/radio in the centre, and a serviceable sealed top interface insert.
-- USB-C charging, one USB-C accessory port, sealed Ethernet, HaLow antenna and a GNSS antenna exit.
-- Internal GNSS receiver, field controls and interchangeable mobile/camp antenna kits.
+## Monorepo
 
-**Status: design prototype, 5 November 2026.** No complete purchase-ready kit, tested power system, exact firmware recipe or adapted enclosure files have been released. The project has not been physically field validated. Read [release readiness](docs/release-readiness.html) before buying a whole kit.
+Use Node.js 24 and npm 11 from the repository root. One npm lockfile covers the JavaScript/TypeScript workspaces.
 
-## Find what you need
+```sh
+npm ci --ignore-scripts
+npm run check
+```
 
-| You want to… | Read |
-|---|---|
-| Understand the project without being a developer | [Start here](docs/start-here.html) |
-| Check the active choices | [Current design](docs/current-design.html) |
-| Source parts | [One-node shopping register](docs/parts.html) / [CSV](hardware/bom.csv) |
-| See the case and top panel | [Portable-node specification](docs/portable-node.html) |
-| Understand GPS and power | [DIY connection plan](docs/diy-selection.html) / [pin register](hardware/pin-allocation.csv) |
-| Compare antenna kits | [RF selection](docs/antennas.html) |
-| Replace or upgrade a module | [Upgrade guide](docs/upgrades.html) |
-| Record a build | [Build record](docs/build-record.html) |
-| Review the firmware pin mismatch | [Inspected image and adaptation](docs/firmware-review.html) |
-| Compare power modules | [Power selection review](docs/power-review.html) |
-| Check the evidence still missing | [Release readiness](docs/release-readiness.html) |
-| Edit the documentation | [Maintainer guide](docs/maintaining-docs.html) |
+`npm run typecheck` builds the shared TypeScript packages and their declarations. `npm run check` also checks the retained offline handbook and CAD references. CI runs the same checks. These checks do not validate hardware or mobile OS behavior.
 
-## Purchasing and community sources
+```text
+dev/app/                 SvelteKit UI workspace placeholder
+dev/mobile/              Proposed Android/Capacitor host placeholder
+dev/packages/protocol/   Provisional shared contracts
+dev/packages/core/       Portable platform boundaries
+dev/packages/simulator/  Explicitly simulated design fixtures
+dev/firmware/            New ESP32-S3/HaLow firmware boundary
+dev/tests/               Cross-layer acceptance planning
+```
 
-Purchased components are to come from **AliExpress only**. Manufacturer links are technical references, not alternate purchasing recommendations. Exact listings, included parts, revisions and received hardware must be checked. Existing phones/tools may be reused; the enclosure is printed from matching released files when available.
+The shared packages compile; no app UI, Android APK, radio SDK or production protocol has been implemented. SvelteKit and TypeScript are selected; native, mapping, routing and security decisions continue in design.
 
-The enclosure direction follows ties1887/Mesh-radio-Halow-LoRa; OpenMANET is the firmware/community starting point. Keep attribution, exact revisions and upstream licences. A HaLow brand or Pi-compatible label does not prove that two boards can work together. In particular, the documented X1209 power-HAT GPIO allocation conflicts with the selected Heltec HAT; it is not a drop-in stack.
+## Retained prototype material
 
-## Working approach
+The root `docs/`, `hardware/`, `firmware/`, `references/` and `field-tests/` retain the superseded Pi/Heltec/OpenMANET prototype. They are historical references, not current build instructions or requirements. The old [offline handbook](docs/index.html), [README snapshot](LEGACY.md) and imported enclosure models remain available. No previous purchasing, battery or enclosure choice automatically carries forward.
 
-Verify one bench node, then a two-node offline link, then portable power and enclosure, then the three-node pilot. Keep UHF, a trip plan and an appropriate independent emergency option: a disconnected group mesh cannot reach emergency services by itself. Delivery does not establish human acknowledgement.
+The existing print archive contains slicer edits and is preserved. Its guarded rebuild is currently blocked; see [phase status](design/phase-status.md). No geometry was changed during monorepo setup.
 
-Original project material remains all rights reserved pending licence selection. Referenced community designs retain their own licences; shared derivative CAD must follow its source terms. Never commit credentials, private trip tracks or personal location logs.
-
-## Documentation maintenance
-
-The committed HTML is ready to read. Maintainers can rebuild the detailed pages from Markdown/CSV with `npm ci --ignore-scripts`, `npm run docs:build` and `npm run docs:check`. See the maintainer guide for scope and verification limits. No runtime AI is required by the radio design.
-
-Next stage: [operating hardware and community comparison](docs/operating-hardware.html). Battery design is deferred behind regulated 5 V / 3 A minimum output.
+Original project material remains all rights reserved pending licence selection. Imported designs and libraries retain their bundled licences and attribution. Never commit credentials, signing keys, personal location logs or private trip tracks.

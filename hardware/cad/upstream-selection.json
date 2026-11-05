@@ -1,0 +1,111 @@
+{
+  "repository": "ties1887/Mesh-radio-Halow-LoRa",
+  "commit": "f0d285c67bc893ddacc5d8121fe1c92385cd54fb",
+  "license": "CC-BY-NC-SA-4.0",
+  "files": [
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - PCB frame-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "269ee919158b780040218f416522ea9e262a69db",
+      "size": 370784,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/269ee919158b780040218f416522ea9e262a69db"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - TPU gasket for top-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "934b54cb807ef2a5f4c9372d3df518718526697c",
+      "size": 3284,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/934b54cb807ef2a5f4c9372d3df518718526697c"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - TPU gasket for twist lock part-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "61ec81f767914aa704df2e74e026cef525064056",
+      "size": 11284,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/61ec81f767914aa704df2e74e026cef525064056"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - Twist lock battery part V3-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d1d1035f255eccf2c3b33aee3b78645dcf78e739",
+      "size": 180384,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/d1d1035f255eccf2c3b33aee3b78645dcf78e739"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - Twist lock radio part V3-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d5883db3be1a12783d84fd7725f3289bdbe4cf25",
+      "size": 256384,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/d5883db3be1a12783d84fd7725f3289bdbe4cf25"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - base-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "41504c850bd6fa9a6301ba68e8ee7905607b43f3",
+      "size": 905784,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/41504c850bd6fa9a6301ba68e8ee7905607b43f3"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - batcase-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "95e13ce2c0fecf8dd7f7c684edf8edb960c64f79",
+      "size": 66684,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/95e13ce2c0fecf8dd7f7c684edf8edb960c64f79"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - buck converter-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8680156013806ced5d878dc37767edabc28ad362",
+      "size": 31584,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/8680156013806ced5d878dc37767edabc28ad362"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - middel part-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f3b39cd6760671f0ce73be9d87edbfa817b9ea2a",
+      "size": 40084,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/f3b39cd6760671f0ce73be9d87edbfa817b9ea2a"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - pi4withall-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a1445f97739bd9f507870d5eccfe4af09d777eff",
+      "size": 36084,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/a1445f97739bd9f507870d5eccfe4af09d777eff"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - top-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ba6836fcfbc1d29cbd6299a1d1b115970018114a",
+      "size": 667784,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/ba6836fcfbc1d29cbd6299a1d1b115970018114a"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - wing part-1.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "008a85aa3172602e7223ec065304ab91a2a00037",
+      "size": 17684,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/008a85aa3172602e7223ec065304ab91a2a00037"
+    },
+    {
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - wing part-2.STL",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "023e3dc1a6a6b8774b436a7a93716778245d9cf4",
+      "size": 17684,
+      "url": "https://api.github.com/repos/ties1887/Mesh-radio-Halow-LoRa/git/blobs/023e3dc1a6a6b8774b436a7a93716778245d9cf4"
+    }
+  ]
+}

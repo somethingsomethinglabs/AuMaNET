@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pilot requirements · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Pilot requirements</h1>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Service priorities</a></li><li><a href="#section-2">Security and resilience</a></li><li><a href="#section-3">Builder experience and maintainability</a></li></ol></details><h1>Pilot requirements</h1>
 <p>These are proposed engineering targets, not measured capabilities. Confirm group size, budget, phone platforms, terrain and required distances before procurement.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -62,13 +62,13 @@
 <td>Help/check-in screen clearly states group-only delivery; user practises independent escalation</td>
 </tr>
 </tbody></table></div>
-<h2>Service priorities</h2>
+<h2 id="section-1">Service priorities</h2>
 <p>P0: group text, check-in request, manual acknowledgement, recent location, battery and link state. P1: offline maps and optional voice after text passes. P2: images and file transfer with rate limits. Video is outside the initial scope.</p>
 <p>Proposed first cohort: two vehicles and one camp/relay node. A fourth walk-away node is a later expansion. Validate locked-phone notifications and background location separately; an open browser page cannot be assumed to run reliably in the background.</p>
-<h2>Security and resilience</h2>
+<h2 id="section-2">Security and resilience</h2>
 <p>Select a maintained application after testing phone support. Evaluate ATAK for Android-centric mapping and Reticulum-based messaging as separate candidates; neither integration is implemented here. If a custom client is needed, specify authenticated identities, encryption, durable queues, expiry, duplicate suppression and acknowledgement IDs before coding. A radio mesh alone does not guarantee store-and-forward across partitions.</p>
 <p>Use a distinct private admin network where supported. Restrict management access, disable unused WAN/cloud services, document recovery and backups, and cap retained location history. AI can assist code and log analysis; emergency decisions and message acknowledgement must remain deterministic and human controlled.</p>
-<h2>Builder experience and maintainability</h2>
+<h2 id="section-3">Builder experience and maintainability</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -109,4 +109,4 @@
 </tr>
 </tbody></table></div>
 <p>R07 remains the proposed 12 h target. Current six-cell arithmetic predicts about 6.2 h at an assumed 8 W, so that requirement is not met by calculation or measurement. Do not relabel the estimate as a pass.</p>
-</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

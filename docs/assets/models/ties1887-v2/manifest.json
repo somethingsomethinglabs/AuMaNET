@@ -1,0 +1,332 @@
+{
+  "repository": "ties1887/Mesh-radio-Halow-LoRa",
+  "commit": "f0d285c67bc893ddacc5d8121fe1c92385cd54fb",
+  "license": "CC-BY-NC-SA-4.0",
+  "parts": [
+    {
+      "id": "PCB frame-1",
+      "label": "PCB frame-1",
+      "zone": 1,
+      "hardware": false,
+      "filename": "Assem2 - PCB frame-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - PCB frame-1.STL",
+      "sha256": "e6f6b2663cd2a6b3e12582503fc75773942897e2b3f0adf214e0bcf138b1af2f",
+      "gitBlob": "269ee919158b780040218f416522ea9e262a69db",
+      "triangles": 7414,
+      "bounds": [
+        [
+          10.672165870666504,
+          74.27216339111328
+        ],
+        [
+          6.365952491760254,
+          38.114925384521484
+        ],
+        [
+          91.92302703857422,
+          173.92303466796875
+        ]
+      ]
+    },
+    {
+      "id": "TPU gasket for top-1",
+      "label": "TPU gasket for top-1",
+      "zone": 2,
+      "hardware": false,
+      "filename": "Assem2 - TPU gasket for top-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - TPU gasket for top-1.STL",
+      "sha256": "da22c99505081348895a844d53311e4bdcf8afbf7613a8b2fb86de3243feb30e",
+      "gitBlob": "934b54cb807ef2a5f4c9372d3df518718526697c",
+      "triangles": 64,
+      "bounds": [
+        [
+          4.572166442871094,
+          80.37216186523438
+        ],
+        [
+          3.340440034866333,
+          47.14044189453125
+        ],
+        [
+          186.9036407470703,
+          187.14364624023438
+        ]
+      ]
+    },
+    {
+      "id": "TPU gasket for twist lock part-1",
+      "label": "TPU gasket for twist lock part-1",
+      "zone": 1,
+      "hardware": false,
+      "filename": "Assem2 - TPU gasket for twist lock part-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - TPU gasket for twist lock part-1.STL",
+      "sha256": "4d216ed835db5069a157f28bef5c9c4d7c0f57d2a34b884db02d92234ccfc706",
+      "gitBlob": "61ec81f767914aa704df2e74e026cef525064056",
+      "triangles": 224,
+      "bounds": [
+        [
+          7.474166393280029,
+          77.47416687011719
+        ],
+        [
+          0.240440234541893,
+          44.240440368652344
+        ],
+        [
+          79.13302612304688,
+          79.3730239868164
+        ]
+      ]
+    },
+    {
+      "id": "Twist lock battery part V3-1",
+      "label": "Twist lock battery part V3-1",
+      "zone": 0,
+      "hardware": false,
+      "filename": "Assem2 - Twist lock battery part V3-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - Twist lock battery part V3-1.STL",
+      "sha256": "022329f548de6456fd08a3ea628e202a44b5bd90bc6142f97dc5cb9cbd085cf8",
+      "gitBlob": "d1d1035f255eccf2c3b33aee3b78645dcf78e739",
+      "triangles": 3606,
+      "bounds": [
+        [
+          7.474166393280029,
+          77.47416687011719
+        ],
+        [
+          0.240440234541893,
+          44.240440368652344
+        ],
+        [
+          79.3730239868164,
+          89.25302124023438
+        ]
+      ]
+    },
+    {
+      "id": "Twist lock radio part V3-1",
+      "label": "Twist lock radio part V3-1",
+      "zone": 1,
+      "hardware": false,
+      "filename": "Assem2 - Twist lock radio part V3-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - Twist lock radio part V3-1.STL",
+      "sha256": "9f5b66e33dbe8148d1c7badfc2e9a6794acc7b59d90830475fda6cab2e47a1e6",
+      "gitBlob": "d5883db3be1a12783d84fd7725f3289bdbe4cf25",
+      "triangles": 5126,
+      "bounds": [
+        [
+          7.472166538238525,
+          77.47216796875
+        ],
+        [
+          0.240440234541893,
+          44.240440368652344
+        ],
+        [
+          83.23902130126953,
+          91.92302703857422
+        ]
+      ]
+    },
+    {
+      "id": "base-1",
+      "label": "base-1",
+      "zone": 1,
+      "hardware": false,
+      "filename": "Assem2 - base-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - base-1.STL",
+      "sha256": "9b1c275beb8ec16455edd03a48bca53db79bf0996c1e1d9a15c9003450d650ed",
+      "gitBlob": "41504c850bd6fa9a6301ba68e8ee7905607b43f3",
+      "triangles": 18114,
+      "bounds": [
+        [
+          0.49303674697875977,
+          84.45130157470703
+        ],
+        [
+          0.24044017493724823,
+          50.240440368652344
+        ],
+        [
+          91.92302703857422,
+          196.9230194091797
+        ]
+      ]
+    },
+    {
+      "id": "batcase-1",
+      "label": "batcase-1",
+      "zone": 0,
+      "hardware": false,
+      "filename": "Assem2 - batcase-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - batcase-1.STL",
+      "sha256": "2289add23a0de8cc14d3a8c5176a6598853193525b5e9bf84d40386c2faf65d9",
+      "gitBlob": "95e13ce2c0fecf8dd7f7c684edf8edb960c64f79",
+      "triangles": 1332,
+      "bounds": [
+        [
+          7.474166393280029,
+          77.47416687011719
+        ],
+        [
+          0.240440234541893,
+          44.240440368652344
+        ],
+        [
+          1.3730250597000122,
+          79.3730239868164
+        ]
+      ]
+    },
+    {
+      "id": "buck converter-1",
+      "label": "buck converter-1",
+      "zone": 1,
+      "hardware": true,
+      "filename": "Assem2 - buck converter-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - buck converter-1.STL",
+      "sha256": "6fe5237c69e781cfdf5572a1414ee24f838d0773666032ff47a2e27f40942d16",
+      "gitBlob": "8680156013806ced5d878dc37767edabc28ad362",
+      "triangles": 630,
+      "bounds": [
+        [
+          11.982874870300293,
+          32.3328742980957
+        ],
+        [
+          6.93310022354126,
+          12.733099937438965
+        ],
+        [
+          102.8233642578125,
+          133.8233642578125
+        ]
+      ]
+    },
+    {
+      "id": "middel part-1",
+      "label": "middel part-1",
+      "zone": 1,
+      "hardware": false,
+      "filename": "Assem2 - middel part-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - middel part-1.STL",
+      "sha256": "3a62740f034dedc5c869c781c052eab8acc7e4a84036eeff85830f6c25c8df30",
+      "gitBlob": "f3b39cd6760671f0ce73be9d87edbfa817b9ea2a",
+      "triangles": 800,
+      "bounds": [
+        [
+          22.274845123291016,
+          62.67348861694336
+        ],
+        [
+          12.590439796447754,
+          31.890439987182617
+        ],
+        [
+          83.3730239868164,
+          86.3730239868164
+        ]
+      ]
+    },
+    {
+      "id": "pi4withall-1",
+      "label": "pi4withall-1",
+      "zone": 1,
+      "hardware": true,
+      "filename": "Assem2 - pi4withall-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - pi4withall-1.STL",
+      "sha256": "45d355db41ce5625cfb0bad3af41c896d8417a479a11800a454c18fa631c471e",
+      "gitBlob": "a1445f97739bd9f507870d5eccfe4af09d777eff",
+      "triangles": 720,
+      "bounds": [
+        [
+          15.324064254760742,
+          72.17406463623047
+        ],
+        [
+          19.07889175415039,
+          39.07889175415039
+        ],
+        [
+          94.92302703857422,
+          182.9230194091797
+        ]
+      ]
+    },
+    {
+      "id": "top-1",
+      "label": "top-1",
+      "zone": 2,
+      "hardware": false,
+      "filename": "Assem2 - top-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - top-1.STL",
+      "sha256": "f51b14815be7f237775e65a871481b0c02d54ca86d7439e5a770bbcf65d192fe",
+      "gitBlob": "ba6836fcfbc1d29cbd6299a1d1b115970018114a",
+      "triangles": 13354,
+      "bounds": [
+        [
+          4.5721659660339355,
+          80.3721694946289
+        ],
+        [
+          3.340440511703491,
+          47.14044189453125
+        ],
+        [
+          186.9230194091797,
+          210.4230194091797
+        ]
+      ]
+    },
+    {
+      "id": "wing part-1",
+      "label": "wing part-1",
+      "zone": 0,
+      "hardware": false,
+      "filename": "Assem2 - wing part-1.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - wing part-1.STL",
+      "sha256": "2ca6b702bdd825e2a153c75c062bed4025d77161824ec1c3cca536c9e356100a",
+      "gitBlob": "008a85aa3172602e7223ec065304ab91a2a00037",
+      "triangles": 352,
+      "bounds": [
+        [
+          10.339930534362793,
+          26.929563522338867
+        ],
+        [
+          12.915030479431152,
+          31.772626876831055
+        ],
+        [
+          84.9730224609375,
+          88.4530258178711
+        ]
+      ]
+    },
+    {
+      "id": "wing part-2",
+      "label": "wing part-2",
+      "zone": 0,
+      "hardware": false,
+      "filename": "Assem2 - wing part-2.STL",
+      "path": "First-Generation-Builds/V2_30-5-2026/STL/Assem2 - wing part-2.STL",
+      "sha256": "63d525f2ed84165aef1be0b0318fb5e0123b360d443ddc318b0351b3857d8d03",
+      "gitBlob": "023e3dc1a6a6b8774b436a7a93716778245d9cf4",
+      "triangles": 352,
+      "bounds": [
+        [
+          58.018768310546875,
+          74.60840606689453
+        ],
+        [
+          12.708253860473633,
+          31.56584930419922
+        ],
+        [
+          84.9730224609375,
+          88.4530258178711
+        ]
+      ]
+    }
+  ]
+}

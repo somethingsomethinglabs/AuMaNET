@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Selected battery format: six-cell 3S2P pack with barrel output · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Selected battery format: six-cell 3S2P pack with barrel output</h1>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Working specification</a></li><li><a href="#section-2">Preferred next connection: enclosed USB-C converter</a></li><li><a href="#section-3">Following part: USB-C charging / power path</a></li><li><a href="#section-4">Source record</a></li></ol></details><h1>Selected battery format: six-cell 3S2P pack with barrel output</h1>
 <blockquote>
 <p><strong>Active power decision — 5 November 2026:</strong> battery pack, cell count, chemistry, charger, BMS and converter are <strong>TBD</strong>. Treat the battery assembly as a regulated <strong>5 V output, 3 A continuous minimum (15 W)</strong> module; 5 A / 25 W is a preferred headroom option, not a requirement already met. This is a nominal regulated voltage, not permission to exceed Pi voltage limits. Measure at the Pi under load. Earlier battery architectures below are archived options, not the active build. USB-C charging remains a reserved interface; its protocol and charge-and-run behaviour await the battery choice.</p>
 </blockquote>
 <p>User direction, 5 November 2026: use the supplied blue wrapped pack as the planning format and ignore the seller&#39;s inflated capacity claim. Exact cell identity is not a prerequisite for continuing the design. This confirms the <strong>advertised configuration we intend to use</strong>, not a physical inspection of the pack.</p>
-<h2>Working specification</h2>
+<h2 id="section-1">Working specification</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -48,11 +48,11 @@
 </tr>
 </tbody></table></div>
 <p>The image&#39;s 3S2P option and 12.6 V charging title match the proposed battery architecture. The pack is the battery module; its barrel lead is neither regulated Pi power nor a USB-C charging controller. Internal protection/balancing, operating current, physical dimensions and charger chemistry still affect the electrical/mechanical design, independently of the assumed capacity.</p>
-<h2>Preferred next connection: enclosed USB-C converter</h2>
+<h2 id="section-2">Preferred next connection: enclosed USB-C converter</h2>
 <p>Use <a href="converter-candidate-02.html">converter candidate 02</a>, the F23J5V5A1S-C enclosed module with captive USB-C output, as the first-build power candidate. A matching barrel adapter joins the pack&#39;s output to the converter&#39;s red/black input wires, through a reviewed fused/disconnect harness. The converter&#39;s USB-C lead plugs into the Pi power inlet inside the case. No default GPIO power interposer is needed. Check the exact barrel dimensions/polarity and converter input range; the blue open-board candidate remains an alternative.</p>
-<h2>Following part: USB-C charging / power path</h2>
+<h2 id="section-3">Following part: USB-C charging / power path</h2>
 <p>After selecting the converter, select the <strong>3S 12.6 V Li-ion USB-C charger with managed load sharing</strong>. It must suit the pack protection/charge-port arrangement and power the converter through its documented system path if simultaneous charge/run is required. A second barrel lead on a pack does not prove that load sharing is built in. Do not simply join the charge and load wires and assume correct charge termination.</p>
 <p>Power/shutdown control and monitoring can be combined with these modules if a suitable documented board is found. Capacity marketing is no longer a selection blocker; the remaining work is choosing and connecting compatible power electronics.</p>
-<h2>Source record</h2>
+<h2 id="section-4">Source record</h2>
 <p>User-supplied screenshot: selected 3S2P / 13.8Ah / 2PCS option, 12.6 V charging title, AU$36.16 price and AU$12.05 shipping at capture time. No current offer or exact seller URL has been verified. The personal screenshot is not committed.</p>
-</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

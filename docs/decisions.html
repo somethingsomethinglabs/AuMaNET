@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Decision and action register · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><blockquote>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">AI development backlog</a></li><li><a href="#section-2">Historical revisions (superseded where noted)</a></li><li><a href="#section-3">Revision 3: top Ethernet and panel layout</a></li><li><a href="#section-4">Revision 4: simplified top panel</a></li><li><a href="#section-5">Revision 5: field controls approved</a></li><li><a href="#section-6">Sourcing preference</a></li><li><a href="#section-7">DIY hardware refinement</a></li><li><a href="#section-8">Antenna requirement</a></li><li><a href="#section-9">Product-readiness audit</a></li><li><a href="#section-10">Firmware image inspected</a></li><li><a href="#section-11">Battery candidate 01 received</a></li><li><a href="#section-12">Battery planning assumption accepted</a></li><li><a href="#section-13">Converter candidate received</a></li><li><a href="#section-14">Captive USB-C converter preferred</a></li><li><a href="#section-15">5 November 2026 — DIY cells and simple USB-C charging</a></li><li><a href="#section-16">5 November 2026 - defer battery design; freeze operating hardware</a></li><li><a href="#section-17">5 November 2026 - LTE/GNSS and top-panel revision 7</a></li></ol></details><blockquote>
 <p><strong>Current baseline:</strong> <a href="current-design.html">current-design.md</a>. Revision notes below are history; later decisions supersede earlier port and GPS schedules.</p>
 </blockquote>
 <h1>Decision and action register</h1>
@@ -18,7 +18,7 @@
 <p>| D08 | Range and bandwidth | Unknown | Signed-off field report with raw data held privately |</p>
 <p>| D09 | Budget | Open | Supplier quotes, AUD landed cost, batteries/printing/spares included |</p>
 <p>| D10 | Source licences and revisions | Required before reuse | Exact CAD/firmware commits and per-directory licence checked |</p>
-<h2>AI development backlog</h2>
+<h2 id="section-1">AI development backlog</h2>
 <ol>
 <li><p>Define message and acknowledgement state model after evaluating existing clients.</p>
 </li>
@@ -32,39 +32,39 @@
 </li>
 </ol>
 <p>Review AI-generated network commands, dependencies and radio changes before use. Keep a rollback image and compare behaviour against a known-good build. AI is a development aid; no runtime AI is required for the safety workflow.</p>
-<h2>Historical revisions (superseded where noted)</h2>
+<h2 id="section-2">Historical revisions (superseded where noted)</h2>
 <h3>Portable-node baseline update — revision 2</h3>
 <p>User-selected styling: ties1887/Mesh-radio-Halow-LoRa at f0d285c67bc893ddacc5d8121fe1c92385cd54fb. Lower six-cell 3S2P battery base, central Pi 4/Heltec core, top interface/routing cap; one screw-fastened unit with no twist-lock requirement. Supersedes OpenNot5.</p>
 <p>Top panel: sealed USB-C PD charge input, USB-C downstream accessory port, USB-C UART service console, sealed nominal 12 V barrel charge input, RF and GPS feedthrough. Source selector/backfeed protection and a 3S buck-boost charger are mandatory before input wiring is approved. Managed load sharing is required for charge-and-run; fallback is shutdown and load isolation.</p>
 <p>Preferred Pi feed: regulated 5 V through a solder-free power interposer at header power pins, subject to Heltec clearance/current checks; internal USB-C remains fallback. Never feed 12 V directly to Pi. Charger board, connector SKUs, header interposer, audio/USB drivers and final CAD fit remain open gates. Six-cell estimate remains 6.2 h at 8 W with reserve.</p>
-<h2>Revision 3: top Ethernet and panel layout</h2>
+<h2 id="section-3">Revision 3: top Ethernet and panel layout</h2>
 <p>User requires sealed Ethernet on the top. Add eight-contact Cat5e/6 RJ45 coupler to Pi built-in Ethernet, with matched cap/cable. Top-down illustration fixes proposed rear RF/LAN/GPS and front CHARGE/HOST/SERVICE/DC ordering. Final cap dimensions and routing depth depend on connector selection; no drilling dimensions released. No PoE subsystem selected.</p>
-<h2>Revision 4: simplified top panel</h2>
+<h2 id="section-4">Revision 4: simplified top panel</h2>
 <p>Latest user direction supersedes earlier port schedules: retain USB-C PD charging through pack management, one USB-C accessory host, sealed Ethernet and HaLow antenna. Remove the external USB console and 12 V barrel input. Preserve GPS via its sealed cable gland. Charging still needs a 3S charger and validated load sharing; regulated 5 V header power remains preferred.</p>
-<h2>Revision 5: field controls approved</h2>
+<h2 id="section-5">Revision 5: field controls approved</h2>
 <p>Add recessed upper-side sealed power/shutdown button and top/front battery power and link indicators. Reserve blanked headset/PTT position; headset pinout and audio interface still need selection. Power controller must support starting from off and graceful shutdown. User allows flexible button placement.</p>
-<h2>Sourcing preference</h2>
+<h2 id="section-6">Sourcing preference</h2>
 <p>User specifies AliExpress only for purchasing; Element14 excluded. Keep manufacturer specifications and community sources for technical verification. Exact matching listings remain procurement gates; no substitutions or verified availability are implied.</p>
-<h2>DIY hardware refinement</h2>
+<h2 id="section-7">DIY hardware refinement</h2>
 <p>Pi 4 and supplied Heltec bundle confirmed. Prefer LC76G breakout on HAT UART with external antenna, pending actual board logic/power and firmware tests. USB GPS stays fallback. Six-cell modular power retained; no cheap all-in-one board or complete AliExpress shopping list verified. See hardware/diy-selection.md.</p>
-<h2>Antenna requirement</h2>
+<h2 id="section-8">Antenna requirement</h2>
 <p>User prioritises practical range for voice/data and low cost, with interchangeable mobile and camp kits. GT-800 compact whip and Heltec 900-930 MHz 5.5 dBi mast omni are evaluation candidates; exact AliExpress listings, installed match and compliant per-antenna power profiles remain open.</p>
-<h2>Product-readiness audit</h2>
+<h2 id="section-9">Product-readiness audit</h2>
 <p>Consolidated the current baseline and non-developer build stages, changed BOM to one-node quantities with stable part IDs, and separated optional parts/tools. Found the X1209/Heltec GPIO conflict; it remains excluded. Offline HTML handbook is generated from source files. These documentation changes do not establish purchasing, CAD or hardware readiness; see release-readiness.md.</p>
-<h2>Firmware image inspected</h2>
+<h2 id="section-10">Firmware image inspected</h2>
 <p>OpenMANET 1.8.0 Pi4 MM6108 SPI asset SHA256 matched the release digest. The extracted compiled overlay has reset17 interrupt5 wake23 busy24 versus Heltec reset5 interrupt25 wake3 busy7. The boot file also enables conflicting I2C1. Prepared hash-bound adaptation tooling for review; no flashing or hardware compatibility claim. Power candidate review retained all unresolved gates.</p>
-<h2>Battery candidate 01 received</h2>
+<h2 id="section-11">Battery candidate 01 received</h2>
 <p>User supplied a screenshot of blue wrapped 12V 3S2P packs. Correct general form factor; per-pack 13.8Ah claim is ambiguous and requires cell identity/test evidence. Record as candidate only; no capacity uplift or purchase approval. See hardware/battery-candidate-01.md.</p>
-<h2>Battery planning assumption accepted</h2>
+<h2 id="section-12">Battery planning assumption accepted</h2>
 <p>User confirms continuing with the screenshot pack format and assuming ordinary cell capacity instead of investigating seller mAh marketing. Use 3S2P six cells with barrel output and retain 3400mAh/cell as an explicit estimate. Next component is an assembled 5V buck, then compatible USB-C 3S charger/power path. Capacity clarification is no longer a gate; voltage polarity current protection and physical fit still determine matching parts.</p>
-<h2>Converter candidate received</h2>
+<h2 id="section-13">Converter candidate received</h2>
 <p>User supplied screenshot and short link for a blue 12/24V to 5V 5A converter. Record as PWR-03 sourcing lead; verify actual input minimum output variant polarity and loaded performance. Its USB-A is a power output rather than Pi data. Next missing component is USB-C 3S charging/power path.</p>
-<h2>Captive USB-C converter preferred</h2>
+<h2 id="section-14">Captive USB-C converter preferred</h2>
 <p>User supplied F23J5V5A1S-C enclosed converter. Prefer battery barrel -&gt; correct adapter/fused harness -&gt; converter -&gt; Pi internal USB-C. No GPIO power interposer required for first build. Earlier header-first decisions are superseded; top CHARGE and ACCESSORY roles stay unchanged. Exact converter input range loaded output dimensions and charging system remain to verify.</p>
-<h2>5 November 2026 — DIY cells and simple USB-C charging</h2>
+<h2 id="section-15">5 November 2026 — DIY cells and simple USB-C charging</h2>
 <p>User selected six individual cells in 3S2P and the new USB-C 3S charger candidate, with a separate balancing/protection BMS still to source. Wrapped pack becomes an alternative. Retain enclosed Pi converter; barrel harness optional. Charge with load off until managed charge-and-run is established. See <a href="charger-candidate-01.html">assessment</a>.</p>
-<h2>5 November 2026 - defer battery design; freeze operating hardware</h2>
+<h2 id="section-16">5 November 2026 - defer battery design; freeze operating hardware</h2>
 <p>User deferred pack topology, cells, charging and converter decisions. Battery interface is regulated 5 V / 3 A continuous minimum (15 W); 5 A / 25 W headroom optional. Historical power candidates are not an active shopping prescription. Continue core, GNSS, RF, cooling, interfaces and mechanical BOM research. See <a href="operating-hardware.html">operating hardware</a>.</p>
-<h2>5 November 2026 - LTE/GNSS and top-panel revision 7</h2>
+<h2 id="section-17">5 November 2026 - LTE/GNSS and top-panel revision 7</h2>
 <p>EM7430 on USB WWAN adapter is the integrated cellular internet/GNSS candidate. LC76G remains a fallback. Reserve HaLow, LTE MAIN, LTE AUX and GNSS paths, with two USB-C ports and sealed LAN in the centre. Pi onboard Wi-Fi/Bluetooth stays internal. Carrier calls and SMS excluded. Battery architecture TBD. Concept layout requires mechanical fit and RF coexistence verification before fabrication.</p>
-</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

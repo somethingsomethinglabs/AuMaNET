@@ -14,7 +14,7 @@ Plan revision 5, 2026-11-05. User-selected: Pi 4B, Heltec HAT/HC01P V2, six 1865
 
 Use [ties1887/Mesh-radio-Halow-LoRa](https://github.com/ties1887/Mesh-radio-Halow-LoRa), superseding OpenNot5. One carried unit has a **bottom battery base**, **central compute/radio core**, and **top connector/routing cap**. A single centre/base body with an internal partition is acceptable. Use screws/inserts and gasketed service joints. Battery twist locking, magnetic contacts and hot swapping are unnecessary.
 
-Reference commit: **f0d285c67bc893ddacc5d8121fe1c92385cd54fb**. The V2 SolidWorks screenshot was inspected; the plan does not rely on its AI render. No upstream CAD is copied or modified in this update.
+Reference commit: **f0d285c67bc893ddacc5d8121fe1c92385cd54fb**. The V2 SolidWorks screenshot was inspected; the plan does not rely on its AI render. The [3D equipment workspace](../docs/equipment-3d.html) now bundles 13 unmodified upstream V2 STLs with attribution, licence and file hashes. These show the author's actual Pi 4/Wio enclosure and hardware references. They are not a validated Heltec adaptation; the newer P4-Wio STEP/3MF remains a separate reference. See [pinned CAD file register](cad/upstream-selection.json).
 
 | Source | Use in our adaptation |
 |---|---|

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Power selection review · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Power selection review</h1>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Current outcome</a></li><li><a href="#section-2">Evidence-based comparison</a></li><li><a href="#section-3">What a candidate must supply</a></li><li><a href="#section-4">Shortest route to a usable prototype</a></li><li><a href="#section-5">Selected battery format and next component</a></li><li><a href="#section-6">Converter sourcing lead received</a></li><li><a href="#section-7">Preferred converter update</a></li></ol></details><h1>Power selection review</h1>
 <blockquote>
 <p><strong>Active power decision — 5 November 2026:</strong> battery pack, cell count, chemistry, charger, BMS and converter are <strong>TBD</strong>. Treat the battery assembly as a regulated <strong>5 V output, 3 A continuous minimum (15 W)</strong> module; 5 A / 25 W is a preferred headroom option, not a requirement already met. This is a nominal regulated voltage, not permission to exceed Pi voltage limits. Measure at the Pi under load. Earlier battery architectures below are archived options, not the active build. USB-C charging remains a reserved interface; its protocol and charge-and-run behaviour await the battery choice.</p>
 </blockquote>
@@ -9,9 +9,9 @@
 <p><strong>Latest baseline (5 November 2026):</strong> custom six-cell 3S2P pack plus separate balancing/protection BMS and USB-C 3S charger candidate. Retain enclosed 5 V Pi converter; barrel adapter optional. Charge with load off; USB PD and managed charge-and-run are not established. See <a href="charger-candidate-01.html">charging-board assessment</a>.</p>
 </blockquote>
 <p>Purpose: find a simple off-the-shelf power assembly for six 18650 cells, USB-C charging, regulated Pi 4 power, clean shutdown and the selected Heltec HAT. Purchasing remains AliExpress-only; exact listings, received revisions and cost are not verified.</p>
-<h2>Current outcome</h2>
+<h2 id="section-1">Current outcome</h2>
 <p><strong>No complete power kit is selected yet.</strong> This review narrows the choices rather than calling an incomplete module a solution. Six cells are required; the 3S2P arrangement is an engineering proposal, not a user requirement that forbids evaluating a better documented six-cell topology. Any topology change must update the charger, protection, harness and diagrams together.</p>
-<h2>Evidence-based comparison</h2>
+<h2 id="section-2">Evidence-based comparison</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -52,7 +52,7 @@
 </tr>
 </tbody></table></div>
 <p>For X1209, see the <a href="https://wiki.geekworm.com/X1209_Hardware">manufacturer hardware pin table</a> and compare <a href="https://resource.heltec.cn/download/HT-HC01PHAT_V1_0/HT-HC01PHAT_V1_0.PDF">Heltec&#39;s schematic</a>. For X728, use its <a href="https://wiki.geekworm.com/X728-hardware">revision-specific hardware guide</a>. The <a href="https://resources.mini-box.com/online/PWR-OpenUPS/PWR-OpenUPS-hardware-manual.pdf">OpenUPS manual</a> requires explicit battery/output configuration and cautions about parallel arrangements; it is not a drop-in approval for our pack.</p>
-<h2>What a candidate must supply</h2>
+<h2 id="section-3">What a candidate must supply</h2>
 <p>One board can combine several functions, but the complete assembly needs all of them:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -94,7 +94,7 @@
 <td>Exact AliExpress model/revision and included parts; no silent substitution</td>
 </tr>
 </tbody></table></div>
-<h2>Shortest route to a usable prototype</h2>
+<h2 id="section-4">Shortest route to a usable prototype</h2>
 <ol>
 <li>Verify one Pi/HAT/GNSS bench node with the supported regulated supply and corrected firmware profile. Do not use an unselected lithium module to debug the radio.</li>
 <li>Obtain an exact documented charger/UPS candidate and complete its product-level review. A seller&#39;s headline power rating or BMS label is insufficient.</li>
@@ -102,11 +102,11 @@
 <li>Freeze the power harness and mechanical envelope, then release the battery base and top charging arrangement together.</li>
 </ol>
 <p>This sequence preserves the final portable product while avoiding simultaneous debugging of unverified radio firmware, battery circuitry and an untested closed case. It is not a reduction of the six-cell, modular product goal.</p>
-<h2>Selected battery format and next component</h2>
+<h2 id="section-5">Selected battery format and next component</h2>
 <p>User accepts the blue wrapped 3S2P six-cell pack format with barrel output. Continue using the project&#39;s 3,400 mAh-per-cell planning assumption: about 6.8 Ah and 73.4 Wh per pack. Ignore the seller&#39;s 13.8 Ah claim; capacity clarification is not a design blocker.</p>
 <p>The next part to find is an assembled <strong>12V-to-5V 5A buck converter</strong>, followed by a compatible <strong>USB-C 3S charging/power-path module</strong>. The barrel lead feeds the regulated power system, not the Pi directly. See the <a href="battery-candidate-01.html">pack and next-component connection plan</a>.</p>
-<h2>Converter sourcing lead received</h2>
+<h2 id="section-6">Converter sourcing lead received</h2>
 <p>User supplied a screenshot and link for a blue 12/24V-to-5V module advertised at 5A. It is now the PWR-03 prototype candidate, with screw-terminal output for the preferred Pi header harness. See <a href="converter-candidate-01.html">converter assessment</a>. Input range, polarity, fixed/adjustable variant and continuous performance still need checking. Next component is the USB-C 3S charger with managed load/system path; this converter is not a charger.</p>
-<h2>Preferred converter update</h2>
+<h2 id="section-7">Preferred converter update</h2>
 <p>The user supplied an enclosed F23J5V5A1S-C module with USB-C output. Prefer this direct internal Pi power cable over the earlier custom header harness. Add a matching battery barrel adapter and fused input wiring. <a href="converter-candidate-02.html">Candidate 02 details</a>. This resolves the intended converter connection architecture; input/output performance and the separate charging system still need verification.</p>
-</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "dev/packages/protocol" },
+    { "path": "dev/packages/core" },
+    { "path": "dev/packages/simulator" }
+  ]
+}

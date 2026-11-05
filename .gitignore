@@ -10,3 +10,13 @@ node_modules/
 .codex-remote-attachments/
 .DS_Store
 Thumbs.db
+__pycache__/
+*.py[cod]
+dist/
+build/
+.svelte-kit/
+*.tsbuildinfo
+.gradle/
+local.properties
+*.jks
+*.keystore

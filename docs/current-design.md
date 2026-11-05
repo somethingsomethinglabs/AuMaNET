@@ -87,7 +87,7 @@ The removed USB service console, third USB-C and 12 V barrel input are not in th
 
 | Top insert | Gasket land, port apertures, capped/mated seals | Panel thickness, cap access, cable bends and service access |
 
-| GNSS assembly | UART, regulated receiver power, antenna coax | Logic levels, antenna bias, connector, data protocol and receiver identity |
+| GNSS assembly | EM7430 USB data/power and GNSS coax; UART only for LC76G fallback | Logic levels, antenna bias, connector, data protocol and receiver identity |
 
 | RF kit | Bulkhead, feed cable, passive antenna | Band coverage, connector polarity, gain/loss and legal power profile |
 
@@ -111,11 +111,11 @@ These are interface requirements, not released connector pinouts. Connector part
 
 | Simple assembly | Zone/layout and module boundaries documented | As-built harnesses, fit photos, fastener list and repeatable assembly |
 
-| Six-cell charging and shutdown | Power architecture only | Chosen modules pass load, charge, cutoff, temperature and restart checks |
+| Battery charging and shutdown | Power architecture only | Chosen modules pass load, charge, cutoff, temperature and restart checks |
 
 | Heltec radio firmware | Community HC01P report and manufacturer resources | Exact V2 image/overlay/BCF record with bench results |
 
-| GPS | Receiver/HAT interface documentation | Outdoor fix and recovery on the actual image/hardware |
+| GPS | EM7430 USB GNSS candidate; LC76G/HAT fallback documentation | Outdoor fix and recovery on the actual image/hardware |
 
 | Modular upgrades | Replacement checklist | One demonstrated module replacement and regression record |
 

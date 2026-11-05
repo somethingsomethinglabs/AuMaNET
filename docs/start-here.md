@@ -4,15 +4,15 @@ AuMaNET is a DIY radio network for a group of people travelling beyond mobile co
 
 **Today this is a prototype design, not a released kit.** The pages below describe the current choices and what still needs proving. The battery/charging electronics, exact AliExpress shopping list, firmware recipe and adapted print files are not released. Do not buy an entire convoy kit from the candidate list yet.
 
-## What the first build will contain
+## What the prototype is planned to contain
 
 - Raspberry Pi 4B: the computer. Its built-in Wi-Fi connects your phone.
 - Heltec HC01P V2 plus its matching Raspberry Pi HAT: the HaLow radio and adapter.
-- LC76G receiver breakout and matching GNSS antenna: position for the radio.
-- Six 18650 cells in the selected managed battery assembly: portable power. The proposed arrangement is 3S2P; it is not interchangeable with a one-cell UPS input.
+- Sierra EM7430 on a USB WWAN adapter: the candidate for cellular internet uplink and integrated GNSS position. Verify its USB position output without a SIM or mobile coverage; a separate LC76G receiver is the fallback.
+- Portable battery assembly: internals, cell count, chemistry, charger and runtime are TBD. Its required output is regulated 5 V / 3 A continuous minimum; measure total demand with LTE before selecting the supply.
 - A three-zone printed enclosure: battery below, computer/radio in the centre, connectors above.
 
-The top has USB-C charging, USB-C accessories, sealed Ethernet, HaLow antenna and a GNSS antenna cable exit. The upper side has the proposed power/shutdown control and a blanked future headset/PTT position. Battery, power and link indicators show device status. There is no external USB service-console port or 12 V barrel input in the current plan.
+The proposed top reserves USB-C charging, USB-C accessories, sealed Ethernet, a HaLow antenna path, separate LTE MAIN/AUX antenna paths and a GNSS antenna cable exit. Charging protocol and charge-and-run behaviour await the battery choice. The upper side has the proposed power/shutdown control and a blanked future headset/PTT position. Battery, power and link indicators show device status. There is no external USB service-console port or 12 V barrel input in the current plan. Check [current design](current-design.md) for the active baseline and revision 7 top-panel layout.
 
 ## Choose a starting point
 
@@ -43,7 +43,7 @@ Start with the Pi, storage, supported power supply and an Ethernet cable on a no
 
 ### 3. Add the radio and position receiver
 
-With all power disconnected, fit the correct HAT and radio using matching spacers. Connect the correct HaLow antenna before enabling the transmitter. Check the wiring labels against the received board. The LC76G option uses serial data; its external antenna connects to the receiver, not to Pi GPIO.
+With all power disconnected, fit the correct HAT and radio using matching spacers. Connect the correct HaLow antenna before enabling the transmitter. Check the wiring labels against the received board. The EM7430 candidate connects through a USB WWAN adapter and has separate cellular and GNSS antenna connections. Verify GNSS output over USB without a SIM or cellular service. If the LC76G fallback is needed, it uses serial data; its external antenna connects to the receiver, not to Pi GPIO. Exact adapter, power, antenna and firmware compatibility remain verification items.
 
 **Finish when:** radio hardware is detected, GNSS gets a fresh outdoor fix, and the image retains the correct local settings after restart. Radio transmission requires the documented Australian equipment/profile review first.
 
@@ -81,7 +81,7 @@ No programming is required to read these documents. The finished release should 
 | GNSS / GPS | Satellite positioning receiver and its separate antenna |
 | BMS | Battery protection/management electronics; not automatically a charger |
 | PD | USB-C Power Delivery negotiation; not automatically battery charging |
-| 3S2P | Three series groups, two cells in parallel per group: six cells total |
+| WWAN adapter | Carrier that supplies the cellular module's USB connection, SIM interface and power |
 | PTT | Push-to-talk: hold a button while speaking |
 | Firmware image | The prepared operating software written to the storage card |
 | BCF | Board-specific radio calibration/configuration file |

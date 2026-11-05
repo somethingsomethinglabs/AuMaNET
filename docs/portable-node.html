@@ -1,16 +1,16 @@
 <!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Portable Pi 4 radio: modular body and sealed top interfaces · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><p><a href="start-here.html">Start here</a> · <a href="current-design.html">Current baseline</a> · <a href="release-readiness.html">Build readiness</a></p>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Enclosure direction</a></li><li><a href="#section-2">Three vertical zones</a></li><li><a href="#section-3">Top-down panel layout</a></li><li><a href="#section-4">Top interface schedule</a></li><li><a href="#section-5">Watertight top cap</a></li><li><a href="#section-6">Ethernet integration</a></li><li><a href="#section-7">Six-cell battery and regulator</a></li><li><a href="#section-8">Non-invasive Pi power</a></li><li><a href="#section-9">USB-C PD charging</a></li><li><a href="#section-10">GPS selection and location behaviour</a></li><li><a href="#section-11">Before CAD release / deployment</a></li><li><a href="#section-12">Primary references</a></li><li><a href="#section-13">Revision 5: field controls and voice provision</a></li><li><a href="#section-14">Sourcing constraint</a></li><li><a href="#section-15">Active cellular and top-panel revision 7</a></li></ol></details><p><a href="start-here.html">Start here</a> · <a href="current-design.html">Current baseline</a> · <a href="release-readiness.html">Build readiness</a></p>
 <blockquote>
 <p><strong>Active power decision — 5 November 2026:</strong> battery pack, cell count, chemistry, charger, BMS and converter are <strong>TBD</strong>. Treat the battery assembly as a regulated <strong>5 V output, 3 A continuous minimum (15 W)</strong> module; 5 A / 25 W is a preferred headroom option, not a requirement already met. This is a nominal regulated voltage, not permission to exceed Pi voltage limits. Measure at the Pi under load. Earlier battery architectures below are archived options, not the active build. USB-C charging remains a reserved interface; its protocol and charge-and-run behaviour await the battery choice.</p>
 </blockquote>
 <h1>Portable Pi 4 radio: modular body and sealed top interfaces</h1>
 <p>Plan revision 5, 2026-11-05. User-selected: Pi 4B, Heltec HAT/HC01P V2, six 18650 cells. Packaging proposal; no modified CAD or assembly has been validated.</p>
 <p><img src="assets/portable-node.svg" alt="Three-zone enclosure and top interfaces"></p>
-<h2>Enclosure direction</h2>
+<h2 id="section-1">Enclosure direction</h2>
 <p>Use <a href="https://github.com/ties1887/Mesh-radio-Halow-LoRa">ties1887/Mesh-radio-Halow-LoRa</a>, superseding OpenNot5. One carried unit has a <strong>bottom battery base</strong>, <strong>central compute/radio core</strong>, and <strong>top connector/routing cap</strong>. A single centre/base body with an internal partition is acceptable. Use screws/inserts and gasketed service joints. Battery twist locking, magnetic contacts and hot swapping are unnecessary.</p>
-<p>Reference commit: <strong>f0d285c67bc893ddacc5d8121fe1c92385cd54fb</strong>. The V2 SolidWorks screenshot was inspected; the plan does not rely on its AI render. No upstream CAD is copied or modified in this update.</p>
+<p>Reference commit: <strong>f0d285c67bc893ddacc5d8121fe1c92385cd54fb</strong>. The V2 SolidWorks screenshot was inspected; the plan does not rely on its AI render. The <a href="equipment-3d.html">3D equipment workspace</a> now bundles 13 unmodified upstream V2 STLs with attribution, licence and file hashes. These show the author&#39;s actual Pi 4/Wio enclosure and hardware references. They are not a validated Heltec adaptation; the newer P4-Wio STEP/3MF remains a separate reference. See <a href="../hardware/cad/upstream-selection.json">pinned CAD file register</a>.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -32,7 +32,7 @@
 </tr>
 </tbody></table></div>
 <p>Source licence: <strong>CC BY-NC-SA 4.0</strong>. Retain ties1887 attribution and revision; shared derivative CAD follows its licence separately from original AuMaNET documentation. This enclosure selection adds no LoRa subsystem.</p>
-<h2>Three vertical zones</h2>
+<h2 id="section-2">Three vertical zones</h2>
 <p>Initial design budget: <strong>240 mm tall x 120 mm wide x 95 mm deep</strong>, about <strong>230 x 110 x 85 mm</strong> inside. These are original reserves, not upstream measurements or released print dimensions.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -65,10 +65,10 @@
 </tbody></table></div>
 <p>Put charging electronics and the 5 V buck on a separate isolated service rail with a heat path, away from cells and connector backs. Charger board dimensions remain open and may enlarge the shell. Measure the Pi/HAT/radio stack, bulkhead nuts, internal cable bends and mating geometry before releasing CAD. Heltec&#39;s 90 x 50 x 20 mm HAT product characteristics are not a validated assembly drawing.</p>
 <p>Use an external heat-spreader coupled to the Pi CPU and a thermal barrier at the battery base. Preserve a polymer RF path for local Wi-Fi. No screen is included. A gasket and printed shell do not establish an IP or military rating.</p>
-<h2>Top-down panel layout</h2>
+<h2 id="section-3">Top-down panel layout</h2>
 <p><img src="assets/top-panel.svg" alt="Proposed top-down connector layout"></p>
 <p>Rear row: HaLow RF, sealed LAN and GPS gland. Front/operator row: USB-C charge and USB-C accessory host. The preferred GNSS antenna mounts off-panel so it does not cover connectors; its receiver is inside. The USB puck is a fallback with a different harness. Dashed circles reserve cap/grip clearance; the perimeter reserves the gasket land. Layout is a proposal, not a scaled cut-out drawing. The 120 x 95 mm cap and 45 mm routing depth may need enlargement for actual sealing collars, RJ45 backshells, cap tethers, wrench access and cable bend radii. Check all retained interfaces with every cable fitted before freezing the cap.</p>
-<h2>Top interface schedule</h2>
+<h2 id="section-4">Top interface schedule</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -100,15 +100,15 @@
 <p>Preferred non-invasive Pi power: the <a href="converter-candidate-02.html">F23J5V5A1S-C enclosed converter</a> feeds the Pi’s internal USB-C inlet directly. A barrel mating adapter joins the battery output to its input wires. A GPIO power interposer is an optional alternative, not required for the first build. USB-C describes a connector, not a power/data role. Do not split one port across host/device/charging functions. Do not connect a PC host to ACCESSORY. A generic power-only bulkhead or passive adapter is not a verified downstream Type-C port: select a proper implementation and test C-to-C enumeration in both orientations.</p>
 <p>Administration uses Wi-Fi or the sealed Ethernet port. No external USB service console is included.</p>
 <p>Headsets must be <strong>digital USB Audio Class</strong> devices with playback/microphone drivers and voice-app routing validated on the pinned OpenWrt build. Passive analogue USB-C headsets are not sufficient. USB-connected GPS fallback, headsets and accessories share Pi 4&#39;s published <strong>1.2 A total USB budget</strong>; a 5 A regulator does not increase it. Add a properly powered non-backfeeding hub only if necessary, updating space and power budgets.</p>
-<h2>Watertight top cap</h2>
+<h2 id="section-5">Watertight top cap</h2>
 <p>Use a replaceable recessed top insert, splash shoulders, strain relief, enough space to grip caps, and distinct CHARGE/ACCESSORY/LAN labels. Cable interfaces are at the top; the power button and blanked PTT position are on the upper side; internal harnesses reach the Pi&#39;s existing side ports. Battery/core remain attached for normal use.</p>
 <p><a href="https://www.bulgin.com/us/products/range/circular-data-connectors/4000-series-data-buccaneers.html">Bulgin 4000 C-Type Buccaneer</a> is a reference family, not a selected SKU. Select receptacle, sealing cable, gasket and cap together. Require documented sealing <strong>capped when unused</strong> and <strong>mated using the specified cable</strong>. An ordinary USB-C lead does not automatically preserve the connector&#39;s mated rating; it may be dry-weather only. Chassis twist locking is omitted; connector coupling required for sealing can remain.</p>
 <p>Panel holes, nut clearances, wall thickness and spacing follow selected connector drawings. Test the completed body and every used/capped port state before an ingress claim. Keep joints out of pooling areas. Retain sky visibility for the external GPS and clearance around the HaLow antenna.</p>
-<h2>Ethernet integration</h2>
+<h2 id="section-6">Ethernet integration</h2>
 <p>Use a shielded eight-contact RJ45 coupler and matched sealing cable/cap system; <a href="https://www.bulgin.com/products/media/bulgin/data/Standard_ethernet.pdf">Bulgin Standard Ethernet Buccaneer</a> is a reference family, with final SKU and dimensions still open. Do not substitute single-pair Ethernet, a four-contact 100-Mbit part, or an unsealed RJ45 extension. Choose Cat5e or better for the complete internal/external harness. Preserve pair twist and shield strategy; retain the existing Pi magnetics rather than wiring directly to the PHY.</p>
 <p>Sealing must be documented capped and with the specified mating cable. A bare standard RJ45 cable may work electrically but is not assumed sealed. PoE capability of a connector does not make the Pi a PoE input; no passive PoE or supply wiring is part of this build.</p>
 <p>Initial use is local wired administration or a wired peer; default network role is trusted LAN. Connecting an internet router, another mesh gateway or a second Layer-2 path requires explicit routing/DHCP/loop review. Test negotiated 1 Gbit/s, sustained throughput, packet loss, reconnect and simultaneous HaLow traffic. Check all eight contacts and capped/mated ingress states.</p>
-<h2>Six-cell battery and regulator</h2>
+<h2 id="section-7">Six-cell battery and regulator</h2>
 <p>Procure a professionally assembled <strong>3S2P pack</strong>: three series groups of two parallel 18650 cells. With matched genuine 3.6 V nominal / 3.4 Ah cells, this is <strong>10.8 V nominal, 12.6 V full, 6.8 Ah</strong>. Six cells in series is not this design.</p>
 <p>Specify balancing BMS, temperature sensing/charge inhibit, insulated terminals, fuse, retention, keyed connector and at least 5 A continuous pack discharge capability, coordinated by the pack builder. Charge current starts at no more than 2 A, subject to cell/pack approval. No loose-cell spring-holder adaptation or extra cells connected to the three-cell Waveshare UPS holder is approved.</p>
 <p>Current sourcing lead: the <a href="converter-candidate-02.html">enclosed converter with captive USB-C output</a>. Feed the Pi&#39;s internal USB-C power inlet from it. The open blue converter and Pololu part remain technical alternatives. Verify the input range down to the pack&#39;s usable lower voltage, loaded output at the Pi, and heat. The 5 A maximum is a seller rating. This is not the battery charger.</p>
@@ -135,10 +135,10 @@
 </tr>
 </tbody></table></div>
 <p>These are calculations, not test results. Age, temperature, BMS cutoff and radio duty cycle affect runtime. Six cells still do <strong>not</strong> establish the 12 h target at 8 W: the same budget requires about <strong>141 Wh nominal</strong>. Treat the internal pack as the portable baseline and retain an external supply option for all-day use. Runtime testing decides whether the earlier 12 h acceptance target needs a larger pack or a reduced load.</p>
-<h2>Non-invasive Pi power</h2>
+<h2 id="section-8">Non-invasive Pi power</h2>
 <p>Preferred route: protected pack or managed system rail -&gt; matching barrel adapter and fused input harness -&gt; enclosed 5 V converter -&gt; captive USB-C lead -&gt; Pi power inlet. No soldering to the Pi and no GPIO interposer are required. This internal supply is separate from the top accessory/data connector.</p>
 <p>Header power remains possible through physical pins 2/4 and grounds, but is not the first-build route. Do not use both supplies together. Raw battery voltage never connects directly to Pi, 3.3 V or signal pins.</p>
-<h2>USB-C PD charging</h2>
+<h2 id="section-9">USB-C PD charging</h2>
 <p>The simplified panel has one <strong>USB-C PD charge input</strong> and one <strong>USB-C accessory host</strong>. The dedicated service console and 12 V barrel input are removed from the current baseline. The GPS cable gland remains for the previously selected external receiver.</p>
 <p>Charging path: rated sealed USB-C input/cable -&gt; PD sink + 3S Li-ion CC/CV charger -&gt; BMS-protected pack. Use the charger&#39;s managed system rail to feed the 5 V regulator if load sharing is supported and validated. A PD trigger alone is not a battery charger. No direct USB-to-cell or raw battery-to-Pi connection is allowed.</p>
 <p>Target a <strong>15 V / 3 A PD source (45 W)</strong> with charge current capped by the actual pack, cable, connector and thermal limits. A source without the required profile must report no charge or a documented reduced-power mode. The USB-C receptacle itself neither negotiates voltage nor controls charging.</p>
@@ -146,13 +146,13 @@
 <p>Desired behaviour is continued radio operation when charge power is inserted/removed. This requires <strong>managed load sharing</strong>, a system rail feeding the 5 V regulator, controlled battery charging and no backfeed. It remains a required validation gate. Until passed, use orderly shutdown and physical load isolation before charging. No arbitrary charger is approved for simultaneous use.</p>
 <p>Vehicle charging needs an automotive-rated PD source supporting the selected profile, fused and transient protected. Verify charge/run power budget: available input power must cover both load and selected charge rate after losses.</p>
 <p>Use graceful Linux shutdown before master disconnect. A later shutdown button must use a pin verified spare against the HAT schematic. A 3S monitor/fuel-gauge part and 3.3 V/OpenWrt integration remain open. Set warnings/shutdown above BMS cutoff from tests; Pi GPIO has no analogue input and cannot accept raw pack voltage.</p>
-<h2>GPS selection and location behaviour</h2>
+<h2 id="section-10">GPS selection and location behaviour</h2>
 <p>Updated preference: evaluate the <strong>LC76G internal receiver with external antenna and HAT UART</strong>, as detailed in <a href="diy-selection.html">DIY selection</a>. This supersedes the USB puck as the first candidate; UART, power and received-board compatibility remain bench gates. The top GPS gland can carry antenna coax.</p>
 <p>Retain a <strong>GlobalSat BU-353N (10 Hz) USB GPS puck</strong> as the fallback procurement candidate, with exact product suffix verified. Manufacturer documentation describes USB-powered NMEA 0183, default 115200 baud, a magnetic puck and built-in antenna. Its manual gives a 53 mm diameter x 19.2 mm body, 1.5 m cable and 42 mA typical at 5 V. This is a GPS/SBAS product; do not substitute BU-353N5 or another variant while retaining these specifications.</p>
 <p>Mount the puck <strong>outside the case</strong> with a sky view, using a cable gland/split gland sized for its cable and USB connector, or an appropriately rated sealed USB bulkhead. A metal case or roof between it and the sky will impair reception. Provide a removable top bracket for handheld use and a roof mount option for vehicles. The puck is the receiver and antenna together; a passive GPS antenna alone cannot replace it. Keep it separated from the HaLow antenna and verify reception while transmitting. Store excess cable without tight bends or pressure on the connector.</p>
 <p>Connection: Pi USB 2 port -&gt; USB serial device -&gt; gpsd -&gt; OpenMANET local receiver source. Exact USB bridge/driver support for this GlobalSat model on the pinned OpenWrt image must be bench verified; NMEA support alone is not proof. Upstream explicitly documents gpsd-compatible u-blox USB receivers, so a genuine u-blox USB unit is the fallback if the GlobalSat driver is unavailable. Record VID/PID and stable device mapping instead of assuming <code>/dev/ttyUSB0</code> remains constant.</p>
 <p>Validate cold boot, fix acquisition, disconnect/reconnect, fix loss, UTC and position age. Node GPS locates the <strong>radio</strong>, not a person who walks away from it. Phone/person location remains a separate source. GNSS position/time is not assumed to discipline the system clock until the clock service is configured and tested.</p>
-<h2>Before CAD release / deployment</h2>
+<h2 id="section-11">Before CAD release / deployment</h2>
 <ol>
 <li>Inspect the pinned STEP assemblies and record exact measured mating surfaces, Heltec carrier fit, pack supplier dimensions and connector footprints. Print fit coupons before the body.</li>
 <li>Freeze the PD charger, host Type-C implementation and panel sealing family. Test both USB-C orientations and intended cable types.</li>
@@ -162,7 +162,7 @@
 <li>Verify GPS fix/age and distinguish radio position from phone/person position. Test thermal performance with closed lid and source-connected operation if enabled.</li>
 <li>Test vibration, mounting, harness pulls and water ingress in capped and correctly mated states. Re-run messaging and relay trials.</li>
 </ol>
-<h2>Primary references</h2>
+<h2 id="section-12">Primary references</h2>
 <ul>
 <li><a href="https://github.com/ties1887/Mesh-radio-Halow-LoRa/tree/f0d285c67bc893ddacc5d8121fe1c92385cd54fb">ties1887 source revision</a></li>
 <li><a href="https://heltec.org/project/ht-hc01p-hat/">Heltec HAT</a> and <a href="https://heltec.org/project/hc01p-v2/">HC01P V2</a></li>
@@ -173,15 +173,15 @@
 <li><a href="https://www.globalsat.com.tw/en/product-289513/USB-GPS-Receiver-BU-353N-10Hz.html">GlobalSat receiver</a></li>
 <li><a href="https://openmanet.github.io/docs/gnss">OpenMANET GNSS</a></li>
 </ul>
-<h2>Revision 5: field controls and voice provision</h2>
+<h2 id="section-13">Revision 5: field controls and voice provision</h2>
 <p>User approved a sealed power/shutdown button and visible battery/link indicators, plus provision for headset/PTT. Place the <strong>recessed sealed power button on the upper side shoulder</strong>, reachable while wearing gloves and protected from accidental pressure. Top placement remains an option if actual connector clearances allow it. This is one control with a power-management interface, not a direct GPIO connection to raw battery voltage.</p>
 <p>The button must request orderly shutdown while running, then a power controller disconnects the load after shutdown. Power-on must work when the Pi is off; a GPIO-only button cannot provide that by itself. Select the controller, shutdown handshake and timeout before wiring. A held-button forced-off action may be a recovery function only, with its data-loss implication documented. Keep the BMS cutoff as last-resort battery protection.</p>
 <p>Use sealed light pipes/windows for <strong>battery status</strong>, <strong>node power/boot</strong> and <strong>mesh link</strong> indicators on the top/front shoulder. Define distinct labelled patterns without relying only on colour. Battery indication needs the selected monitor and calibration; a lit link indicator means network connectivity, not message acknowledgement or a person&#39;s safety. Indicator definitions and drive electronics must be verified on the pinned firmware.</p>
 <p>Reserve a <strong>blanked headset/PTT panel position</strong> on the upper side, with an internal service route to a USB audio/PTT module such as OpenVLM. A real external headset socket is conditional on choosing the headset, microphone bias/audio levels, connector pinout, electrical interface and sealing cable. No generic military headset compatibility is claimed. The accessory USB-C remains available for an external digital audio/PTT adapter during the pilot. Use a sealed blanking plug until the voice interface is selected; it is not a released wiring connection.</p>
 <p>Reference: <a href="https://openmanet.github.io/docs/comms">OpenMANET comms</a> and <a href="https://github.com/OpenMANET/OpenVLM">OpenVLM</a>. These additions require button-controller, monitor, audio/PTT and completed ingress testing before deployment.</p>
-<h2>Sourcing constraint</h2>
+<h2 id="section-14">Sourcing constraint</h2>
 <p>Purchase components through <strong>AliExpress only</strong>, per user direction. Element14 and other distributors are outside the purchasing plan. Existing manufacturer links provide specifications; they do not establish an available or genuine AliExpress equivalent. Pololu, GlobalSat, charger, sealed connector and controller candidates must have exact matching AliExpress listings verified before selection. Do not replace them silently with similarly named boards. User captures now identify the HC01P V2 bundle, a battery format and converter candidates; current stock, price and supplied revision still require confirmation. No order is authorised by this documentation update.</p>
-<h2>Active cellular and top-panel revision 7</h2>
+<h2 id="section-15">Active cellular and top-panel revision 7</h2>
 <p>The user now includes a <strong>Sierra EM7430 on a USB WWAN adapter</strong> as the cellular/GNSS candidate. It is not a PCIe data connection to the Pi: the adapter carries USB, SIM and module power. Internet uplink is the purpose; native carrier calls and SMS features are outside this project&#39;s scope. Exact adapter, firmware, carrier operation, GNSS output and power remain verification items.</p>
 <p><img src="assets/top-panel.svg" alt="Top view with HaLow, LTE main, LTE auxiliary and GNSS positions"></p>
 <div class="table-wrap"><table>
@@ -233,4 +233,4 @@
 <p>Corner placement maximises available separation within this concept, but proves no RF isolation. Test GNSS acquisition/fix retention during LTE uplink and HaLow traffic, LTE signal/throughput with both elements, and local Wi-Fi. The 120 x 95 mm cap is still a provisional envelope: check seven interface bodies, caps, nuts, fingers, gasket and cable bends before freezing CAD. Resize if necessary; no hole coordinates or drilling diameters are released. Power button/PTT blank remain on the upper side and status windows remain near the top shoulder.</p>
 <p><strong>GNSS replacement:</strong> EM7430 GNSS is the integrated candidate; LC76G becomes a fallback. Confirm position data over USB and operation without a SIM or cellular service before removing the separate receiver from the build. Verify selected image modem drivers, routing/failover to cellular without breaking local mesh, SIM/APN, reconnection, power/thermal peaks and antenna coexistence. Battery internals remain TBD behind the regulated 5 V supply boundary; the previous 15 W minimum is not proof of sufficient capacity with LTE.</p>
 <p>Technical source: <a href="https://source.sierrawireless.com/resources/airprime/minicard/74xx/airprime_em7430_product_technical_specification">Sierra EM7430 hardware specification</a>. These are concept positions, not final electrical wiring or fabrication drawings.</p>
-</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

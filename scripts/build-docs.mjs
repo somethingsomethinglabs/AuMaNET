@@ -38,15 +38,24 @@ function rewrite(url, source, output) {
 }
 
 function frame(title, body) {
+  const headings = [];
+  body = body.replace(/<h2>([\s\S]*?)<\/h2>/g, (_, heading) => {
+    const id = `section-${headings.length + 1}`;
+    headings.push(`<li><a href="#${id}">${heading}</a></li>`);
+    return `<h2 id="${id}">${heading}</h2>`;
+  });
+  const contents = headings.length > 1 ? `<details class="contents"><summary>On this page</summary><ol>${headings.join('')}</ol></details>` : '';
   return `<!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)} · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p>${body}</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>\n`;
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p>${contents}${body}</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>\n`;
 }
 
 for (const [source, output] of pages) {
   const md = fs.readFileSync(source, 'utf8');
-  let html = marked.parse(md);
+  // Some maintained tables have blank lines between rows; keep them as tables.
+  const normalized = md.replace(/(\|[^\r\n]*\|)\r?\n(?:[ \t]*\r?\n)+(?=\|)/g, '$1\n');
+  let html = marked.parse(normalized);
   html = html.replace(/\b(href|src)="([^"]+)"/g, (_, attr, url) => `${attr}="${rewrite(url, source, output)}"`);
   // Tables remain semantic, and scroll within their own region on small screens.
   html = html.replaceAll('<table>', '<div class="table-wrap"><table>').replaceAll('</table>', '</table></div>');

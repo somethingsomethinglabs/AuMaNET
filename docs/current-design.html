@@ -1,25 +1,64 @@
 <!doctype html>
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Current design: one place to check the baseline · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="start-here.html">Start here</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="upgrades.html">Upgrades</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><h1>Current design: one place to check the baseline</h1>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
+<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Current state</a></li><li><a href="#section-2">What stays in the product</a></li><li><a href="#section-3">External interfaces</a></li><li><a href="#section-4">Module boundaries</a></li><li><a href="#section-5">Prototype evidence still needed</a></li><li><a href="#section-6">Firmware and power evidence</a></li><li><a href="#section-7">Next hardware stage</a></li><li><a href="#section-8">Active cellular and top-panel revision 7</a></li></ol></details><h1>Current design: one place to check the baseline</h1>
 <blockquote>
 <p><strong>Active power decision - 5 November 2026:</strong> battery pack, cell count, chemistry, charger, BMS and converter are <strong>TBD</strong>. Treat the battery assembly as a regulated <strong>5 V output, 3 A continuous minimum (15 W)</strong> module; 5 A / 25 W is a preferred headroom option, not a requirement already met. This is a nominal regulated voltage, not permission to exceed Pi voltage limits. Measure at the Pi under load. Earlier battery architectures below are archived options, not the active build. USB-C charging remains a reserved interface; its protocol and charge-and-run behaviour await the battery choice.</p>
 </blockquote>
 <p>Updated 5 November 2026. This page describes the active design. Earlier entries in the decision history record what changed; they are not alternative assembly instructions.</p>
-<h2>Current state</h2>
+<h2 id="section-1">Current state</h2>
 <p><strong>Design prototype. Not ready for a full purchase or field reliance.</strong> No complete AliExpress bill of materials, adapted enclosure, tested battery assembly or firmware recipe has been released. There is no guaranteed range or weather rating.</p>
-<h2>What stays in the product</h2>
-<p>| Module | Current choice | Evidence / next check |</p>
-<p>|---|---|---|</p>
-<p>| Computer | Raspberry Pi 4B | User selected; exact purchased revision/storage still to record |</p>
-<p>| HaLow radio | Heltec HC01P V2, 902–928 MHz variant, with matching HT-HC01PHAT | Identified from supplied listing capture; actual board and firmware combination untested |</p>
-<p>| Local phone connection | Pi onboard ordinary Wi-Fi | Verify AP behaviour with chosen radio image |</p>
-<p>| Position | EM7430 integrated GNSS over USB; LC76G fallback | GNSS antenna and actual firmware/data output to verify |</p>
-<p>| Portable energy | Battery assembly TBD | Regulated 5 V / 3 A continuous minimum; 5 A option for headroom; runtime and dimensions TBD |</p>
-<p>| Main Pi power | Regulated 5 V into Pi internal USB-C power inlet | Battery implementation deferred; verify actual loaded voltage and total demand |</p>
-<p>| Case | ties1887-inspired battery base, central core, top wiring cap | One screw-fastened serviceable unit; derivative carrier/print files not yet made |</p>
-<p>| Purchasing | AliExpress only | Exact matching listings required; manufacturer pages are technical references |</p>
-<h2>External interfaces</h2>
+<h2 id="section-2">What stays in the product</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Current choice</th>
+<th>Evidence / next check</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Computer</td>
+<td>Raspberry Pi 4B</td>
+<td>User selected; exact purchased revision/storage still to record</td>
+</tr>
+<tr>
+<td>HaLow radio</td>
+<td>Heltec HC01P V2, 902–928 MHz variant, with matching HT-HC01PHAT</td>
+<td>Identified from supplied listing capture; actual board and firmware combination untested</td>
+</tr>
+<tr>
+<td>Local phone connection</td>
+<td>Pi onboard ordinary Wi-Fi</td>
+<td>Verify AP behaviour with chosen radio image</td>
+</tr>
+<tr>
+<td>Position</td>
+<td>EM7430 integrated GNSS over USB; LC76G fallback</td>
+<td>GNSS antenna and actual firmware/data output to verify</td>
+</tr>
+<tr>
+<td>Portable energy</td>
+<td>Battery assembly TBD</td>
+<td>Regulated 5 V / 3 A continuous minimum; 5 A option for headroom; runtime and dimensions TBD</td>
+</tr>
+<tr>
+<td>Main Pi power</td>
+<td>Regulated 5 V into Pi internal USB-C power inlet</td>
+<td>Battery implementation deferred; verify actual loaded voltage and total demand</td>
+</tr>
+<tr>
+<td>Case</td>
+<td>ties1887-inspired battery base, central core, top wiring cap</td>
+<td>One screw-fastened serviceable unit; derivative carrier/print files not yet made</td>
+</tr>
+<tr>
+<td>Purchasing</td>
+<td>AliExpress only</td>
+<td>Exact matching listings required; manufacturer pages are technical references</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-3">External interfaces</h2>
 <ul>
 <li><p><strong>C1 — CHARGE:</strong> USB-C into the battery charging/power system.</p>
 </li>
@@ -39,34 +78,112 @@
 </li>
 </ul>
 <p>The removed USB service console, third USB-C and 12 V barrel input are not in the active BOM. Optional headset/PTT remains blanked until its pinout and electronics are chosen.</p>
-<h2>Module boundaries</h2>
-<p>| Replaceable assembly | Boundary | Keep stable when replacing it |</p>
-<p>|---|---|---|</p>
-<p>| Compute/radio tray | Pi mounts, HAT header, 5 V power harness, RF pigtail | Logic voltage, GPIO use, power capacity and board-specific firmware |</p>
-<p>| Battery base | Keyed pack connector, fuse, temperature sensing and mounting | Pack chemistry, voltage/topology, charger configuration and fault limits |</p>
-<p>| Power service rail | Charge input, battery/system rail, regulated 5 V, shutdown handshake | No reverse feed, clean source transitions and orderly shutdown |</p>
-<p>| Top insert | Gasket land, port apertures, capped/mated seals | Panel thickness, cap access, cable bends and service access |</p>
-<p>| GNSS assembly | UART, regulated receiver power, antenna coax | Logic levels, antenna bias, connector, data protocol and receiver identity |</p>
-<p>| RF kit | Bulkhead, feed cable, passive antenna | Band coverage, connector polarity, gain/loss and legal power profile |</p>
+<h2 id="section-4">Module boundaries</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Replaceable assembly</th>
+<th>Boundary</th>
+<th>Keep stable when replacing it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Compute/radio tray</td>
+<td>Pi mounts, HAT header, 5 V power harness, RF pigtail</td>
+<td>Logic voltage, GPIO use, power capacity and board-specific firmware</td>
+</tr>
+<tr>
+<td>Battery base</td>
+<td>Keyed pack connector, fuse, temperature sensing and mounting</td>
+<td>Pack chemistry, voltage/topology, charger configuration and fault limits</td>
+</tr>
+<tr>
+<td>Power service rail</td>
+<td>Charge input, battery/system rail, regulated 5 V, shutdown handshake</td>
+<td>No reverse feed, clean source transitions and orderly shutdown</td>
+</tr>
+<tr>
+<td>Top insert</td>
+<td>Gasket land, port apertures, capped/mated seals</td>
+<td>Panel thickness, cap access, cable bends and service access</td>
+</tr>
+<tr>
+<td>GNSS assembly</td>
+<td>EM7430 USB data/power and GNSS coax; UART only for LC76G fallback</td>
+<td>Logic levels, antenna bias, connector, data protocol and receiver identity</td>
+</tr>
+<tr>
+<td>RF kit</td>
+<td>Bulkhead, feed cable, passive antenna</td>
+<td>Band coverage, connector polarity, gain/loss and legal power profile</td>
+</tr>
+</tbody></table></div>
 <p>These are interface requirements, not released connector pinouts. Connector part numbers and keyed harness drawings are required before a builder-facing wiring release.</p>
-<h2>Prototype evidence still needed</h2>
-<p>| Requirement | Current evidence | What proves readiness |</p>
-<p>|---|---|---|</p>
-<p>| Off-the-shelf AliExpress parts | One identified Heltec listing capture; other models are candidates | Complete revision-specific listing register and received-parts checks |</p>
-<p>| No developer skills for normal build | Staged guide and offline handbook | Another tech-savvy builder follows the guide without editing code |</p>
-<p>| Simple assembly | Zone/layout and module boundaries documented | As-built harnesses, fit photos, fastener list and repeatable assembly |</p>
-<p>| Six-cell charging and shutdown | Power architecture only | Chosen modules pass load, charge, cutoff, temperature and restart checks |</p>
-<p>| Heltec radio firmware | Community HC01P report and manufacturer resources | Exact V2 image/overlay/BCF record with bench results |</p>
-<p>| GPS | Receiver/HAT interface documentation | Outdoor fix and recovery on the actual image/hardware |</p>
-<p>| Modular upgrades | Replacement checklist | One demonstrated module replacement and regression record |</p>
-<p>| Offline messaging and voice/data | Requirements and community software references | Two-node then three-node application trials, with phone sleep/reconnect |</p>
-<p>| Field usability | Panel/control proposals | Glove-use, cable access, indicator comprehension and runtime tests |</p>
-<p>| Safe Australian operation | Regulatory references | Equipment/profile review for the chosen occupied channel and antenna |</p>
-<h2>Firmware and power evidence</h2>
+<h2 id="section-5">Prototype evidence still needed</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Current evidence</th>
+<th>What proves readiness</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Off-the-shelf AliExpress parts</td>
+<td>One identified Heltec listing capture; other models are candidates</td>
+<td>Complete revision-specific listing register and received-parts checks</td>
+</tr>
+<tr>
+<td>No developer skills for normal build</td>
+<td>Staged guide and offline handbook</td>
+<td>Another tech-savvy builder follows the guide without editing code</td>
+</tr>
+<tr>
+<td>Simple assembly</td>
+<td>Zone/layout and module boundaries documented</td>
+<td>As-built harnesses, fit photos, fastener list and repeatable assembly</td>
+</tr>
+<tr>
+<td>Battery charging and shutdown</td>
+<td>Power architecture only</td>
+<td>Chosen modules pass load, charge, cutoff, temperature and restart checks</td>
+</tr>
+<tr>
+<td>Heltec radio firmware</td>
+<td>Community HC01P report and manufacturer resources</td>
+<td>Exact V2 image/overlay/BCF record with bench results</td>
+</tr>
+<tr>
+<td>GPS</td>
+<td>EM7430 USB GNSS candidate; LC76G/HAT fallback documentation</td>
+<td>Outdoor fix and recovery on the actual image/hardware</td>
+</tr>
+<tr>
+<td>Modular upgrades</td>
+<td>Replacement checklist</td>
+<td>One demonstrated module replacement and regression record</td>
+</tr>
+<tr>
+<td>Offline messaging and voice/data</td>
+<td>Requirements and community software references</td>
+<td>Two-node then three-node application trials, with phone sleep/reconnect</td>
+</tr>
+<tr>
+<td>Field usability</td>
+<td>Panel/control proposals</td>
+<td>Glove-use, cable access, indicator comprehension and runtime tests</td>
+</tr>
+<tr>
+<td>Safe Australian operation</td>
+<td>Regulatory references</td>
+<td>Equipment/profile review for the chosen occupied channel and antenna</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-6">Firmware and power evidence</h2>
 <p>The downloaded OpenMANET 1.8.0 SPI image has a confirmed GPIO mapping mismatch with the Heltec HAT. The firmware review includes exact image/overlay hashes and a review-only adaptation tool. It is not a tested build image. See <a href="firmware-review.html">firmware review</a> and <a href="power-review.html">power selection review</a>.</p>
-<h2>Next hardware stage</h2>
+<h2 id="section-7">Next hardware stage</h2>
 <p>See <a href="operating-hardware.html">operating hardware and community comparison</a> and the <a href="parts.html">BOM</a>. Freeze the compute/radio stack, GNSS receiver harness, RF pigtail, cooling and top-panel interfaces before enclosure CAD. Battery selection is deferred behind its regulated 5 V interface.</p>
-<h2>Active cellular and top-panel revision 7</h2>
+<h2 id="section-8">Active cellular and top-panel revision 7</h2>
 <p>The user now includes a <strong>Sierra EM7430 on a USB WWAN adapter</strong> as the cellular/GNSS candidate. It is not a PCIe data connection to the Pi: the adapter carries USB, SIM and module power. Internet uplink is the purpose; native carrier calls and SMS features are outside this project&#39;s scope. Exact adapter, firmware, carrier operation, GNSS output and power remain verification items.</p>
 <p><img src="assets/top-panel.svg" alt="Top view with HaLow, LTE main, LTE auxiliary and GNSS positions"></p>
 <div class="table-wrap"><table>
@@ -118,4 +235,4 @@
 <p>Corner placement maximises available separation within this concept, but proves no RF isolation. Test GNSS acquisition/fix retention during LTE uplink and HaLow traffic, LTE signal/throughput with both elements, and local Wi-Fi. The 120 x 95 mm cap is still a provisional envelope: check seven interface bodies, caps, nuts, fingers, gasket and cable bends before freezing CAD. Resize if necessary; no hole coordinates or drilling diameters are released. Power button/PTT blank remain on the upper side and status windows remain near the top shoulder.</p>
 <p><strong>GNSS replacement:</strong> EM7430 GNSS is the integrated candidate; LC76G becomes a fallback. Confirm position data over USB and operation without a SIM or cellular service before removing the separate receiver from the build. Verify selected image modem drivers, routing/failover to cellular without breaking local mesh, SIM/APN, reconnection, power/thermal peaks and antenna coexistence. Battery internals remain TBD behind the regulated 5 V supply boundary; the previous 15 W minimum is not proof of sufficient capacity with LTE.</p>
 <p>Technical source: <a href="https://source.sierrawireless.com/resources/airprime/minicard/74xx/airprime_em7430_product_technical_specification">Sierra EM7430 hardware specification</a>. These are concept positions, not final electrical wiring or fabrication drawings.</p>
-</main><footer>Updated 5 November 2026 · Offline handbook · <a href="index.html">Project overview</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>

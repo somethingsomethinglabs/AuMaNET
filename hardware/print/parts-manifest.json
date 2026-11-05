@@ -1,0 +1,139 @@
+{
+  "source": "ties1887/Mesh-radio-Halow-LoRa",
+  "commit": "f0d285c67bc893ddacc5d8121fe1c92385cd54fb",
+  "license": "CC-BY-NC-SA-4.0",
+  "parts": [
+    {
+      "filename": "Assem2 - PCB frame-1.STL",
+      "sha256": "e6f6b2663cd2a6b3e12582503fc75773942897e2b3f0adf214e0bcf138b1af2f",
+      "triangles": 7414,
+      "size_mm": [
+        63.59999752044678,
+        31.74897289276123,
+        82.00000762939453
+      ],
+      "material": "rigid material - select in slicer",
+      "quantity": 1
+    },
+    {
+      "filename": "Assem2 - TPU gasket for top-1.STL",
+      "sha256": "da22c99505081348895a844d53311e4bdcf8afbf7613a8b2fb86de3243feb30e",
+      "triangles": 64,
+      "size_mm": [
+        75.79999542236328,
+        43.80000185966492,
+        0.2400054931640625
+      ],
+      "material": "TPU",
+      "quantity": 1
+    },
+    {
+      "filename": "Assem2 - TPU gasket for twist lock part-1.STL",
+      "sha256": "4d216ed835db5069a157f28bef5c9c4d7c0f57d2a34b884db02d92234ccfc706",
+      "triangles": 224,
+      "size_mm": [
+        70.00000047683716,
+        44.00000013411045,
+        0.23999786376953125
+      ],
+      "material": "TPU",
+      "quantity": 1
+    },
+    {
+      "filename": "Assem2 - Twist lock battery part V3-1.STL",
+      "sha256": "022329f548de6456fd08a3ea628e202a44b5bd90bc6142f97dc5cb9cbd085cf8",
+      "triangles": 3606,
+      "size_mm": [
+        70.00000047683716,
+        44.00000013411045,
+        9.879997253417969
+      ],
+      "material": "rigid material - select in slicer",
+      "quantity": 1
+    },
+    {
+      "filename": "Assem2 - Twist lock radio part V3-1.STL",
+      "sha256": "9f5b66e33dbe8148d1c7badfc2e9a6794acc7b59d90830475fda6cab2e47a1e6",
+      "triangles": 5126,
+      "size_mm": [
+        70.00000143051147,
+        44.00000013411045,
+        8.684005737304688
+      ],
+      "material": "rigid material - select in slicer",
+      "quantity": 1
+    },
+    {
+      "filename": "Assem2 - base-1.STL",
+      "sha256": "9b1c275beb8ec16455edd03a48bca53db79bf0996c1e1d9a15c9003450d650ed",
+      "triangles": 18114,
+      "size_mm": [
+        83.95826482772827,
+        50.000000193715096,
+        104.99999237060547
+      ],
+      "material": "rigid material - select in slicer",
+      "quantity": 1
+    },
+    {
+      "filename": "Assem2 - batcase-1.STL",
+      "sha256": "2289add23a0de8cc14d3a8c5176a6598853193525b5e9bf84d40386c2faf65d9",
+      "triangles": 1332,
+      "size_mm": [
+        70.00000047683716,
+        44.00000013411045,
+        77.9999989271164
+      ],
+      "material": "rigid material - select in slicer",
+      "quantity": 1
+    },
+    {
+      "filename": "Assem2 - middel part-1.STL",
+      "sha256": "3a62740f034dedc5c869c781c052eab8acc7e4a84036eeff85830f6c25c8df30",
+      "triangles": 800,
+      "size_mm": [
+        40.398643493652344,
+        19.300000190734863,
+        3.0
+      ],
+      "material": "rigid material - select in slicer",
+      "quantity": 1
+    },
+    {
+      "filename": "Assem2 - top-1.STL",
+      "sha256": "f51b14815be7f237775e65a871481b0c02d54ca86d7439e5a770bbcf65d192fe",
+      "triangles": 13354,
+      "size_mm": [
+        75.80000352859497,
+        43.80000138282776,
+        23.5
+      ],
+      "material": "rigid material - select in slicer",
+      "quantity": 1
+    },
+    {
+      "filename": "Assem2 - wing part-1.STL",
+      "sha256": "2ca6b702bdd825e2a153c75c062bed4025d77161824ec1c3cca536c9e356100a",
+      "triangles": 352,
+      "size_mm": [
+        16.589632987976074,
+        18.857596397399902,
+        3.4800033569335938
+      ],
+      "material": "rigid material - select in slicer",
+      "quantity": 1
+    },
+    {
+      "filename": "Assem2 - wing part-2.STL",
+      "sha256": "63d525f2ed84165aef1be0b0318fb5e0123b360d443ddc318b0351b3857d8d03",
+      "triangles": 352,
+      "size_mm": [
+        16.589637756347656,
+        18.857595443725586,
+        3.4800033569335938
+      ],
+      "material": "rigid material - select in slicer",
+      "quantity": 1
+    }
+  ]
+}
