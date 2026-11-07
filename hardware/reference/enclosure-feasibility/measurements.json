@@ -1,0 +1,503 @@
+{
+  "upstream_commit": "f0d285c67bc893ddacc5d8121fe1c92385cd54fb",
+  "date": "2026-11-06",
+  "units": "mm",
+  "source_parts": [
+    {
+      "path": "battery-assembled-reference.step",
+      "sha256": "930b8813feeef88014f8cc13fdabc90d5c75b61709c50bc8495a163c89623bfd",
+      "bounds": [
+        [
+          524.8960880375538,
+          595.0344634127664
+        ],
+        [
+          -89.08,
+          4.021456887098
+        ],
+        [
+          1328.3631283690845,
+          1372.6393508449153
+        ]
+      ],
+      "size_raw_axes": [
+        70.1383753752126,
+        93.101456887098,
+        44.276222475830764
+      ],
+      "solid_count": 30
+    },
+    {
+      "path": "First-Generation-Builds/V1_5-5-2026/step/217000 battery + frame.STEP",
+      "sha256": "60246e07bb4a96994075873aaa4c510c4ecff2ffc40dd0ad45be3beb9c5b3c76",
+      "bounds": [
+        [
+          -11.399999999999995,
+          10.6
+        ],
+        [
+          0.0,
+          83.0
+        ],
+        [
+          -12.5,
+          12.5
+        ]
+      ],
+      "size_raw_axes": [
+        21.999999999999993,
+        83.0,
+        25.0
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "First-Generation-Builds/V1_5-5-2026/step/Base.STEP",
+      "sha256": "fe8d551616a5205db96cc13c4a898333eda61fe68553adf8f15ab9528f582c17",
+      "bounds": [
+        [
+          -10.00000009999944,
+          72.00000010001087
+        ],
+        [
+          -4.000000100000003,
+          55.00000010000001
+        ],
+        [
+          -115.0,
+          1e-07
+        ]
+      ],
+      "size_raw_axes": [
+        82.0000002000103,
+        59.00000020000001,
+        115.0000001
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "First-Generation-Builds/V1_5-5-2026/step/Battery cap.STEP",
+      "sha256": "71835f91d3d9e76a098d003532847cfe274a1d0b23e323669b575499676e48d7",
+      "bounds": [
+        [
+          -9.943145750508972,
+          65.25685424949374
+        ],
+        [
+          -1.0000000355271367e-07,
+          53.00000009999898
+        ],
+        [
+          -1e-07,
+          94.00000010000004
+        ]
+      ],
+      "size_raw_axes": [
+        75.20000000000272,
+        53.00000019999898,
+        94.00000020000003
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "First-Generation-Builds/V1_5-5-2026/step/Full v2.STEP",
+      "sha256": "d4da008c86ed10b32e4fe917bfe673068043c59bd557ace622efbb56d4a6d2ca",
+      "note": "External-reference assembly: simple import has no geometry"
+    },
+    {
+      "path": "Second-Generation-Builds/P4-Wio/STEP/enclosure_front_cover.STEP",
+      "sha256": "a4d52f2e63c47efc30361d2aa53eaed00409991d8149c12161c86fd6e412e816",
+      "bounds": [
+        [
+          -1.0000000355271367e-07,
+          70.0000001
+        ],
+        [
+          -1.0000001017438007e-07,
+          14.500000100000006
+        ],
+        [
+          -1e-07,
+          105.0000001
+        ]
+      ],
+      "size_raw_axes": [
+        70.0000002,
+        14.500000200000017,
+        105.00000019999999
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Second-Generation-Builds/P4-Wio/STEP/enclosure_main_chassis.STEP",
+      "sha256": "7319c4ca14cfe87176fec5ad60a0ebbc515e47c7a33c9a2542859294e4ffc8e8",
+      "bounds": [
+        [
+          -105.00000010000001,
+          4.000000100000004
+        ],
+        [
+          -36.50000000000002,
+          14.499999999999996
+        ],
+        [
+          -70.00000000000001,
+          1.0658141036401503e-14
+        ]
+      ],
+      "size_raw_axes": [
+        109.00000020000002,
+        51.000000000000014,
+        70.00000000000003
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Second-Generation-Builds/P4-Wio/STEP/enclosure_top_cover.STEP",
+      "sha256": "90eaad7c73108e8bfe7c3612c5964391937ed2c4856ef05a2867f47a33c162e7",
+      "bounds": [
+        [
+          -144.31960800301317,
+          -120.31960790301316
+        ],
+        [
+          -0.19943384557644722,
+          69.80056635442355
+        ],
+        [
+          -51.00000010000001,
+          0.0
+        ]
+      ],
+      "size_raw_axes": [
+        24.00000010000001,
+        70.0000002,
+        51.00000010000001
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Second-Generation-Builds/P4-Wio/STEP/raspberry_pi4_wm6108_halow_stack.STEP",
+      "sha256": "021e285a67fe18833b122f36725e0d53f6f4b692601ad0cc4bdb6fb865310d06",
+      "bounds": [
+        [
+          -0.4999999999999931,
+          56.35
+        ],
+        [
+          -3.0,
+          85.0
+        ],
+        [
+          35.49999999999999,
+          55.5
+        ]
+      ],
+      "size_raw_axes": [
+        56.849999999999994,
+        88.0,
+        20.000000000000007
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Twist-Lock-Battery-Pack/STEP/Battery_Case_Bottom_Cover.STEP",
+      "sha256": "2d101e28c0900d90f152024911d8a9fa98bd90024dd301fccd848a8d9d4155c7",
+      "bounds": [
+        [
+          -35.00000000000001,
+          34.99999999999999
+        ],
+        [
+          -22.000000000000874,
+          21.999999999999133
+        ],
+        [
+          -48.6,
+          4.000000000000001
+        ]
+      ],
+      "size_raw_axes": [
+        70.0,
+        44.00000000000001,
+        52.6
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Twist-Lock-Battery-Pack/STEP/Battery_Case_Main.STEP",
+      "sha256": "5b225d3b44e182f90e356c71dfae0ee415934f840d61dea84bbb282856066d63",
+      "bounds": [
+        [
+          -35.00000000000003,
+          35.00000000000001
+        ],
+        [
+          0.0,
+          76.0
+        ],
+        [
+          -21.999999999999943,
+          22.000000000000846
+        ]
+      ],
+      "size_raw_axes": [
+        70.00000000000003,
+        76.0,
+        44.00000000000079
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Twist-Lock-Battery-Pack/STEP/Battery_pin_Contact.STEP",
+      "sha256": "a93f22a9f119965bb4fa51e38da8acf814350d4994273dde78e86315ec6a3538",
+      "bounds": [
+        [
+          0.0,
+          19.0
+        ],
+        [
+          0.0,
+          2.0
+        ],
+        [
+          -12.0,
+          0.0
+        ]
+      ],
+      "size_raw_axes": [
+        19.0,
+        2.0,
+        12.0
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Twist-Lock-Battery-Pack/STEP/Battery_Spring_Contact.STEP",
+      "sha256": "c5674c59047017775dbdf31a5d8ca90fbd470b31ffafccaae0d57d8c2884db55",
+      "bounds": [
+        [
+          0.0,
+          19.0
+        ],
+        [
+          0.0,
+          3.6
+        ],
+        [
+          -12.0,
+          0.0
+        ]
+      ],
+      "size_raw_axes": [
+        19.0,
+        3.6,
+        12.0
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Twist-Lock-Battery-Pack/STEP/Battery_Twist_Lock_Pack.SLDASM.STEP",
+      "sha256": "bcaa0bc56ccc0dbe2c80c8969501543d43a3e2e24f68be08e4470a5344a5d68f",
+      "note": "External-reference assembly: simple import has no geometry"
+    },
+    {
+      "path": "Twist-Lock-Battery-Pack/STEP/bms 2s.STEP",
+      "sha256": "16c3f109aed6b2deb42b2de40d52bef8d7f26d4dea7df89b116b544e05adb2e0",
+      "bounds": [
+        [
+          0.0,
+          23.75
+        ],
+        [
+          0.0,
+          3.95
+        ],
+        [
+          -47.35,
+          0.0
+        ]
+      ],
+      "size_raw_axes": [
+        23.75,
+        3.95,
+        47.35
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Twist-Lock-Battery-Pack/STEP/Cell_21700.STEP",
+      "sha256": "6eec756a86e7acf0cd26ea56d2252e0714440b47ad3180aea3357a06f60b2393",
+      "bounds": [
+        [
+          -10.75,
+          10.75
+        ],
+        [
+          0.0,
+          70.7
+        ],
+        [
+          -10.75,
+          10.75
+        ]
+      ],
+      "size_raw_axes": [
+        21.5,
+        70.7,
+        21.5
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Twist-Lock-Battery-Pack/STEP/magnetic pogo pin connector.STEP",
+      "sha256": "eaad74aa8d105af320c79e28dac5b4090524066c43223b7053beb32b7104f6f5",
+      "bounds": [
+        [
+          -5.0,
+          5.0
+        ],
+        [
+          -3.0,
+          5.65
+        ],
+        [
+          -5.0,
+          5.0
+        ]
+      ],
+      "size_raw_axes": [
+        10.0,
+        8.65,
+        10.0
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Twist-Lock-Battery-Pack/STEP/socket countersunk head screw_iso_ISO 10642 - M3 x 8 - 8N.STEP",
+      "sha256": "c02f3c820a28290b8685c9d88ae7f8a3f4b31a83eefcb646464b9a5e692bc76a",
+      "bounds": [
+        [
+          0.0,
+          7.999999999999993
+        ],
+        [
+          -2.770000000000002,
+          2.770000000000002
+        ],
+        [
+          -2.770000000000002,
+          2.770000000000002
+        ]
+      ],
+      "size_raw_axes": [
+        7.999999999999993,
+        5.540000000000004,
+        5.540000000000004
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Twist-Lock-Battery-Pack/STEP/Twist lock battery part V3.STEP",
+      "sha256": "d4a8a3d8091500a82d46060082b82e7422df6356bbb5dd53f212f883f46f920c",
+      "bounds": [
+        [
+          -34.99999999999999,
+          35.000000000000014
+        ],
+        [
+          0.0,
+          13.080000100000005
+        ],
+        [
+          -22.00000000000002,
+          22.000000000000007
+        ]
+      ],
+      "size_raw_axes": [
+        70.0,
+        13.080000100000005,
+        44.00000000000003
+      ],
+      "solid_count": 1
+    },
+    {
+      "path": "Twist-Lock-Battery-Pack/STEP/Twist_Lock_Wing.STEP",
+      "sha256": "9597420758fe5771cb0602a212cf3f7b210eac634b47b5429e25ad2282082db0",
+      "bounds": [
+        [
+          -16.500000100000005,
+          0.0
+        ],
+        [
+          -1e-07,
+          3.480000100000004
+        ],
+        [
+          -18.800000100000005,
+          1e-07
+        ]
+      ],
+      "size_raw_axes": [
+        16.500000100000005,
+        3.4800002000000037,
+        18.800000200000007
+      ],
+      "solid_count": 1
+    }
+  ],
+  "status": "Feasibility measurements only; no adapted CAD or complete fit validation",
+  "v2_combined_bounds_size": [
+    83.95826482772827,
+    50.000000193715096,
+    209.04999434947968
+  ],
+  "standalone_battery_cell_count": 4,
+  "standalone_minimum_cell_axis_spacing": 21.53063597375002,
+  "v2_radio_section": {
+    "z": 145,
+    "inner_contour_bounding_span": [
+      66.72,
+      39.36
+    ],
+    "note": "Single section; not an unobstructed cuboid"
+  },
+  "runtime_scenarios": [
+    {
+      "cells": 2,
+      "nominal_Wh": 36,
+      "assumed_usable_Wh": 28.8,
+      "hours_at_load_W": {
+        "0.5": 57.6,
+        "1": 28.8,
+        "2": 14.4,
+        "5": 5.76
+      },
+      "cell_mass_g": 136
+    },
+    {
+      "cells": 4,
+      "nominal_Wh": 72,
+      "assumed_usable_Wh": 57.6,
+      "hours_at_load_W": {
+        "0.5": 115.2,
+        "1": 57.6,
+        "2": 28.8,
+        "5": 11.52
+      },
+      "cell_mass_g": 272
+    },
+    {
+      "cells": 6,
+      "nominal_Wh": 108,
+      "assumed_usable_Wh": 86.4,
+      "hours_at_load_W": {
+        "0.5": 172.8,
+        "1": 86.4,
+        "2": 43.2,
+        "5": 17.28
+      },
+      "cell_mass_g": 408
+    }
+  ]
+}

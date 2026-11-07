@@ -1,0 +1,23 @@
+id,component,specification,quantity_s3_only,quantity_s3_plus_pi_zero,supply,status,notes
+CR-01,HaLow carrier mounting screws,M2 x 8 mm machine screws,4,4,Purchased,Specified in current cradle CAD; physical fit pending,Choose a head fitting the PCB keep-out; allow screw-tip clearance below tray.
+CR-02,HaLow carrier captive nuts,M2 standard hex nuts; 4 mm across flats; 1.6 mm nominal height,4,4,Purchased,Specified in current cradle CAD; physical fit pending,Not nyloc nuts or heat-set inserts; pocket is 4.25 mm across flats x 1.8 mm deep.
+CR-03,HaLow insulating washers,Small M2 insulating washers,0 or 4,0 or 4,Purchased; optional,Head and component clearance to check,Optional; washer thickness changes screw engagement.
+PI-01,Pi Zero mounting screws,M2.5 x 8 mm machine screws,0,4,Purchased; Pi option only,Specified in current cradle CAD; physical fit pending,Additional to the four HaLow screws.
+PI-02,Pi Zero captive nuts,M2.5 standard hex nuts; 5 mm across flats; 2 mm nominal height,0,4,Purchased; Pi option only,Specified in current cradle CAD; physical fit pending,Not nyloc nuts or heat-set inserts; pocket is 5.25 mm across flats x 2.2 mm deep.
+PI-03,Pi insulating washers,Small M2.5 insulating washers,0,0 or 4,Purchased; optional,Head and component clearance to check,Optional; washer thickness changes screw engagement.
+CASE-01,Outer-case closure fasteners,Thread / head / length TBD; upstream shared BOM says M3/M4 bolts,TBD,TBD,Purchased,Not specified for this adapted case,Upstream provides no bolt lengths or counts; do not treat an M3/M4 assortment as a complete kit.
+CASE-02,Outer-case thread retention,Inserts / captive nuts / printed thread arrangement TBD,TBD,TBD,Purchased if required,Not specified,No heat-set inserts required for the current board cradles; shell joints remain to resolve.
+CASE-03,Cradle-to-shell retention hardware,Mounting arrangement and screw sizes TBD,TBD,TBD,Purchased if required,Not designed / specified,"The current M2/M2.5 screws attach boards to the cradle, not the cradle to the shell."
+CASE-04,Battery twist-lock contact / locking hardware,Selected contact and lock parts TBD,TBD,TBD,Purchased if retaining upstream interface,Interface selection unresolved,Do not assume magnet / spring / contact sizes from another generation or a photograph.
+PORT-01,Panel connector fixing and sealing hardware,Matched bulkhead nuts / washers / seals for selected connectors,TBD,TBD,Often supplied with connectors,Connector selection unresolved,Verify included hardware against chosen connector drawings; original top cap retains upstream port pattern.
+WIRE-01,Internal strain-relief hardware,Cable clamps / ties / insulating sleeves as required,TBD,TBD,Purchased,Layout dependent,Exact quantities and lengths follow dry fit; electronics and battery wiring are outside this mechanical BOM.
+PRINT-01,Radio housing,PA6-GF; plate 01,1,1,Printed,In current workshop project,Upstream enclosure candidate; fit validation pending.
+PRINT-02,Battery housing,PA6-GF; plate 01,1,1,Printed,In current workshop project,Does not select or validate a battery assembly.
+PRINT-03,Top cap,PA6-GF; plate 02,1,1,Printed,In current workshop project,Original upstream port layout.
+PRINT-04,Battery twist interface,PA6-GF; plate 02,1,1,Printed,In current workshop project,Contact / locking hardware not yet specified.
+PRINT-05,Radio twist interface,PA6-GF; plate 02,1,1,Printed,In current workshop project,Mates inherited battery interface; physical check pending.
+PRINT-06,Middle interface,PA6-GF; plate 02,1,1,Printed,In current workshop project,One per case.
+PRINT-07,Lock wings,PA6-GF; plate 02,2,2,Printed,In current workshop project,One left and one right.
+PRINT-08,Top gasket,TPU; 0.24 mm nominal; plate 03,1,1,Printed,In current workshop project,Two 0.12 mm layers; sealing performance unvalidated.
+PRINT-09,Twist-interface gasket,TPU; 0.24 mm nominal; plate 03,1,1,Printed,In current workshop project,Two 0.12 mm layers; sealing performance unvalidated.
+PRINT-10,Electronics cradle,PA6-GF; plate 04 for S3 or plate 05 for S3 plus Pi,1,1,Printed,Choose one variant,The legacy Pi4 frame on plate 06 is not included in this variant BOM.

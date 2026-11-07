@@ -1,5 +1,9 @@
 # Network and membership: initial proposal
 
+> Planning authority: the [delivery register](delivery-plan.md) owns execution order and status; [current decisions](decisions/README.md) records accepted scope versus proposals, and [requirement coverage](requirements-traceability.md) links tests/results. Sequences below are experiment detail. See [capabilities](../docs/capabilities.md) for implemented versus simulated behaviour.
+
+See the [network stack plan](network-stack-plan.md) for the proposed routed/bridged alternatives, IP addressing, virtual-gateway behaviour and ordered feasibility work.
+
 Status: discovery hypothesis, 6 November 2026. Not a validated implementation.
 
 ## Separate transport, membership and internet routing
@@ -20,6 +24,8 @@ Each device needs an autonomous forwarding/control plane so phone disconnection 
 Prefer a simple best-gateway policy before attempting bandwidth aggregation. Multipath bonding is not an initial requirement. Use bounded tables/queues and traffic priorities; constrain camera traffic so it cannot starve control or interactive voice.
 
 ## Phone donation paths to prove
+
+The [Android connectivity investigation](android-connectivity-investigation.md) details hotspot role switching and optional internet transport between separated radio groups. Hotspot donation alone does not supply reverse internet to the donor phone after cellular loss.
 
 Android donation and reception are required. Manual hotspot enabling is acceptable. iPhone donation/reception experiments are optional and must not block Android delivery. An iPhone donation experiment may evaluate a node joining user-enabled Personal Hotspot. Apple's packet tunnel provider API must not be assumed to supply a donor proxy server. Verify how the app communicates locally while the phone hosts the hotspot, and how a phone transitions to receiving mesh internet when its cellular connection disappears.
 

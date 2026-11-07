@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mesh networking stack plan · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Desired behaviour</a></li><li><a href="#section-2">Interpret the shared-router idea</a></li><li><a href="#section-3">Proposed components and ownership</a></li><li><a href="#section-4">Address and routing proposal</a></li><li><a href="#section-5">Control, discovery and traffic policy</a></li><li><a href="#section-6">QoS: protect voice from shared internet load</a></li><li><a href="#section-7">Internet and virtual gateway</a></li><li><a href="#section-8">Ordered feasibility work and stop conditions</a></li><li><a href="#section-9">Sources reviewed</a></li></ol></details><h1 id="mesh-networking-stack-plan">Mesh networking stack plan</h1>
+<blockquote>
+<p>Planning authority: the <a href="delivery-plan.html">delivery register</a> owns execution order and status; <a href="decisions-current.html">current decisions</a> records accepted scope versus proposals, and <a href="requirements-traceability.html">requirement coverage</a> links tests/results. Sequences below are experiment detail. See <a href="capabilities.html">capabilities</a> for implemented versus simulated behaviour.</p>
+</blockquote>
+<p>The later <a href="architecture-roundtable.html">architecture roundtable</a> refines this proposal: MCU S1G relay is not proven MANET support; Babel is conditional rather than an automatic layer; hotspot-host reverse VPN is an additional Android experiment.</p>
+<p>Status: proposed architecture, 6 November 2026. No radio, routing or phone feasibility gate has passed. Extends <a href="network-and-membership.html">network and membership</a>; current hardware candidates remain ESP32-S3 + XIAO HaLow.</p>
+<h2 id="section-1"><span id="desired-behaviour">Desired behaviour</span></h2>
+<p>Each node provides ordinary Wi-Fi access for nearby phones and autonomously forwards across HaLow links. Every node and attached phone has a unique IP address. Local messages, location and voice continue without internet or a coordinator phone. Authorized donor phones can supply internet to other phones&#39; applications.</p>
+<pre><code class="language-text">Phone A -- ordinary Wi-Fi -- Node A
+                               |
+                             HaLow
+                               |
+                            Node B (no phone required)
+                               |
+                             HaLow
+                               |
+Phone C -- ordinary Wi-Fi -- Node C -- donor phone hotspot -- cellular
+</code></pre>
+<p>The donor may also be Phone C, but its simultaneous app access and hotspot behaviour must be tested. The diagram requires two HaLow neighbour links at B; ordinary AP support alone does not establish that capability.</p>
+<h2 id="section-2"><span id="interpret-the-shared-router-idea">Interpret the shared-router idea</span></h2>
+<p>A distributed Layer 2 bridge behaves like one Ethernet switch spread across nodes. It forwards frames to the node currently hosting a destination MAC address. Phones on a common subnet reach one another without passing through an internet router. A default gateway is needed for destinations outside that subnet.</p>
+<p>A routed Layer 3 mesh also puts everyone on one connected private network, but assigns distinct subnets at each node. Nodes forward IP packets using routes. Phones need not share a subnet to communicate. A shared SSID does not implement either mesh forwarding or seamless roaming.</p>
+<p>A virtual gateway IP is possible only with deliberate ownership/failover or anycast semantics. Repeating the same gateway IP on independent nodes without such a design causes ambiguity. Neither a shared IP nor a shared DHCP server supplies mesh routing.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Benefits</th>
+<th>Costs and gates</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Flat bridged LAN</td>
+<td>Closest match to one shared switch; ordinary subnet discovery</td>
+<td>Transparent client-MAC transport, loop protection, bounded broadcast, DHCP partition/merge and roaming correctness</td>
+<td>Conditional alternative if exact hardware supports it</td>
+</tr>
+<tr>
+<td>Routed per-node LANs</td>
+<td>Local DHCP works during isolation; confines broadcast; explicit return paths</td>
+<td>Route distribution, service directory and address changes on roaming</td>
+<td>First architecture to prototype on MCU hardware, conditional on neighbour transport</td>
+</tr>
+<tr>
+<td>Phone virtual-IP overlay</td>
+<td>Stable application addresses can survive local attachment changes</td>
+<td>Android VPN lifecycle, encapsulation, MTU, existing-VPN conflicts and native code</td>
+<td>Later option if stable phone IP is required</td>
+</tr>
+</tbody></table></div>
+<p>Do not port Linux batman-adv as an assumed ESP component. OpenMANET is a useful Linux reference, not evidence of an MCU implementation. Do not select a production routing protocol until the HaLow SDK exposes the transport needed by it.</p>
+<h2 id="section-3"><span id="proposed-components-and-ownership">Proposed components and ownership</span></h2>
+<p>The accepted <a href="node-management.html">board management direction</a> adds a compact local web server and one configuration API shared with Android (ADR-0006/W16). Firmware retains configuration authority. Keep management exposure local by default and bound its resource use; concurrent management/forwarding is an explicit W16/W10 test. This does not select the production routing or phone data transport.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Proposed responsibility</th>
+<th>Selection gate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Radio adaptation</td>
+<td>HaLow driver, authenticated neighbour links, send/receive, link metrics</td>
+<td>Exact SDK build; concurrent neighbour connectivity; arbitrary transit packets</td>
+</tr>
+<tr>
+<td>Node networking</td>
+<td>ESP-IDF/lwIP integration candidate; local AP, DHCP, IP forwarding</td>
+<td>Verify compatibility with Seeed SDK fork and two-radio operation</td>
+</tr>
+<tr>
+<td>Mesh control</td>
+<td>Node identities, neighbour expiry, route advertisements, path selection</td>
+<td>Select maintained compatible implementation after transport audit; no new production protocol assumed</td>
+</tr>
+<tr>
+<td>Mesh forwarding</td>
+<td>Bounded transit buffers, hop limit, route lookup, priority scheduling</td>
+<td>Phone-free A-B-C forwarding, RAM and sustained-load tests</td>
+</tr>
+<tr>
+<td>Gateway service</td>
+<td>Consented offers, external reachability, flow affinity, quotas, withdrawal</td>
+<td>Complete donor and return-path tests</td>
+</tr>
+<tr>
+<td>Phone native host</td>
+<td>Android network binding, background lifecycle; optional VPN</td>
+<td>Exact-phone experiments; Svelte UI cannot implement OS routing</td>
+</tr>
+<tr>
+<td>Applications</td>
+<td>Authenticated messages, durable queues, location age, voice sessions</td>
+<td>Separate application design; IP delivery is not human acknowledgement</td>
+</tr>
+</tbody></table></div>
+<p>Keep the forwarding path on the ESP when the phone sleeps. Do not depend on a phone for routing convergence. Use maintained authenticated encryption libraries; validate group membership before accepting control messages. Encrypt application traffic independently where required by the threat model.</p>
+<h2 id="section-4"><span id="address-and-routing-proposal">Address and routing proposal</span></h2>
+<p>For an isolated bench only, reserve <code>10.77.0.0/16</code>, allocating a unique <code>/24</code> per node: A <code>10.77.1.0/24</code>, B <code>10.77.2.0/24</code>, C <code>10.77.3.0/24</code>. Node A&#39;s local gateway is <code>10.77.1.1</code>; a phone might receive <code>10.77.1.20</code>. Node C&#39;s phone might receive <code>10.77.3.20</code>. These are different subnets on one routed network. Keep mesh transport addresses separate from client pools.</p>
+<p>Allocate node prefixes explicitly during pilot enrollment and persist them. Hashing identities into a small subnet space is insufficient collision prevention. Before release, define group-prefix selection, detection of hotspot/VPN overlap, duplicate-prefix handling on merge and renumbering. Reject conflicting routes until resolved. Stable cryptographic identities must be independent of IP addresses and randomized phone MACs.</p>
+<p>Each node runs DHCP only on its local AP and advertises its own LAN route across the mesh. Forward local inter-node traffic without NAT. A packet from A&#39;s phone to C&#39;s phone follows A -&gt; B -&gt; C, and the reverse route must exist. Internet-bound traffic follows a selected default route or explicit gateway tunnel; perform NAT at the egress boundary where necessary, rather than at every relay.</p>
+<p>Start with distinct per-node SSIDs so attachment and debugging are explicit. A roaming phone receives a new local address and applications resynchronize by identity. Preserving arbitrary TCP sessions or a fixed IP across roaming is deferred. A common SSID may be evaluated later with explicit roaming tests.</p>
+<p>For a bridged alternative, require a working client-MAC forwarding mechanism, broadcast suppression and loop prevention first. Use local, non-overlapping DHCP pools only with a proven mechanism ensuring the correct server answers locally; disjoint pools alone do not stop remote DHCP replies. Test both disconnected startup and partition merge. A sole central DHCP server is unsuitable for autonomous partition operation.</p>
+<h2 id="section-5"><span id="control-discovery-and-traffic-policy">Control, discovery and traffic policy</span></h2>
+<p>Require authenticated node identity, boot/session identifier, monotonic update sequence, expiry and bounded route advertisements. Routing must have a specified loop-avoidance mechanism, not merely choose the neighbour with the strongest signal. Reject stale advertisements and cap neighbour, route, flow and reassembly tables. Record the selected protocol&#39;s exact convergence and loop behaviour before implementation approval.</p>
+<p>Measure bidirectional delivery and airtime/hop costs. Use hysteresis to avoid flapping. Keep control updates event-driven with bounded periodic refresh. Withdraw expired paths. Application queues handle temporary partitions with message IDs, expiry and duplicate suppression; the IP layer does not retain traffic indefinitely.</p>
+<p>Use a group service/member directory mapping identities to current addresses. Do not flood mDNS or all multicast across routed links by default. Resolve local node/service names offline. Forward external DNS only through a usable gateway, with explicit failure when none exists.</p>
+<p>Reserve capacity for bounded control traffic; prioritize interactive voice, messages and location ahead of bulk internet/camera traffic. Apply fairness and per-donor quotas so one stream cannot monopolize airtime. Measure queue delay and drops, not just throughput. Define MTU after encapsulation overhead; test TCP MSS, UDP fragmentation and path-MTU failure. Pilot IPv4 first; explicitly test or disable IPv6 forwarding/advertisement rather than leaving an accidental bypass. IPv6 support remains a separate delivery decision.</p>
+<h2 id="section-6"><span id="qos-protect-voice-from-shared-internet-load">QoS: protect voice from shared internet load</span></h2>
+<p>Owner-confirmed intent: prioritize AuMaNET voice over unrelated internet use such as Instagram. QoS means Quality of Service. This policy is proposed, not implemented. Apply scheduling at each controlled congested egress: phone sender, node radio forwarding and donor. Gateway-only shaping cannot protect an intermediate radio queue.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Traffic</th>
+<th>Proposed treatment</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Network control</td>
+<td>Routing, membership and essential session control</td>
+<td>Small protected allocation with strict limits; never unlimited priority</td>
+</tr>
+<tr>
+<td>Live voice</td>
+<td>Authorized AuMaNET media</td>
+<td>Low-delay queue, pacing and bounded priority; discard packets too late for playback</td>
+</tr>
+<tr>
+<td>Interactive group data</td>
+<td>Check-ins, messages and current locations</td>
+<td>Protected fair service; coalesce obsolete locations</td>
+</tr>
+<tr>
+<td>General internet</td>
+<td>Browsing/social apps including Instagram</td>
+<td>Fair best-effort service from remaining capacity, per-user limits</td>
+</tr>
+<tr>
+<td>Background bulk</td>
+<td>Downloads, map updates, camera/file transfers</td>
+<td>Lowest priority; throttle or pause during congestion</td>
+</tr>
+</tbody></table></div>
+<p>Classify our own authenticated sessions rather than inspecting third-party app payloads. Encrypted Instagram traffic can remain general internet traffic. Normalize untrusted DSCP markings and police admitted sessions: a client must not obtain priority simply by marking every packet as voice. Preserve or map class metadata across encrypted tunnel boundaries without exposing plaintext media to relays. Verify DSCP-to-radio queue mapping on the exact driver; a marking alone does not schedule packets.</p>
+<p>Combine class scheduling, participant/flow fairness and active queue management. FQ-CoDel is a Linux candidate for short queues and flow isolation; by itself it is not an explicit voice-over-Instagram class policy. On MCU, first verify queue/driver control, then evaluate a bounded weighted or deficit-round-robin scheduler with a capped low-delay voice class. Opaque firmware queues can defeat host scheduling. Preserve some service for lower classes to prevent starvation; unused voice allowance can serve other traffic.</p>
+<p>Adapt shaping to conservative measured usable capacity, not PHY bitrate. Account for both directions, radio airtime, retries and hop count. Reduce bulk first; adjust supported voice bitrate/FEC settings if necessary and report degradation when voice alone exceeds capacity. Preserve simultaneous-speaker intent; session admission limits must be explicit. QoS cannot create bandwidth or control the carrier&#39;s upstream queues.</p>
+<p>Acceptance: on A-B-C without a direct A-C path, establish baseline voice, then saturate uploads and downloads with multiple TCP and UDP/QUIC flows while messages/location continue. Repeat with simultaneous speakers, weak/changing links and donor changes. Record per-hop queue age/drops, voice delay/jitter/loss/late discards, message latency, participant fairness and remaining bulk throughput. Inject forged priority markings and floods. Agree numeric limits with the voice plan before claiming success; configuration or markings alone are insufficient evidence.</p>
+<p>References: <a href="https://www.rfc-editor.org/rfc/rfc4594.html">DiffServ classes and conditioning</a>, <a href="https://www.rfc-editor.org/rfc/rfc8290.html">FQ-CoDel scheduling and queue management</a>.</p>
+<h2 id="section-7"><span id="internet-and-virtual-gateway">Internet and virtual gateway</span></h2>
+<p>See the <a href="android-connectivity.html">Android connectivity investigation</a> for hotspot directionality, donor-to-consumer role changes, native cellular donation and optional internet links between radio partitions. A hotspot-hosting phone does not automatically receive mesh internet through its downstream node.</p>
+<p>Each consumer phone uses its attached node as its local gateway. Nodes select a reachable donor automatically; this provides the shared-router experience without a floating gateway IP. Local subnet routes always take precedence over internet routes.</p>
+<p>First donor experiment: user enables Android cellular hotspot, gateway ESP joins as a station, while its ordinary Wi-Fi AP serves consumers. The S3 AP and STA share one 2.4 GHz channel; hotspot channel changes can disrupt attached clients. Prove SDK coexistence with HaLow, local donor app communication, DNS, TCP, UDP and return NAT. Phone hotspot support and carrier/device policy must be recorded per tested phone.</p>
+<p>If that path fails, investigate native Android cellular-bound donor forwarding and a consumer IP tunnel. Android VpnService provides a virtual IP interface for consumers; it does not automatically implement donor forwarding. An HTTP/SOCKS proxy alone does not satisfy all-app internet. VPN conflicts, consent and background operation are acceptance items.</p>
+<p>Advertise only independently verified external uplinks with authenticated identity, expiry, capacity/load and donor policy. Never advertise mesh-derived internet as a new independent uplink. Select using measured end-to-end quality and hysteresis. Pin flows to their selected gateway while usable. On failure, expire state and choose an alternative; sessions may reconnect when public egress changes. No seamless failover or bandwidth bonding is promised. Loss of all donors must leave local mesh functions usable.</p>
+<h2 id="section-8"><span id="ordered-feasibility-work-and-stop-conditions">Ordered feasibility work and stop conditions</span></h2>
+<ol>
+<li>Pin exact board/SDK revision and inspect modes/APIs, memory budget and regional configuration. Document whether HaLow supports genuine mesh, concurrent AP/STA, multiple peers or a usable raw neighbour transport. A station-only demonstration is insufficient.</li>
+<li>Build a two-node transport with the ordinary Wi-Fi AP active. Measure free memory, packet sizes, bidirectional loss and sustained RX/TX. Verify that traffic is forwarded beyond SDK demonstration endpoints.</li>
+<li>Force A-B-C with A and C unable to exchange directly. Prove both-direction phone IP traffic while B has no phone. Add/remove links and introduce a cycle if supported; record loop avoidance, convergence, duplicates and resource use. An AP-rooted star/tree does not pass arbitrary self-healing mesh acceptance.</li>
+<li>Test local DHCP and unique addresses during isolated startup, reboot, partition and merge. Test phone movement and application identity resynchronization. No hidden central coordinator may be required for local forwarding.</li>
+<li>Demonstrate Android donor -&gt; mesh -&gt; consumer all-app internet, including DNS, TCP, UDP, return paths, donor loss and a replacement donor. Verify local services survive no internet and that a mesh-derived uplink cannot create a default-route loop.</li>
+<li>Run mixed live voice, location, messaging and rate-limited internet across 2–5 nodes. Measure latency/loss/recovery, peak RAM, table exhaustion and power; then validate the defined 48-hour workload and itemized A$45–75 node budget.</li>
+</ol>
+<p>If the HaLow transport cannot maintain the neighbour connectivity needed at a relay, stop before implementing a custom routing layer. Record a choice between supported alternate hardware, additional radios with their budget/power cost, or an explicitly reduced topology. No evidence currently establishes that one XIAO HaLow radio can implement the desired mesh.</p>
+<h2 id="section-9"><span id="sources-reviewed">Sources reviewed</span></h2>
+<ul>
+<li><a href="https://wiki.seeedstudio.com/getting_started_with_wifi_halow_module_for_xiao/">Seeed XIAO HaLow setup</a>: S3 HaLow client demonstration; does not establish multi-hop.</li>
+<li><a href="https://docs.espressif.com/projects/esp-idf/en/v4.4.7/esp32s3/api-reference/network/esp_wifi.html">Espressif AP/STA documentation</a>: simultaneous mode and shared-channel constraint; verify the chosen SDK revision separately.</li>
+<li><a href="https://github.com/espressif/esp-idf/blob/master/examples/wifi/softap_sta/README.md">Espressif AP/STA NAT example</a>: useful node-egress reference, not an end-to-end HaLow design.</li>
+<li><a href="https://openmanet.github.io/docs/networking">OpenMANET networking</a>: Linux bridged mesh comparison; not the active hardware baseline.</li>
+<li><a href="https://developer.android.com/develop/connectivity/vpn">Android VPN guide</a>: consumer virtual interface, consent and lifecycle requirements; donor service remains separate work.</li>
+</ul>
+<p>This document is a plan. No firmware, hardware or Android network behaviour was tested by writing it.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../design/network-stack-plan.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

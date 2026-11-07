@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AuMaNET · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Planning and evidence</a></li><li><a href="#section-2">Project map</a></li><li><a href="#section-3">Monorepo</a></li><li><a href="#section-4">Retained prototype material</a></li></ol></details><h1 id="aumanet"><img src="../design/brand/aumanet-mark.svg" width="52" alt=""> AuMaNET</h1>
+<p>Off-grid group communications for Australian 4WD and camping trips: local messages, location and live group voice, with shared phone internet when available.</p>
+<p>Explore the <a href="index.html">project landing page</a> or the <a href="handbook.html">complete handbook</a>. The GitHub Pages workflow publishes the site from <code>main</code> once <strong>Settings → Pages → Source</strong> is set to <strong>GitHub Actions</strong>. See the <a href="maintaining-docs.html#github-pages">publishing instructions</a>.</p>
+<p><strong>Active phase: design — 6 November 2026.</strong> ESP32-S3 + XIAO HaLow nodes and an Android companion app are the new baseline. Hardware, multi-hop and phone networking feasibility remain unproven. Moving into design does not mark those gates passed.</p>
+<p>The SvelteKit UI and Capacitor Android shell are implemented with simulated data and recorded browser/emulator checks. Native audio/location, real maps, radio transport and shared internet remain unimplemented. Use the <a href="capabilities.html">capability matrix</a> for current status and the <a href="index.html">offline handbook</a> for the complete reading paths.</p>
+<h2 id="section-1"><span id="planning-and-evidence">Planning and evidence</span></h2>
+<ul>
+<li><a href="delivery-plan.html">Delivery register</a>: authoritative work queue, dependencies, accountable roles and exit/failure decisions.</li>
+<li><a href="decisions-current.html">Current architecture decisions</a>: accepted scope, conditional choices and open proposals.</li>
+<li><a href="requirements-traceability.html">Requirements and evidence</a>: every SW/V requirement and discovery gate connected to implementation, acceptance and results.</li>
+<li><a href="compatibility.html">Compatibility matrix</a>: exact candidate hardware, emulator coverage and untested physical phones.</li>
+<li><a href="evidence.html">Evidence register</a>: recorded results and pending physical experiments.</li>
+</ul>
+<h2 id="section-2"><span id="project-map">Project map</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="discovery.html">discovery/</a></td>
+<td>Requirements, hardware candidates, feasibility gates and concept tests</td>
+</tr>
+<tr>
+<td><a href="design.html">design/</a></td>
+<td>Active architecture and product design; <a href="phase-status.html">work queue and status</a></td>
+</tr>
+<tr>
+<td><a href="development.html">dev/</a></td>
+<td>Software monorepo: app, native host, shared packages, simulator and firmware</td>
+</tr>
+<tr>
+<td><a href="deployment.html">deploy/</a></td>
+<td>Future release, provisioning and field acceptance</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-3"><span id="monorepo">Monorepo</span></h2>
+<p>Use Node.js 24 and npm 11 from the repository root. One npm lockfile covers the JavaScript/TypeScript workspaces.</p>
+<pre><code class="language-sh">npm ci --ignore-scripts
+npm run check
+</code></pre>
+<p><code>npm run typecheck</code> builds the shared TypeScript packages and their declarations. <code>npm run check</code> also checks Svelte diagnostics, current/historical handbook generation and references, requirement coverage and CAD references. CI runs the same checks. These checks do not validate hardware or mobile OS behavior.</p>
+<pre><code class="language-text">dev/app/                 Interactive SvelteKit UI with sample data
+dev/mobile/              Capacitor Android prototype host
+dev/packages/protocol/   Provisional shared contracts
+dev/packages/core/       Portable platform boundaries
+dev/packages/simulator/  Explicitly simulated design fixtures
+dev/firmware/            New ESP32-S3/HaLow firmware boundary
+dev/tests/               Cross-layer acceptance planning
+</code></pre>
+<p>The shared packages compile. The web UI and Android debug shell have recorded build and emulator verification; see <a href="ui-verification.html">UI verification</a>. SvelteKit/TypeScript and the Leaflet renderer are selected. Capacitor&#39;s production suitability, real map storage, native services, routing, radio SDK and security mechanisms remain subject to design and physical acceptance.</p>
+<h2 id="section-4"><span id="retained-prototype-material">Retained prototype material</span></h2>
+<p>The <a href="archive.html">historical directory</a> identifies the superseded Pi/Heltec/OpenMANET handbook, root firmware tools, old hardware BOM and field templates. They remain available at their original paths. Current documentation now shares <code>docs/</code> with those labelled historical pages. New board/enclosure research and the print workshop remain current prototype references under <code>hardware/</code>; their geometry checks do not establish a supported build. No previous purchasing, battery or enclosure choice automatically carries forward.</p>
+<p>The editable print workshop and archived slicer projects are preserved separately from the canonical geometry bundle. Later <a href="print-verification.html">print verification</a> records a successful canonical rebuild; the earlier overwrite blockage is historical. Physical fit, battery and sealing acceptance remain open.</p>
+<p>Original project material remains all rights reserved pending licence selection. Imported designs and libraries retain their bundled licences and attribution. Never commit credentials, signing keys, personal location logs or private trip tracks.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../README.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

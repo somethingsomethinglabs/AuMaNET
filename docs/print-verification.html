@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="reference"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bambu workshop verification — screw-mount revision, 6 November 2026 · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">PROTOTYPE REFERENCE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Historical reload test</a></li><li><a href="#section-2">Repeat checks</a></li></ol></details><h1 id="bambu-workshop-verification-screw-mount-revision-6-november-2026">Bambu workshop verification — screw-mount revision, 6 November 2026</h1>
+<p>Bambu Studio 2.8.2.61 opened the updated editable <code>../AuMaNET-Bambu-Workshop.3mf</code>. <code>bambu-screw-mounts.png</code> shows the actual sliced S3 cradle with four open mounting holes. <code>screw-mounts.png</code> shows CAD top/underside views of both resulting cradles; their STEP inspection files are beside it.</p>
+<ul>
+<li>Saved project: 13 objects, six plates, 27 direct STL source links, including 14 editable negative parts.</li>
+<li><code>project-audit.json</code>: all source paths are absolute and exist, embedded dimensions match the canonical STLs, and custom source hashes match their manifest.</li>
+<li>The two tray component sets were updated in place. Every other object, each object&#39;s placement/process overrides, and the printer/material project settings match the saved project immediately before the update. That saved state is backed up in <code>../archive/AuMaNET-Bambu-Workshop-current-before-tray-update.3mf</code>.</li>
+<li>Rigid parts retain PA6-GF; gaskets retain TPU. Studio may expand the PA6-GF profile into standard/high-flow entries internally; these are mapped to the same rigid filament, not an extra material.</li>
+<li><code>mount-audit.json</code>: each cradle is one connected solid. The S3 cradle has four holes; the S3/Pi cradle has eight. Each screw axis is open through the tray; standard nuts fit within the pockets; more than 99.5% of each tested annular board seat remains solid after all Boolean cuts, including the detailed Seeed reference.</li>
+<li>Board screw posts sit at Z=6 mm. The detailed stack reference was lifted to seat the carrier laminate underside there. The STEP-only hole coordinates and real hardware clearance remain physically unvalidated.</li>
+<li>The Bambu CLI sliced the final working project with return code 0, six plate entries and no plate warnings. <code>result.json</code> is the unmodified slicer result; <code>slice-audit.json</code> ties it to the project&#39;s SHA-256.</li>
+<li>Gasket plate remains filament 2 (TPU), exactly two layers at Z=0.12 and 0.24 mm.</li>
+<li><code>AuMaNET-validated.gcode.3mf</code> is the sliced inspection snapshot. Re-slice after any design changes. Open the editable workshop project for design work.</li>
+<li>Required canonical bundle rebuild succeeded: 12 printable positive parts, 50,750 triangles. Nine negative/reference tools are excluded from the positive-parts bundle.</li>
+</ul>
+<h2 id="section-1"><span id="historical-reload-test">Historical reload test</span></h2>
+<p><code>reload-test.3mf</code> predates the screw-mount revision. A temporary tray-height change from 6.0 to 6.4 mm was reloaded using Studio&#39;s <strong>Reload from disk</strong>; the test preserved its original 11 negative volumes, their transforms and the tray&#39;s object settings. The original source was restored. This deliberately modified test file MUST NOT be used for printing. The earlier PETG project is also preserved in the archive folder.</p>
+<h2 id="section-2"><span id="repeat-checks">Repeat checks</span></h2>
+<pre><code class="language-powershell">python scripts/verify-bambu-workshop.py
+python scripts/verify-tray-mounts.py
+&amp; &#39;C:/Program Files/Bambu Studio/bambu-studio.exe&#39; --slice 0 --export-3mf &#39;AuMaNET-validated.gcode.3mf&#39; --outputdir &#39;hardware/print/validation&#39; &#39;hardware/print/AuMaNET-Bambu-Workshop.3mf&#39;
+</code></pre>
+<p>The Windows launcher can return before the worker finishes. Wait for <code>result.json</code> to update and verify its return code and six plate entries. No print job was transmitted.</p>
+<p>These checks establish geometric mounting features and slicability. Cradle-to-shell retention, received board hole positions, connector alignment, battery fit and sealing still need physical validation. See <code>../../cad/screw-mounts.md</code> for assembly details.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../hardware/print/validation/VERIFICATION.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

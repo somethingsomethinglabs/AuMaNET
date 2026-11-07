@@ -1,9 +1,12 @@
 <!doctype html>
-<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Upgrades, replacements and repair · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Before replacing a module</a></li><li><a href="#section-2">What a change affects</a></li><li><a href="#section-3">Keep a build record</a></li><li><a href="#section-4">Upgrade release rule</a></li></ol></details><h1>Upgrades, replacements and repair</h1>
+<html lang="en-AU" data-doc-status="archive"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Historical: Upgrades, replacements and repair · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><aside id="archive-notice" class="status"><strong>HISTORICAL · SUPERSEDED PI/HELTEC BASELINE</strong> · These choices and build steps do not apply to the current ESP32-S3/HaLow investigation. <a href="index.html">Current handbook</a> · <a href="archive.html">Archive context</a></aside><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Before replacing a module</a></li><li><a href="#section-2">What a change affects</a></li><li><a href="#section-3">Keep a build record</a></li><li><a href="#section-4">Upgrade release rule</a></li></ol></details><blockquote>
+<p><strong>Historical baseline — superseded 6 November 2026.</strong> This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the <a href="handbook.html">current handbook</a> or <a href="archive.html">archive context</a>.</p>
+</blockquote>
+<h1 id="upgrades-replacements-and-repair">Upgrades, replacements and repair</h1>
 <p>AuMaNET should be a device you can understand and repair, not a sealed mystery. The current architecture separates the battery base, compute/radio tray, power rail and top interface insert. Exact harnesses and print files are still in development.</p>
-<h2 id="section-1">Before replacing a module</h2>
+<h2 id="section-1"><span id="before-replacing-a-module">Before replacing a module</span></h2>
 <ol>
 <li>Save the current configuration and record the working hardware/firmware versions.</li>
 <li>Shut down, disconnect charging and isolate the battery. An unplugged USB-C lead does not remove battery power.</li>
@@ -11,7 +14,7 @@
 <li>Change one assembly at a time. Keep the original available for rollback.</li>
 <li>Run the relevant checks below before putting the radio back into a trip kit.</li>
 </ol>
-<h2 id="section-2">What a change affects</h2>
+<h2 id="section-2"><span id="what-a-change-affects">What a change affects</span></h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -67,9 +70,9 @@
 </tr>
 </tbody></table></div>
 <p><strong>Battery capacity is not interchangeable with battery voltage.</strong> A six-cell 1S6P pack and six-cell 3S2P pack can store similar energy but cannot share the same charger input. Never connect the proposed 3S2P pack to a UPS that accepts only a single-cell/parallel pack.</p>
-<h2 id="section-3">Keep a build record</h2>
+<h2 id="section-3"><span id="keep-a-build-record">Keep a build record</span></h2>
 <p>Use <a href="build-record.html">the build record template</a>. Record exact module revisions, image checksum, harness drawing version and enclosure version. Keep serials, passwords, precise locations and order/account details privately. A useful public report contains hardware identities and symptoms without those private details.</p>
-<h2 id="section-4">Upgrade release rule</h2>
+<h2 id="section-4"><span id="upgrade-release-rule">Upgrade release rule</span></h2>
 <p>An upgrade becomes a supported option only when it has a complete matching parts list, source/licence references, wiring/fit instructions, rollback path and a passed test record. Until then it belongs in the candidate list. Do not mix experimental options into the first-build recipe.</p>
 <p>Useful first experiments after a released core works: compare compact and mast antennas, add a supported USB headset, or change the top insert. Altering battery charging and radio calibration requires more engineering than these mechanical/accessory changes.</p>
-</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="upgrades.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Capabilities and current status · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Status vocabulary</a></li><li><a href="#section-2">Capability matrix</a></li><li><a href="#section-3">Baseline and boundaries</a></li><li><a href="#section-4">Updating status</a></li></ol></details><h1 id="capabilities-and-current-status">Capabilities and current status</h1>
+<p>Reviewed 7 November 2026. This is the authoritative capability/status summary. Other introductions should link here and keep only a short matching summary. Execution state belongs in the <a href="delivery-plan.html">delivery register</a>; evidence IDs resolve in the <a href="evidence.html">evidence register</a>.</p>
+<h2 id="section-1"><span id="status-vocabulary">Status vocabulary</span></h2>
+<ul>
+<li><strong>Proposed:</strong> requirement or design only; no functioning implementation is claimed.</li>
+<li><strong>Simulated:</strong> interactive behaviour exists with sample inputs or mock services.</li>
+<li><strong>Implemented:</strong> code or generated assets exist; this alone says nothing about a physical device.</li>
+<li><strong>Physically tested:</strong> a named real device and configuration have a recorded test. Emulator and CAD tests do not qualify.</li>
+<li><strong>Release supported:</strong> a specific version/configuration has passed its release gates and has usable setup and recovery instructions.</li>
+</ul>
+<p>Statuses apply to a particular scope. A UI can be implemented while its data path is simulated. No capability below is currently release supported; no physical phone/radio combination is recorded as tested.</p>
+<h2 id="section-2"><span id="capability-matrix">Capability matrix</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Current scope and status</th>
+<th>Evidence</th>
+<th>Work remaining</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Browser application</td>
+<td>Implemented SvelteKit/TypeScript UI; sample data and local settings/history</td>
+<td>EV-UI</td>
+<td>W06–W09 real services and persistence</td>
+</tr>
+<tr>
+<td>Board-served configuration</td>
+<td>Accepted design direction in <a href="adr-0006.html">ADR-0006</a>; offline browser UI and shared Android configuration API are proposed, with no firmware implementation</td>
+<td>EV-CONFIG pending</td>
+<td>W16; W01/W04/W06 foundations, W10/W11 load/endurance, W13 maintenance</td>
+</tr>
+<tr>
+<td>Android application</td>
+<td>Implemented Capacitor shell, debug build and emulator navigation; native background services proposed</td>
+<td>EV-UI</td>
+<td>W04, W06; physical phone lifecycle tests</td>
+</tr>
+<tr>
+<td>Offline maps</td>
+<td>Implemented Leaflet 2.0.0-beta.1 illustrative terrain; real Getlost acquisition/import/storage proposed</td>
+<td>EV-UI</td>
+<td>W08</td>
+</tr>
+<tr>
+<td>Messages and location</td>
+<td>Simulated messages, peers, positions, accuracy and freshness displays</td>
+<td>EV-UI</td>
+<td>W06, W08, W09</td>
+</tr>
+<tr>
+<td>Voice/PTT/Always on</td>
+<td>Simulated UI and speaking state; no microphone, codec, detector or audio transport</td>
+<td>EV-UI</td>
+<td>W07, W10</td>
+</tr>
+<tr>
+<td>Phone-to-node link</td>
+<td>Proposed; Wi-Fi/BLE and Android role handling not selected for production</td>
+<td>EV-HOST pending</td>
+<td>W04</td>
+</tr>
+<tr>
+<td>Autonomous multi-hop</td>
+<td>Proposed; exact MCU SDK/transport topology unproven</td>
+<td>EV-MESH pending</td>
+<td>W01–W03</td>
+</tr>
+<tr>
+<td>All-app internet sharing</td>
+<td>Simulated source controls; native donation, reception and automatic gateway selection proposed</td>
+<td>EV-INTERNET pending</td>
+<td>W05, W10</td>
+</tr>
+<tr>
+<td>Group security</td>
+<td>Proposed; no authenticated pairing, production keys, revocation or secure wire protocol</td>
+<td>EV-SECURITY pending</td>
+<td>W06</td>
+</tr>
+<tr>
+<td>Board/enclosure references</td>
+<td>Implemented manufacturer-model measurements and prototype trays; physical fit unverified</td>
+<td>EV-MECHANICAL</td>
+<td>W01, W11</td>
+</tr>
+<tr>
+<td>Print bundle/workshop</td>
+<td>Implemented canonical geometry bundle and editable workshop; recorded slice/CAD checks, no physical print acceptance</td>
+<td>EV-PRINT</td>
+<td>W11 fit, retention, battery and sealing</td>
+</tr>
+<tr>
+<td>Cost, range and endurance</td>
+<td>Proposed A$45–75 basic node, up-to-1-km LOS single hop and ≥48-hour continuous node operation</td>
+<td>EV-FIELD pending</td>
+<td>W11–W12</td>
+</tr>
+<tr>
+<td>Release/provisioning/updates</td>
+<td>Proposed; no signed product release or supported kit</td>
+<td>EV-RELEASE pending</td>
+<td>W13</td>
+</tr>
+<tr>
+<td>Repository validation</td>
+<td>Current handbook generation/link/coverage, TypeScript and Svelte checks pass; combined check fails in the existing upstream-only CAD guard on newer custom STL entries</td>
+<td>EV-DOCS</td>
+<td>W15; no geometry or print-bundle change in this documentation work</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-3"><span id="baseline-and-boundaries">Baseline and boundaries</span></h2>
+<p>Android launch support, all-app donation and reception, autonomous forwarding, local group functions without cloud login, and 2–5-node validation remain required. iPhone and camera work are optional. The 48-hour workload includes voice availability, location and relay service; phone endurance is measured separately. See <a href="discovery.html">confirmed scope</a>.</p>
+<p>ESP32-S3/HaLow is the current investigation candidate. Linux/OpenWrt is a functional reference and possible alternative after measurements. Neither is approved production hardware. The optional Pi Zero enclosure tray establishes packaging work only. There is no current AliExpress-only purchasing restriction.</p>
+<h2 id="section-4"><span id="updating-status">Updating status</span></h2>
+<p>When scope or implementation changes, update this matrix, its delivery row, affected decisions, compatibility entries and requirement coverage in the same change. A passed check needs a dated evidence record with exact revisions, method and limitations. Keep not-run separate from failed. Prior records remain historical until revalidated against changed code/hardware. The existing verification reports record earlier runs; editing this page does not rerun them.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="capabilities.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

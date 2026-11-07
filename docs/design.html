@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Design · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><h1 id="design">Design</h1>
+<p>Active phase from 6 November 2026. See <a href="phase-status.html">phase status and work queue</a>.</p>
+<p>Start with <a href="capabilities.html">capabilities</a>, the <a href="delivery-plan.html">delivery register</a>, <a href="decisions-current.html">current decisions</a> and <a href="requirements-traceability.html">requirement coverage</a>. These own status, execution order, decision state and evidence respectively; the investigations below supply technical detail.</p>
+<p>The <a href="brand.html">active AuMaNET identity</a> records the selected connected-ridge logo, vector master and shared Android/web/handbook assets.</p>
+<p>See the <a href="architecture-roundtable.html">five-specialist architecture roundtable</a> for the joint recommendation, diagrams, competing architectures and the radio/Android decision gates. Hardware and the production routing/donor mechanism remain conditional on evidence.</p>
+<p>See <a href="software-requirements.html">software requirements and component strategy</a> for the build-versus-reuse plan and <a href="voice-audio-plan.html">voice, detection and audio isolation</a> for native voice, adaptive queued playout/time stretching, noise processing and acceptance experiments.</p>
+<p>See <a href="network-and-membership.html">initial networking and membership proposal</a> for gateway selection, QR joining and phone donation experiments.</p>
+<p>See the <a href="android-app-plan.html">Android application plan</a> for the SvelteKit/TypeScript direction, recommended Capacitor host, offline mapping, Tern reference and staged app/native feasibility work.</p>
+<p>The owner accepted <a href="node-management.html">board-served web configuration</a> on 7 November 2026: each node serves an offline setup/maintenance interface, and Android uses the same versioned configuration API. Firmware owns validation, permissions and persistence. <a href="adr-0006.html">ADR-0006</a> records the direction; W16 tracks implementation and physical acceptance, which remain pending.</p>
+<p>Design is now active at the owner&#39;s direction. Discovery continues alongside design to resolve hardware, topology and phone OS gates. Keep hypotheses labelled unproven and require evidence before implementation commitments.</p>
+<p>Deliverables:</p>
+<ul>
+<li>System architecture and responsibility split between ESP, HaLow module and phone.</li>
+<li>Exact board revision, power/pin configuration and supported regional radio settings.</li>
+<li>Phone transport, provisioning, device identity and group membership.</li>
+<li>Board-served offline configuration, shared browser/Android API, authenticated administration and recovery.</li>
+<li>Discovery and routing protocol: bootstrapping, partitions, merging, loops, expiry and bounded resource usage.</li>
+<li>Internet gateway election, reachability probes, failover, donor quotas and metering.</li>
+<li>Traffic model: app protocol/proxy versus IP tunnel; DNS, TCP/UDP, MTU, IPv4/IPv6 and return path.</li>
+<li>Security model: enrollment, end-to-end protection, revocation, update signing and donor trust boundaries.</li>
+<li>Background lifecycle, recovery states, diagnostics and compatibility matrix.</li>
+<li>Architecture decisions tied to discovery evidence and measurable acceptance criteria.</li>
+</ul>
+<p>Candidate path to validate: consumer phone -&gt; local ESP -&gt; HaLow relay(s) -&gt; gateway ESP -&gt; donor phone -&gt; cellular internet. Return traffic follows the corresponding session path. Phone hotspot use is an alternative to investigate, not an assumed automatic capability.</p>
+<p>Confirmed constraints: Android launch support, donating and receiving internet for all phone applications; iPhone best effort and non-blocking; standalone relaying without a connected or awake phone. Start with 2–5 nodes, at least 48 hours battery runtime under a defined operating profile, and A$45–75 per basic node. Hardware may change within that budget. The device retains autonomous forwarding and routing state. Offline features include location, messages and Discord-style live group voice with independent mute/unmute and a Push to talk / Always on selector. Always on uses voice detection and transmits only when local speech is detected; Push to talk transmits while held. Camera sharing remains exploratory. Manual hotspot enabling is acceptable; Bluetooth versus Wi-Fi remains a discovery decision. App-only proxying cannot satisfy the confirmed internet scope.</p>
+<p>SvelteKit and TypeScript are the selected app direction. Leaflet 2.0 is the selected map renderer, starting with the 2.0 beta. The Capacitor Android prototype is implemented with simulated data; production native-service suitability remains to be validated. No routing protocol, SDK version or production topology is selected yet.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../design/README.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

@@ -2,6 +2,8 @@
 
 Status: planned, 6 November 2026. No tests executed or hardware receipt confirmed.
 
+This procedure supports W01/W02/W04/W05 and early W11 measurements. The [delivery register](../design/delivery-plan.md) owns dependencies and status; use the [experiment template](experiment-template.md) and [compatibility matrix](../docs/compatibility.md) for configurations. Two-node results cannot close W03 multi-hop or W10 group acceptance.
+
 The owner intends to buy two XIAO ESP32-S3 + XIAO HaLow setups, replacing the initial C6 candidate. Verify exact board revisions, regional suitability, SDK support, power rails, headers and antennas before RF testing. Seeed's guide applies to S3-series boards using Sense as its example; verify the plain S3 assembly and pin mapping. Keep any compatibility blocker visible before expanding purchases.
 
 ## Sequence and evidence

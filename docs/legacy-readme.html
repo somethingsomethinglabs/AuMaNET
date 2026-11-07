@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="archive"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Historical: AuMaNET · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><aside id="archive-notice" class="status"><strong>HISTORICAL · SUPERSEDED PI/HELTEC BASELINE</strong> · These choices and build steps do not apply to the current ESP32-S3/HaLow investigation. <a href="index.html">Current handbook</a> · <a href="archive.html">Archive context</a></aside><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">What we are building</a></li><li><a href="#section-2">Find what you need</a></li><li><a href="#section-3">Purchasing and community sources</a></li><li><a href="#section-4">Working approach</a></li><li><a href="#section-5">Documentation maintenance</a></li></ol></details><blockquote>
+<p><strong>Historical baseline — superseded 6 November 2026.</strong> This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the <a href="handbook.html">current handbook</a> or <a href="archive.html">archive context</a>.</p>
+</blockquote>
+<h1 id="aumanet">AuMaNET</h1>
+<blockquote>
+<p><strong>Project reset — 6 November 2026.</strong> The Pi/Heltec design below is superseded. The new direction is custom ESP32-S3 + XIAO HaLow firmware with a companion phone app, automatic multi-hop networking and shared phone internet. Hardware and mobile OS feasibility remain unproven. Start with <a href="discovery.html">discovery</a>, then <a href="design.html">design</a>, <a href="development.html">development</a> and <a href="deployment.html">deployment</a>. Older files are retained temporarily to preserve existing work and are not current requirements.</p>
+</blockquote>
+<p>A DIY off-grid communications project for Australian 4WD and camping groups. Build a local network for messages, voice and recent position when mobile coverage is unavailable.</p>
+<p><strong><a href="index.html">Open the offline HTML overview</a></strong> · <strong><a href="start-here.html">Start your first build</a></strong> · <strong><a href="current-design.html">Current design</a></strong> · <strong><a href="parts.html">One-node parts register</a></strong></p>
+<p>Download the project folder and open the HTML in a browser. Normal reading requires no installation, server or programming. Keep the assets and neighbouring files with it. External sources need internet.</p>
+<h2 id="section-1"><span id="what-we-are-building">What we are building</span></h2>
+<ul>
+<li>Raspberry Pi 4B with the Heltec HC01P V2 + matching HAT bundle.</li>
+<li>Portable power in a lower battery base, compute/radio in the centre, and a serviceable top interface insert. Battery internals, cell count and runtime are TBD; the required output is regulated 5 V / 3 A continuous minimum.</li>
+<li>Reserved USB-C charging, one USB-C accessory port, sealed Ethernet, HaLow antenna, LTE MAIN/AUX antenna paths and a GNSS antenna exit.</li>
+<li>Sierra EM7430 on a USB WWAN adapter as the cellular internet/GNSS candidate; LC76G is the position-receiver fallback. Exact adapter, firmware, antenna and power requirements still need verification.</li>
+</ul>
+<p><strong>Status: design prototype, 5 November 2026.</strong> No complete purchase-ready kit, tested power system, exact firmware recipe or adapted enclosure files have been released. The project has not been physically field validated. Read <a href="release-readiness.html">release readiness</a> before buying a whole kit.</p>
+<h2 id="section-2"><span id="find-what-you-need">Find what you need</span></h2>
+<p><strong><a href="equipment-3d.html">Open the offline 3D equipment workspace</a></strong> — inspect 13 original ties1887 V2 STLs, including the central body, PCB frame, Pi reference, top and battery case. Orbit, explode, section and isolate parts. The source targets Pi 4/Wio; our Heltec fit remains unverified. See <a href="cad-reference.html">CAD provenance and compatibility</a>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>You want to…</th>
+<th>Read</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Understand the project without being a developer</td>
+<td><a href="start-here.html">Start here</a></td>
+</tr>
+<tr>
+<td>Check the active choices</td>
+<td><a href="current-design.html">Current design</a></td>
+</tr>
+<tr>
+<td>Source parts</td>
+<td><a href="parts.html">One-node shopping register</a> / <a href="../hardware/bom.csv">CSV</a></td>
+</tr>
+<tr>
+<td>See the case and top panel</td>
+<td><a href="portable-node.html">Portable-node specification</a></td>
+</tr>
+<tr>
+<td>Understand GPS and power</td>
+<td><a href="diy-selection.html">DIY connection plan</a> / <a href="../hardware/pin-allocation.csv">pin register</a></td>
+</tr>
+<tr>
+<td>Compare antenna kits</td>
+<td><a href="antennas.html">RF selection</a></td>
+</tr>
+<tr>
+<td>Replace or upgrade a module</td>
+<td><a href="upgrades.html">Upgrade guide</a></td>
+</tr>
+<tr>
+<td>Record a build</td>
+<td><a href="build-record.html">Build record</a></td>
+</tr>
+<tr>
+<td>Review the firmware pin mismatch</td>
+<td><a href="firmware-review.html">Inspected image and adaptation</a></td>
+</tr>
+<tr>
+<td>Compare power modules</td>
+<td><a href="power-review.html">Power selection review</a></td>
+</tr>
+<tr>
+<td>Check the evidence still missing</td>
+<td><a href="release-readiness.html">Release readiness</a></td>
+</tr>
+<tr>
+<td>Edit the documentation</td>
+<td><a href="maintaining-docs.html">Maintainer guide</a></td>
+</tr>
+</tbody></table></div>
+<h2 id="section-3"><span id="purchasing-and-community-sources">Purchasing and community sources</span></h2>
+<p>Purchased components are to come from <strong>AliExpress only</strong>. Manufacturer links are technical references, not alternate purchasing recommendations. Exact listings, included parts, revisions and received hardware must be checked. Existing phones/tools may be reused; the enclosure is printed from matching released files when available.</p>
+<p>The enclosure direction follows ties1887/Mesh-radio-Halow-LoRa; OpenMANET is the firmware/community starting point. Keep attribution, exact revisions and upstream licences. A HaLow brand or Pi-compatible label does not prove that two boards can work together. In particular, the documented X1209 power-HAT GPIO allocation conflicts with the selected Heltec HAT; it is not a drop-in stack.</p>
+<h2 id="section-4"><span id="working-approach">Working approach</span></h2>
+<p>Verify one bench node, then a two-node offline link, then portable power and enclosure, then the three-node pilot. Keep UHF, a trip plan and an appropriate independent emergency option: a disconnected group mesh cannot reach emergency services by itself. Delivery does not establish human acknowledgement.</p>
+<p>Original project material remains all rights reserved pending licence selection. Referenced community designs retain their own licences; shared derivative CAD must follow its source terms. Never commit credentials, private trip tracks or personal location logs.</p>
+<h2 id="section-5"><span id="documentation-maintenance">Documentation maintenance</span></h2>
+<p>The committed HTML is ready to read. Maintainers can rebuild the detailed pages from Markdown/CSV with <code>npm ci --ignore-scripts</code>, <code>npm run docs:build</code> and <code>npm run docs:check</code>. See the maintainer guide for scope and verification limits. No runtime AI is required by the radio design.</p>
+<p>Next stage: <a href="operating-hardware.html">operating hardware and community comparison</a>. Battery design is deferred behind regulated 5 V / 3 A minimum output.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../LEGACY.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

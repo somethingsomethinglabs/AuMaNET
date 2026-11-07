@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Android host · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><h1 id="android-host">Android host</h1>
+<p>Capacitor Android host for the shared UI prototype. Application ID: <code>au.aumanet.app</code>. The UI runs with local sample data; native audio, GPS, routing and radio services are not implemented. Android Back returns through settings and primary views before exiting from Map.</p>
+<p>Build from the repository root with JDK 21 and an Android SDK containing platform 36 and the required build tools:</p>
+<pre><code class="language-powershell">npm run build -w @aumanet/app
+npm run sync -w @aumanet/mobile
+./dev/mobile/android/gradlew.bat -p dev/mobile/android assembleDebug
+</code></pre>
+<p>Configure the SDK via <code>ANDROID_HOME</code> or an ignored <code>dev/mobile/android/local.properties</code>. Debug APK: <code>android/app/build/outputs/apk/debug/app-debug.apk</code>. Regenerate bundled web assets with <code>sync</code>; they are not committed. Never commit signing material or local SDK paths. Native services must eventually own background session state; this UI prototype does not establish that capability.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../dev/mobile/README.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Companion application · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><h1 id="companion-application">Companion application</h1>
+<p>Interactive SvelteKit + TypeScript UI prototype matching the design concepts, with locally persisted sample messages, settings and internet source choice. Map, Messages, Voice, Network and the Settings hub are implemented. Leaflet 2.0.0-beta.1 renders a bundled illustrative terrain image; this is not Getlost mapping or real geographic coverage.</p>
+<p>From the repository root:</p>
+<pre><code class="language-powershell">npm ci
+npm run dev -w @aumanet/app
+npm run check -w @aumanet/app
+npm run build -w @aumanet/app
+npm run preview -w @aumanet/app
+</code></pre>
+<p>The static build is bundled into the Capacitor Android host. No backend, cloud account, real microphone, radio, GPS or internet routing is used. Pairing, firmware and device maintenance screens explicitly explain their demo behavior. Real transport/audio/background services remain behind future platform adapters. See the <a href="android-app-plan.html">application plan</a>.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../dev/app/README.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

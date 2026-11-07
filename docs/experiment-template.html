@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Experiment record template · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Identity and configuration</a></li><li><a href="#section-2">Procedure and acceptance</a></li><li><a href="#section-3">Observations</a></li><li><a href="#section-4">Conclusion and follow-up</a></li></ol></details><h1 id="experiment-record-template">Experiment record template</h1>
+<p>Copy into a dated file under <code>discovery/results/</code> when starting a current-baseline experiment. Keep unredacted private data outside the repository. Register the record in <a href="evidence.html">evidence</a> and reference its work/requirement IDs. This empty template is not a result.</p>
+<h2 id="section-1"><span id="identity-and-configuration">Identity and configuration</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Recorded value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Evidence ID / work ID / gates / requirement IDs</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Date / tester / reviewer</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Status: planned, pass, fail, inconclusive or not run</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td>Source commit / dirty patch identity / dependency lock hashes</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Firmware/APK filename, version, checksum and build commands</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Host/radio board markings, revision, serial alias, pins and power</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>SDK/toolchain/radio firmware/BCF revision and hash</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Reviewed regional configuration and antenna/connector/placement</td>
+<td>TBD; complete before RF transmission</td>
+</tr>
+<tr>
+<td>Phone model, OS/build, WebView, permissions and VPN/hotspot state</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Topology, excluded direct paths, channels and node/phone counts</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Supply/battery, usable Wh, instrumentation and calibration</td>
+<td>TBD</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-2"><span id="procedure-and-acceptance">Procedure and acceptance</span></h2>
+<p>State the hypothesis, prerequisite gates, exact commands/settings and ordered steps. Define thresholds and sample counts before running; identify provisional values and link their decision record. Include control/baseline measurements, repetitions, faults injected, recovery and clean-up. For 48-hour trials record listening, speech/talker, location, relay and internet workload with no external charge. Measure phone energy separately.</p>
+<h2 id="section-3"><span id="observations">Observations</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Requirement / test</th>
+<th>Expected threshold</th>
+<th>Observed result / units / samples</th>
+<th>Outcome</th>
+<th>Redacted artifact and checksum</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TBD</td>
+<td>TBD</td>
+<td>Not run</td>
+<td>Not run</td>
+<td>TBD</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-4"><span id="conclusion-and-follow-up">Conclusion and follow-up</span></h2>
+<p>Describe limitations and negative/inconclusive results. Distinguish actual hardware from simulation, extrapolation and supplier claims. Identify the supported compatibility row, resulting decision, next delivery work and regression tests. Do not remove earlier failures when a later run passes. Record reviewer acceptance before promoting capability or release status.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../discovery/experiment-template.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

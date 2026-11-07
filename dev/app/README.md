@@ -1,5 +1,15 @@
 # Companion application
 
-Reserved workspace for the selected SvelteKit + TypeScript UI. No UI or Svelte runtime is installed yet: this is the design-phase monorepo foundation.
+Interactive SvelteKit + TypeScript UI prototype matching the design concepts, with locally persisted sample messages, settings and internet source choice. Map, Messages, Voice, Network and the Settings hub are implemented. Leaflet 2.0.0-beta.1 renders a bundled illustrative terrain image; this is not Getlost mapping or real geographic coverage.
 
-The first implementation spike is a static build that starts offline in a browser and the Android host. Use `@aumanet/core` for portable contracts and keep native transport, audio and long-lived location sessions behind platform adapters. See [application plan](../../design/android-app-plan.md).
+From the repository root:
+
+```powershell
+npm ci
+npm run dev -w @aumanet/app
+npm run check -w @aumanet/app
+npm run build -w @aumanet/app
+npm run preview -w @aumanet/app
+```
+
+The static build is bundled into the Capacitor Android host. No backend, cloud account, real microphone, radio, GPS or internet routing is used. Pairing, firmware and device maintenance screens explicitly explain their demo behavior. Real transport/audio/background services remain behind future platform adapters. See the [application plan](../../design/android-app-plan.md).

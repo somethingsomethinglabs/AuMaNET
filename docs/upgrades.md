@@ -1,3 +1,5 @@
+> **Historical baseline — superseded 6 November 2026.** This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the [current handbook](index.md) or [archive context](archive.md).
+
 # Upgrades, replacements and repair
 
 AuMaNET should be a device you can understand and repair, not a sealed mystery. The current architecture separates the battery base, compute/radio tray, power rail and top interface insert. Exact harnesses and print files are still in development.

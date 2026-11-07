@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="reference"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Independent simulated user review: privacy-conscious bushwalking member · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">PROTOTYPE REFERENCE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Journey and health</a></li><li><a href="#section-2">Strengths</a></li><li><a href="#section-3">Ranked proposals</a></li><li><a href="#section-4">Accessibility risks and limits</a></li></ol></details><h1 id="independent-simulated-user-review-privacy-conscious-bushwalking-member">Independent simulated user review: privacy-conscious bushwalking member</h1>
+<p>Device: isolated Chromium session <code>review-privacy</code>, 412×915 mobile/touch, <a href="http://127.0.0.1:5180/">http://127.0.0.1:5180/</a>. Reviewed 6 Nov 2026 Sydney time. Used Playwright skill. No source inspection or app changes. Sample people, positions and messages treated as real for decisions; hardware and delivery simulation accepted.</p>
+<h2 id="section-1"><span id="journey-and-health">Journey and health</span></h2>
+<ol>
+<li>Opened map. Initial server connection was refused; root restarted it, then page loaded normally. Saved and inspected <code>output/playwright/review-privacy/01-map.png</code>.</li>
+<li>Selected Alex&#39;s map marker. Details exposed age (2 min), accuracy (±12 m) and coordinates. Healthy response.</li>
+<li>Opened Messages, wrote a junction update requesting crew-only location privacy, and sent it. Message appeared as <code>Sent · Demo</code>; composer cleared. Healthy response. Snapshot <code>page-2026-11-05T21-49-39-179Z.yml</code> records it.</li>
+<li>Opened Voice. Arrived already joined, with Always on selected and Rowan <code>Listening for speech</code>. Saved and inspected <code>02-voice.png</code>.</li>
+<li>Muted. Rowan changed to <code>Muted</code>, button to <code>Unmute</code>. Healthy response.</li>
+<li>Selected Push to talk. Selection changed; Hold to talk was disabled while muted. Healthy response but explanation absent.</li>
+<li>Opened Network. Selected Sam instead of Alex for shared internet. Header changed to Via Sam, selected source to Connected, route changed, and status announced connection. Healthy response.</li>
+<li>Opened Settings. Saved and inspected <code>03-settings.png</code>. Location &amp; privacy easy to recognize, though below several categories.</li>
+<li>Opened Location &amp; privacy. Saved and inspected <code>04-location.png</code>; sharing initially on, audience named High Country crew, track history explicitly off.</li>
+<li>Turned Share my location off. Switch visibly and semantically unchecked. Saved and inspected <code>05-location-off.png</code>. No explicit textual success explanation appeared.</li>
+</ol>
+<p>Screenshots are relative to repository root. All five were viewed before findings were written.</p>
+<h2 id="section-2"><span id="strengths">Strengths</span></h2>
+<ul>
+<li>Group name stays visible in ordinary screens; message composer and location audience reinforce scope.</li>
+<li>Precise map fix age and uncertainty support sensible decisions about stale positions.</li>
+<li>Mute provides immediate text and accessible state feedback. Persistent voice bar keeps a way to mute while elsewhere.</li>
+<li>Internet route and named source make the choice understandable. Changing provider has a status announcement.</li>
+<li>Location privacy is a named setting with a single clear control; explicit no-history text is reassuring.</li>
+</ul>
+<h2 id="section-3"><span id="ranked-proposals">Ranked proposals</span></h2>
+<ol>
+<li><strong>High: expose current location sharing state on Map and offer a direct pause control.</strong> On arrival, I saw exact member positions, but my own sharing state was absent. I had to go through Settings and Location &amp; privacy to inspect it. Add a compact <code>Location shared with High Country crew</code> / <code>Location paused</code> row or chip with a direct control.</li>
+<li><strong>High: make live microphone status explicit in the persistent bar.</strong> Initial bar said <code>Listening</code> while Voice said <code>Listening for speech</code> and <code>Transmits only when your voice is detected</code>; Always on was already selected. As a privacy-conscious person, Listening can mean receiving audio. Use <code>Mic live · voice activated</code>, <code>Mic muted</code>, or similarly plain text with recipient scope; show before/when entering a live channel.</li>
+<li><strong>Medium: explain the consequence of stopping location sharing.</strong> After I turned sharing off, only the switch changed. Add <code>Location sharing paused</code> and explain whether others retain a last known point and its timestamp. This should reflect intended semantics, without asserting unsupported security behavior.</li>
+<li><strong>Medium: explain why Hold to talk is disabled when muted.</strong> I muted, then switched to Push to talk to regain deliberate control, but received a disabled button without nearby help. Add <code>Unmute to use push to talk</code> beside it or provide one clear deliberate transition.</li>
+</ol>
+<h2 id="section-4"><span id="accessibility-risks-and-limits">Accessibility risks and limits</span></h2>
+<p>Small secondary map labels and voice-bar subtext are hard to read at this mobile size; no measured contrast failure is claimed. The location switch&#39;s accessible checked state changed correctly, but sighted users get only position/color feedback when it changes. The disabled hold button cannot itself explain the prerequisite to keyboard users. Primary controls have useful accessible names. Keyboard-only operation, screen-reader announcement timing, outdoor glare, physical gloves, actual microphone permissions, real GPS, transmission, encryption, retention and multi-device propagation were not tested. No claim is made that sample position visibility proves a real privacy leak. Findings concern visible decision support and confidence.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../dev/tests/review-privacy.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

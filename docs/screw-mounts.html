@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="reference"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Screw retention for the Bambu cradle variants · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">PROTOTYPE REFERENCE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Geometry and datums</a></li><li><a href="#section-2">Edit and verify</a></li></ol></details><h1 id="screw-retention-for-the-bambu-cradle-variants">Screw retention for the Bambu cradle variants</h1>
+<p>The two trays now support the boards on stepped posts with through holes and underside captive hex-nut pockets. The posts are regions deliberately preserved through the Bambu clearance cutters. The fastener holes/nut pockets remain separate, reloadable negative parts. PA6-GF and TPU assignments are retained.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Mount</th>
+<th align="right">Quantity</th>
+<th>Suggested hardware</th>
+<th align="right">Cradle hole</th>
+<th align="right">Nut pocket, across flats × depth</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Seeed HaLow carrier</td>
+<td align="right">4 on either tray</td>
+<td>M2 × 8 mm machine screws and M2 hex nuts</td>
+<td align="right">Ø2.3 mm</td>
+<td align="right">4.25 × 1.8 mm</td>
+</tr>
+<tr>
+<td>Pi Zero option</td>
+<td align="right">4 additional on combined tray</td>
+<td>M2.5 × 8 mm machine screws and M2.5 hex nuts</td>
+<td align="right">Ø2.9 mm</td>
+<td align="right">5.25 × 2.2 mm</td>
+</tr>
+</tbody></table></div>
+<p>The plain XIAO S3 has no dedicated screw mounting holes. Fasten the HaLow carrier; its pin headers carry the seated S3. Do not use GPIO/header holes as case screw holes.</p>
+<p>Insert the nuts from the underside, place the PCB on the four seats, and install the screws from above. Small insulating washers under the heads may be used where they fit without touching nearby components. Confirm the screw head diameter and actual PCB thickness before tightening. With the assumed PCB thicknesses (HaLow 1.6 mm, Pi Zero 1.0 mm), 8 mm screws without washers project approximately 0.4 and 1.0 mm below the tray. Reserve at least 1 mm beneath it, or select a different screw length after checking engagement. Nut pockets are sized for standard hex nuts, not nyloc nuts or threaded inserts. Print shrinkage may require slight pocket adjustment.</p>
+<h2 id="section-1"><span id="geometry-and-datums">Geometry and datums</span></h2>
+<p>The blank remains 63.6 × 82 × 6 mm, with its lower-left bottom corner at (0, 0, 0). PCB undersides rest on Z=6 mm. The larger post bases rise to Z=3.6 mm; smaller annular seats continue to Z=6 mm. HaLow base/seat diameters are 6.6/4.6 mm; Pi base/seat diameters are 8.0/6.0 mm. At least 3.8 mm of post height remains above the deepest nut pocket.</p>
+<p>HaLow screw centres in tray XY, in millimetres:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th align="right">X</th>
+<th align="right">Y</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">4.132131</td>
+<td align="right">29.254677</td>
+</tr>
+<tr>
+<td align="right">25.423094</td>
+<td align="right">29.254677</td>
+</tr>
+<tr>
+<td align="right">4.079220</td>
+<td align="right">46.912150</td>
+</tr>
+<tr>
+<td align="right">25.370183</td>
+<td align="right">46.912150</td>
+</tr>
+</tbody></table></div>
+<p>These preserve the slight skew of the four Ø2.5 mm holes in Seeed&#39;s STEP. They are derived from <code>../reference/seeed-xiao-esp32s3-halow/measurements.json</code>, rotated into the tray axes; they are not a verified measurement of the delivered board. The detailed stack reference was raised so the carrier laminate underside sits on the seats. Actual header height and manufacturing tolerances still need a fit check.</p>
+<p>Pi screw centres are (34.4, 11.8), (57.4, 11.8), (34.4, 69.8), and (57.4, 69.8) mm. These use the <strong>58 × 23 mm</strong> pattern with 3.5 mm edge offsets from the <a href="https://datasheets.raspberrypi.com/rpizero/raspberry-pi-zero-mechanical-drawing.pdf">official Raspberry Pi Zero drawing</a>. The board holes are Ø2.75 ±0.05 mm. Nut dimensions use standard M2 (4 mm flats, 1.6 mm height) and M2.5 (5 mm flats, 2 mm height), with printing allowance; see the <a href="https://media.distrelec.com/Web/Downloads/_t/ds/1088211_eng_tds.pdf">Bossard dimensions</a>.</p>
+<h2 id="section-2"><span id="edit-and-verify">Edit and verify</span></h2>
+<p><code>bambu-tray-parameters.json</code> is the parameter source. Export with <code>scripts/export-bambu-tray-sources.py</code>, rebuild the canonical bundle with <code>hardware/print/Update-3MF.ps1 -Once</code>, and regenerate the workshop starting project with <code>scripts/build-bambu-workshop.py</code>.</p>
+<p>For ordinary dimension changes, reload both tray objects in Studio. Changing the number of negative children requires updating their component sets: save Studio edits, run <code>scripts/update-bambu-tray-objects.py</code>, then reopen the working project. That tool preserves common objects, plate placement, per-object settings and material profiles; it backs up the current project first.</p>
+<p><code>scripts/verify-tray-mounts.py</code> constructs the resulting CAD solids, including the detailed Seeed negative reference, and checks each screw axis is open, each standard nut fits, each annular board seat remains solid, and each complete tray is one connected solid. It exports inspection STEP files and a top/underside drawing to <code>../print/validation/</code>. Bambu slicing is checked separately.</p>
+<p>This adds board-to-cradle retention. Cradle-to-shell attachment, connector alignment, real hardware fit, and battery fit remain prototype work.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../hardware/cad/screw-mounts.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

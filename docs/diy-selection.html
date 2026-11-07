@@ -1,14 +1,17 @@
 <!doctype html>
-<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>DIY hardware selection and connection plan · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Core</a></li><li><a href="#section-2">Preferred GPS receiver: small internal breakout, external antenna</a></li><li><a href="#section-3">Power: what is and is not confirmed</a></li><li><a href="#section-4">Integrated power options examined</a></li><li><a href="#section-5">Integrated UPS compatibility finding</a></li><li><a href="#section-6">AliExpress purchase gates</a></li></ol></details><h1>DIY hardware selection and connection plan</h1>
+<html lang="en-AU" data-doc-status="archive"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Historical: DIY hardware selection and connection plan · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><aside id="archive-notice" class="status"><strong>HISTORICAL · SUPERSEDED PI/HELTEC BASELINE</strong> · These choices and build steps do not apply to the current ESP32-S3/HaLow investigation. <a href="index.html">Current handbook</a> · <a href="archive.html">Archive context</a></aside><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Core</a></li><li><a href="#section-2">Preferred GPS receiver: small internal breakout, external antenna</a></li><li><a href="#section-3">Power: what is and is not confirmed</a></li><li><a href="#section-4">Integrated power options examined</a></li><li><a href="#section-5">Integrated UPS compatibility finding</a></li><li><a href="#section-6">AliExpress purchase gates</a></li></ol></details><blockquote>
+<p><strong>Historical baseline — superseded 6 November 2026.</strong> This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the <a href="handbook.html">current handbook</a> or <a href="archive.html">archive context</a>.</p>
+</blockquote>
+<h1 id="diy-hardware-selection-and-connection-plan">DIY hardware selection and connection plan</h1>
 <blockquote>
 <p><strong>Active power decision — 5 November 2026:</strong> battery pack, cell count, chemistry, charger, BMS and converter are <strong>TBD</strong>. Treat the battery assembly as a regulated <strong>5 V output, 3 A continuous minimum (15 W)</strong> module; 5 A / 25 W is a preferred headroom option, not a requirement already met. This is a nominal regulated voltage, not permission to exceed Pi voltage limits. Measure at the Pi under load. Earlier battery architectures below are archived options, not the active build. USB-C charging remains a reserved interface; its protocol and charge-and-run behaviour await the battery choice.</p>
 </blockquote>
 <p>2026-11-05. User confirms Raspberry Pi 4B and the supplied AliExpress Heltec HC01P V2 + HAT bundle. Preference is DIY assembly of documented boards in a printed enclosure, with AliExpress as the only purchasing source. Exact listings beyond the Heltec bundle remain unverified; this is not a completed shopping cart or a verified price quote.</p>
-<h2 id="section-1">Core</h2>
+<h2 id="section-1"><span id="core">Core</span></h2>
 <p>Use Pi 4B + HT-HC01PHAT + HC01P V2. Mini PCIe here is the module connector; the HAT supplies the host interface. Do not buy an arbitrary PC Mini PCIe adapter. Match the HAT board revision and SPI firmware/overlay/calibration to the received hardware before flashing. The manufacturer HAT schematic provides a local 5 V to 3.3 V regulator; this does not make the board accept 12 V.</p>
-<h2 id="section-2">Preferred GPS receiver: small internal breakout, external antenna</h2>
+<h2 id="section-2"><span id="preferred-gps-receiver-small-internal-breakout-external-antenna">Preferred GPS receiver: small internal breakout, external antenna</span></h2>
 <p><strong>Waveshare LC76G GNSS Module breakout</strong> is the preferred DIY candidate, replacing the bulky USB puck as the first option to evaluate. This is the assembled Waveshare board, not the bare Quectel LCC chip. An antenna alone cannot provide coordinates: the LC76G receives satellite signals and sends NMEA data to gpsd.</p>
 <p>The <a href="https://resource.heltec.cn/download/HT-HC01PHAT_V1_0/HT-HC01PHAT_V1_0.PDF">Heltec HT-HC01PHAT V1.0 schematic</a> shows <strong>P2: GND, TX and RX</strong>, with TX mapped to BCM GPIO14 and RX to BCM GPIO15. Confirm labels and physical orientation on the actual board; do not infer wire colour or pin order from a seller photo.</p>
 <div class="table-wrap"><table>
@@ -42,7 +45,7 @@
 <p>Pi UART signals are 3.3 V logic. Reject a 5 V TTL or RS-232 output unless correctly level converted. No battery/raw 12 V connects to receiver or Pi pins. Disable the serial login console, enable the correct UART in the pinned OpenWrt image and point gpsd at its actual device. Raspberry Pi OS raspi-config instructions do not apply directly to OpenWrt. The LC76G product page and tutorial show differing baud defaults, so establish the received module&#39;s baud empirically and record it rather than hard-coding a presumed default.</p>
 <p>The external antenna&#39;s bias requirements and connector must match the receiver. Use the supplied antenna first; verify any longer coax, SMA bulkhead or replacement antenna before changing it. The top GPS position becomes a sealed antenna-coax exit when using this internal receiver; it is not an extra USB port. Internal receiver dimensions, antenna and header access must be included in the CAD fit check.</p>
 <p><strong>Fallback:</strong> USB-to-UART adapter with documented 3.3 V logic connected to this receiver, or the earlier GlobalSat USB puck. USB avoids a firmware UART conflict but needs its bridge driver and gpsd tested. Neither route is field validated. Acceptance: cold-start outdoors, fresh position/UTC in gpsd and OpenMANET, no interference during HaLow TX, fix loss/recovery and stale-position handling.</p>
-<h2 id="section-3">Power: what is and is not confirmed</h2>
+<h2 id="section-3"><span id="power-what-is-and-is-not-confirmed">Power: what is and is not confirmed</span></h2>
 <p>The Pi takes <strong>regulated 5 V</strong>, never direct 12 V. Preferred non-invasive route now uses the <a href="converter-candidate-02.html">enclosed USB-C converter</a> directly into the Pi&#39;s internal power inlet. Connect battery output to its input wires through a correctly matched barrel adapter and reviewed fused harness. This removes the custom GPIO power interposer from the first-build requirements; header power remains an alternative.</p>
 <p>For six cells, retain <strong>3S2P</strong>: approximately 10.8 V nominal, 12.6 V full and 73.4 Wh using 3.4 Ah cells. The DIY route uses separate replaceable modules:</p>
 <ol>
@@ -52,7 +55,7 @@
 <li>Power controller for off-state start, graceful shutdown and load disconnect; pack monitor for useful battery indicators.</li>
 </ol>
 <p>A BMS is not a charger. A PD trigger is not a charger. A charger is not automatically a UPS or a graceful-shutdown controller. No generic AliExpress board is approved solely because its listing says all-in-one. DIY refers to assembling the system and serviceable wiring; the cells should be supplied as a properly constructed matched pack/subassembly, not soldered directly or arbitrarily paralleled in loose holders.</p>
-<h2 id="section-4">Integrated power options examined</h2>
+<h2 id="section-4"><span id="integrated-power-options-examined">Integrated power options examined</span></h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -74,11 +77,11 @@
 </tr>
 </tbody></table></div>
 <p><strong>Decision:</strong> keep the modular 3S2P power architecture until a documented integrated six-cell solution is verified. I have not confirmed the cheapest board or a complete all-in-one purchasing choice. Switching to a different battery topology or cell count requires a deliberate design update, not a silent substitution.</p>
-<h2 id="section-5">Integrated UPS compatibility finding</h2>
+<h2 id="section-5"><span id="integrated-ups-compatibility-finding">Integrated UPS compatibility finding</span></h2>
 <p>Geekworm X1209 is another documented Pi 4-capable UPS candidate, but it is <strong>not a drop-in match</strong> for our Heltec HAT. Its <a href="https://wiki.geekworm.com/X1209_Hardware">hardware table</a> uses BCM GPIO2/3 for I2C and GPIO6/16 for power functions. Heltec&#39;s schematic assigns those to RGB/wake functions. It also accepts a parallel/single-cell battery system, not our proposed 3S2P pack. Do not stack these boards or change cell wiring on the strength of the Pi-compatible label. A topology/interface redesign would be a separate reviewed option.</p>
-<h2 id="section-6">AliExpress purchase gates</h2>
+<h2 id="section-6"><span id="aliexpress-purchase-gates">AliExpress purchase gates</span></h2>
 <p>Verify exact listings for LC76G breakout/antenna, cells/BMS, charger/power-path board, 5 V regulator, power interposer and shutdown controller. Capture model/revision, schematic, input/output ratings, dimensions, supplier evidence and landed AUD total. The browser&#39;s site policy previously blocked AliExpress access; this research uses manufacturer sources and the user-supplied Heltec capture, with no bypass of that block. User-provided listing captures can establish candidate identity but not tested compatibility.</p>
-<h3>Primary technical references</h3>
+<h3 id="primary-technical-references">Primary technical references</h3>
 <ul>
 <li><a href="https://resource.heltec.cn/download/HT-HC01PHAT_V1_0/HT-HC01PHAT_V1_0.PDF">Heltec HAT schematic</a></li>
 <li><a href="https://www.waveshare.com/product/ai/expansions/lc76g-gnss-module.htm">Waveshare LC76G assembled module</a></li>
@@ -86,4 +89,4 @@
 <li><a href="https://wiki.geekworm.com/X728">Geekworm X728 revision and expansion notes</a></li>
 <li><a href="https://openmanet.github.io/docs/gnss">OpenMANET GNSS</a></li>
 </ul>
-</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../hardware/diy-selection.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

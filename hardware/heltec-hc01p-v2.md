@@ -1,3 +1,5 @@
+> **Historical baseline — superseded 6 November 2026.** This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the [current handbook](../docs/index.md) or [archive context](../docs/archive.md).
+
 # Heltec HT-HC01P V2 + HAT candidate
 
 Reviewed 2026-11-05. Status: identified candidate; exact bundle compatibility, Australian compliance and field performance remain unverified.

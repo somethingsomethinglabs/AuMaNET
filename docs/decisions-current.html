@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Current architecture decisions · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><h1 id="current-architecture-decisions">Current architecture decisions</h1>
+<p>Reviewed 7 November 2026. This register owns current decision status. Detailed investigations explain recommendations; agreement among reviewers is not owner acceptance or physical proof. <a href="capabilities.html">Capabilities</a> owns implementation status and <a href="delivery-plan.html">delivery</a> owns follow-up work.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Decision</th>
+<th>State and scope</th>
+<th>Evidence / next work</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ADR-0001</td>
+<td><a href="adr-0001.html">Product scope and hardware investigation baseline</a></td>
+<td>Accepted product scope and candidate investigation; production hardware open</td>
+<td>Discovery requirements; W01–W03, W11–W12</td>
+</tr>
+<tr>
+<td>ADR-0002</td>
+<td><a href="adr-0002.html">Shared UI and Android host</a></td>
+<td>Accepted SvelteKit/TypeScript/Leaflet direction; Capacitor prototype implemented, production host conditional</td>
+<td>EV-UI; W04, W06, W08</td>
+</tr>
+<tr>
+<td>ADR-0003</td>
+<td><a href="adr-0003.html">Autonomous transport and route ownership</a></td>
+<td>Proposed routed boundaries; radio/route-distribution/donor mechanisms open</td>
+<td>Architecture/network investigations; W01–W05, W10</td>
+</tr>
+<tr>
+<td>ADR-0004</td>
+<td><a href="adr-0004.html">Group identity and authorization</a></td>
+<td>Proposed; no release cryptographic protocol or authority policy selected</td>
+<td>Membership and security analysis; W06</td>
+</tr>
+<tr>
+<td>ADR-0005</td>
+<td><a href="adr-0005.html">Native voice and adaptive playout</a></td>
+<td>Proposed implementation; required voice semantics retained</td>
+<td>Voice requirements; W07, W10</td>
+</tr>
+<tr>
+<td>ADR-0006</td>
+<td><a href="adr-0006.html">Board-served web configuration and shared API</a></td>
+<td>Accepted design direction, 7 November 2026; implementation pending</td>
+<td>SW-16; W16, W06, W13; EV-CONFIG pending</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-1"><span id="recording-and-supersession">Recording and supersession</span></h2>
+<p>Use the next unused number. Include status/date, decision authority, context, decision, alternatives, evidence, consequences and reopening conditions. Accepted means the stated authority chose the stated scope; it does not mean the implementation passed. A proposal stays proposed until its decision is recorded. Never rewrite an old decision to hide a change: add a successor, mark the prior record superseded and update this index plus affected requirements/work.</p>
+<p>The Pi/Heltec decisions in <a href="decisions.html">the historical register</a> are superseded for the current product by ADR-0001. Earlier hotspot and networking proposals remain research; ADR-0003 identifies their current interpretation and the experiments that must settle alternatives. No production routing, phone transport, radio SDK, battery or security protocol is currently accepted.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../design/decisions/README.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

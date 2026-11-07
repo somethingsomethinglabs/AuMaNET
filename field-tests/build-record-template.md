@@ -1,3 +1,5 @@
+> **Historical baseline — superseded 6 November 2026.** This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the [current handbook](../docs/index.md) or [archive context](../docs/archive.md).
+
 # Build record
 
 Store a filled copy privately if it contains identifiable device, participant or location information. Do not record passwords or tokens here.

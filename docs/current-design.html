@@ -1,14 +1,17 @@
 <!doctype html>
-<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Current design: one place to check the baseline · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Current state</a></li><li><a href="#section-2">What stays in the product</a></li><li><a href="#section-3">External interfaces</a></li><li><a href="#section-4">Module boundaries</a></li><li><a href="#section-5">Prototype evidence still needed</a></li><li><a href="#section-6">Firmware and power evidence</a></li><li><a href="#section-7">Next hardware stage</a></li><li><a href="#section-8">Active cellular and top-panel revision 7</a></li></ol></details><h1>Current design: one place to check the baseline</h1>
+<html lang="en-AU" data-doc-status="archive"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Historical: Current design: one place to check the baseline · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><aside id="archive-notice" class="status"><strong>HISTORICAL · SUPERSEDED PI/HELTEC BASELINE</strong> · These choices and build steps do not apply to the current ESP32-S3/HaLow investigation. <a href="index.html">Current handbook</a> · <a href="archive.html">Archive context</a></aside><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Current state</a></li><li><a href="#section-2">What stays in the product</a></li><li><a href="#section-3">External interfaces</a></li><li><a href="#section-4">Module boundaries</a></li><li><a href="#section-5">Prototype evidence still needed</a></li><li><a href="#section-6">Firmware and power evidence</a></li><li><a href="#section-7">Next hardware stage</a></li><li><a href="#section-8">Active cellular and top-panel revision 7</a></li></ol></details><blockquote>
+<p><strong>Historical baseline — superseded 6 November 2026.</strong> This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the <a href="handbook.html">current handbook</a> or <a href="archive.html">archive context</a>.</p>
+</blockquote>
+<h1 id="current-design-one-place-to-check-the-baseline">Current design: one place to check the baseline</h1>
 <blockquote>
 <p><strong>Active power decision - 5 November 2026:</strong> battery pack, cell count, chemistry, charger, BMS and converter are <strong>TBD</strong>. Treat the battery assembly as a regulated <strong>5 V output, 3 A continuous minimum (15 W)</strong> module; 5 A / 25 W is a preferred headroom option, not a requirement already met. This is a nominal regulated voltage, not permission to exceed Pi voltage limits. Measure at the Pi under load. Earlier battery architectures below are archived options, not the active build. USB-C charging remains a reserved interface; its protocol and charge-and-run behaviour await the battery choice.</p>
 </blockquote>
 <p>Updated 5 November 2026. This page describes the active design. Earlier entries in the decision history record what changed; they are not alternative assembly instructions.</p>
-<h2 id="section-1">Current state</h2>
+<h2 id="section-1"><span id="current-state">Current state</span></h2>
 <p><strong>Design prototype. Not ready for a full purchase or field reliance.</strong> No complete AliExpress bill of materials, adapted enclosure, tested battery assembly or firmware recipe has been released. There is no guaranteed range or weather rating.</p>
-<h2 id="section-2">What stays in the product</h2>
+<h2 id="section-2"><span id="what-stays-in-the-product">What stays in the product</span></h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -58,7 +61,7 @@
 <td>Exact matching listings required; manufacturer pages are technical references</td>
 </tr>
 </tbody></table></div>
-<h2 id="section-3">External interfaces</h2>
+<h2 id="section-3"><span id="external-interfaces">External interfaces</span></h2>
 <ul>
 <li><p><strong>C1 — CHARGE:</strong> USB-C into the battery charging/power system.</p>
 </li>
@@ -78,7 +81,7 @@
 </li>
 </ul>
 <p>The removed USB service console, third USB-C and 12 V barrel input are not in the active BOM. Optional headset/PTT remains blanked until its pinout and electronics are chosen.</p>
-<h2 id="section-4">Module boundaries</h2>
+<h2 id="section-4"><span id="module-boundaries">Module boundaries</span></h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -119,7 +122,7 @@
 </tr>
 </tbody></table></div>
 <p>These are interface requirements, not released connector pinouts. Connector part numbers and keyed harness drawings are required before a builder-facing wiring release.</p>
-<h2 id="section-5">Prototype evidence still needed</h2>
+<h2 id="section-5"><span id="prototype-evidence-still-needed">Prototype evidence still needed</span></h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -179,11 +182,11 @@
 <td>Equipment/profile review for the chosen occupied channel and antenna</td>
 </tr>
 </tbody></table></div>
-<h2 id="section-6">Firmware and power evidence</h2>
+<h2 id="section-6"><span id="firmware-and-power-evidence">Firmware and power evidence</span></h2>
 <p>The downloaded OpenMANET 1.8.0 SPI image has a confirmed GPIO mapping mismatch with the Heltec HAT. The firmware review includes exact image/overlay hashes and a review-only adaptation tool. It is not a tested build image. See <a href="firmware-review.html">firmware review</a> and <a href="power-review.html">power selection review</a>.</p>
-<h2 id="section-7">Next hardware stage</h2>
+<h2 id="section-7"><span id="next-hardware-stage">Next hardware stage</span></h2>
 <p>See <a href="operating-hardware.html">operating hardware and community comparison</a> and the <a href="parts.html">BOM</a>. Freeze the compute/radio stack, GNSS receiver harness, RF pigtail, cooling and top-panel interfaces before enclosure CAD. Battery selection is deferred behind its regulated 5 V interface.</p>
-<h2 id="section-8">Active cellular and top-panel revision 7</h2>
+<h2 id="section-8"><span id="active-cellular-and-top-panel-revision-7">Active cellular and top-panel revision 7</span></h2>
 <p>The user now includes a <strong>Sierra EM7430 on a USB WWAN adapter</strong> as the cellular/GNSS candidate. It is not a PCIe data connection to the Pi: the adapter carries USB, SIM and module power. Internet uplink is the purpose; native carrier calls and SMS features are outside this project&#39;s scope. Exact adapter, firmware, carrier operation, GNSS output and power remain verification items.</p>
 <p><img src="assets/top-panel.svg" alt="Top view with HaLow, LTE main, LTE auxiliary and GNSS positions"></p>
 <div class="table-wrap"><table>
@@ -235,4 +238,4 @@
 <p>Corner placement maximises available separation within this concept, but proves no RF isolation. Test GNSS acquisition/fix retention during LTE uplink and HaLow traffic, LTE signal/throughput with both elements, and local Wi-Fi. The 120 x 95 mm cap is still a provisional envelope: check seven interface bodies, caps, nuts, fingers, gasket and cable bends before freezing CAD. Resize if necessary; no hole coordinates or drilling diameters are released. Power button/PTT blank remain on the upper side and status windows remain near the top shoulder.</p>
 <p><strong>GNSS replacement:</strong> EM7430 GNSS is the integrated candidate; LC76G becomes a fallback. Confirm position data over USB and operation without a SIM or cellular service before removing the separate receiver from the build. Verify selected image modem drivers, routing/failover to cellular without breaking local mesh, SIM/APN, reconnection, power/thermal peaks and antenna coexistence. Battery internals remain TBD behind the regulated 5 V supply boundary; the previous 15 W minimum is not proof of sufficient capacity with LTE.</p>
 <p>Technical source: <a href="https://source.sierrawireless.com/resources/airprime/minicard/74xx/airprime_em7430_product_technical_specification">Sierra EM7430 hardware specification</a>. These are concept positions, not final electrical wiring or fabrication drawings.</p>
-</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="current-design.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

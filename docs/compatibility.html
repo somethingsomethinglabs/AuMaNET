@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Hardware and phone compatibility · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Node and mechanical configurations</a></li><li><a href="#section-2">Phone and runtime configurations</a></li><li><a href="#section-3">Promotion rules</a></li></ol></details><h1 id="hardware-and-phone-compatibility">Hardware and phone compatibility</h1>
+<p>Reviewed 6 November 2026. <strong>No physical node/phone combination is release supported or recorded as passing current-baseline physical tests.</strong> This matrix owns compatibility claims. Sources describe candidates; tests establish support. Exact revisions remain unknown unless recorded below.</p>
+<h2 id="section-1"><span id="node-and-mechanical-configurations">Node and mechanical configurations</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Exact candidate / known revision</th>
+<th>SDK / regional state</th>
+<th>Demonstrated scope</th>
+<th>Missing evidence / work</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HW-01</td>
+<td>Plain Seeed XIAO ESP32-S3, SKU 113991114 + XIAO HaLow carrier SKU 109100041, advertised Quectel FGH100M-H; ordered, receipt/quantity/received revisions unknown</td>
+<td>No selected immutable SDK/toolchain/BCF; Australian suitability unresolved</td>
+<td>Manufacturer CAD reference only, EV-MECHANICAL</td>
+<td>W01 pins/rails/headers/region/build; W02–W03 actual transport and multi-hop</td>
+</tr>
+<tr>
+<td>HW-02</td>
+<td>HW-01 plus Core CE09458 HaLow antenna and appropriate S3 2.4 GHz antenna; optional SparkFun WRL-18086</td>
+<td>Exact mating connector, antenna approval conditions and regional settings unresolved</td>
+<td>Candidate specifications in <a href="discovery.html">discovery</a></td>
+<td>W01 connector inspection; W11–W12 enclosure placement and measured RF performance</td>
+</tr>
+<tr>
+<td>HW-03</td>
+<td>S3/HaLow prototype cradle; optional second cradle includes Pi Zero footprint</td>
+<td>No battery/charger/power-path assembly approved; optional Pi supplies no established network function</td>
+<td>EV-PRINT geometry and slicability</td>
+<td>W11 received-board fit, shell retention, connector/battery/thermal checks; no IP rating established</td>
+</tr>
+<tr>
+<td>HW-04</td>
+<td>Linux/OpenWrt HaLow reference platform; exact board/radio not selected</td>
+<td>Separate supported driver/region/build must be pinned</td>
+<td>Architecture comparison only</td>
+<td>W01–W03 reference trials when equipment exists; cost/runtime not passed</td>
+</tr>
+<tr>
+<td>HW-HISTORY</td>
+<td>Pi 4B + Heltec HC01P V2/HAT, OpenMANET image investigations</td>
+<td>Superseded baseline; historical GPIO/BCF and power conflicts remain historical evidence</td>
+<td>Earlier image inspection, not a working current kit</td>
+<td>Consult <a href="archive.html">archive</a>; never infer compatibility with HW-01</td>
+</tr>
+</tbody></table></div>
+<p>Manufacturer CAD model revisions and hashes are in the <a href="board-reference.html">board reference pack</a>. A model filename is not the received PCB revision. Do not silently substitute Sense, Plus, C6 or another carrier.</p>
+<h2 id="section-2"><span id="phone-and-runtime-configurations">Phone and runtime configurations</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Device / runtime / app</th>
+<th>Tested scope</th>
+<th>Untested or unsupported scope</th>
+<th>Next evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PH-EMU</td>
+<td>Android 16 / API 36 emulator; <code>au.aumanet.app</code> debug shell (Android versionName 0.1.0/versionCode 1); Capacitor dependencies resolved through root lockfile</td>
+<td>Recorded UI/navigation/Back and airplane-mode cold-start checks, EV-UI</td>
+<td>Physical networking/audio/location, durable native services, phone battery and radio acceptance</td>
+<td>W04/W06 physical devices; pin source/build checksum on rerun</td>
+</tr>
+<tr>
+<td>PH-WEB</td>
+<td>Chromium via project Playwright; SvelteKit UI, Leaflet 2.0.0-beta.1</td>
+<td>Recorded sample-data UI at phone/desktop viewports, EV-UI</td>
+<td>Device-specific mic/GPS, Getlost maps, donor/consumer internet</td>
+<td>W07–W09; record exact Chromium revision on rerun</td>
+</tr>
+<tr>
+<td>PH-ANDROID-A</td>
+<td>Required physical Android model A — not yet nominated; OS/build unknown</td>
+<td>Not run</td>
+<td>Every real phone capability remains unverified</td>
+<td>W04 transport/role comparison, W06 lifecycle, W07 audio/routes</td>
+</tr>
+<tr>
+<td>PH-ANDROID-B</td>
+<td>Required physical Android model B, including low/mid-range coverage — not nominated</td>
+<td>Not run</td>
+<td>OEM hotspot/VPN/background behaviour cannot be inferred from API level</td>
+<td>Same tests as A; record headset/USB/Bluetooth routes separately</td>
+</tr>
+<tr>
+<td>PH-IOS</td>
+<td>Optional iPhone model/OS not nominated</td>
+<td>Not run; non-blocking</td>
+<td>Donation/reception, entitlements and background operation unresolved</td>
+<td>W14 separate experiments</td>
+</tr>
+</tbody></table></div>
+<p>The app&#39;s minimum/target SDK settings describe packaging intent, not tested-device coverage. Dependency version ranges describe source manifests; use the root lockfile and built APK hash to identify a test. Existing reports do not pin every runtime binary revision, so no broader compatibility is inferred.</p>
+<h2 id="section-3"><span id="promotion-rules">Promotion rules</span></h2>
+<p>Add one row per exact tested hardware + firmware + phone/OS combination or explicitly scoped family with supporting evidence. Record pass/fail/not run per transport, offline services, donor, consumer, screen-off, audio route and recovery. Link a dated experiment result and affected requirements. A firmware, BCF, board, OS or antenna change reopens affected acceptance checks. Release support additionally requires W13 provisioning, reproducibility and recovery; a successful bench link alone is insufficient.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="compatibility.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Architecture roundtable: recommendation and decision gates · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Joint recommendation</a></li><li><a href="#section-2">The room and what changed</a></li><li><a href="#section-3">Responsibility diagram</a></li><li><a href="#section-4">Alternatives considered</a></li><li><a href="#section-5">Radio and routing: choose the transport before the algorithm</a></li><li><a href="#section-6">Android: compare three wireless paths before selection</a></li><li><a href="#section-7">Optional internet connection between partitions</a></li><li><a href="#section-8">Services, security and performance</a></li><li><a href="#section-9">Execution order and decision record</a></li></ol></details><h1 id="architecture-roundtable-recommendation-and-decision-gates">Architecture roundtable: recommendation and decision gates</h1>
+<blockquote>
+<p>Planning authority: the <a href="delivery-plan.html">delivery register</a> owns execution order and status; <a href="decisions-current.html">current decisions</a> records accepted scope versus proposals, and <a href="requirements-traceability.html">requirement coverage</a> links tests/results. Sequences below are experiment detail. See <a href="capabilities.html">capabilities</a> for implemented versus simulated behaviour.</p>
+</blockquote>
+<p>6 November 2026. Five specialist agents reviewed the repository, researched primary sources and challenged peer positions in two rounds, coordinated by the main agent. Due to session capacity, reviewers rotated through three concurrent slots. This is a design recommendation, not measured hardware acceptance.</p>
+<h2 id="section-1"><span id="joint-recommendation">Joint recommendation</span></h2>
+<p>Build an offline-first routed service network: native Android services own applications and phone networking; nodes own autonomous forwarding; HaLow supplies the node transport only where its exact driver supports the required topology. Prefer per-node phone LANs, explicit route ownership and authorized internet donors. Add optional internet transport between radio partitions without making local operation depend on servers.</p>
+<p>The most credible functional reference is supported Linux/OpenWrt HaLow mesh. The ESP32-S3/XIAO path remains a bounded feasibility experiment. Neither is approved production hardware: no evidence establishes the complete arbitrary mobile mesh, A$45–75 basic-node budget and 48-hour continuous-runtime combination. This is the principal unresolved conflict, not a detail an algorithm can fix.</p>
+<p>Do not silently return to the historical Pi build, substitute a rooted repeater tree for the intended mesh, or remove simultaneous voice to obtain an apparent pass. Hardware changes or requirement tradeoffs need an explicit owner decision after evidence.</p>
+<h2 id="section-2"><span id="the-room-and-what-changed">The room and what changed</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Specialist</th>
+<th>Initial position / challenge</th>
+<th>Outcome after peer review</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Radio architecture</td>
+<td>MCU topology is the blocker; newer relay support makes station-only assumptions outdated</td>
+<td>Linux mesh reference; exact-version MCU spike; no production hardware commitment</td>
+</tr>
+<tr>
+<td>Android architecture</td>
+<td>Hotspot is useful, native permanent attachment has better UX</td>
+<td>Added hotspot-host reverse VPN as a genuine competing experiment; switching is fallback, not a proven necessity</td>
+</tr>
+<tr>
+<td>Routing architecture</td>
+<td>Prefer L3 boundaries and investigate Babel</td>
+<td>Revised: no automatic Babel layer over an existing mesh; distinguish radio paths from LAN-prefix distribution</td>
+</tr>
+<tr>
+<td>Security architecture</td>
+<td>Membership, route ownership and donor rights must be distinct</td>
+<td>Offline identities and authorized prefixes required; shared group authentication alone is insufficient</td>
+</tr>
+<tr>
+<td>Systems/voice/power</td>
+<td>Implementation must preserve voice and budget/runtime requirements</td>
+<td>Derived airtime/energy checks; Linux is a reference rather than a budget pass; OpenMANET is not turnkey multi-donor support</td>
+</tr>
+</tbody></table></div>
+<p>All five support these boundaries. Their agreement is conditional on experiments, not a claim that untested hardware or Android behaviour has been resolved. Radio explicitly withholds hardware endorsement; routing leaves production prefix-distribution selection open; Android leaves the donor mechanism open; security requires route authorization and lifecycle tests; systems withholds cost/runtime endorsement.</p>
+<p>The discussions corrected three earlier assumptions: L3 alone cannot create missing radio peers; hotspot reversal may be achievable through a custom VPN rather than a Wi-Fi role change; a Linux mesh image does not automatically implement multiple donating phones.</p>
+<h2 id="section-3"><span id="responsibility-diagram">Responsibility diagram</span></h2>
+<pre><code class="language-mermaid">flowchart TB
+    UI[SvelteKit UI and shared TypeScript models]
+    Native[Native Android services: audio, location, identity, connectivity]
+    LAN[Ordinary Wi-Fi: phone and local node LAN]
+    Node[Autonomous node: forwarding, route policy, bounded queues]
+    Radio[Supported HaLow transport and one mesh forwarding authority]
+    Remote[Other nodes and their phone LANs]
+    Donor[Authorized donor: independently verified cellular egress]
+    UI &lt;--&gt; Native
+    Native &lt;--&gt; LAN
+    LAN &lt;--&gt; Node
+    Node &lt;--&gt; Radio
+    Radio &lt;--&gt; Remote
+    Node -. optional internet path .-&gt; Donor
+</code></pre>
+<p>UI/WebView suspension must not terminate native joined sessions. Phone departure must not terminate node transit forwarding. Internet loss must not terminate connected local-group functions. A phone-hosted donor or internet tunnel necessarily disappears when that phone leaves; withdraw those routes separately from radio routes.</p>
+<h2 id="section-4"><span id="alternatives-considered">Alternatives considered</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Architecture</th>
+<th>Attraction</th>
+<th>Material limitation</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ESP + HaLow S1G relay</td>
+<td>Current small low-cost candidate; vendor relay functionality exists</td>
+<td>Alpha rooted topology and unproven exact ESP integration; not arbitrary MANET</td>
+<td>Bounded spike only</td>
+</tr>
+<tr>
+<td>Linux/OpenWrt + supported HaLow 802.11s</td>
+<td>Strongest existing path to genuine autonomous mesh</td>
+<td>Complete cost, size and continuous energy unproven</td>
+<td>Functional reference; possible platform branch after measurement</td>
+</tr>
+<tr>
+<td>Flat LAN over batman-adv</td>
+<td>Distributed-switch experience and established Linux implementation</td>
+<td>Linux kernel dependency; broadcast, DHCP and partition handling</td>
+<td>Benchmark alternative, not MCU assumption</td>
+</tr>
+<tr>
+<td>Routed per-node LANs</td>
+<td>Local DHCP survives isolation; confines broadcast; explicit policy</td>
+<td>Must distribute remote LAN routes; roaming changes local IP</td>
+<td>Preferred product boundary</td>
+</tr>
+<tr>
+<td>Phone-led internet-only network</td>
+<td>Can reconnect groups outside radio range</td>
+<td>External coverage and active phones required; fails autonomous off-grid relay requirement</td>
+<td>Optional additional transport</td>
+</tr>
+<tr>
+<td>LoRa replacement</td>
+<td>Attractive for small telemetry payloads</td>
+<td>Not a like-for-like carrier for required simultaneous voice and general IP</td>
+<td>No replacement recommendation</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-5"><span id="radio-and-routing-choose-the-transport-before-the-algorithm">Radio and routing: choose the transport before the algorithm</span></h2>
+<p>Current vendor documentation describes S1G Relay roots, stations and repeaters and warns the API is alpha. Vendor discussion distinguishes this directed topology from Linux mesh. Do not infer complete MCU mesh from the existence of a relay example. <a href="https://morsemicro.github.io/mm-iot-sdk/framework/doc/html/group__MMWLAN__RELAY.html">Relay API</a>, <a href="https://community.morsemicro.com/t/mesh-network-with-mm8108-ekh05/1155">vendor topology explanation</a>.</p>
+<p>The official ESP HaLow component <code>2.11.2-esp32-2</code> lists S3/MM6108 testing and AP/STA examples. Its dual-interface example refers to ordinary ESP SoftAP plus HaLow station; this is not evidence of concurrent HaLow mesh peers. Exact XIAO pins, BCF, SDK integration and permitted regional configuration remain separate gates. Pin an immutable source revision and compare the official component against Seeed&#39;s fork rather than assume the newest full MCU SDK is integrated. <a href="https://components.espressif.com/components/morsemicro/halow/versions/2.11.2-esp32-2/readme?language=en">ESP component</a>.</p>
+<pre><code class="language-mermaid">flowchart TD
+    Audit[Exact board and SDK transport audit] --&gt; Peers{Required peer topology demonstrated?}
+    Peers --&gt;|Yes| Routed[Test routed client traffic and recovery]
+    Peers --&gt;|Only rooted relay| Tree[Research tree branch; does not pass MANET requirement]
+    Peers --&gt;|No| Stop[Stop indefinite porting; evaluate supported platform]
+    Linux[Supported Linux HaLow reference] --&gt; Underlay{Choose one forwarding mechanism}
+    Underlay --&gt; HWMP[Native 802.11s HWMP]
+    Underlay --&gt; Batman[802.11s peering plus batman-adv; native forwarding off]
+    HWMP --&gt; Prefix[Explicit remote phone-LAN route distribution]
+    Batman --&gt; Prefix
+    Routed --&gt; Prefix
+</code></pre>
+<p>For a fixed laboratory pilot, explicit static LAN routes isolate forwarding from discovery. They are not the production mobility solution. In production, remote per-node prefixes require an existing routing implementation or another explicitly specified route-distribution mechanism. An L2 mesh does not supply those routes automatically.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Algorithm/technology</th>
+<th>Where it is useful</th>
+<th>Why not adopt unconditionally</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HWMP</td>
+<td>Native supported Linux 802.11s path forwarding</td>
+<td>Driver/radio support and topology recovery need tests</td>
+</tr>
+<tr>
+<td>batman-adv</td>
+<td>Established Linux L2 mesh path system</td>
+<td>Do not simultaneously enable an independent native mesh forwarding authority</td>
+</tr>
+<tr>
+<td>Babel</td>
+<td>Leading L3 evaluation for independent neighbour/tunnel links or needed prefix distribution</td>
+<td>A <code>babeld</code> Linux implementation is not an ESP port; avoid redundant path selection</td>
+</tr>
+<tr>
+<td>OLSRv2</td>
+<td>Proactive MANET alternative</td>
+<td>More topology/MPR machinery than initially needed for 2–5 nodes</td>
+</tr>
+<tr>
+<td>AODV</td>
+<td>On-demand route discovery</td>
+<td>Discovery/repair latency is unattractive for ongoing voice</td>
+</tr>
+<tr>
+<td>RPL</td>
+<td>Rooted constrained IPv6 LLNs</td>
+<td>Poorer default fit for mobile any-to-any voice and changing internet donors</td>
+</tr>
+</tbody></table></div>
+<p>Babel&#39;s sequence/feasibility mechanisms make it preferable to inventing a new distance-vector protocol if L3 dynamic routing is needed. Authenticate and authorize routes separately. Do not stack HWMP forwarding, BATMAN path selection and Babel without explaining which distinct problem each layer solves. <a href="https://www.rfc-editor.org/rfc/rfc8966.html">Babel</a>, <a href="https://www.rfc-editor.org/rfc/rfc7181.html">OLSRv2</a>, <a href="https://www.rfc-editor.org/rfc/rfc3561.html">AODV</a>, <a href="https://www.rfc-editor.org/rfc/rfc6550.html">RPL</a>, <a href="https://wireless.docs.kernel.org/en/latest/en/developers/documentation/ieee80211/802.11s.html">Linux 802.11s</a>.</p>
+<h2 id="section-6"><span id="android-compare-three-wireless-paths-before-selection">Android: compare three wireless paths before selection</span></h2>
+<p>Preferred UX: phone stays on the node AP, native Android code holds separate local-Wi-Fi and cellular sockets, and a userspace forwarding service donates cellular. This still requires a real TCP/UDP return-path implementation. An app HTTP proxy cannot meet all-app connectivity by itself.</p>
+<p>Conventional hotspot donation is the fallback baseline. A new challenger is to retain the phone hotspot and receive via a VPN over its existing downstream-node link. This could avoid Wi-Fi switching, but is unproven. Android&#39;s VPN primitives and USB reverse-tethering projects establish useful mechanisms, not this hotspot topology. <a href="https://developer.android.com/develop/connectivity/vpn">Android VPN</a>, <a href="https://developer.android.com/reference/android/net/Network">network-specific sockets</a>, <a href="https://github.com/Genymobile/gnirehtet">Gnirehtet reference</a>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Experiment</th>
+<th>Donation</th>
+<th>Reception after cellular loss</th>
+<th>Critical gate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Permanent node AP</td>
+<td>Native app forwards to cellular-bound sockets</td>
+<td>Ordinary node Wi-Fi or explicit consumer VPN</td>
+<td>Userspace forwarding/lifecycle, DNS/TCP/UDP, weak cellular</td>
+</tr>
+<tr>
+<td>Conventional phone hotspot</td>
+<td>Android tethering</td>
+<td>Hotspot off, phone joins node AP</td>
+<td>Actual user actions, reconnection and phone restrictions</td>
+</tr>
+<tr>
+<td>Phone hotspot plus reverse VPN</td>
+<td>Android tethering while cellular works</td>
+<td>Phone TUN -&gt; protected local tunnel -&gt; downstream node -&gt; remote donor</td>
+<td>Hotspot persists offline; app reaches node; tunnel avoids recursion; donor route withdrawn</td>
+</tr>
+</tbody></table></div>
+<p>The reverse-VPN proposal covers routable application traffic in the supported Android user/profile, subject to documented VPN exclusions and platform restrictions. Do not infer coverage of every system/work-profile flow or that Android also routes tethered clients through it. A consumer VPN occupies the user&#39;s VPN slot and can conflict with another VPN. Preserve a documented Wi-Fi-switch fallback where feasible. Do not require universal phone AP/STA concurrency.</p>
+<p>Time-box each path and test Pixel, Samsung A-series and another midrange model, with exact build/carrier records. Native service ownership, consent, network-scoped DNS, screen-off recovery, force-stop, quotas and phone energy are part of the decision, not polish after selection. Packet-to-socket libraries such as Hev/Sockstun are audit candidates only; Gnirehtet is an unmaintained reference, not a selected production dependency.</p>
+<p>Begin Android testing on a controllable Linux AP/router with a separate uplink, so Android failures are isolated from HaLow uncertainty. First prove local access and ordinary all-app reception; then remove the uplink and verify local access survives. Record supported IP protocols and platform exceptions explicitly: DNS/TCP/UDP/QUIC success is useful evidence, not proof of arbitrary-IP transparency. Audit candidate packet-to-socket code at an exact revision before reuse: <a href="https://github.com/heiher/hev-socks5-tunnel/blob/main/Android.mk">Hev Android build</a>, <a href="https://github.com/heiher/sockstun">Sockstun</a>.</p>
+<h2 id="section-7"><span id="optional-internet-connection-between-partitions">Optional internet connection between partitions</span></h2>
+<pre><code class="language-mermaid">flowchart LR
+    A[Radio group A] &lt;--&gt; PA[Authorized phone agent A]
+    PA &lt;--&gt; IA[Independent internet A]
+    IA &lt;--&gt; Relay[Authenticated rendezvous or relay]
+    Relay &lt;--&gt; IB[Independent internet B]
+    IB &lt;--&gt; PB[Authorized phone agent B]
+    PB &lt;--&gt; B[Radio group B]
+</code></pre>
+<p>Start with encrypted app messages/location/voice and stable identities across both transports. Add generic node-prefix tunneling only as its own deliverable: an app fallback does not rejoin all nodes at IP level. Use outbound connections and relay fallback for restrictive NATs. WebRTC ICE/TURN is a media/data candidate; WireGuard is a routed encryption candidate on a capable platform, not a discovery/relay/membership system or proven ESP dependency. <a href="https://webrtc.org/getting-started/turn-server">TURN</a>, <a href="https://www.wireguard.com/protocol/">WireGuard</a>.</p>
+<p>Both sides require an independent working internet path. Bind underlay sockets accordingly; never use the tunnel-supplied mesh default to maintain that same tunnel. Allow only authorized remote prefixes, expire phone-agent routes and deduplicate messages when radio returns. Local offline startup must not need the relay, cloud credentials or runtime downloads.</p>
+<h2 id="section-8"><span id="services-security-and-performance">Services, security and performance</span></h2>
+<ul>
+<li>Native Opus/WebRTC APM/NetEq remains the first voice candidate, with local authenticated signalling and phone-side mixing. Adaptive buffering, time stretching, concealment and DTX/FEC require measurements. Keep simultaneous speakers; no implicit single-speaker floor. <a href="voice-audio-plan.html">Voice plan</a>.</li>
+<li>Bounded fair queues and bulk shaping protect control and voice. Evaluate FQ-CoDel on Linux; do not assume its kernel implementation is an MCU library. Gateway choice uses verified reachability, expiry, hysteresis and flow affinity, not cellular bars alone. <a href="https://www.rfc-editor.org/rfc/rfc8290.html">FQ-CoDel</a>.</li>
+<li>Keep individual identities, group admission, owned prefixes, donor permission and consumer permission distinct. A shared authenticated routing key does not authorize a member to inject arbitrary routes. Babel MAC protects routing authentication/replay, not payload confidentiality. Use reviewed libraries, Android Keystore and explicit partition/rekey policy. Immediate global revocation during partitions is impossible. <a href="https://www.rfc-editor.org/rfc/rfc8967.html">Babel authentication</a>, <a href="https://www.rfc-editor.org/rfc/rfc9467.html">reordering update</a>, <a href="https://developer.android.com/privacy-and-security/keystore">Android Keystore</a>.</li>
+<li>OpenMANET is a reference, not a complete AuMaNET solution: its documented current internet-gate limit does not implement multiple dynamic donating phones. Preserve custom donor selection as explicit work. <a href="https://openmanet.github.io/docs/networking">OpenMANET networking</a>.</li>
+</ul>
+<p>Derived capacity sanity check, not a measurement: the existing voice plan&#39;s illustrative 46.4 kbit/s directed stream on a five-node chain produces 40 ordered hop traversals for five simultaneous all-to-all talkers: about 1.856 Mbit/s aggregate hop-transmission load before MAC/retries/FEC. Two endpoint talkers produce 20 traversals, about 928 kbit/s. Spatial reuse and contention determine actual capacity; do not compare aggregate hop load directly to one link&#39;s headline PHY rate. Start with pairwise media, then evaluate an SFU/mixer only if measured savings justify its coordinator/failure dependency.</p>
+<p>Derived energy sanity check: at an illustrative combined usable-energy/conversion factor of 0.8, nominal energy for 48 hours is <code>average watts × 48 / 0.8</code>. Thus 0.5 W requires 30 Wh, 1 W requires 60 Wh, and 2 W requires 120 Wh. These are scenarios, not predictions for either platform. Measure phone energy separately. No complete priced BOM or runtime result was produced by this roundtable.</p>
+<h2 id="section-9"><span id="execution-order-and-decision-record">Execution order and decision record</span></h2>
+<p>Proposed time limits are engineering work budgets, not scheduled unattended jobs or delivery promises.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Gate / work budget</th>
+<th>Evidence to collect</th>
+<th>Decision on failure</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Exact MCU integration audit: one engineering day</td>
+<td>Immutable SDK/component revisions, pins/BCF/region, source/licence availability and supported modes</td>
+<td>Stop speculative porting; document missing vendor support</td>
+</tr>
+<tr>
+<td>Direct transport spike: two engineering days after toolchain works</td>
+<td>Two nodes plus local phone APs; sustained bidirectional traffic, packet sizes, RAM, power</td>
+<td>Correct board integration or evaluate another supported platform</td>
+</tr>
+<tr>
+<td>Three-node topology spike: three engineering days</td>
+<td>No A-C radio path; B phone-free; both-direction phone traffic; root loss, partition and merge</td>
+<td>Tree result remains research; full mesh requirement stays unmet</td>
+</tr>
+<tr>
+<td>Linux reference: same topology tests when suitable equipment is available</td>
+<td>One supported forwarding stack, route distribution, measured recovery and baseline energy</td>
+<td>Investigate exact driver/platform; do not claim reference pass</td>
+</tr>
+<tr>
+<td>Android comparison: two engineering days per path on available phones</td>
+<td>Complete DNS/TCP/UDP return path, cellular loss/recovery, locked screen and actual role-switch UX</td>
+<td>Choose only demonstrated modes; expand implementation budget explicitly</td>
+</tr>
+<tr>
+<td>Combined 2–5-node trial</td>
+<td>Mixed voice/location/messages/shaped internet; donor swap; loops/MTU/security/resource limits</td>
+<td>Profile bottleneck; no silent semantics reduction</td>
+</tr>
+<tr>
+<td>Hardware selection gate</td>
+<td>Itemized A$45–75 complete basic-node BOM and measured energy model; then actual 48-hour battery run</td>
+<td>Present explicit cost/runtime/topology tradeoff for owner decision</td>
+</tr>
+</tbody></table></div>
+<p>Two physical nodes can begin direct-link work; a third is indispensable for multi-hop acceptance. If equipment is unavailable, record the gate as not run, not failed. No purchase, firmware deployment or radio transmission was performed during this review.</p>
+<p>The immediate recommendation is to run the radio capability and Android comparison spikes before building production routing or donation code. Implementation should reuse supported radio forwarding, established routing where needed, native media and cryptographic libraries; AuMaNET supplies product policy, identity binding, offline workflows and diagnostics.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../design/architecture-roundtable.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

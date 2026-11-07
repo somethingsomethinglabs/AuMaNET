@@ -1,3 +1,5 @@
+> **Historical baseline — superseded 6 November 2026.** This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the [current handbook](docs/index.md) or [archive context](docs/archive.md).
+
 # AuMaNET
 
 > **Project reset — 6 November 2026.** The Pi/Heltec design below is superseded. The new direction is custom ESP32-S3 + XIAO HaLow firmware with a companion phone app, automatic multi-hop networking and shared phone internet. Hardware and mobile OS feasibility remain unproven. Start with [discovery](discovery/README.md), then [design](design/README.md), [development](dev/README.md) and [deployment](deploy/README.md). Older files are retained temporarily to preserve existing work and are not current requirements.

@@ -1,11 +1,14 @@
 <!doctype html>
-<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Operating hardware: next build stage · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Power boundary: battery deliberately deferred</a></li><li><a href="#section-2">Reference builds and what to take from them</a></li><li><a href="#section-3">One-node operating BOM and connections</a></li><li><a href="#section-4">Freeze these decisions next, in order</a></li><li><a href="#section-5">Active cellular and top-panel revision 7</a></li></ol></details><h1>Operating hardware: next build stage</h1>
+<html lang="en-AU" data-doc-status="archive"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Historical: Operating hardware: next build stage · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><aside id="archive-notice" class="status"><strong>HISTORICAL · SUPERSEDED PI/HELTEC BASELINE</strong> · These choices and build steps do not apply to the current ESP32-S3/HaLow investigation. <a href="index.html">Current handbook</a> · <a href="archive.html">Archive context</a></aside><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Power boundary: battery deliberately deferred</a></li><li><a href="#section-2">Reference builds and what to take from them</a></li><li><a href="#section-3">One-node operating BOM and connections</a></li><li><a href="#section-4">Freeze these decisions next, in order</a></li><li><a href="#section-5">Active cellular and top-panel revision 7</a></li></ol></details><blockquote>
+<p><strong>Historical baseline — superseded 6 November 2026.</strong> This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the <a href="handbook.html">current handbook</a> or <a href="archive.html">archive context</a>.</p>
+</blockquote>
+<h1 id="operating-hardware-next-build-stage">Operating hardware: next build stage</h1>
 <p>Reviewed 5 November 2026. One-node BOM: <a href="parts.html">parts register</a>, with <a href="../hardware/bom.csv">CSV download</a>. Purchasing remains AliExpress-only. Manufacturer/community links below are engineering references, not verified matching shopping listings. No unverified device is labelled compatible solely because its chip family matches.</p>
-<h2 id="section-1">Power boundary: battery deliberately deferred</h2>
+<h2 id="section-1"><span id="power-boundary-battery-deliberately-deferred">Power boundary: battery deliberately deferred</span></h2>
 <p>Battery cell format, count, capacity, charging and regulation are TBD. Supply regulated 5 V at <strong>3 A continuous minimum / 15 W</strong>, with <strong>5 A / 25 W</strong> an optional headroom target. Do not apply raw battery voltage or negotiate a higher voltage into Pi power. A larger supply rating does not force more current into the Pi, nor raise the Pi&#39;s USB peripheral limit. The <a href="https://datasheets.raspberrypi.com/rpi4/raspberry-pi-4-datasheet.pdf">Pi4 manufacturer datasheet</a> calls for a good-quality 5 V / 3 A supply; this is not proof that our fully populated node fits 15 W. Measure boot, transmitting radio, GNSS and accessory peaks together before freezing that budget. Runtime and final battery-base dimensions remain TBD.</p>
-<h2 id="section-2">Reference builds and what to take from them</h2>
+<h2 id="section-2"><span id="reference-builds-and-what-to-take-from-them">Reference builds and what to take from them</span></h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -36,7 +39,7 @@
 </tr>
 </tbody></table></div>
 <p>The likely Data Slayer reference is <a href="https://www.youtube.com/watch?v=ofR7GFNZzJY">I Built a $20,000 Military Router for $106.23</a>, associated with Haven. The video page was located, but a usable transcript/frame inspection was not available during this review. Hardware findings above come from the public project documentation, not an asserted frame-by-frame video BOM. The headline price and military comparison are not a delivered cost or performance specification for AuMaNET. The Haven case is linked from its project; check the actual CAD release and licence before reuse. No new upstream CAD is copied here.</p>
-<h2 id="section-3">One-node operating BOM and connections</h2>
+<h2 id="section-3"><span id="one-node-operating-bom-and-connections">One-node operating BOM and connections</span></h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -139,7 +142,7 @@
 </tbody></table></div>
 <p>A GNSS <strong>antenna is not a receiver</strong>. The LC76G converts satellite signals into UART position data; the HAT&#39;s exposed UART carries that data to the Pi. No direct GNSS-antenna-to-UART connection is possible.</p>
 <p>Use the <a href="antennas.html">existing antenna detail</a> for the two interchangeable RF kits. No camera, screen, LoRa sidecar, extra MIMO antennas or dedicated audio socket is required for the initial voice/data node. Use phone audio first; trial a digital USB headset later through the accessory port. Retain the blanked headset/PTT position.</p>
-<h2 id="section-4">Freeze these decisions next, in order</h2>
+<h2 id="section-4"><span id="freeze-these-decisions-next-in-order">Freeze these decisions next, in order</span></h2>
 <ol>
 <li><strong>Core compatibility bench:</strong> one Pi4 + exact Heltec bundle + microSD on a known supply. Resolve the already documented GPIO overlay/calibration mismatch before calling the firmware recipe ready. Then verify a second node can exchange IP traffic.</li>
 <li><strong>GNSS and antenna harness:</strong> obtain receiver dimensions/pinout and actual radio socket identification; fix connector part numbers, cable lengths and power draw. Verify GNSS outdoors and compare node position with phone position.</li>
@@ -149,7 +152,7 @@
 <li><strong>Release mechanical files and exact shopping BOM:</strong> populate model/revision/listing, received dimensions, quantities and fit photos. Freeze printable carrier/top only after the real parts fit. Battery work resumes later against the stable 5 V requirement.</li>
 </ol>
 <p>The immediate purchase/identification gaps are <strong>GNSS receiver kit, RF pigtail, cooling, sealed panel assemblies, internal leads and mounting hardware</strong>. Complete BOM rows now exist for these; listing-level selection and physical qualification are still pending.</p>
-<h2 id="section-5">Active cellular and top-panel revision 7</h2>
+<h2 id="section-5"><span id="active-cellular-and-top-panel-revision-7">Active cellular and top-panel revision 7</span></h2>
 <p>The user now includes a <strong>Sierra EM7430 on a USB WWAN adapter</strong> as the cellular/GNSS candidate. It is not a PCIe data connection to the Pi: the adapter carries USB, SIM and module power. Internet uplink is the purpose; native carrier calls and SMS features are outside this project&#39;s scope. Exact adapter, firmware, carrier operation, GNSS output and power remain verification items.</p>
 <p><img src="assets/top-panel.svg" alt="Top view with HaLow, LTE main, LTE auxiliary and GNSS positions"></p>
 <div class="table-wrap"><table>
@@ -201,4 +204,4 @@
 <p>Corner placement maximises available separation within this concept, but proves no RF isolation. Test GNSS acquisition/fix retention during LTE uplink and HaLow traffic, LTE signal/throughput with both elements, and local Wi-Fi. The 120 x 95 mm cap is still a provisional envelope: check seven interface bodies, caps, nuts, fingers, gasket and cable bends before freezing CAD. Resize if necessary; no hole coordinates or drilling diameters are released. Power button/PTT blank remain on the upper side and status windows remain near the top shoulder.</p>
 <p><strong>GNSS replacement:</strong> EM7430 GNSS is the integrated candidate; LC76G becomes a fallback. Confirm position data over USB and operation without a SIM or cellular service before removing the separate receiver from the build. Verify selected image modem drivers, routing/failover to cellular without breaking local mesh, SIM/APN, reconnection, power/thermal peaks and antenna coexistence. Battery internals remain TBD behind the regulated 5 V supply boundary; the previous 15 W minimum is not proof of sufficient capacity with LTE.</p>
 <p>Technical source: <a href="https://source.sierrawireless.com/resources/airprime/minicard/74xx/airprime_em7430_product_technical_specification">Sierra EM7430 hardware specification</a>. These are concept positions, not final electrical wiring or fabrication drawings.</p>
-</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="operating-hardware.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

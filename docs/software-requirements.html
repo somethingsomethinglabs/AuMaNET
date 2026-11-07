@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Software requirements and component strategy · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Build the product; reuse the difficult foundations</a></li><li><a href="#section-2">Requirements register</a></li><li><a href="#section-3">Bonus feature ideas</a></li><li><a href="#section-4">Component recommendations</a></li><li><a href="#section-5">Implementation sequence</a></li><li><a href="#section-6">Design decisions still open</a></li></ol></details><h1 id="software-requirements-and-component-strategy">Software requirements and component strategy</h1>
+<blockquote>
+<p>Planning authority: the <a href="delivery-plan.html">delivery register</a> owns execution order and status; <a href="decisions-current.html">current decisions</a> records accepted scope versus proposals, and <a href="requirements-traceability.html">requirement coverage</a> links tests/results. Sequences below are experiment detail. See <a href="capabilities.html">capabilities</a> for implemented versus simulated behaviour.</p>
+</blockquote>
+<p>Status: design proposal, 6 November 2026. Records the current product requirements and recommended implementation paths; component recommendations and numeric experiment targets are not validated release decisions. No real audio implementation is claimed. See <a href="voice-audio-plan.html">voice and audio</a> for the detailed voice design and <a href="network-stack-plan.html">network stack</a> for node routing.</p>
+<h2 id="section-1"><span id="build-the-product-reuse-the-difficult-foundations">Build the product; reuse the difficult foundations</span></h2>
+<p>AuMaNET owns its offline group experience, native service integration, membership, mesh-facing discovery, traffic policy and diagnostics. Reuse maintained radio SDKs, codecs, media engines, cryptography and database libraries. An open-source dependency does not require releasing unrelated original code under the same licence; inspect each exact dependency and its obligations before adopting it. The project&#39;s own licence remains undecided.</p>
+<p>The existing SvelteKit UI and Capacitor Android shell are scaffolding. Voice detection, speaking states, audio routes, node connectivity and messages in the demonstration are simulated. The inspected Android manifest declares internet access but no microphone service, and its activity is a basic Capacitor host. UI interactions and screenshots do not establish native audio or mesh functionality.</p>
+<h2 id="section-2"><span id="requirements-register">Requirements register</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Required behaviour</th>
+<th>Owner / proposed foundation</th>
+<th>Evidence required</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SW-01</td>
+<td>Start and use the local group without cloud login, internet, external signalling or runtime downloads</td>
+<td>App/native; bundle required assets and models</td>
+<td>Fresh configured installation launches offline; two phones discover and join locally</td>
+</tr>
+<tr>
+<td>SW-02</td>
+<td>Autonomous authenticated node forwarding while phones sleep or leave</td>
+<td>ESP; supported SDK and selected routing implementation</td>
+<td>Phone-free A-B-C relay and partition/rejoin tests; see network plan</td>
+</tr>
+<tr>
+<td>SW-03</td>
+<td>Private groups, authenticated pairing/invitations, membership expiry and removal</td>
+<td>Core/native/node; reviewed cryptographic libraries</td>
+<td>Threat model, invitation replay/expiry, lost-device and partition/rekey tests</td>
+</tr>
+<tr>
+<td>SW-04</td>
+<td>Offline group text, bounded durable queues, expiry, deduplication and honest delivery status</td>
+<td>Core + native SQLite candidate</td>
+<td>Restart/partition/retry tests; delivery distinguished from read or human acknowledgement</td>
+</tr>
+<tr>
+<td>SW-05</td>
+<td>Near-live phone locations with accuracy, fix age, stale state and explicit sharing control</td>
+<td>Android location service + portable models</td>
+<td>Screen-off operation; sharing off stops new transmission; obsolete positions coalesced</td>
+</tr>
+<tr>
+<td>SW-06</td>
+<td>Leaflet 2.0 main map with downloadable/imported Getlost maps and independent live overlays</td>
+<td>App + native map-file adapter</td>
+<td>Actual GeoTIFF alignment, sheet seams, local tile access, offline restart, corrupt/partial download and storage tests</td>
+</tr>
+<tr>
+<td>SW-07</td>
+<td>Persistent offline live group voice, simultaneous talkers, independent mute, PTT and speech-activated Always on</td>
+<td>Native media engine; WebRTC/Opus first candidate</td>
+<td>Voice requirements V-01 through V-12 in the audio plan</td>
+</tr>
+<tr>
+<td>SW-08</td>
+<td>Smart speech detection and local noise isolation without cloud audio processing</td>
+<td>Native DSP/model pipeline</td>
+<td>Labelled field-noise corpus, first-word retention, false-trigger, intelligibility and power measurements</td>
+</tr>
+<tr>
+<td>SW-09</td>
+<td>Adaptive queued audio with gentle playback acceleration/deceleration, bounded delay and loss recovery</td>
+<td>WebRTC NetEq first candidate</td>
+<td>Injected jitter, reordering, loss, clock drift and outage tests; compare fixed buffer</td>
+</tr>
+<tr>
+<td>SW-10</td>
+<td>Android donor and consumer internet for all apps, explicit consent and source selection</td>
+<td>Android networking + node gateway services</td>
+<td>Real DNS/TCP/UDP return paths, donor change/loss and offline voice independence</td>
+</tr>
+<tr>
+<td>SW-11</td>
+<td>Background sessions owned by native services; UI can reload without duplicate capture or losing state</td>
+<td>Kotlin/Java service + typed Capacitor bridge</td>
+<td>Lock/unlock, UI recreation, interruption, denied/revoked permission and service-stop tests</td>
+</tr>
+<tr>
+<td>SW-12</td>
+<td>Authenticated encrypted application traffic and bounded resource use</td>
+<td>Existing secure transport libraries; approved identity model</td>
+<td>Peer identity binding, malformed/replay tests, version mismatch, queue/table exhaustion</td>
+</tr>
+<tr>
+<td>SW-13</td>
+<td>Observable reconnect, unavailable, muted, listening and transmitting states</td>
+<td>Native snapshots/events -&gt; shared contracts -&gt; Svelte</td>
+<td>State reconciles after event loss; no fake delivery/route/audio status</td>
+</tr>
+<tr>
+<td>SW-14</td>
+<td>Lightweight operation under 2–5-node load, with voice ahead of bulk traffic</td>
+<td>All layers</td>
+<td>Measured per-hop airtime/queues, native CPU/RAM/thermal, phone power and separate 48-hour node test</td>
+</tr>
+<tr>
+<td>SW-15</td>
+<td>Reproducible dependency/build/update records and rollback</td>
+<td>Development/release tooling</td>
+<td>Source commits, checksums, notices/SBOM, Android ABI builds, signed releases and migration/recovery tests</td>
+</tr>
+<tr>
+<td>SW-16</td>
+<td>Board-served offline web setup, status, diagnostics and recovery; Android consumes the same versioned configuration API</td>
+<td>Firmware configuration authority + compact static browser client + Android node adapter; accepted ADR-0006, 7 November 2026</td>
+<td>No-app/no-internet setup, authenticated access, browser/Android persistent-value and error parity, conflicting edits, reboot/power-loss/network-change recovery, backup/reset and measured board resources under radio load; W16/EV-CONFIG</td>
+</tr>
+</tbody></table></div>
+<p>SW-08 distinguishes environmental noise reduction from selecting one enrolled speaker. Target-speaker isolation is a separate feasibility track, not a capability of generic speech detection. Both are planned in the audio document; their final quality envelope remains open.</p>
+<h2 id="section-3"><span id="bonus-feature-ideas">Bonus feature ideas</span></h2>
+<p>These are optional ideas for later exploration, outside the core implementation scope.</p>
+<ul>
+<li><strong>B-01 — What the crew is listening to.</strong> Tapping a member&#39;s map marker or opening their member details could show their current song and artist; hovering over the member could offer the same preview on desktop. Sharing would be optional, with a clear unavailable/not-sharing state when no listening information is provided. This is a now-playing status idea, rather than streaming or synchronizing music. Music-app integration and metadata availability remain to be investigated. Recorded 6 November 2026; not implemented.</li>
+</ul>
+<h2 id="section-4"><span id="component-recommendations">Component recommendations</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Direction</th>
+<th>What AuMaNET still implements</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>App</td>
+<td>Existing SvelteKit + TypeScript; Leaflet 2.0 beta already pinned in app manifest</td>
+<td>Offline UI, permissions/status flows and map region management</td>
+</tr>
+<tr>
+<td>Android host</td>
+<td>Existing Capacitor shell; native services for durable live work</td>
+<td>Audio/location/network lifecycle, snapshot/event bridge, device routing</td>
+</tr>
+<tr>
+<td>Voice</td>
+<td>Prototype native libwebrtc with Opus, APM and NetEq</td>
+<td>Authenticated local signalling, channel membership, input policy, metrics and recovery</td>
+</tr>
+<tr>
+<td>Audio enhancement</td>
+<td>WebRTC baseline first; compare RNNoise; evaluate Silero VAD if needed</td>
+<td>Profiles, calibration, gating, native integration and field-quality testing</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>SQLite for Android and IndexedDB for web remain candidates</td>
+<td>Schemas/migrations, bounded history and delivery semantics</td>
+</tr>
+<tr>
+<td>Maps</td>
+<td>Getlost raster maps; local raster storage/container still undecided</td>
+<td>Acquisition/import, georeference checks, preparation, source attribution and storage limits</td>
+</tr>
+<tr>
+<td>ESP transport</td>
+<td>Exact Seeed SDK and routing stack remain unselected</td>
+<td>Only the board integration and product behaviour not supplied by supported components</td>
+</tr>
+<tr>
+<td>Node configuration</td>
+<td>Board-served static management assets and one versioned API shared with Android; accepted direction, implementation pending</td>
+<td>Firmware validation/authorization/persistence, client adapters, bounded resources and recovery; see <a href="node-management.html">node management</a></td>
+</tr>
+<tr>
+<td>Security</td>
+<td>Established authenticated transport and key storage</td>
+<td>Group authority, enrollment, revocation, identity/address binding and update policy</td>
+</tr>
+</tbody></table></div>
+<p>No new audio dependency is installed by this plan. Do not copy an arbitrary old Android WebRTC binary: select a reproducible source revision or maintained distribution, document provenance and patch process, inspect included licences and native ABI support. APM/NetEq access and custom capture processing are explicit integration gates.</p>
+<h2 id="section-5"><span id="implementation-sequence">Implementation sequence</span></h2>
+<ol>
+<li>Approve the provisional audio requirements and select representative Android phones, headsets and field-noise recordings. Use consented recordings and keep them private by default.</li>
+<li>Two-phone native WebRTC spike on an isolated ordinary Wi-Fi network, with local authenticated signalling and no STUN/TURN or internet dependency. Validate route binding, engine packaging, microphone access and background service ownership before radio integration.</li>
+<li>Validate adaptive buffering/time stretching, packet concealment, Opus FEC/DTX and real latency under injected network conditions. Add five-phone fan-out and mixed data load.</li>
+<li>Compare audio-processing/VAD profiles with speech in engine, wind, gravel, music and nearby conversation. Select the least costly configuration meeting the published quality criteria. Investigate target-speaker separation independently.</li>
+<li>Integrate real node transport, prove phone-free three-node relay, then voice across 2–5 nodes alongside messages, location and shared internet. Re-measure airtime, recovery and power.</li>
+<li>Freeze dependency revisions, acceptance limits and supported-device profiles only after measurements. Complete security, runtime, field, reproducibility and release gates separately.</li>
+</ol>
+<h2 id="section-6"><span id="design-decisions-still-open">Design decisions still open</span></h2>
+<p>Native WebRTC distribution/revision, exact processing hooks, default noise profile, detector, target-speaker model, tile container, group authority/key lifecycle, messaging transport/storage implementation and routing stack remain open. Speaker/earpiece and wired/USB/Bluetooth support must be defined from real device results. Numeric targets in the voice plan are proposed experiments; record any change rather than silently reducing requirements.</p>
+<p>This plan completes requirements planning, not implementation or acceptance. Primary technical references and the build-versus-reuse comparison are maintained in <a href="voice-audio-plan.html">voice and audio</a>.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../design/software-requirements.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

@@ -1,3 +1,5 @@
+> **Historical baseline — superseded 6 November 2026.** This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the [current handbook](index.md) or [archive context](archive.md).
+
 # Operating hardware: next build stage
 
 Reviewed 5 November 2026. One-node BOM: [parts register](parts.html), with [CSV download](../hardware/bom.csv). Purchasing remains AliExpress-only. Manufacturer/community links below are engineering references, not verified matching shopping listings. No unverified device is labelled compatible solely because its chip family matches.

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Requirements, implementation and evidence · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Software coverage</a></li><li><a href="#section-2">Voice coverage</a></li><li><a href="#section-3">Product constraints and gates</a></li><li><a href="#section-4">Change control</a></li></ol></details><h1 id="requirements-implementation-and-evidence">Requirements, implementation and evidence</h1>
+<p>Reviewed 7 November 2026. This index connects requirements to execution and acceptance; it does not approve provisional thresholds. <a href="discovery.html">Discovery</a> owns product scope, <a href="software-requirements.html">software requirements</a> owns SW-01–SW-16 and <a href="voice-audio-plan.html">voice requirements</a> owns V-01–V-12/A1–A11. ADR-0006 records the owner&#39;s addition of SW-16 on 7 November 2026.</p>
+<p>Work IDs resolve in the <a href="delivery-plan.html">delivery register</a>, evidence IDs in the <a href="evidence.html">evidence register</a>. Component paths identify existing source or the intended implementation boundary, not a claim of completed code. Every real-service row below remains unaccepted.</p>
+<h2 id="section-1"><span id="software-coverage">Software coverage</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Work / implementation boundary</th>
+<th>Acceptance method</th>
+<th>Result and evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SW-01 Offline startup/group</td>
+<td>W06, W09; <code>dev/app/</code>, <code>dev/mobile/</code>, <code>dev/packages/core/</code></td>
+<td>Fresh offline install, authenticated two-phone discovery/join, no runtime download/cloud dependency</td>
+<td>EV-UI records emulator UI startup only; real group pending EV-SECURITY/EV-MESSAGES</td>
+</tr>
+<tr>
+<td>SW-02 Autonomous forwarding</td>
+<td>W01–W03; <code>dev/firmware/</code> (no SDK implementation)</td>
+<td>G0–G2; forced A-B-C, B phone-free, partition/rejoin</td>
+<td>Not run; EV-HARDWARE/EV-LINK/EV-MESH</td>
+</tr>
+<tr>
+<td>SW-03 Private group lifecycle</td>
+<td>W06; core/native/node identity boundaries</td>
+<td>Threat model, invite replay/expiry, lost-device/rekey/partition tests</td>
+<td>Proposed ADR-0004; EV-SECURITY pending</td>
+</tr>
+<tr>
+<td>SW-04 Durable text</td>
+<td>W09; core/native storage and firmware transport</td>
+<td>Queue bounds, expiry, deduplication, restart/partition, delivery versus read/human acknowledgement</td>
+<td>UI/local sample history only; EV-MESSAGES pending</td>
+</tr>
+<tr>
+<td>SW-05 Near-live location</td>
+<td>W08; native location + app/core</td>
+<td>Accuracy/fix age, screen-off, sharing-off and coalescing; agree update/latency limits first</td>
+<td>Simulated display only; EV-MAPS pending</td>
+</tr>
+<tr>
+<td>SW-06 Offline Getlost maps</td>
+<td>W08; app map + native file adapter</td>
+<td>Real georeferencing/seams, import/download, corrupt/partial files, storage and offline restart</td>
+<td>Illustrative terrain only; EV-MAPS pending</td>
+</tr>
+<tr>
+<td>SW-07 Live group voice</td>
+<td>W07, W10; native audio + app controls</td>
+<td>V-01–V-12, A1/A7–A9; simultaneous speakers across real topology</td>
+<td>Simulated controls only; EV-AUDIO/EV-INTEGRATION pending</td>
+</tr>
+<tr>
+<td>SW-08 Detection/noise/isolation</td>
+<td>W07; native DSP</td>
+<td>A2–A4/A10; labelled consented corpus, first-word and false-trigger rates, independent isolation scope</td>
+<td>Proposed; EV-AUDIO pending</td>
+</tr>
+<tr>
+<td>SW-09 Adaptive playout</td>
+<td>W07; native media queues</td>
+<td>A5–A7; identical seeded jitter/loss/skew/outage traces and acoustic delay measurement</td>
+<td>Proposed; EV-AUDIO pending</td>
+</tr>
+<tr>
+<td>SW-10 All-app internet</td>
+<td>W04–W05, W10; Android network services + node gateways</td>
+<td>G3/G4 DNS/TCP/UDP/MTU/return paths, consent, donor failover and local independence</td>
+<td>Simulated source controls only; EV-HOST/EV-INTERNET/EV-INTEGRATION pending</td>
+</tr>
+<tr>
+<td>SW-11 Native lifecycle</td>
+<td>W06–W08; Android service + typed bridge</td>
+<td>A9, physical lock/unlock, UI recreation, permission revoke, service stop/interruption</td>
+<td>Shell/Back only; EV-SECURITY/EV-HOST/EV-AUDIO pending</td>
+</tr>
+<tr>
+<td>SW-12 Encryption/resources</td>
+<td>W03, W06, W10; protocol/core/native/node</td>
+<td>Identity binding, malformed/replay/version mismatch, queue/route exhaustion</td>
+<td>Provisional connectivity types only; EV-SECURITY/EV-MESH/EV-INTEGRATION pending</td>
+</tr>
+<tr>
+<td>SW-13 Honest live state</td>
+<td>W06–W10; native snapshot/events → app</td>
+<td>Event loss/reload, disconnected/stale and requested/effective state reconciliation</td>
+<td>UI-only EV-UI; real service evidence pending</td>
+</tr>
+<tr>
+<td>SW-14 Lightweight mixed load</td>
+<td>W10–W12; all layers</td>
+<td>Voice ahead of bulk, 2–5 nodes, per-hop airtime/queue delay, CPU/RAM/thermal and separate phone/node power</td>
+<td>Not run; EV-INTEGRATION/EV-POWER/EV-FIELD</td>
+</tr>
+<tr>
+<td>SW-15 Reproducible updates</td>
+<td>W01, W07, W13; build/release tooling</td>
+<td>Pinned commits/toolchains, clean firmware/ABI/APK builds, notices/SBOM, signing and migration/rollback</td>
+<td>Root lockfile and prototype commands exist; EV-RELEASE pending</td>
+</tr>
+<tr>
+<td>SW-16 Board web/shared configuration API</td>
+<td>W16 with W01/W04/W06 foundations, W10/W11 load/endurance and W13 maintenance; <code>dev/firmware/</code>, protocol schemas, browser assets and Android node adapter</td>
+<td>Offline no-app browser setup; browser/Android shared-API parity, permissions/version/conflict tests; persistent settings and interrupted apply/power-loss/backup/reset recovery; exact-board flash/RAM/latency/power with radio traffic</td>
+<td>Accepted direction ADR-0006; implementation absent; EV-CONFIG not run; EV-INTEGRATION/EV-POWER/EV-RELEASE pending</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-2"><span id="voice-coverage">Voice coverage</span></h2>
+<p>Trials A1–A11 retain the detailed conditions and proposed numeric targets in the voice plan. They are not passed or owner-approved by inclusion here.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Work / implementation</th>
+<th>Trials and expected evidence</th>
+<th>Current result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>V-01 Offline local voice</td>
+<td>W07/W10; native authenticated signalling/media</td>
+<td>A1 isolated LAN then A7/A8 radio topology</td>
+<td>Not run; EV-AUDIO/EV-INTEGRATION</td>
+</tr>
+<tr>
+<td>V-02 Overlapping 2–5 talkers</td>
+<td>W07/W10; native stream distribution/mixing</td>
+<td>A8 1, 2 and 5 speakers, no hidden suppression</td>
+<td>Not run; same evidence</td>
+</tr>
+<tr>
+<td>V-03 Mute/PTT privacy</td>
+<td>W07; native capture gate/hold lease</td>
+<td>A1/A9 frame-boundary mute/release/cancel/lost-control checks</td>
+<td>UI-only EV-UI; native EV-AUDIO pending</td>
+</tr>
+<tr>
+<td>V-04 Speech-activated Always on</td>
+<td>W07; native detector/gate</td>
+<td>A2/A3 plus packet checks, explicit Listening/Transmitting</td>
+<td>UI-only EV-UI; native pending</td>
+</tr>
+<tr>
+<td>V-05 First-syllable/quiet speech</td>
+<td>W07; detector/pre-roll</td>
+<td>A2/A4 labelled repeated corpus</td>
+<td>Not run; EV-AUDIO</td>
+</tr>
+<tr>
+<td>V-06 Noise/echo control</td>
+<td>W07; native APM/comparisons</td>
+<td>A3/A4 blinded baseline, double-talk and field noise</td>
+<td>Not run; EV-AUDIO</td>
+</tr>
+<tr>
+<td>V-07 Intended-speaker isolation</td>
+<td>W07; separate model investigation</td>
+<td>A10 agreed isolation threshold, enrollment/privacy/licence and latency checks</td>
+<td>No model selected; EV-AUDIO pending</td>
+</tr>
+<tr>
+<td>V-08 Adaptive queued playout</td>
+<td>W07; NetEq candidate</td>
+<td>A5/A7 buffer/acceleration/skew and end-to-end delay</td>
+<td>Not run; EV-AUDIO</td>
+</tr>
+<tr>
+<td>V-09 Loss/outage recovery</td>
+<td>W07/W10; bounded sender/relay/receiver queues</td>
+<td>A5/A6 FEC/concealment, no backlog replay</td>
+<td>Not run; EV-AUDIO/EV-INTEGRATION</td>
+</tr>
+<tr>
+<td>V-10 Background sessions</td>
+<td>W06/W07; Android foreground lifecycle</td>
+<td>A9 ≥60-minute screen-off trial, reload/permission/interruption</td>
+<td>Emulator UI does not pass; EV-AUDIO pending</td>
+</tr>
+<tr>
+<td>V-11 Authenticated private media</td>
+<td>W06/W07; identity-bound signalling/media</td>
+<td>A1 and negative group/fingerprint/replay/rejoin tests</td>
+<td>Not run; EV-SECURITY/EV-AUDIO</td>
+</tr>
+<tr>
+<td>V-12 Actual route/quality/state</td>
+<td>W06/W07; native bridge snapshots</td>
+<td>A9 route removal/restart/processing unavailable, hydration</td>
+<td>Simulated indicators only; EV-AUDIO pending</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-3"><span id="product-constraints-and-gates">Product constraints and gates</span></h2>
+<p>P IDs below index existing discovery constraints rather than introducing new requirements.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Constraint / discovery gate</th>
+<th>Work</th>
+<th>Required result</th>
+<th>Current coverage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P-01 Android required; iPhone optional</td>
+<td>W04, W13, W14</td>
+<td>Named physical Android support matrix and release; iPhone independently scoped</td>
+<td>Emulator only; physical support not established</td>
+</tr>
+<tr>
+<td>P-02 A$45–75 basic node</td>
+<td>W11</td>
+<td>Host/radio/antennas/battery/power/basic enclosure itemized; shipping and exclusions explicit</td>
+<td>No complete priced current-baseline BOM; EV-POWER pending</td>
+</tr>
+<tr>
+<td>P-03 ≥48 h continuous node operation</td>
+<td>W11</td>
+<td>Actual no-charge run with published voice/listening/location/relay/internet load; phone energy separate</td>
+<td>Not run; EV-POWER</td>
+</tr>
+<tr>
+<td>P-04 Up to 1 km LOS single hop</td>
+<td>W12</td>
+<td>Measured voice/data/loss at stated distances/heights; obstructed paths separately characterized</td>
+<td>Not run; EV-FIELD</td>
+</tr>
+<tr>
+<td>P-05 2–5 nodes and phone-free relay</td>
+<td>W03, W10</td>
+<td>Forced three-node relay and five-phone group capacity</td>
+<td>Two-node plan alone insufficient; EV-MESH/EV-INTEGRATION pending</td>
+</tr>
+<tr>
+<td>G0 Hardware/region</td>
+<td>W01</td>
+<td>Received revisions and applicable AU equipment/profile evidence</td>
+<td>Not run; EV-HARDWARE</td>
+</tr>
+<tr>
+<td>G1 SDK integration</td>
+<td>W01–W02</td>
+<td>Reproducible exact-host SDK/pin/power/licence and sustained I/O</td>
+<td>Not run; EV-HARDWARE/EV-LINK</td>
+</tr>
+<tr>
+<td>G2 Actual multi-hop</td>
+<td>W03</td>
+<td>A-B-C path exclusion and removal/rejoin/loop/resource tests</td>
+<td>Not run; EV-MESH</td>
+</tr>
+<tr>
+<td>G3 Phone transport</td>
+<td>W04, W06</td>
+<td>Physical Android local/cellular/background/role-change tests</td>
+<td>Not run; EV-HOST</td>
+</tr>
+<tr>
+<td>G4 Shared internet</td>
+<td>W05, W10</td>
+<td>Direct then multi-hop all-app paths, donors and failure recovery</td>
+<td>Not run; EV-INTERNET/EV-INTEGRATION</td>
+</tr>
+<tr>
+<td>G5 Operational envelope</td>
+<td>W10–W12</td>
+<td>Measured mixed-load, runtime, thermal, recovery, cost and field limits</td>
+<td>Not run; EV-INTEGRATION/EV-POWER/EV-FIELD</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-4"><span id="change-control">Change control</span></h2>
+<p>Update this table with the affected requirement, implementation path and dated evidence when work lands. Preserve failed/inconclusive observations and identify superseded results. Changes to numeric acceptance targets, hardware or required behaviour need a decision record; a successful UI check cannot close a radio, native, security or endurance row. B-01 music status and exploratory camera work remain W14, outside core acceptance.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../design/requirements-traceability.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

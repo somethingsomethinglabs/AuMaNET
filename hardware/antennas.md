@@ -1,3 +1,5 @@
+> **Historical baseline — superseded 6 November 2026.** This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the [current handbook](../docs/index.md) or [archive context](../docs/archive.md).
+
 # HaLow antenna shortlist: voice and data, practical range
 
 Reviewed 2026-11-05. AliExpress-only purchasing; exact listings, landed costs and received antenna performance remain unverified. These are engineering candidates rather than a completed purchase selection. GPS antennas are separate and cannot substitute for HaLow antennas.

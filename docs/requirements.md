@@ -1,3 +1,5 @@
+> **Historical baseline — superseded 6 November 2026.** This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the [current handbook](index.md) or [archive context](archive.md).
+
 # Pilot requirements
 
 These are proposed engineering targets, not measured capabilities. Confirm group size, budget, phone platforms, terrain and required distances before procurement.

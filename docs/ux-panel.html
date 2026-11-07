@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="reference"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AuMaNET simulated user panel · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">PROTOTYPE REFERENCE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Method</a></li><li><a href="#section-2">Independent reports</a></li><li><a href="#section-3">Decisions and verification</a></li><li><a href="#section-4">Validation</a></li><li><a href="#section-5">Coordinator&#39;s final Android walkthrough</a></li></ol></details><h1 id="aumanet-simulated-user-panel">AuMaNET simulated user panel</h1>
+<h2 id="section-1"><span id="method">Method</span></h2>
+<p>Five independent agents use the unchanged interactive prototype as prospective users. Each receives its own Chromium session with isolated local storage, a 412 × 915 mobile viewport, touch support and mobile emulation. This is browser device emulation of the shared Svelte UI, rather than five Android virtual machines. The final implementation is also checked in the installed Android host.</p>
+<p>Reviewers know that hardware and data are simulated and treat the displayed information as real when assessing the experience. They navigate and operate controls before reporting findings, capture screenshots, and do not read source code or each other&#39;s findings. Reviews run in two batches because only three reviewer agents can run alongside the coordinator.</p>
+<p>The decision rule is at least three independent reviewers identifying the same underlying user problem. Related suggestions are combined only when they describe the same friction; individual feature suggestions are not counted as blanket votes for a redesign. Changes wait until all five reviews are complete.</p>
+<p>This panel provides qualitative agent feedback, not evidence from human participants. Browser emulation cannot establish physical touch ergonomics, outdoor readability, actual microphone behavior, RF performance or background Android reliability.</p>
+<h2 id="section-2"><span id="independent-reports">Independent reports</span></h2>
+<ul>
+<li><a href="ux-review-hiker.html">First-time hiker</a></li>
+<li><a href="ux-review-leader.html">Convoy trip leader</a></li>
+<li><a href="ux-review-casual.html">Nontechnical camper</a></li>
+<li><a href="ux-review-driver.html">Off-road driver</a></li>
+<li><a href="ux-review-privacy.html">Privacy-conscious bushwalker</a></li>
+</ul>
+<p>The last two reviewers started without prior review history. Two workers retained an older sandbox after the access change: the coordinator executed their chosen scripts in their isolated sessions, returned fresh accessibility snapshots, and the reviewers inspected their own saved screenshots and authored their findings independently. An initial driver worker was stopped before reviewing because its inherited context included earlier feedback; the completed driver report comes from the replacement worker with clean context.</p>
+<h2 id="section-3"><span id="decisions-and-verification">Decisions and verification</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Underlying problem</th>
+<th>Independent support</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Voice&#39;s main talk control is below the visible area</td>
+<td>Hiker, leader, driver — <strong>3/5</strong></td>
+<td>Move input mode and Hold to talk before participants; keep mute immediately nearby.</td>
+</tr>
+<tr>
+<td>Persistent microphone status is ambiguous</td>
+<td>Hiker, camper, privacy — <strong>3/5</strong></td>
+<td>State Mic on · Voice activated, Mic muted, or Mic off · Push to talk, and explain automatic transmission beside its control. The camper&#39;s concern about automatic transmission supports this clarity problem; its separate default-mode proposal received only one vote.</td>
+</tr>
+<tr>
+<td>Map does not account clearly for all members / own identity</td>
+<td>Hiker, leader, camper — <strong>3/5</strong></td>
+<td>Make the member count open a roster; show connected/disconnected counts and Jess&#39;s missing-position state. Use one blue You marker instead of a Rowan marker plus an unnamed blue dot.</td>
+</tr>
+<tr>
+<td>Important secondary status/freshness text is too small</td>
+<td>Hiker, leader, driver, privacy — <strong>4/5</strong></td>
+<td>Enlarge map fix details, voice state, navigation labels, settings descriptions and connection labels. Privacy raised this in accessibility risks rather than its ranked proposals.</td>
+</tr>
+</tbody></table></div>
+<p>Suggestions below the threshold remain deferred: a Map location-sharing shortcut (camper/privacy, 2/5), message viewport/status improvements (leader/driver, 2/5), broader terminology changes (leader/camper, 2/5), node save placement (leader, 1/5), toast placement (driver, 1/5), a group-message shortcut from member detail (camper, 1/5), and changing the initial voice mode (camper, 1/5). Hiker&#39;s internet/offline reassurance suggestion received 1/5. These remain useful candidates for a later round.</p>
+<h2 id="section-4"><span id="validation">Validation</span></h2>
+<ul>
+<li>Svelte check: zero errors and warnings; production web build passed.</li>
+<li>Existing <code>ui-verification.js</code> and <code>ui-settings-verification.js</code> passed against the production preview, covering messages, PTT, mute, channel membership, sources, settings persistence, map recovery, themes, and layouts.</li>
+<li>Added <code>ui-panel-verification.js</code>: passed roster contents/selection/Escape, visible PTT, keyboard press/release, mute gating, explicit persistent mic state, and overflow checks at 320/360/412 × 740. Captured the final browser walkthrough at 412 × 915.</li>
+<li>Android Capacitor sync and Gradle debug build passed; updated APK installed successfully on emulator-5554. <code>android-panel-walkthrough.mjs</code> passed native Back dismissal/navigation, visible talk control, pointer press/release, mute gating, roster/member flow, messages, source selection and return to Map; no WebView page errors. Result: <code>../../output/playwright/android-panel-result.json</code>.</li>
+<li>Native screenshots use Android <code>screencap</code>, with a short compositor-settle delay after observing the WebView state. An initial roster screenshot showed the preceding screen and was rejected and recaptured.</li>
+</ul>
+<p>These checks verify the dummy UI and Android host. They do not establish real location sharing, voice, mesh delivery, internet routing, or field ergonomics.</p>
+<h2 id="section-5"><span id="coordinator39s-final-android-walkthrough">Coordinator&#39;s final Android walkthrough</span></h2>
+<p>All accepted screenshots are in <code>output/playwright/</code> at repository root. The following are actual emulator display captures.</p>
+<ol>
+<li><strong>Map — healthy.</strong> One explicit You marker, readable mic state and actionable member summary. <span class="local-artifact">Screenshot <small>(local artifact, not bundled: <code>output/playwright/android-01-map.png</code>)</small></span>.</li>
+<li><strong>Roster — healthy.</strong> All four members accounted for; Jess is disconnected with no current position. Native Back closes it. <span class="local-artifact">Screenshot <small>(local artifact, not bundled: <code>output/playwright/android-02-roster.png</code>)</small></span>.</li>
+<li><strong>Member — healthy.</strong> Roster selection opens Alex&#39;s readable fix age and accuracy. <span class="local-artifact">Screenshot <small>(local artifact, not bundled: <code>output/playwright/android-03-member.png</code>)</small></span>.</li>
+<li><strong>Voice — healthy.</strong> Hold to talk is visible immediately after selecting the mode. <span class="local-artifact">Screenshot <small>(local artifact, not bundled: <code>output/playwright/android-04-voice.png</code>)</small></span>.</li>
+<li><strong>Transmit — healthy.</strong> Holding starts the simulated transmission; releasing stops it. <span class="local-artifact">Screenshot <small>(local artifact, not bundled: <code>output/playwright/android-05-transmitting.png</code>)</small></span>.</li>
+<li><strong>Muted Map — healthy.</strong> Mute blocks transmission and the persistent controller explicitly says Mic muted. <span class="local-artifact">Screenshot <small>(local artifact, not bundled: <code>output/playwright/android-06-muted.png</code>)</small></span>.</li>
+<li><strong>Messages — functional; deferred viewport concern remains.</strong> A dummy group update appears after sending. Two reviewers&#39; request to improve the message viewport did not reach the threshold. <span class="local-artifact">Screenshot <small>(local artifact, not bundled: <code>output/playwright/android-07-messages.png</code>)</small></span>.</li>
+<li><strong>Network — healthy.</strong> Sam can be selected and the connection status updates. <span class="local-artifact">Screenshot <small>(local artifact, not bundled: <code>output/playwright/android-08-network.png</code>)</small></span>.</li>
+<li><strong>Privacy settings — functional; deferred discoverability concern remains.</strong> Audience and location-sharing preference are accessible; two reviewers wanted a direct Map shortcut. <span class="local-artifact">Screenshot <small>(local artifact, not bundled: <code>output/playwright/android-09-privacy.png</code>)</small></span>.</li>
+<li><strong>Return to Map — healthy.</strong> Native Back and tab navigation return correctly; automatic microphone mode is explicitly labeled. <span class="local-artifact">Screenshot <small>(local artifact, not bundled: <code>output/playwright/android-10-return-map.png</code>)</small></span>.</li>
+</ol>
+<p><span class="local-artifact">Local image, not bundled: <code>output/playwright/android-changes.png</code></span></p>
+<p><span class="local-artifact">Local image, not bundled: <code>output/playwright/android-walkthrough-details.png</code></span></p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../dev/tests/UX-PANEL.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

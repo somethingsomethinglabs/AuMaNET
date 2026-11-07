@@ -1,32 +1,79 @@
 <!doctype html>
-<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Maintaining the handbook · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Which file to change</a></li><li><a href="#section-2">Rebuild and check</a></li><li><a href="#section-3">Before publishing a build recipe</a></li><li><a href="#section-4">Firmware-review tools</a></li></ol></details><h1>Maintaining the handbook</h1>
-<p>Reading the committed handbook does not require Node, npm, a server or an internet connection. Open <code>docs/index.html</code> from the project folder and follow the HTML links. Keep the <code>docs/assets</code> folder and adjacent project files when copying the handbook.</p>
-<h2 id="section-1">Which file to change</h2>
-<ul>
-<li><code>docs/current-design.md</code>: the active baseline and what remains unverified.</li>
-<li><code>hardware/bom.csv</code>: the one-node shopping register with stable item IDs.</li>
-<li><code>hardware/portable-node.md</code>: enclosure, port and power interface details.</li>
-<li><code>hardware/diy-selection.md</code>: GPS connections and power-module comparison.</li>
-<li><code>hardware/pin-allocation.csv</code>: HAT reservations and proposed GPS signals.</li>
-<li><code>docs/start-here.md</code>: first-build stages and expected results.</li>
-<li><code>docs/upgrades.md</code>: replacements and regression checks.</li>
-<li><code>docs/decisions.md</code>: historical changes, with the active baseline linked first.</li>
-<li><code>docs/index.html</code>: the hand-authored project overview.</li>
-<li><code>docs/assets/*.svg</code>: original editable diagrams; they are conceptual, not fabrication drawings.</li>
-</ul>
-<p>The other HTML pages are generated. Edit their Markdown/CSV sources, then rebuild instead of hand-editing generated pages.</p>
-<h2 id="section-2">Rebuild and check</h2>
-<p>Maintainers need Node.js compatible with the pinned documentation dependency. From the repository root:</p>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Maintaining the handbook · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Content ownership</a></li><li><a href="#section-2">Build and verify</a></li><li><a href="#section-3">GitHub Pages</a></li><li><a href="#section-4">Historical pages and hardware</a></li></ol></details><h1 id="maintaining-the-handbook">Maintaining the handbook</h1>
+<p>The landing page opens at <code>docs/index.html</code>; the complete handbook opens at <code>docs/handbook.html</code> without a server, Node or internet. Keep adjacent repository assets and referenced files when copying it. Current handbook prose pages are generated from Markdown; edit sources and rebuild instead of editing their HTML. The landing page is maintained directly in <code>docs/index.html</code> and <code>docs/assets/landing.css</code>; the generator preserves it.</p>
+<h2 id="section-1"><span id="content-ownership">Content ownership</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Authoritative source</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Landing page</td>
+<td><code>docs/index.html</code>, <code>docs/assets/landing.css</code></td>
+</tr>
+<tr>
+<td>Handbook reading paths</td>
+<td><code>docs/index.md</code> → <code>docs/handbook.html</code></td>
+</tr>
+<tr>
+<td>Product implementation/status</td>
+<td><a href="capabilities.html">Capabilities</a></td>
+</tr>
+<tr>
+<td>Confirmed scope and G0–G5 definitions</td>
+<td><a href="discovery.html">Discovery</a></td>
+</tr>
+<tr>
+<td>Execution order, owners, dependencies and exit/failure decisions</td>
+<td><a href="delivery-plan.html">Delivery register</a></td>
+</tr>
+<tr>
+<td>Accepted choices and proposals</td>
+<td><a href="decisions-current.html">Decision register</a></td>
+</tr>
+<tr>
+<td>SW/V requirements and test methods</td>
+<td><a href="software-requirements.html">Software requirements</a>, <a href="voice-audio-plan.html">voice plan</a></td>
+</tr>
+<tr>
+<td>Requirement-to-implementation/test/result mapping</td>
+<td><a href="requirements-traceability.html">Traceability</a></td>
+</tr>
+<tr>
+<td>Tested/candidate combinations</td>
+<td><a href="compatibility.html">Compatibility</a></td>
+</tr>
+<tr>
+<td>Results and limitations</td>
+<td><a href="evidence.html">Evidence</a>, <a href="experiment-template.html">experiment template</a></td>
+</tr>
+<tr>
+<td>Historical material</td>
+<td><a href="archive.html">Archive directory</a></td>
+</tr>
+</tbody></table></div>
+<p>Other READMEs provide short matching summaries and links. Investigations retain rationale and alternatives; their local sequences defer to delivery IDs. Keep unresolved targets and decisions visibly provisional. When scope or evidence changes, update affected rows and decision records together. The maintainer making the change owns reconciliation; the owner decides product tradeoffs.</p>
+<h2 id="section-2"><span id="build-and-verify">Build and verify</span></h2>
+<p>Use Node.js 24 and npm 11. From the repository root:</p>
 <pre><code class="language-sh">npm ci --ignore-scripts
 npm run docs:build
 npm run docs:check
+npm run check
 </code></pre>
-<p>Commit source changes, generated HTML, and any changed dependency lockfile together. The generator is deterministic and uses no remote assets. Third-party renderer licensing is recorded by the package metadata/lockfile; it does not change the licences of referenced community hardware designs.</p>
-<p>The checker verifies local destinations, HTML anchors, titles/language and rendered reading paths. It does <strong>not</strong> prove external listing availability, physical fit, electrical compatibility or successful radio operation. Those require the separate build and field records.</p>
-<h2 id="section-3">Before publishing a build recipe</h2>
-<p>Keep confirmed choices separate from verified combinations. Replace a gate with specific evidence, rather than deleting the caveat after writing a plausible instruction. Use the release-readiness page to track exact listings, received revisions, image checksums, harness drawings and repeatable results.</p>
-<h2 id="section-4">Firmware-review tools</h2>
-<p>The Python tools in scripts inspect a hash-pinned image and prepare an explicitly unvalidated overlay. They never flash a device. See <a href="firmware-review.html">firmware review</a> before using them. Do not turn their successful exit status into a claim that the radio works. No upstream image or derivative binary belongs in the documentation commit.</p>
-</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+<p><code>scripts/docs-pages.mjs</code> declares source/output/status mappings and explicitly unbundled workstation artifacts. Add a new page there and link it through the relevant reading path. Historical pages retain their original URLs and source notices. The original hand-authored landing page is preserved as <code>docs/archive-index.html</code>; the 3D reference remains <code>docs/equipment-3d.html</code>. Both carry persistent archive notices.</p>
+<p>The generator uses no remote assets and renders relative Markdown links to HTML. Local screenshots/videos/APKs in workstation artifact directories are labelled not bundled, so clean-checkout reading does not require them. External links need internet. Mermaid source blocks remain readable diagram specifications without a remote rendering dependency. The footer&#39;s explicit repository-source link opens the original Markdown for maintainers.</p>
+<p>Commit sources, generation/checker changes and generated HTML together. <code>docs:check</code> checks deterministic regeneration without writing, local links/anchors, current/archive notices, source navigation and SW/V coverage. CI runs it through <code>npm run check</code>. No successful build/link check establishes radio, native service, regional, fit or runtime acceptance.</p>
+<h2 id="section-3"><span id="github-pages">GitHub Pages</span></h2>
+<p>The <code>GitHub Pages</code> workflow validates pull requests and publishes pushes to <code>main</code>. In the repository&#39;s <strong>Settings → Pages → Build and deployment</strong>, select <strong>GitHub Actions</strong> as the source. The default project URL is <code>https://somethingsomethinglabs.github.io/AuMaNET/</code> after a successful deployment. The workflow can also be run manually on <code>main</code>.</p>
+<p>Private repositories need a GitHub plan that supports Pages for private repositories. If GitHub rejects activation with a plan restriction, resolve the hosting entitlement before running the deployment job; the workflow does not change repository visibility.</p>
+<p>Run <code>npm run pages:build</code> to package <code>dist/pages</code>. It copies the documentation and assets, keeps relative links suitable for the <code>/AuMaNET/</code> project path, and verifies published references and anchors. Links to files outside <code>docs/</code> become GitHub source or raw-file URLs pinned to the deployment commit (<code>main</code> for local builds); these require repository access when the repository is private. Embedded images outside <code>docs/</code> are copied into the artifact so they display without repository authentication. The local handbook&#39;s offline links remain unchanged. No app build, credentials or print rebuild are needed. The historical landing page keeps its own <code>archive-landing.css</code> stylesheet.</p>
+<p>The screenshot showcase uses committed PNGs in <code>docs/assets/screenshots/</code>, captured from the current browser app at a 412 × 915 viewport. To refresh them, run the app, capture its Map, Messages and Voice screens, and replace the matching files. Keep the prototype/sample-data caption accurate. These are presentation assets, separate from the ignored verification screenshots under <code>output/playwright/</code>.</p>
+<p>To preview the packaged site, serve <code>dist/pages</code> with a static HTTP server. Commit the landing page, handbook sources and generated outputs, build script and workflow together. A local build does not publish the site.</p>
+<h2 id="section-4"><span id="historical-pages-and-hardware">Historical pages and hardware</span></h2>
+<p>Never update a historical Pi/Heltec specification to look like a current build. Preserve its context and redirect readers through the archive notice. The old BOM, field templates, image-review helpers and purchasing restrictions are historical. Current mechanical studies and the print workshop remain prototype references with their own evidence limits.</p>
+<p>Documentation-only edits do not require a print rebuild. Geometry, STL/part selection or print-tool changes follow <code>AGENTS.md</code> and the print-bundle skill, including canonical exports and the one-shot rebuild. Do not overwrite arranged slicer projects. Source licences/attribution remain applicable; the original project&#39;s licence is undecided.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="maintaining-docs.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

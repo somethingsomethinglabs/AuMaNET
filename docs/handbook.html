@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AuMaNET project handbook · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Documentation</a></li><li><a href="#section-2">What exists today</a></li><li><a href="#section-3">How this handbook stays current</a></li></ol></details><h1 id="aumanet-project-handbook">AuMaNET project handbook</h1>
+<p>Off-grid group communications for Australian 4WD and camping trips: messages, near-live location and live group voice, with shared phone internet when available.</p>
+<p><strong>Current baseline — 6 November 2026:</strong> investigate plain XIAO ESP32-S3 + Seeed XIAO HaLow nodes with an Android companion app. The SvelteKit UI and Capacitor Android shell work with simulated data. Radio transport, native audio/location, all-app internet sharing and physical runtime remain unverified. No supported build kit or production release exists.</p>
+<h2 id="section-1"><span id="documentation">Documentation</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Your purpose</th>
+<th>Reading path</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Understand the project</td>
+<td><a href="capabilities.html">Capabilities and current status</a> → <a href="discovery.html">Discovery and confirmed scope</a> → <a href="design.html">Design overview</a></td>
+</tr>
+<tr>
+<td>Plan the next work</td>
+<td><a href="delivery-plan.html">Delivery register</a> → <a href="decisions-current.html">Current decisions</a> → <a href="requirements-traceability.html">Requirements and evidence</a></td>
+</tr>
+<tr>
+<td>Plan node setup and recovery</td>
+<td><a href="node-management.html">Board-served web configuration</a> → <a href="adr-0006.html">Shared API decision</a> → <a href="delivery-plan.html">Delivery register W16</a></td>
+</tr>
+<tr>
+<td>Investigate feasibility</td>
+<td><a href="compatibility.html">Compatibility matrix</a> → <a href="two-node-test-plan.html">Two-node experiment</a> → <a href="architecture-roundtable.html">Architecture investigation</a></td>
+</tr>
+<tr>
+<td>Develop the prototype</td>
+<td><a href="development.html">Development setup</a> → <a href="app-development.html">Web app</a> → <a href="android-development.html">Android host</a> → <a href="verification.html">Verification</a></td>
+</tr>
+<tr>
+<td>Evaluate results</td>
+<td><a href="evidence.html">Evidence register</a> → <a href="requirements-traceability.html">Requirement coverage</a> → <a href="deployment.html">Deployment gates</a></td>
+</tr>
+<tr>
+<td>Inspect hardware references</td>
+<td><a href="board-reference.html">Board measurements</a> → <a href="enclosure-reference.html">Enclosure study</a> → <a href="print-workshop.html">Print workshop</a></td>
+</tr>
+<tr>
+<td>Read the earlier project</td>
+<td><a href="archive.html">Historical documentation directory</a> — Pi/Heltec/OpenMANET material, preserved at its original URLs</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-2"><span id="what-exists-today">What exists today</span></h2>
+<p>Map, Messages, Voice, Network and Settings screens run in the browser and Android emulator. Their messages, positions, microphone states, nodes and internet sources are demonstration data. Leaflet displays bundled illustrative terrain; Getlost map import and storage are still planned.</p>
+<p>The owner reported ordering the S3 and HaLow boards; quantity, receipt and exact received revisions remain unconfirmed. Three physical nodes are necessary to prove multi-hop. No physical phone/radio test or approved Australian radio profile has been recorded. Use the compatibility matrix before treating any combination as supported.</p>
+<h2 id="section-3"><span id="how-this-handbook-stays-current">How this handbook stays current</span></h2>
+<p>The capability matrix owns status, the delivery register owns execution order, and decision records own current choices. Detailed investigations retain alternatives and experiment methods. The evidence register connects results to those decisions without counting simulated UI checks as hardware acceptance.</p>
+<p>Read this HTML handbook locally with its neighbouring files; no server or remote fonts are required. Developer commands require the tools named in their respective guides. See <a href="maintaining-docs.html">maintenance instructions</a>. Range, budget and runtime goals remain acceptance targets rather than demonstrated capabilities.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="index.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

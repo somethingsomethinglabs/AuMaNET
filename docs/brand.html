@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="reference"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AuMaNET identity · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">PROTOTYPE REFERENCE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Master assets</a></li><li><a href="#section-2">Distribution</a></li><li><a href="#section-3">Verification</a></li></ol></details><h1 id="aumanet-identity">AuMaNET identity</h1>
+<p>Active logo: <strong>Connected ridge (council option 1)</strong>, selected by the owner on 6 November 2026. The green silhouette was traced from the selected concept and simplified into smooth vector contours, preserving its uneven peaks, broad valley and closed baseline. Council alternatives and original generated boards remain an archive in <a href="logo-research.html">logo-council</a>.</p>
+<h2 id="section-1"><span id="master-assets">Master assets</span></h2>
+<ul>
+<li><a href="../design/brand/aumanet-mark.svg">aumanet-mark.svg</a>: authoritative geometry, transparent background, forest green <code>#164b32</code>.</li>
+<li><a href="../design/brand/aumanet-mark-light.svg">aumanet-mark-light.svg</a>: light mark for dark surfaces.</li>
+<li><a href="../design/brand/aumanet-lockup.svg">aumanet-lockup.svg</a>: mark with AuMaNET wordmark; uses the app&#39;s sans-serif font stack.</li>
+</ul>
+<p>Keep the aspect ratio and clear space. Use the light version on dark surfaces. The ridge is a brand mark, not a radio connectivity indicator. Do not add antennas, node dots or other features to it.</p>
+<h2 id="section-2"><span id="distribution">Distribution</span></h2>
+<p>Run <code>npm run brand:build</code> from the repository root. This uses bundled Chromium through the existing Playwright dependency to render deterministic SVG artwork; no image generation service is needed. It updates:</p>
+<ul>
+<li>Shared web/Android UI header artwork and browser favicon under <code>dev/app/static/</code>.</li>
+<li>Handbook marks/favicon under <code>docs/assets/</code>, used by the landing page and generated handbook headers.</li>
+<li>Android adaptive foreground, Android 13 themed monochrome icon, legacy/round launcher images for all five densities, and existing portrait/landscape splash raster sizes.</li>
+</ul>
+<p>The master geometry also feeds the native XML vector. Adaptive artwork stays inside the central safe area. <code>npm run docs:build</code> preserves branding in regenerated handbook pages. Build the app, sync Capacitor, then rebuild/install Android to put new assets into the APK; asset generation alone does not update an installed app.</p>
+<p>Historical research screenshots, concept alternatives and third-party material retain their original appearance; they are not active brand assets. No printable CAD or enclosure geometry is changed by this branding update.</p>
+<h2 id="section-3"><span id="verification">Verification</span></h2>
+<p>Repository check (TypeScript, Svelte, handbook links and existing CAD references), production web build, Capacitor sync and Android debug build passed. The rebuilt APK was installed on the emulator. The native walkthrough passed with no WebView errors; Android app-info visibly shows the new launcher icon. Browser inspection confirmed the new mark in light/dark app themes, headers at 320/412px, and the handbook landing page.</p>
+<p>Local evidence: <span class="local-artifact">Android app <small>(local artifact, not bundled: <code>output/playwright/logo-android-app.png</code>)</small></span>, <span class="local-artifact">native app icon <small>(local artifact, not bundled: <code>output/playwright/logo-android-icon.png</code>)</small></span>, <span class="local-artifact">dark app <small>(local artifact, not bundled: <code>output/playwright/logo-app-dark.png</code>)</small></span>, <span class="local-artifact">handbook <small>(local artifact, not bundled: <code>output/playwright/logo-handbook.png</code>)</small></span>.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../design/brand/README.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

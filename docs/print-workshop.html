@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="reference"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AuMaNET in Bambu Studio · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">PROTOTYPE REFERENCE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Update geometry while keeping your setup</a></li><li><a href="#section-2">Case hardware BOM</a></li><li><a href="#section-3">Board screw mounts</a></li><li><a href="#section-4">Design status</a></li><li><a href="#section-5">Generated files and maintenance</a></li><li><a href="#section-6">Verification and attribution</a></li></ol></details><h1 id="aumanet-in-bambu-studio">AuMaNET in Bambu Studio</h1>
+<p>Open <strong>AuMaNET-Bambu-Workshop.3mf</strong> as a project. This is the editable working project: Bambu Lab P1S, 0.4 mm standard nozzle, textured PEI, Bambu PA6-GF for rigid parts and Generic TPU for gaskets. Material choice is a starting preset; use the profile for your actual spool before printing.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Plate</th>
+<th>Contents</th>
+<th>Material / purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01 COMMON</td>
+<td>Radio and battery housings</td>
+<td>PA6-GF; shared by both variants</td>
+</tr>
+<tr>
+<td>02 COMMON</td>
+<td>Original top cap, twist interfaces, middle interface, lock wings</td>
+<td>PA6-GF; shared parts</td>
+</tr>
+<tr>
+<td>03 TPU ONLY</td>
+<td>Two original 0.24 mm gaskets</td>
+<td>TPU, two 0.12 mm layers, 100% infill</td>
+</tr>
+<tr>
+<td>04 VARIANT A</td>
+<td>S3 + HaLow prototype fit tray</td>
+<td>PA6-GF; editable negative volumes</td>
+</tr>
+<tr>
+<td>05 VARIANT B</td>
+<td>S3 + HaLow + Pi Zero prototype fit tray</td>
+<td>PA6-GF; editable negative volumes</td>
+</tr>
+<tr>
+<td>06 LEGACY OPTION</td>
+<td>Original upstream Pi 4 frame</td>
+<td>PA6-GF; alternative reference, not required for A/B</td>
+</tr>
+</tbody></table></div>
+<p>For a prototype build, use plates 01–03 and choose <strong>04 or 05</strong>. Plate 06 is an optional legacy alternative. Common parts appear once. Rigid parts use four walls and 20% gyroid infill; housings/interfaces have automatic tree supports and a 4 mm brim. Tray supports are disabled. TPU has no supports or brim and slower walls. Feed ordinary Generic TPU from the external spool using your filament manufacturer&#39;s requirements.</p>
+<h2 id="section-1"><span id="update-geometry-while-keeping-your-setup">Update geometry while keeping your setup</span></h2>
+<ol>
+<li>Export changed geometry over the same canonical STL filename in <code>docs/assets/models/ties1887-v2/</code>. Keep units in millimetres, the same axes and model origin. Do not add a second copy through Import.</li>
+<li>In Studio&#39;s <strong>Objects</strong> list, right-click the object or an individual child part and choose <strong>Reload from disk</strong>. Reload both A and B if their shared blank or board tools changed. Object reload refreshes all source-backed children, including negatives.</li>
+<li>Inspect the changed clearance, orientation and slice, then save the working project. Geometry changes can invalidate supports or require repositioning a cutout.</li>
+</ol>
+<p>STL reload is manual. Studio does not continuously watch these files. The project stores direct STL source references, rather than references to another generated 3MF. Full source paths are enabled on this workstation so save/reopen retains the links. If the repository moves or another workstation opens it, use Studio&#39;s missing-file picker to locate the corresponding canonical STL; keep all sources together.</p>
+<p>Expand either tray in Objects to see <code>NEG</code> children. These are Bambu negative parts: select a child to move, scale or reload the cutter. The detailed Seeed stack is included as a negative reference inside the larger clearance cutter. The simple clearance cutter provides deliberate room around it. Prepare view shows translucent cutters; Preview shows the resulting toolpaths. Reload may rename child parts to their STL filenames; the <code>NEG</code> filenames preserve their purpose.</p>
+<h2 id="section-2"><span id="case-hardware-bom">Case hardware BOM</span></h2>
+<p><a href="../hardware/print/hardware-bom.csv">Hardware and printed-parts list</a> gives quantities for one S3-only case and one S3/Pi Zero case. The board mounting screws and nuts are specified; outer shell fasteners, cradle-to-shell attachment, battery contact/lock hardware and connector fixing kits remain marked TBD. It is a prototype BOM, not a complete buy-ready case kit. The general system BOM is <a href="../hardware/bom.csv">hardware/bom.csv</a>.</p>
+<h2 id="section-3"><span id="board-screw-mounts">Board screw mounts</span></h2>
+<p>Both cradles have four <strong>M2</strong> mounts for the HaLow carrier. The combined cradle adds four <strong>M2.5</strong> mounts for the Pi Zero. Use matching hex nuts in the underside pockets; 8 mm machine screws are the starting choice. Allow at least 1 mm underneath for screw tips and check head/washer clearance on the real PCB. The XIAO S3 is supported by the seated carrier headers.</p>
+<p>The posts have smaller board seats above wider bases. Their geometry is preserved through the clearance cutters, and separate <code>NEG ... fasteners</code> children make the screw holes and nut pockets. See <a href="screw-mounts.html">dimensions, hardware and assembly</a>. The manufacturer STEP&#39;s slightly asymmetric carrier hole coordinates still need checking on the delivered board.</p>
+<h2 id="section-4"><span id="design-status">Design status</span></h2>
+<p>These are <strong>fit prototypes</strong>, not a mechanically validated finished enclosure. The trays now include screw posts, through holes and underside captive-nut pockets, as well as board clearances and underside/cable access; shell retention, connector alignment and real header heights still need a physical fit check. The Pi option is sized for a Pi Zero footprint, not a Pi 4. The top cap retains the upstream antenna/port layout. The inherited battery shell has not been adapted or approved for a particular battery assembly. The original gaskets are only 0.24 mm thick; successful slicing does not establish sealing or an IP rating.</p>
+<p>The blank is 63.6 × 82 × 6 mm. S3/HaLow clearance is 25.6 × 44.6 mm; Pi Zero clearance is 30.6 × 65.6 mm. Sources and provisional board-stack measurements are in <code>../reference/seeed-xiao-esp32s3-halow/</code>; enclosure research is in <code>../reference/enclosure-feasibility/</code>.</p>
+<h2 id="section-5"><span id="generated-files-and-maintenance">Generated files and maintenance</span></h2>
+<ul>
+<li><strong>AuMaNET-Bambu-Workshop.3mf</strong> — manually editable working project; builders never overwrite an existing copy.</li>
+<li><strong>AuMaNET-Bambu-Workshop.generated.3mf</strong> — reproducible six-plate starting project. Rebuild with <code>python scripts/build-bambu-workshop.py</code>. Use Reload from disk in the working project for routine geometry updates.</li>
+<li><strong>AuMaNET-parts.3mf</strong> — geometry-only canonical bundle, currently 12 positive parts (11 upstream plus the tray blank). Nine negative tools are excluded through <code>hardware: true</code> manifest entries. This is not the arranged print project.</li>
+<li><strong>parts-manifest.json</strong> — source hashes and counts for the canonical bundle.</li>
+<li><strong>workshop-manifest.json</strong> — plate and source mapping for the generated workshop.</li>
+<li><strong>archive/AuMaNET-arranged-original-2026-11-06.3mf</strong> — preserved original arranged project.</li>
+<li><strong>validation/</strong> — Bambu slice and reload evidence; generated G-code is for inspection and must be re-sliced after any changes.</li>
+</ul>
+<p>The tray parameters are in <code>../cad/bambu-tray-parameters.json</code>. <code>python scripts/export-bambu-tray-sources.py</code> exports its blank and cutters to canonical STLs; this requires CadQuery. After changing printable CAD, export it, update canonical <code>manifest.json</code> selection entries as necessary, then run from the repository root:</p>
+<pre><code class="language-powershell">powershell -NoProfile -File hardware/print/Update-3MF.ps1 -Once
+</code></pre>
+<p>The canonical builder refuses to overwrite slicer-edited projects. Keep your arranged project under its workshop filename. Do not use the upstream importer for a rebuild: it restores pinned upstream originals over canonical STLs. <code>Watch-STLs.cmd</code> only rebuilds the geometry bundle; it does not update an open Studio project.</p>
+<h2 id="section-6"><span id="verification-and-attribution">Verification and attribution</span></h2>
+<p>Bambu Studio 2.8.2.61 opened the updated six-plate project with 14 negative volumes. Its CLI sliced all six plates with return code 0 and no plate warnings. CAD checks confirmed one connected solid per cradle, four/eight open screw holes, fitting nut pockets and intact board seats. Plate 03 generated exactly two layers at Z=0.12 and 0.24 mm using filament 2. Before the screw-mount revision, a temporary blank height change from 6.0 to 6.4 mm was reloaded in Studio and saved; all 11 then-existing negative volumes survived. The source was restored after the test. See <code>validation/VERIFICATION.md</code> for the saved checks.</p>
+<p>Upstream enclosure geometry: ties1887, CC BY-NC-SA 4.0; see <code>../../docs/assets/models/ties1887-v2/LICENSE.txt</code> and <code>../cad/upstream-selection.json</code>. AuMaNET blank/simple cutters: CC BY-NC-SA 4.0. Seeed board reference: CC BY-SA 4.0; see its reference folder and canonical manifest. Filament defaults are flattened from the installed Bambu PA6-GF and Generic TPU profiles; their source is recorded in <code>profiles/README.md</code>.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../hardware/print/README.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

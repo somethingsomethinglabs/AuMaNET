@@ -2,6 +2,8 @@
 
 Status: new project baseline, 6 November 2026. Feasibility is unproven.
 
+The [delivery register](../design/delivery-plan.md) owns execution order; [capabilities](../docs/capabilities.md), [compatibility](../docs/compatibility.md), [decisions](../design/decisions/README.md) and [requirement coverage](../design/requirements-traceability.md) consolidate current status. This document owns confirmed product scope and G0–G5 definitions. Use the [current experiment template](experiment-template.md) and register results in [evidence](../docs/evidence.md).
+
 The previous Pi/Heltec/OpenMANET design is superseded. Its files remain temporarily as historical material, including uncommitted work; they are not specifications for this project. No enclosure, battery, purchasing restriction or firmware choice carries forward automatically.
 
 ## Goal
@@ -14,6 +16,10 @@ Candidate hardware selected by the project owner:
 - [Seeed XIAO ESP32-S3, SKU 113991114](https://core-electronics.com.au/seeed-studio-xiao-esp32s3.html), replacing the initial C6 candidate. Core lists A$16.10 including GST on 6 November 2026. Seeed's HaLow guide targets the S3 series (using Sense as its example); verify plain-board pins, headers and assembly against the exact received hardware.
 
 These are investigation targets, not a validated hardware combination.
+
+The owner confirmed ordering the plain XIAO ESP32-S3 and XIAO HaLow carrier on 6 November 2026; receipt and quantity remain unconfirmed. [Mechanical reference pack](../hardware/reference/seeed-xiao-esp32s3-halow/README.md): manufacturer STEP files, PCB/DXF sources, dimensions and a provisional combined placement. Board outlines are established; exact assembled header height and mounting fit still require verification.
+
+[Rugged enclosure feasibility study](../hardware/reference/enclosure-feasibility/README.md): measured ties1887 V2/P4-Wio references, the newer four-21700 battery assembly, conditional runtime estimates and an optional Pi Zero layout. These are adaptation proposals; no battery architecture, Pi requirement or modified enclosure has been selected or released.
 
 Test antenna candidate: [Core 915 MHz u.FL antenna, CE09458](https://core-electronics.com.au/915mhz-ufl-antenna.html), A$2.30 including GST as checked 6 November 2026. Retailer specifications: 50 ohm, adhesive flexible PCB, 15 × 65 mm, approximately 200 mm lead, advertised 700 MHz–2.7 GHz coverage and 6 dBi gain. Treat gain/bandwidth as supplier claims pending RF evidence. The listed frequency coverage includes the intended HaLow band, but verify the exact connector series on the received HaLow board: IPEX/u.FL naming alone does not establish compatibility with smaller MHF4 connectors. Do not force a mismatched connector. Final-product selection depends on connector fit, enclosure placement, antenna performance and applicable module/antenna approval conditions. This antenna serves the HaLow radio; the S3 phone-link radio needs its own suitable 2.4 GHz antenna.
 
@@ -51,6 +57,7 @@ If a gate fails, record whether a driver port, different topology, reduced scope
 - Shared internet must serve all phone applications, not only the companion app.
 - Devices must continue forwarding when their paired phone is disconnected or asleep.
 - Application compute belongs on phones, while autonomous transport/routing remains on the device.
+- Added by the owner on 7 November 2026: each board serves an offline browser interface for setup, status, diagnostics and recovery; the Android app uses the same versioned configuration API. Firmware owns configuration validation, permissions and persistence. [ADR-0006](../design/decisions/0006-board-web-configuration.md) accepts the direction; W16 and SW-16 track implementation and acceptance, which remain pending.
 
 Android must donate and receive internet. Evaluate iPhone donation and reception as optional capabilities and document any limitations separately. All-app connectivity requires an OS-supported network path or tunnel, and donor egress needs separate proof. A VPN API alone is not evidence that a phone can donate its internet connection. Manual hotspot enabling is acceptable when required; automatic route discovery and selection follow user authorization/setup.
 
@@ -65,11 +72,13 @@ Android must donate and receive internet. Evaluate iPhone donation and reception
 - Camera sharing is exploratory and must not dictate the initial bandwidth target.
 - Basic shared internet access is required; streaming is a bonus. Recover automatically with low control overhead and as little disruption as feasible. Preserve viable sessions when possible, reconnect interrupted services when necessary, and document gateway/public-IP change limitations rather than promise seamless migration.
 - Location should be near live, with accuracy circles reflecting the source location estimate and visible fix age/stale status. Exact update interval and latency targets need measurement and agreement. Provisionally use paired-phone location; standalone relay operation does not imply onboard GNSS.
-- The owner plans to buy two Seeed setups for initial concept tests. Purchase/receipt is not yet confirmed. This first stage proves a direct link and two-phone functions; a third physical node is required for actual multi-hop validation.
+- The initial concept-test plan calls for two Seeed setups. The owner has confirmed ordering the S3 and HaLow boards; quantity and receipt are not yet confirmed. This first stage proves a direct link and two-phone functions; a third physical node is required for actual multi-hop validation.
 - Phone-to-node transport is undecided: evaluate Bluetooth/BLE, Wi-Fi or a combination against group voice, all-app internet, donor/consumer role changes and power requirements.
 - QR-code group joining/configuration through the phone is a preferred candidate. Key design is unresolved; hardcoded shared keys were suggested as a fallback, not established as a release requirement.
 
 ## Open product decisions
+
+Voice resilience requirement: absorb uneven arrival with adaptive queued receive audio and playback time stretching, alongside loss concealment/recovery where possible. Keep live delay bounded and report degraded links; do not replay a seconds-old outage backlog as current speech. See the proposed [voice/audio requirements and experiments](../design/voice-audio-plan.md), including smart detection and the distinction between denoising and target-speaker isolation. Numeric tuning/performance targets there remain proposals.
 
 1. Exact antenna placement/height and field-test routes; representative continuous-use voice/internet loads for reproducible power tests.
 2. Numeric location update/latency targets; treat 1 Hz moving updates as a discovery hypothesis, not an accepted specification.

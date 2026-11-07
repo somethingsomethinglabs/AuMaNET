@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="reference"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Seeed XIAO ESP32-S3 + XIAO HaLow mechanical references · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">PROTOTYPE REFERENCE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Dimensions to start modeling</a></li><li><a href="#section-2">Files ready to import</a></li><li><a href="#section-3">Header layout and source discrepancies</a></li><li><a href="#section-4">Mounting holes</a></li><li><a href="#section-5">Community case and mount search</a></li><li><a href="#section-6">Source provenance and reuse</a></li><li><a href="#section-7">Reproduce / adjust the stack</a></li></ol></details><h1 id="seeed-xiao-esp32-s3-xiao-halow-mechanical-references">Seeed XIAO ESP32-S3 + XIAO HaLow mechanical references</h1>
+<p>Research completed 6 November 2026. These are component references for enclosure planning, not printable AuMaNET parts. No existing enclosure or print selection was changed.</p>
+<p>The ordered hardware is understood from the project records and owner&#39;s confirmation to be the <strong>plain XIAO ESP32-S3, SKU 113991114</strong>, and <strong>Wi-Fi HaLow Transceiver for XIAO, SKU 109100041</strong>, based on Quectel FGH100M-H. The latter also appears under Wio-WM6180 and Wio-WM6108 names in Seeed material; use the SKU and board photographs to distinguish it from the Mini PCIe module. The S3 Sense camera assembly and S3 Plus are different products.</p>
+<h2 id="section-1"><span id="dimensions-to-start-modeling">Dimensions to start modeling</span></h2>
+<p>All dimensions below are millimetres, in length × width × height order. CAD values describe the downloaded geometry, not manufacturing tolerances or measurements of the shipped boards.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Dimensions</th>
+<th>Basis and limits</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Plain XIAO ESP32-S3 PCB, nominal</td>
+<td><strong>21 × 17.8</strong></td>
+<td><a href="https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/">Manufacturer specification</a>. Core&#39;s listing says 17.5 wide; use the manufacturer drawing/model rather than that rounded/inconsistent retailer description.</td>
+</tr>
+<tr>
+<td>S3 PCB as modeled</td>
+<td><strong>20.955 × 17.780 × 1.250</strong></td>
+<td>Measured from the PCB solid in Seeed&#39;s STEP.</td>
+</tr>
+<tr>
+<td>S3 complete board as modeled, no pin headers</td>
+<td><strong>22.482 × 17.780 × 4.460</strong></td>
+<td>Includes USB-C overhang and components; excludes antennas, coax mating plug, headers and solder.</td>
+</tr>
+<tr>
+<td>S3 USB-C shell model</td>
+<td><strong>7.30 × 8.94 × 4.20</strong></td>
+<td>Length along insertion axis, width across connector, overall shell height. Includes its mounting geometry; not an opening/plug-clearance specification.</td>
+</tr>
+<tr>
+<td>USB-C beyond S3 PCB edge</td>
+<td><strong>1.527</strong></td>
+<td>CAD measurement. Do not design a cavity using only the 21 mm PCB length.</td>
+</tr>
+<tr>
+<td>HaLow carrier PCB, nominal/model outline</td>
+<td><strong>42 × 25</strong></td>
+<td>Seeed STEP; corroborated by <a href="https://cdn.ozdisan.com/public/product/assets/SEEED-109100041.pdf">Seeed&#39;s product sheet</a> and <a href="https://core-electronics.com.au/wi-fi-halow-module-seeed-studio-xiao.html">Core Electronics</a>.</td>
+</tr>
+<tr>
+<td>HaLow carrier laminate thickness</td>
+<td><strong>1.60</strong></td>
+<td>KiCad setup and the two largest planar PCB faces in STEP agree. Decorative geometry in the PCB solid makes its total bounding thickness larger; that is not laminate thickness.</td>
+</tr>
+<tr>
+<td>HaLow complete CAD model</td>
+<td><strong>42 × 25 × 7.642</strong></td>
+<td>Includes its female sockets and untrimmed modeled tails underneath. Sockets have 4.50 mm body height. Socket tops are 6.138 mm above laminate underside.</td>
+</tr>
+<tr>
+<td>Both boards, provisional placement</td>
+<td><strong>43.71 × 25.00 × 14.60</strong></td>
+<td>Calculated from both models, aligned by header-pattern midpoint, assuming a <strong>2.50 mm male header collar</strong> beneath the S3 and full insertion. Includes HaLow modeled tails, omits S3 male header geometry/solder and cables. <strong>Not a verified assembled dimension.</strong></td>
+</tr>
+<tr>
+<td>Provisional stack, measured from carrier laminate underside</td>
+<td><strong>13.10 high</strong></td>
+<td>Same assumptions. The additional approximately 1.50 mm below this datum is the HaLow model&#39;s protruding socket tails. Product photos show shorter/trimmed soldered tails, so actual underside height may differ.</td>
+</tr>
+</tbody></table></div>
+<p>For initial space planning, reserve roughly <strong>44 × 25 × 15 mm for the bare board stack</strong> under the 2.50 mm collar assumption. A starting cavity of <strong>45 × 26 × 16 mm</strong> adds about 0.5 mm per face around that rounded envelope; this is an engineering allowance, not a tested enclosure fit. Add separate room for mounting posts, USB plug overmould/insertion, two antenna connectors and coax bend radii, battery wiring and antennas. Taller headers require more height.</p>
+<h2 id="section-2"><span id="files-ready-to-import">Files ready to import</span></h2>
+<ul>
+<li><a href="../hardware/reference/seeed-xiao-esp32s3-halow/sources/xiao-esp32s3-v3.step">S3 manufacturer STEP</a></li>
+<li><a href="../hardware/reference/seeed-xiao-esp32s3-halow/sources/halow-xiao-v3.step">HaLow manufacturer STEP</a></li>
+<li><a href="../hardware/reference/seeed-xiao-esp32s3-halow/stack-provisional.step">Provisional combined placement</a> — original geometry repositioned; no male-header bodies added. The empty space between socket top and S3 underside represents the assumed collar height.</li>
+<li><a href="../hardware/reference/seeed-xiao-esp32s3-halow/stack-reference.png">Top and side reference drawing</a></li>
+<li><a href="../hardware/reference/seeed-xiao-esp32s3-halow/measurements.json">Measurements and source SHA256 hashes</a></li>
+<li><a href="../hardware/reference/seeed-xiao-esp32s3-halow/sources/xiao-esp32s3-v1.1.dxf">S3 manufacturer DXF</a></li>
+<li><a href="../hardware/reference/seeed-xiao-esp32s3-halow/sources/halow-v30.kicad_pcb">HaLow manufacturer KiCad layout</a></li>
+<li><a href="../hardware/reference/seeed-xiao-esp32s3-halow/sources/halow-schematic.pdf">HaLow schematic</a></li>
+<li><a href="../hardware/reference/seeed-xiao-esp32s3-halow/sources/fgh100m-h-specification.pdf">Quectel radio-module specification</a> — radio package dimensions do not describe the 42 × 25 carrier.</li>
+</ul>
+<p>The two original STEP files open in millimetres but use <strong>Y as vertical</strong>. In the combined file, <strong>X follows the carrier&#39;s 42 mm length, USB at the low-X end; Y follows its 25 mm width; Z points up</strong>. Origin is the USB-end/low-width corner at the underside of the carrier laminate. Some geometry extends below Z=0 and beyond X=0. Component names/colour grouping may depend on the CAD importer.</p>
+<p>The exact provisional model bounds are X = -1.7085 to 42, Y = 0 to 25, Z = -1.5048 to 13.0977. The S3 underside is at Z = 8.6377. These values are derived placements, not manufacturer assembly datums.</p>
+<h2 id="section-3"><span id="header-layout-and-source-discrepancies">Header layout and source discrepancies</span></h2>
+<p>The S3 model has two rows of seven holes, <strong>2.54 mm pitch</strong> and <strong>15.24 mm row spacing</strong>. With X=0 at its USB-side PCB edge and Y=0 at one long edge, hole centres are:</p>
+<ul>
+<li>X = 2.921, 5.461, 8.001, 10.541, 13.081, 15.621, 18.161.</li>
+<li>Y = 1.270 and 16.510.</li>
+</ul>
+<p>The HaLow sources are not mutually exact:</p>
+<ul>
+<li>The STEP socket/pin row centres are approximately <strong>15.8517 mm apart</strong>.</li>
+<li>The KiCad CN2 through-hole pad row centres are <strong>15.748 mm apart</strong>, with slotted drills.</li>
+<li>Neither matches the S3 STEP&#39;s 15.240 mm hole row spacing. The STEP socket pattern is also about 0.182 mm closer to the USB end than the KiCad pattern relative to its board edge.</li>
+</ul>
+<p>This does <strong>not</strong> establish a physical incompatibility: Seeed sells the carrier for XIAO, and slotted holes/header positioning may account for part of the difference. It establishes that the public models do not support an exact contact-by-contact mating simulation. The supplied combined STEP aligns pattern midpoints and preserves the original component shapes; it does not stretch, bend, or silently correct the sockets.</p>
+<p>Depending on whether the KiCad layout or STEP socket midpoint is used for the S3 placement, total length including USB is approximately <strong>43.53–43.71 mm</strong>. This is a source-placement difference, not a manufacturing tolerance band.</p>
+<p>For the downloaded models, overall height including modeled carrier tails is:</p>
+<p><code>H = 12.1025 + male_header_collar_height + any_unseated_gap</code></p>
+<p>At a 2.50 mm collar and zero gap: H ≈ 14.60 mm. From carrier laminate underside rather than tail tips: H ≈ 13.10 mm. Each extra millimetre of collar or incomplete insertion adds one millimetre to both heights. The exact male-header part number and shipped/soldered configuration were not identified in the available sources. The <a href="https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/">S3 guide</a> says the regular board ships without pin headers by default, so soldered header choice is a real mechanical variable.</p>
+<p>An alternate <a href="https://au.mouser.com/en/ProductDetail/Seeed-Studio/109100041?qs=LnCj936TGbXCDZBFNtKZvA%3D%3D">Mouser listing</a> reports <strong>45 × 25 × 13 mm</strong> for SKU 109100041 without a dimension drawing or a clear assembled datum. This conflicts with the 42 mm PCB evidence and should not be treated as a verified stack measurement.</p>
+<h2 id="section-4"><span id="mounting-holes">Mounting holes</span></h2>
+<p>The HaLow STEP has four mounting holes of <strong>2.50 mm modeled diameter</strong>, all around the radio half of the board. Coordinates below use the combined file&#39;s carrier datum:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Hole</th>
+<th align="right">X</th>
+<th align="right">Y</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Near USB half, low Y</td>
+<td align="right">22.6004</td>
+<td align="right">1.8769</td>
+</tr>
+<tr>
+<td>Near USB half, high Y</td>
+<td align="right">22.6004</td>
+<td align="right">23.1679</td>
+</tr>
+<tr>
+<td>Far end, low Y</td>
+<td align="right">40.2579</td>
+<td align="right">1.9298</td>
+</tr>
+<tr>
+<td>Far end, high Y</td>
+<td align="right">40.2579</td>
+<td align="right">23.2208</td>
+</tr>
+</tbody></table></div>
+<p>The model&#39;s hole rows are slightly skewed/asymmetric. The supplied KiCad conversion does not expose matching mounting-hole drill footprints, so these positions are <strong>STEP-only reference measurements</strong>. Do not replace them with an assumed neat 18 × 21 mm rectangle or commit tight screw-post fits until checked on hardware. The plain S3 has no dedicated mounting holes; its header holes and USB mounting features are not case screw holes.</p>
+<h2 id="section-5"><span id="community-case-and-mount-search">Community case and mount search</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Relevance</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://forum.seeedstudio.com/t/make-a-base-grove-mini-half-expansion-board/293175">PJ_Glasso: Make a Base — Seeed forum</a></td>
+<td><strong>Relevant Seeed HaLow mounting base.</strong> Author reports the HaLow version fits and attaches <code>SmalGrove_Base_w_feet_post_Halow .zip</code>, containing FreeCAD source, STL and G-code. Download inspected: FreeCAD source includes the same Seeed HaLow component model. It is an open mounting base, not a measured closed enclosure for the complete S3 stack. Reuse terms for the author&#39;s base were not clearly stated; link retained rather than redistributing it here.</td>
+</tr>
+<tr>
+<td><a href="https://www.printables.com/model/1193403-enclosure-for-wi-fi-halow-carrier-for-xiao-esp32-s">Rob Carey enclosure, Printables 1193403</a></td>
+<td>Real enclosure with battery space, but for Rob&#39;s <strong>different MM6108 carrier</strong>, <a href="https://oshwlab.com/robcarey/stockman-3-0062">OSHWLab stockman-3-0062</a>. Its pocket and mounting dimensions are not proof of fit for Seeed SKU 109100041.</td>
+</tr>
+<tr>
+<td><a href="https://abaumann9.github.io/longwave-audio/hardware-guide.html">LongWave Audio hardware guide</a></td>
+<td>Links an Onshape enclosure and STL parts for an S3 <strong>Plus</strong> / HaLow / audio-DAC project, with a custom-PCB option. Useful packaging reference; different stack, no verified dimensions for these two ordered boards.</td>
+</tr>
+<tr>
+<td><a href="https://www.printables.com/model/1345643-3d-model-for-wi-fi-halow-transceiver-for-seeed-stu">Seeed official HaLow component model, Printables 1345643</a></td>
+<td>Best directly usable component geometry found; downloaded and measured here. It is a board model, not a case.</td>
+</tr>
+<tr>
+<td><a href="https://www.printables.com/model/1344060-3d-model-for-seeed-studio-xiao-esp32-s3">Seeed official S3 component model, Printables 1344060</a></td>
+<td>Plain S3 geometry, downloaded and measured here. The older STEP linked from the S3 wiki ZIP has the same overall envelope.</td>
+</tr>
+</tbody></table></div>
+<p>Targeted searches included MakerWorld, Thingiverse, Printables, the Seeed forum, manufacturer resources and GitHub. No exact closed case with independently verified dimensions for this specific plain-S3 + Seeed-HaLow pair was found. Many nearby results are for Wio-SX1262 <strong>LoRa</strong>, S3 <strong>Sense</strong>, Raspberry Pi HaLow or LilyGO T-HaLow, and should not supply this stack&#39;s dimensions.</p>
+<h2 id="section-6"><span id="source-provenance-and-reuse">Source provenance and reuse</span></h2>
+<p>Both STEP models were downloaded from the verified Seeed Studio creator profile on Printables on 6 November 2026. The listings identify Seeed Studio as author and specify <strong><a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></strong>. Attribution: Seeed Studio, “3D Model for Seeed Studio XIAO ESP32-S3” (updated 2 July 2025) and “3D Model for Wi-Fi HaLow Transceiver for Seeed Studio XIAO” (updated 4 July 2025). Original geometry is retained unchanged in <code>sources/</code>; the derived combined placement and reference drawing are provided under the same CC BY-SA 4.0 terms. Translations/rotations, measurement extraction and drawing are by AuMaNET.</p>
+<p>Other manufacturer reference downloads are retained for engineering reference under their respective source terms; this folder does not grant an additional licence to their designs.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Local source</th>
+<th>Download / source page</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sources/xiao-esp32s3-v3.step</code></td>
+<td><a href="https://www.printables.com/model/1344060-3d-model-for-seeed-studio-xiao-esp32-s3/files">Printables files</a>, filename <code>XIAO-ESP32S3 v3.step</code></td>
+</tr>
+<tr>
+<td><code>sources/halow-xiao-v3.step</code></td>
+<td><a href="https://www.printables.com/model/1345643-3d-model-for-wi-fi-halow-transceiver-for-seeed-stu/files">Printables files</a>, filename <code>Wi-Fi HaLow Module for Seeed Studio XIAO v3.step</code></td>
+</tr>
+<tr>
+<td><code>sources/xiao-esp32s3-v1.1.dxf</code></td>
+<td><a href="https://files.seeedstudio.com/wiki/SeeedStudio-XIAO-ESP32S3/res/XIAO_ESP32S3_v1.1_Dimensioning.dxf">Seeed DXF</a></td>
+</tr>
+<tr>
+<td><code>sources/halow-v30.kicad_pcb</code></td>
+<td><a href="https://files.seeedstudio.com/wiki/wifi_halow/res/WI-FI_HALOW_FGH100M_EXT01_V30.kicad_pcb">Seeed PCB file</a></td>
+</tr>
+<tr>
+<td><code>sources/halow-schematic.pdf</code></td>
+<td><a href="https://files.seeedstudio.com/wiki/wifi_halow/res/WI-FI_HALOW_FGH100M_EXT01_V30_SCH_20241107.pdf">Seeed schematic</a></td>
+</tr>
+<tr>
+<td><code>sources/fgh100m-h-specification.pdf</code></td>
+<td><a href="https://files.seeedstudio.com/wiki/wifi_halow/res/Quectel_FGH100M-H_Short-Range_Module_Specification_V1.0.0_Preliminary_20241018.pdf">Quectel specification hosted by Seeed</a></td>
+</tr>
+</tbody></table></div>
+<h2 id="section-7"><span id="reproduce-adjust-the-stack">Reproduce / adjust the stack</span></h2>
+<p>Run with Python containing <code>cadquery</code>, <code>numpy</code> and <code>matplotlib</code>:</p>
+<pre><code class="language-powershell">python hardware/reference/seeed-xiao-esp32s3-halow/measure_reference.py --male-collar-mm 2.5
+</code></pre>
+<p>This regenerates <code>measurements.json</code>, <code>stack-provisional.step</code> and <code>stack-reference.png</code> locally without downloading anything. The script asserts the archived model structure and S3 header-hole count before deriving the placement. Source checksums are recorded in the JSON. Visual drawing was inspected and the exported STEP was reimported to check its envelope.</p>
+<p>On receipt, measure the male collar, fully seated PCB separation, total height including solder, mounting holes and USB position first. Those are the remaining fit-critical uncertainties; the basic board outlines and reusable manufacturer CAD are already available.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../hardware/reference/seeed-xiao-esp32s3-halow/README.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

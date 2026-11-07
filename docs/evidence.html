@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Evidence register · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Recorded results</a></li><li><a href="#section-2">Pending results</a></li><li><a href="#section-3">Evidence quality and updates</a></li></ol></details><h1 id="evidence-register">Evidence register</h1>
+<p>Reviewed 7 November 2026. Evidence records describe what was observed, in which environment and against which revision. A planned record has <strong>no result</strong>. Existing records below were written during earlier work; only the dated documentation follow-up repeats handbook checks.</p>
+<h2 id="section-1"><span id="recorded-results">Recorded results</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Evidence ID</th>
+<th>Record / environment</th>
+<th>Supported conclusion</th>
+<th>Limitations</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EV-UI</td>
+<td><a href="ui-verification.html">UI verification</a>, <a href="ux-panel.html">simulated UX panel</a>; 6 November 2026, Chromium and Android 16/API 36 emulator</td>
+<td>Interactive sample-data UI, local persistence, debug shell and exercised navigation/PTT/mute controls; prior web/Gradle builds reported passed</td>
+<td>No physical phone/radio, native mic/GPS/background session, real map or routed internet acceptance. Reports lack an immutable source-tree identity; re-run and pin before release</td>
+</tr>
+<tr>
+<td>EV-MECHANICAL</td>
+<td><a href="board-reference.html">Board reference measurements</a>, <a href="enclosure-reference.html">enclosure study</a>; source hashes in accompanying measurement files</td>
+<td>Manufacturer-model envelopes and provisional placement are documented</td>
+<td>Header height, mounting-hole fit and actual board assembly unverified; research does not select battery or production hardware</td>
+</tr>
+<tr>
+<td>EV-PRINT</td>
+<td><a href="print-verification.html">Workshop verification</a>; 6 November 2026, Bambu Studio 2.8.2.61 and CAD checks</td>
+<td>Recorded six-plate slicing and screw-mount checks; canonical bundle rebuild succeeded with 12 positive parts and 50,750 triangles</td>
+<td>Geometry/slicing only; no physical fit, printed sealing, battery acceptance or approved full kit</td>
+</tr>
+<tr>
+<td>EV-DOCS</td>
+<td><a href="validation.html">Documentation consolidation verification and board configuration follow-up</a>; 6–7 November 2026</td>
+<td>7 November: handbook generation/references and SW-16 coverage pass; earlier TypeScript/Svelte/browser observations remain dated 6 November</td>
+<td>Combined repository check previously failed at existing CAD validator/custom-manifest mismatch; W15; not rerun on 7 November. No hardware or Android services revalidated</td>
+</tr>
+</tbody></table></div>
+<p>Raw videos, screenshots, APKs and logs named in the UI reports are workstation artifacts; availability is not assumed on a fresh checkout. The handbook labels those artifact references rather than requiring them to read the report. Never publish identifying location/audio data or credentials to fill an evidence link.</p>
+<h2 id="section-2"><span id="pending-results">Pending results</span></h2>
+<p>Each ID below is reserved. No successful physical result is asserted. Create a dated record under <code>discovery/results/</code> using the <a href="experiment-template.html">experiment template</a>, then replace the pending record description with a link and exact configuration. Keep older results when superseded.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Evidence ID</th>
+<th>Planned record / work</th>
+<th>Current result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EV-HARDWARE</td>
+<td>W01 board inventory, AU profile review and pinned SDK build</td>
+<td>Not run; receipt/revisions/region unresolved</td>
+</tr>
+<tr>
+<td>EV-LINK</td>
+<td>W02 direct radio link</td>
+<td>Not run</td>
+</tr>
+<tr>
+<td>EV-MESH</td>
+<td>W03 autonomous three-node topology</td>
+<td>Not run; third physical node required</td>
+</tr>
+<tr>
+<td>EV-HOST</td>
+<td>W04 physical Android transport/lifecycle comparison</td>
+<td>Not run</td>
+</tr>
+<tr>
+<td>EV-INTERNET</td>
+<td>W05 all-app donor/consumer data path</td>
+<td>Not run</td>
+</tr>
+<tr>
+<td>EV-SECURITY</td>
+<td>W06 threat model, contracts, identity and lifecycle tests</td>
+<td>Design only; no acceptance result</td>
+</tr>
+<tr>
+<td>EV-AUDIO</td>
+<td>W07 native voice and A1–A11 trials</td>
+<td>Not run; simulated microphone indicators excluded</td>
+</tr>
+<tr>
+<td>EV-MAPS</td>
+<td>W08 actual maps/location</td>
+<td>Not run</td>
+</tr>
+<tr>
+<td>EV-MESSAGES</td>
+<td>W09 real durable messaging</td>
+<td>Not run</td>
+</tr>
+<tr>
+<td>EV-INTEGRATION</td>
+<td>W10 mixed group/gateway tests</td>
+<td>Not run</td>
+</tr>
+<tr>
+<td>EV-POWER</td>
+<td>W11 cost, actual endurance and physical fit</td>
+<td>Not run; CAD and energy estimates excluded</td>
+</tr>
+<tr>
+<td>EV-FIELD</td>
+<td>W12 range/terrain results</td>
+<td>Not run</td>
+</tr>
+<tr>
+<td>EV-RELEASE</td>
+<td>W13 reproducibility, supported kit and recovery</td>
+<td>Not run</td>
+</tr>
+<tr>
+<td>EV-CONFIG</td>
+<td>W16 offline board-served setup, shared browser/Android API, authentication, persistence/recovery and exact-board resource trials; accepted direction 7 November 2026 in ADR-0006</td>
+<td>Not run; design only, no server/API implementation</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-3"><span id="evidence-quality-and-updates">Evidence quality and updates</span></h2>
+<p>Record date, named tester/reviewer, requirement/test IDs, source commit plus dirty-tree patch/hash if relevant, exact build/dependency revisions, hardware/phone/OS versions, settings, commands, workload, sample count, expected thresholds, raw-data location and redacted results. A changed target needs its reason and decision reference. Keep pass, fail, inconclusive and not run distinct.</p>
+<p>Use <a href="requirements-traceability.html">requirement coverage</a> to see which claims a result can support. Update <a href="compatibility.html">compatibility</a> only for the tested combination; an emulator, build success, simulated trace or supplier claim cannot promote a physical configuration.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="evidence.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

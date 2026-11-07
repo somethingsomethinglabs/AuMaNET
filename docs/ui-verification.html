@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Android UI prototype verification · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><h1 id="android-ui-prototype-verification">Android UI prototype verification</h1>
+<p>Verified 6 November 2026 with the installed <code>au.aumanet.app</code> debug APK in an Android 16 / API 36 emulator, plus Chromium at phone and desktop viewport sizes. All data and hardware states are simulated.</p>
+<p>Implemented: Map, Messages, Voice, Network, Settings hub, Nodes and Node settings, Group &amp; members, Voice &amp; audio, Internet sharing, Maps &amp; storage, Location &amp; privacy, Notifications, Appearance and Diagnostics &amp; about.</p>
+<p>Verification covered:</p>
+<ul>
+<li>Sending non-empty messages, local history, and escaped message text.</li>
+<li>Push-to-talk press/release, mute gating, Always on selection and independent channel join/leave.</li>
+<li>Distinct radio/phone topology, manual donor selection, source disconnection and separate own-donation setting.</li>
+<li>Settings search, local settings persistence, node name validation and persistence, remote nodes as view-only, and confirmation dialogs.</li>
+<li>Map pan/zoom/recenter, member selection, missing-map recovery and own location preference.</li>
+<li>Dark mode, units, sharing/data-limit persistence, narrow layouts and settings navigation.</li>
+<li>Android hardware Back and cold startup in airplane mode. The emulator network was restored after recording.</li>
+<li>Playback verification and review of sampled frames from the recorded Android display.</li>
+</ul>
+<p><code>npm run check</code> includes shared TypeScript, Svelte diagnostics, documentation references and existing CAD checks. The static UI build and Gradle <code>assembleDebug</code> pass. Runtime walkthrough checks report no JavaScript errors. Reproducible scripts and commands are in <a href="verification.html">README</a>.</p>
+<p>Generated local deliverables (ignored by Git):</p>
+<ul>
+<li><code>dev/artifacts/AuMaNET-demo.apk</code></li>
+<li><code>dev/artifacts/aumanet-android-walkthrough.mp4</code></li>
+<li><code>dev/artifacts/android-verification.json</code> — checked flows and video chapter timestamps</li>
+<li><code>dev/artifacts/video-verification.json</code> — decoded video dimensions and duration</li>
+</ul>
+<p>This is UI acceptance with dummy data, not RF, real voice detection, native background lifecycle, real map downloads or internet-routing acceptance. No physical phone or radio hardware has been tested. No known UI failures remain in the exercised flows; these checks cannot guarantee the absence of every possible defect.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../dev/tests/UI-VERIFICATION.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

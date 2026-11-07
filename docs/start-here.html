@@ -1,10 +1,13 @@
 <!doctype html>
-<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Build your first AuMaNET node · AuMaNET</title><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="index.html#documentation">All documentation</a><a href="current-design.html">Current design</a><a href="parts.html">Parts</a><a href="release-readiness.html">Build status</a></nav></header>
-<main id="main"><p class="status">DESIGN PROTOTYPE · Some parts and assembly steps remain unverified</p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">What the prototype is planned to contain</a></li><li><a href="#section-2">Choose a starting point</a></li><li><a href="#section-3">A first build in six stages</a></li><li><a href="#section-4">Tools and skills</a></li><li><a href="#section-5">Useful words</a></li><li><a href="#section-6">If something does not work</a></li></ol></details><h1>Build your first AuMaNET node</h1>
+<html lang="en-AU" data-doc-status="archive"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Historical: Build your first AuMaNET node · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><aside id="archive-notice" class="status"><strong>HISTORICAL · SUPERSEDED PI/HELTEC BASELINE</strong> · These choices and build steps do not apply to the current ESP32-S3/HaLow investigation. <a href="index.html">Current handbook</a> · <a href="archive.html">Archive context</a></aside><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">What the prototype is planned to contain</a></li><li><a href="#section-2">Choose a starting point</a></li><li><a href="#section-3">A first build in six stages</a></li><li><a href="#section-4">Tools and skills</a></li><li><a href="#section-5">Useful words</a></li><li><a href="#section-6">If something does not work</a></li></ol></details><blockquote>
+<p><strong>Historical baseline — superseded 6 November 2026.</strong> This Pi/Heltec/OpenMANET material is retained for reference. Its “current” choices, purchasing restrictions and build steps do not apply to the active ESP32-S3/HaLow investigation. Read the <a href="handbook.html">current handbook</a> or <a href="archive.html">archive context</a>.</p>
+</blockquote>
+<h1 id="build-your-first-aumanet-node">Build your first AuMaNET node</h1>
 <p>AuMaNET is a DIY radio network for a group of people travelling beyond mobile coverage. Your phone joins a nearby node over ordinary Wi-Fi; the nodes communicate over HaLow. You do not need to write software to build a released kit.</p>
 <p><strong>Today this is a prototype design, not a released kit.</strong> The pages below describe the current choices and what still needs proving. The battery/charging electronics, exact AliExpress shopping list, firmware recipe and adapted print files are not released. Do not buy an entire convoy kit from the candidate list yet.</p>
-<h2 id="section-1">What the prototype is planned to contain</h2>
+<h2 id="section-1"><span id="what-the-prototype-is-planned-to-contain">What the prototype is planned to contain</span></h2>
 <ul>
 <li>Raspberry Pi 4B: the computer. Its built-in Wi-Fi connects your phone.</li>
 <li>Heltec HC01P V2 plus its matching Raspberry Pi HAT: the HaLow radio and adapter.</li>
@@ -13,7 +16,7 @@
 <li>A three-zone printed enclosure: battery below, computer/radio in the centre, connectors above.</li>
 </ul>
 <p>The proposed top reserves USB-C charging, USB-C accessories, sealed Ethernet, a HaLow antenna path, separate LTE MAIN/AUX antenna paths and a GNSS antenna cable exit. Charging protocol and charge-and-run behaviour await the battery choice. The upper side has the proposed power/shutdown control and a blanked future headset/PTT position. Battery, power and link indicators show device status. There is no external USB service-console port or 12 V barrel input in the current plan. Check <a href="current-design.html">current design</a> for the active baseline and revision 7 top-panel layout.</p>
-<h2 id="section-2">Choose a starting point</h2>
+<h2 id="section-2"><span id="choose-a-starting-point">Choose a starting point</span></h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -53,30 +56,30 @@
 <td>Know which checks must be repeated</td>
 </tr>
 </tbody></table></div>
-<h2 id="section-3">A first build in six stages</h2>
+<h2 id="section-3"><span id="a-first-build-in-six-stages">A first build in six stages</span></h2>
 <p>Do these in order. Each stage has a result you can check without programming. The exact flash/configuration steps will be published after a hardware prototype passes; they are not hidden behind assumed developer knowledge.</p>
-<h3>1. Check parts before paying</h3>
+<h3 id="1-check-parts-before-paying">1. Check parts before paying</h3>
 <p>Use the per-node parts register, not photos of a finished radio. Verify the model printed on the board, region, connector type, included accessories and revision. Keep the order details and seller evidence in your own build record. AliExpress is the purchasing source; manufacturer pages explain specifications and do not establish a matching seller item.</p>
 <p><strong>Finish when:</strong> every required part has an exact verified listing or is already owned, and the selected combination is marked build-ready. <strong>Current stop:</strong> the complete set is not build-ready yet.</p>
-<h3>2. Make a bench computer</h3>
+<h3 id="2-make-a-bench-computer">2. Make a bench computer</h3>
 <p>Start with the Pi, storage, supported power supply and an Ethernet cable on a non-conductive surface. Do not begin with loose lithium cells or a closed enclosure. Follow the released image recipe when available; record its version and checksum. Connect from your computer/phone using the documented local interface.</p>
 <p><strong>Finish when:</strong> the node boots repeatedly, its local management page is reachable and its default administrator password is changed. <strong>Current stop:</strong> the inspected OpenMANET 1.8.0 overlay uses different GPIO pins from the Heltec HAT; a corrected and tested image/overlay/calibration recipe is required. See <a href="firmware-review.html">firmware review</a>.</p>
-<h3>3. Add the radio and position receiver</h3>
+<h3 id="3-add-the-radio-and-position-receiver">3. Add the radio and position receiver</h3>
 <p>With all power disconnected, fit the correct HAT and radio using matching spacers. Connect the correct HaLow antenna before enabling the transmitter. Check the wiring labels against the received board. The EM7430 candidate connects through a USB WWAN adapter and has separate cellular and GNSS antenna connections. Verify GNSS output over USB without a SIM or cellular service. If the LC76G fallback is needed, it uses serial data; its external antenna connects to the receiver, not to Pi GPIO. Exact adapter, power, antenna and firmware compatibility remain verification items.</p>
 <p><strong>Finish when:</strong> radio hardware is detected, GNSS gets a fresh outdoor fix, and the image retains the correct local settings after restart. Radio transmission requires the documented Australian equipment/profile review first.</p>
-<h3>4. Prove a two-node link</h3>
+<h3 id="4-prove-a-two-node-link">4. Prove a two-node link</h3>
 <p>After one bench node is stable, build a second with the same verified parts. With mobile data and internet disconnected, exchange messages and test voice when the selected client is supported. Check that manual replies are distinct from delivery receipts. Put one node out of reach, then bring it back and check recovery.</p>
 <p><strong>Finish when:</strong> both devices recover predictably and the message/voice test record names the exact phone, app, firmware and hardware. A mesh cannot deliver across a gap with no usable path.</p>
-<h3>5. Add portable power and fit the case</h3>
+<h3 id="5-add-portable-power-and-fit-the-case">5. Add portable power and fit the case</h3>
 <p>Use only the selected, documented battery/power combination. Verify correct voltage at the Pi under load, charging behaviour, shutdown and restart before fitting it into a printed tray. Test carrier fit and cable routing with inexpensive fit coupons before printing the complete body. Connectors need their matching caps or sealed cables to meet their documented sealing condition.</p>
 <p><strong>Finish when:</strong> there are no undervoltage resets, the button shuts down cleanly, charging is controlled, and temperatures/fit pass the build record. <strong>Current stop:</strong> the power module and adapted CAD are still unresolved.</p>
-<h3>6. Take it outside, then expand</h3>
+<h3 id="6-take-it-outside-then-expand">6. Take it outside, then expand</h3>
 <p>Start with short, safe stationary tests. Record terrain, distance, antenna height, failed messages and battery runtime. Add the third node only after the two-node setup works. Prove a relay by testing where the endpoints cannot communicate directly.</p>
 <p><strong>Finish when:</strong> your recorded conditions meet the <a href="requirements.html">pilot requirements</a>. Keep a trip plan, UHF and an appropriate independent emergency option. This is a group link, not an emergency-service connection.</p>
-<h2 id="section-4">Tools and skills</h2>
+<h2 id="section-4"><span id="tools-and-skills">Tools and skills</span></h2>
 <p>The intended released kit needs a computer, browser, storage-card reader, small screwdrivers and a multimeter. Printing can be done locally or by a print service. Battery-pack construction and specialised RF measurements should be supplied by a competent provider or performed with the appropriate skills; ordinary builders should not need to solder directly to cells or alter tiny components on a power board.</p>
 <p>No programming is required to read these documents. The finished release should use browser-led provisioning and copyable settings with expected results. Terminal-only repair steps, if needed, belong in a separate troubleshooting guide.</p>
-<h2 id="section-5">Useful words</h2>
+<h2 id="section-5"><span id="useful-words">Useful words</span></h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -125,6 +128,6 @@
 <td>Board-specific radio calibration/configuration file</td>
 </tr>
 </tbody></table></div>
-<h2 id="section-6">If something does not work</h2>
+<h2 id="section-6"><span id="if-something-does-not-work">If something does not work</span></h2>
 <p>First record the stage, model/revision, firmware version, power source, symptoms and last successful check. Remove private passwords and exact trip locations before sharing logs. Return to the last known-good module combination instead of changing several things at once. Do not randomly swap firmware, BCF files or battery topologies to solve a boot problem.</p>
-</main><footer>Offline handbook · <a href="index.html">Project overview</a> · <a href="index.html#documentation">All documentation</a><br>Generated from the repository's Markdown/CSV sources. External sources need an internet connection.</footer></body></html>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="start-here.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>
