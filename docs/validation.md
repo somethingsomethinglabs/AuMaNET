@@ -2,6 +2,14 @@
 
 6 November 2026. Evidence ID EV-DOCS; delivery W00. This record covers the current documentation-architecture change and records a separate repository-check failure accurately.
 
+## GitHub Pages release — 7 November 2026
+
+Evidence ID EV-PAGES. The landing page and handbook were published from commit `ecb765d6df4a4ae222e5c6881203fea4256f8367`. A clean export of the staged files passed `npm ci --ignore-scripts`, `npm run check` and `npm run pages:build`. That check included shared TypeScript, handbook generation/reference/coverage checks and the committed upstream-only CAD inputs; it did not include the uncommitted application dependencies or custom tray/tool manifest.
+
+The [repository check run](https://github.com/somethingsomethinglabs/AuMaNET/actions/runs/42337271729) and [GitHub Pages deployment](https://github.com/somethingsomethinglabs/AuMaNET/actions/runs/42337271750) succeeded. The live landing page contained the revised network diagram, View docs links and screenshot modal. The handbook, stylesheet, script and all three app screenshots returned HTTP 200. This is website publication evidence, not a supported product release or new physical/device test.
+
+The older working-tree CAD failure below remains relevant to W15: the successful release check used a different, upstream-only input set. No custom geometry, STL selection or print tooling was changed or published by this website release.
+
 ## Source and method
 
 Working tree based on commit `6ab9d42ed4674185f1208e88a50021606252589b`, with pre-existing uncommitted app, Android and mechanical work. This documentation update does not claim an immutable release build. Reproduce checks from the repository root with Node.js 24/npm 11. Source/output/status mappings are in `scripts/docs-pages.mjs`.

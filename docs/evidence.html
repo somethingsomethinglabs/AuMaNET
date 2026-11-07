@@ -2,7 +2,7 @@
 <html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Evidence register · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
 <body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
 <main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Recorded results</a></li><li><a href="#section-2">Pending results</a></li><li><a href="#section-3">Evidence quality and updates</a></li></ol></details><h1 id="evidence-register">Evidence register</h1>
-<p>Reviewed 7 November 2026. Evidence records describe what was observed, in which environment and against which revision. A planned record has <strong>no result</strong>. Existing records below were written during earlier work; only the dated documentation follow-up repeats handbook checks.</p>
+<p>Reviewed 8 November 2026. Evidence records describe what was observed, in which environment and against which revision. A planned record has <strong>no result</strong>. Existing records retain their original test dates; the Pages release is recorded separately from the local custom-model working tree.</p>
 <h2 id="section-1"><span id="recorded-results">Recorded results</span></h2>
 <div class="table-wrap"><table>
 <thead>
@@ -36,6 +36,12 @@
 <td><a href="validation.html">Documentation consolidation verification and board configuration follow-up</a>; 6–7 November 2026</td>
 <td>7 November: handbook generation/references and SW-16 coverage pass; earlier TypeScript/Svelte/browser observations remain dated 6 November</td>
 <td>Combined repository check previously failed at existing CAD validator/custom-manifest mismatch; W15; not rerun on 7 November. No hardware or Android services revalidated</td>
+</tr>
+<tr>
+<td>EV-PAGES</td>
+<td><a href="validation.html#github-pages-release-7-november-2026">Published documentation release</a>; commit <code>ecb765d6df4a4ae222e5c6881203fea4256f8367</code>, <a href="https://github.com/somethingsomethinglabs/AuMaNET/actions/runs/42337271729">repository checks</a> and <a href="https://github.com/somethingsomethinglabs/AuMaNET/actions/runs/42337271750">Pages deployment</a>, 7 November 2026</td>
+<td>Clean staged checkout passed TypeScript, deterministic handbook/reference checks, upstream-CAD checks and Pages packaging. CI and deployment succeeded; live landing page, handbook, CSS/JS and three app screenshots returned HTTP 200</td>
+<td>Documentation/site release only, using the committed upstream-only model set. It excludes the local custom-model changes and does not resolve W15 or validate app native services, physical hardware or a product release</td>
 </tr>
 </tbody></table></div>
 <p>Raw videos, screenshots, APKs and logs named in the UI reports are workstation artifacts; availability is not assumed on a fresh checkout. The handbook labels those artifact references rather than requiring them to read the report. Never publish identifying location/audio data or credentials to fill an evidence link.</p>

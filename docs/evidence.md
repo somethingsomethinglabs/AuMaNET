@@ -1,6 +1,6 @@
 # Evidence register
 
-Reviewed 7 November 2026. Evidence records describe what was observed, in which environment and against which revision. A planned record has **no result**. Existing records below were written during earlier work; only the dated documentation follow-up repeats handbook checks.
+Reviewed 8 November 2026. Evidence records describe what was observed, in which environment and against which revision. A planned record has **no result**. Existing records retain their original test dates; the Pages release is recorded separately from the local custom-model working tree.
 
 ## Recorded results
 
@@ -10,6 +10,7 @@ Reviewed 7 November 2026. Evidence records describe what was observed, in which 
 | EV-MECHANICAL | [Board reference measurements](../hardware/reference/seeed-xiao-esp32s3-halow/README.md), [enclosure study](../hardware/reference/enclosure-feasibility/README.md); source hashes in accompanying measurement files | Manufacturer-model envelopes and provisional placement are documented | Header height, mounting-hole fit and actual board assembly unverified; research does not select battery or production hardware |
 | EV-PRINT | [Workshop verification](../hardware/print/validation/VERIFICATION.md); 6 November 2026, Bambu Studio 2.8.2.61 and CAD checks | Recorded six-plate slicing and screw-mount checks; canonical bundle rebuild succeeded with 12 positive parts and 50,750 triangles | Geometry/slicing only; no physical fit, printed sealing, battery acceptance or approved full kit |
 | EV-DOCS | [Documentation consolidation verification and board configuration follow-up](validation.md); 6–7 November 2026 | 7 November: handbook generation/references and SW-16 coverage pass; earlier TypeScript/Svelte/browser observations remain dated 6 November | Combined repository check previously failed at existing CAD validator/custom-manifest mismatch; W15; not rerun on 7 November. No hardware or Android services revalidated |
+| EV-PAGES | [Published documentation release](validation.md#github-pages-release-7-november-2026); commit `ecb765d6df4a4ae222e5c6881203fea4256f8367`, [repository checks](https://github.com/somethingsomethinglabs/AuMaNET/actions/runs/42337271729) and [Pages deployment](https://github.com/somethingsomethinglabs/AuMaNET/actions/runs/42337271750), 7 November 2026 | Clean staged checkout passed TypeScript, deterministic handbook/reference checks, upstream-CAD checks and Pages packaging. CI and deployment succeeded; live landing page, handbook, CSS/JS and three app screenshots returned HTTP 200 | Documentation/site release only, using the committed upstream-only model set. It excludes the local custom-model changes and does not resolve W15 or validate app native services, physical hardware or a product release |
 
 Raw videos, screenshots, APKs and logs named in the UI reports are workstation artifacts; availability is not assumed on a fresh checkout. The handbook labels those artifact references rather than requiring them to read the report. Never publish identifying location/audio data or credentials to fill an evidence link.
 

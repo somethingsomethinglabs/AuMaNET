@@ -2,6 +2,8 @@
 
 Reviewed 7 November 2026. This is the authoritative execution queue. Sequences in investigations describe experiment methods, not competing backlogs. [Capabilities](../docs/capabilities.md) owns product status; [traceability](requirements-traceability.md) connects requirements, tests and results.
 
+The [project status matrix](../docs/capabilities.md#project-status-matrix), reviewed 8 November 2026, summarises each project area as Not started, In progress, Completed or Needs verification. These are overview labels; the work rows below retain their detailed execution states and acceptance conditions. EV-PAGES records the published documentation increment under W00, without closing product-release or physical verification gates.
+
 ## Ownership and workflow
 
 Rowan is the project owner and decides product scope, hardware changes and acceptance tradeoffs. Engineering roles below are accountability slots, currently **unassigned** unless explicitly noted; they are not commitments from other people. The maintainer taking a row records their name before starting and keeps its evidence current. Work budgets in the roundtable are experiment limits, not delivery dates.

@@ -1,18 +1,95 @@
 <!doctype html>
 <html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Capabilities and current status · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
 <body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
-<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Status vocabulary</a></li><li><a href="#section-2">Capability matrix</a></li><li><a href="#section-3">Baseline and boundaries</a></li><li><a href="#section-4">Updating status</a></li></ol></details><h1 id="capabilities-and-current-status">Capabilities and current status</h1>
-<p>Reviewed 7 November 2026. This is the authoritative capability/status summary. Other introductions should link here and keep only a short matching summary. Execution state belongs in the <a href="delivery-plan.html">delivery register</a>; evidence IDs resolve in the <a href="evidence.html">evidence register</a>.</p>
-<h2 id="section-1"><span id="status-vocabulary">Status vocabulary</span></h2>
+<main id="main"><p class="status">CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">Project status matrix</a></li><li><a href="#section-2">Status key</a></li><li><a href="#section-3">Capability matrix</a></li><li><a href="#section-4">Baseline and boundaries</a></li><li><a href="#section-5">Updating status</a></li></ol></details><h1 id="capabilities-and-current-status">Capabilities and current status</h1>
+<p>Reviewed 8 November 2026. The authoritative overview of project status. See the <a href="delivery-plan.html">delivery register</a> for task order and the <a href="evidence.html">evidence register</a> for recorded results.</p>
+<h2 id="section-1"><span id="project-status-matrix">Project status matrix</span></h2>
+<p>One status per project area, with what exists and what remains. Completed means the stated scope is finished; a completed demo is not a production release.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Project area</th>
+<th>Status</th>
+<th>What exists today</th>
+<th>What is still needed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Mobile app (Android)</strong></td>
+<td><span class="work-status work-status-progress">In progress</span></td>
+<td>Capacitor debug shell and Map, Messages, Voice, Network and Settings screens; recorded emulator checks with sample data (EV-UI)</td>
+<td>Native services, real phone/node connectivity, physical phone and background-lifecycle tests; W04, W06–W09</td>
+</tr>
+<tr>
+<td><strong>Browser app prototype</strong></td>
+<td><span class="work-status work-status-complete">Completed</span></td>
+<td>Interactive SvelteKit UI with simulated group data and local settings/history; completion is limited to this demo scope (EV-UI)</td>
+<td>Real service integration is tracked separately below; no production web client is claimed</td>
+</tr>
+<tr>
+<td><strong>CLI / command-line interface</strong></td>
+<td><span class="work-status work-status-not-started">Not started</span></td>
+<td>No current-baseline operator CLI implementation is recorded. Documentation, build and print scripts are maintainer tools; older Pi tools are historical</td>
+<td>Define and approve any operator CLI scope before implementation; it is not currently a committed release deliverable</td>
+</tr>
+<tr>
+<td><strong>Node firmware</strong></td>
+<td><span class="work-status work-status-not-started">Not started</span></td>
+<td>Development boundary and design plans only; no pinned exact-board SDK build or running radio firmware</td>
+<td>Exact-board SDK audit, reproducible build and two-node transport; W01–W03</td>
+</tr>
+<tr>
+<td><strong>Board setup UI and shared API</strong></td>
+<td><span class="work-status work-status-not-started">Not started</span></td>
+<td>Offline browser configuration and a shared Android API are accepted design directions; no board server/API implementation (EV-CONFIG pending)</td>
+<td>Implement configuration, persistence, authentication and recovery, then test on hardware; W16</td>
+</tr>
+<tr>
+<td><strong>Shared protocol and core packages</strong></td>
+<td><span class="work-status work-status-progress">In progress</span></td>
+<td>TypeScript contracts, platform boundaries and simulator compile; contracts remain provisional</td>
+<td>Production contracts, authenticated transport and real platform adapters; W06</td>
+</tr>
+<tr>
+<td><strong>Hardware / electronics</strong></td>
+<td><span class="work-status work-status-verify">Needs verification</span></td>
+<td>XIAO ESP32-S3 + XIAO HaLow candidate and manufacturer-model measurements; reported order, but receipt and exact revisions are unconfirmed (EV-MECHANICAL)</td>
+<td>Physical inventory, SDK/pin/power checks and Australian radio suitability; W01, W11</td>
+</tr>
+<tr>
+<td><strong>3D files / enclosure / print project</strong></td>
+<td><span class="work-status work-status-verify">Needs verification</span></td>
+<td>STL/3MF assets, prototype trays and recorded CAD/slicing checks exist (EV-PRINT)</td>
+<td>Actual print/board fit, retention, battery packaging and sealing acceptance; W11</td>
+</tr>
+<tr>
+<td><strong>Website and documentation</strong></td>
+<td><span class="work-status work-status-complete">Completed</span></td>
+<td>Landing page and handbook are published on GitHub Pages; the documented release build passed its checks (EV-PAGES)</td>
+<td>Maintain this status matrix as work changes; this does not complete the product or resolve the local custom-CAD validator issue</td>
+</tr>
+<tr>
+<td><strong>Physical integration and field trials</strong></td>
+<td><span class="work-status work-status-not-started">Not started</span></td>
+<td>Test plans and acceptance gates exist; no recorded current-baseline physical group or field result</td>
+<td>2–5-node integration, real voice/location/messages, range and endurance measurements; W10–W12</td>
+</tr>
+<tr>
+<td><strong>Product release / supported build kit</strong></td>
+<td><span class="work-status work-status-not-started">Not started</span></td>
+<td>No signed product release, supported hardware combination or approved complete kit</td>
+<td>Pass release gates, publish signed artifacts and prove setup/recovery; W13</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-2"><span id="status-key">Status key</span></h2>
 <ul>
-<li><strong>Proposed:</strong> requirement or design only; no functioning implementation is claimed.</li>
-<li><strong>Simulated:</strong> interactive behaviour exists with sample inputs or mock services.</li>
-<li><strong>Implemented:</strong> code or generated assets exist; this alone says nothing about a physical device.</li>
-<li><strong>Physically tested:</strong> a named real device and configuration have a recorded test. Emulator and CAD tests do not qualify.</li>
-<li><strong>Release supported:</strong> a specific version/configuration has passed its release gates and has usable setup and recovery instructions.</li>
+<li><span class="work-status work-status-not-started">Not started</span> — implementation or physical testing for this scope has not begun; a design, plan or scaffold may exist.</li>
+<li><span class="work-status work-status-progress">In progress</span> — part of the implementation works, with required development still outstanding.</li>
+<li><span class="work-status work-status-complete">Completed</span> — the stated, limited deliverable is finished and has recorded checks. This is not automatically a product release.</li>
+<li><span class="work-status work-status-verify">Needs verification</span> — candidate hardware or assets exist, but the tests required to accept them are still outstanding.</li>
 </ul>
-<p>Statuses apply to a particular scope. A UI can be implemented while its data path is simulated. No capability below is currently release supported; no physical phone/radio combination is recorded as tested.</p>
-<h2 id="section-2"><span id="capability-matrix">Capability matrix</span></h2>
+<p>Work status and evidence answer different questions. <strong>Proposed</strong> means design only; <strong>simulated</strong> means sample inputs or mock services; <strong>implemented</strong> means code/assets exist. <strong>Physically tested</strong> requires a named real device and configuration. <strong>Release supported</strong> requires a specific version/configuration to pass its release gates. No product capability below is release supported, and no current-baseline physical phone/radio combination is recorded as tested.</p>
+<h2 id="section-3"><span id="capability-matrix">Capability matrix</span></h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -108,14 +185,14 @@
 </tr>
 <tr>
 <td>Repository validation</td>
-<td>Current handbook generation/link/coverage, TypeScript and Svelte checks pass; combined check fails in the existing upstream-only CAD guard on newer custom STL entries</td>
-<td>EV-DOCS</td>
-<td>W15; no geometry or print-bundle change in this documentation work</td>
+<td>Published documentation release <code>ecb765d</code> passed TypeScript, handbook and upstream-CAD checks on a clean checkout (EV-PAGES). The local custom-model working tree still has the earlier CAD guard mismatch; this is a different input set</td>
+<td>EV-DOCS, EV-PAGES</td>
+<td>W15 applies to the local custom STL entries; no geometry or print-bundle change in this status update</td>
 </tr>
 </tbody></table></div>
-<h2 id="section-3"><span id="baseline-and-boundaries">Baseline and boundaries</span></h2>
+<h2 id="section-4"><span id="baseline-and-boundaries">Baseline and boundaries</span></h2>
 <p>Android launch support, all-app donation and reception, autonomous forwarding, local group functions without cloud login, and 2–5-node validation remain required. iPhone and camera work are optional. The 48-hour workload includes voice availability, location and relay service; phone endurance is measured separately. See <a href="discovery.html">confirmed scope</a>.</p>
 <p>ESP32-S3/HaLow is the current investigation candidate. Linux/OpenWrt is a functional reference and possible alternative after measurements. Neither is approved production hardware. The optional Pi Zero enclosure tray establishes packaging work only. There is no current AliExpress-only purchasing restriction.</p>
-<h2 id="section-4"><span id="updating-status">Updating status</span></h2>
+<h2 id="section-5"><span id="updating-status">Updating status</span></h2>
 <p>When scope or implementation changes, update this matrix, its delivery row, affected decisions, compatibility entries and requirement coverage in the same change. A passed check needs a dated evidence record with exact revisions, method and limitations. Keep not-run separate from failed. Prior records remain historical until revalidated against changed code/hardware. The existing verification reports record earlier runs; editing this page does not rerun them.</p>
 </main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="capabilities.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>
