@@ -1,0 +1,10 @@
+{
+  "schema": "aumanet.firmware-trust.v1",
+  "algorithm": "ECDSA-P256-SHA256",
+  "keyId": "012c797fa901231d2dd89f9dfabaf69c9ed1f1db6c4f925780c21de72e6f231a",
+  "spkiBase64": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPzrK2ss0hgjnPtIfedqfqPArhibcNSNHJ+QgwpUmGsRmjO4t8n+NEA54kYm6KROXxkNUcEyQdmCfVQGlkycqRA==",
+  "catalogDomain": "AuMaNET firmware catalog v1\u0000",
+  "artifactDomain": "AuMaNET firmware artifact v1\u0000",
+  "defaultCatalogUrl": "https://github.com/somethingsomethinglabs/AuMaNET/releases/download/firmware-catalog/catalog.json",
+  "note": "Public verification key. Private signing key remains outside tracked sources. Firmware upload owner authority is separate."
+}

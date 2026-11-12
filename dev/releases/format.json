@@ -1,0 +1,194 @@
+{
+  "schema": "aumanet.firmware-artifact-format.v1",
+  "bodyBytes": 384,
+  "magicHex": "41554d4657310000",
+  "endianness": "big",
+  "signature": "ECDSA-P256-SHA256 DER 8..72 bytes over artifactDomain UTF8 (with terminal NUL) + exact384-byte body",
+  "artifactId": "lowercase SHA256 of exact384-byte body",
+  "maxImageBytes": 2359296,
+  "fields": [
+    {
+      "name": "magic",
+      "offset": 0,
+      "bytes": 8
+    },
+    {
+      "name": "formatVersion",
+      "offset": 8,
+      "bytes": 2
+    },
+    {
+      "name": "boardId",
+      "offset": 10,
+      "bytes": 2
+    },
+    {
+      "name": "role",
+      "offset": 12,
+      "bytes": 1
+    },
+    {
+      "name": "channel",
+      "offset": 13,
+      "bytes": 1
+    },
+    {
+      "name": "layoutId",
+      "offset": 14,
+      "bytes": 2
+    },
+    {
+      "name": "imageBytes",
+      "offset": 16,
+      "bytes": 4
+    },
+    {
+      "name": "sequence",
+      "offset": 20,
+      "bytes": 8
+    },
+    {
+      "name": "issuedUnixSeconds",
+      "offset": 28,
+      "bytes": 8
+    },
+    {
+      "name": "minUpdateProtocol",
+      "offset": 36,
+      "bytes": 2
+    },
+    {
+      "name": "flags",
+      "offset": 38,
+      "bytes": 2
+    },
+    {
+      "name": "imageSha256",
+      "offset": 40,
+      "bytes": 32
+    },
+    {
+      "name": "commitSha1",
+      "offset": 72,
+      "bytes": 20
+    },
+    {
+      "name": "keyId",
+      "offset": 92,
+      "bytes": 32
+    },
+    {
+      "name": "version",
+      "offset": 124,
+      "bytes": 32
+    },
+    {
+      "name": "gitRef",
+      "offset": 156,
+      "bytes": 128
+    },
+    {
+      "name": "buildId",
+      "offset": 284,
+      "bytes": 64
+    },
+    {
+      "name": "boardProfileSha256",
+      "offset": 348,
+      "bytes": 32
+    },
+    {
+      "name": "country",
+      "offset": 380,
+      "bytes": 2
+    },
+    {
+      "name": "configuredTxCeilingDbm",
+      "offset": 382,
+      "bytes": 1
+    },
+    {
+      "name": "reserved",
+      "offset": 383,
+      "bytes": 1
+    }
+  ],
+  "role": {
+    "A": 1,
+    "B": 2
+  },
+  "channel": {
+    "stable": 0,
+    "beta": 1,
+    "nightly": 2,
+    "branch": 3
+  },
+  "flags": {
+    "dirtySource": 1
+  },
+  "strings": "ASCII printable except gitRef strict safe refs; NUL padded, at least one trailing NUL; no nonzero after NUL",
+  "limits": {
+    "formatVersion": 1,
+    "boardId": 1,
+    "layoutId": 1,
+    "minUpdateProtocol": 1,
+    "country": "AU",
+    "configuredTxCeilingDbm": 24,
+    "reserved": 0
+  },
+  "catalog": {
+    "envelopeKeys": [
+      "payload",
+      "signature"
+    ],
+    "payloadEncoding": "base64 exact UTF8 JSON bytes",
+    "signing": "catalogDomain UTF8 terminal NUL + exact decoded payload bytes",
+    "maxEnvelopeBytes": 262144,
+    "maxReleases": 128,
+    "maxAgeSeconds": 604800,
+    "payloadFields": [
+      "schema",
+      "sequence",
+      "issuedAt",
+      "expiresAt",
+      "keyId",
+      "releases"
+    ],
+    "releaseFields": [
+      "manifest",
+      "signature",
+      "imageUrl",
+      "notes",
+      "sourceStatus"
+    ],
+    "branchSelection": "Advertised signed records only; Git ref resolves immutable commit, image digest and buildId. Never compile or install unsigned arbitrary branch URLs.",
+    "schemaValue": "aumanet.firmware-catalog.v1",
+    "allBinaryFields": "canonical padded base64; re-encode must match",
+    "sourceStatus": [
+      "clean",
+      "dirty"
+    ],
+    "maxNotesUtf8Bytes": 2048,
+    "dirtyPolicy": "stable/beta forbid dirty; nightly/branch dirty must be labelled development snapshot"
+  },
+  "embeddedImageIdentity": {
+    "offset": 288,
+    "bytes": 292,
+    "magicHex": "41554d4244310000",
+    "fields": {
+      "role": 8,
+      "layout": 9,
+      "country": 10,
+      "configuredTxCeilingDbm": 12,
+      "privateBootstrap": 13,
+      "channel": 14,
+      "flags": 15,
+      "version": 16,
+      "commitSha1": 48,
+      "gitRef": 68,
+      "buildId": 196,
+      "boardProfileSha256": 260
+    },
+    "publishPolicy": "privateBootstrap must be zero; descriptor fields must match signed artifact; ESP app version must match custom version"
+  }
+}

@@ -1,0 +1,4 @@
+# Keep firmware scripts and signed-profile inputs stable across Windows/Linux.
+/dev/firmware/** text eol=lf
+/dev/releases/** text eol=lf
+/.github/workflows/firmware-release.yml text eol=lf

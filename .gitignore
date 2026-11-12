@@ -20,3 +20,6 @@ build/
 local.properties
 *.jks
 *.keystore
+
+# Generated firmware and local device evidence
+dev/artifacts/

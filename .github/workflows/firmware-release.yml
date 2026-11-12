@@ -1,0 +1,199 @@
+name: Firmware builds and signed release channels
+on:
+  schedule:
+    - cron: '15 15 * * *'
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      ref:
+        type: string
+        description: Repository branch or version tag to build
+        default: main
+        required: true
+      channel:
+        type: choice
+        options: [nightly, beta, stable, branch]
+        default: nightly
+      version:
+        type: string
+        description: Required for stable/beta; nightly and branch derive an immutable version
+        default: ''
+      publish:
+        type: boolean
+        description: Publish verified packages through the protected firmware-releases environment
+        default: false
+      initialize_catalog:
+        type: boolean
+        description: Allow the first signed catalog only when GitHub confirms it does not exist
+        default: false
+
+permissions:
+  contents: read
+concurrency:
+  group: firmware-release-catalog
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      ref: ${{ steps.plan.outputs.ref }}
+      commit: ${{ steps.plan.outputs.commit }}
+      channel: ${{ steps.plan.outputs.channel }}
+      version: ${{ steps.plan.outputs.version }}
+      buildId: ${{ steps.plan.outputs.buildId }}
+      tag: ${{ steps.plan.outputs.tag }}
+      issuedAt: ${{ steps.plan.outputs.issuedAt }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - id: plan
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
+          RELEASE_REF: ${{ inputs.ref || github.ref }}
+          RELEASE_CHANNEL: ${{ inputs.channel || 'nightly' }}
+          RELEASE_VERSION: ${{ inputs.version || '' }}
+          RESOLVE_REQUESTED_REF: 'true'
+        run: node dev/releases/plan.mjs
+
+  build:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        role: [A, B]
+    env:
+      AUMANET_TOOLS_ROOT: ${{ runner.temp }}/aumanet-tools
+      AUMANET_RELEASE_COMMIT: ${{ needs.plan.outputs.commit }}
+      AUMANET_RELEASE_REF: ${{ needs.plan.outputs.ref }}
+      AUMANET_RELEASE_CHANNEL: ${{ needs.plan.outputs.channel }}
+      AUMANET_RELEASE_VERSION: ${{ needs.plan.outputs.version }}
+      AUMANET_RELEASE_BUILD_ID: ${{ needs.plan.outputs.buildId }}
+      BUILD_ROLE: ${{ matrix.role }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.plan.outputs.commit }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      # Branch build code receives no release key, write token or environment secrets.
+      - run: npm run firmware:release:test
+      - name: Install pinned SDK host prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends git wget flex bison gperf python3 python3-venv python3-pip cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+      - run: bash dev/firmware/tools/setup.sh
+      - run: bash dev/firmware/tools/build.sh "$BUILD_ROLE" dev/firmware/gateway/generic-au.defaults gateway generic
+      - id: built
+        run: node dev/releases/find-build.mjs --role "$BUILD_ROLE"
+      - run: node dev/releases/release.mjs inspect --image "$BUILD_DIRECTORY/aumanet_bench.bin"
+        env:
+          BUILD_DIRECTORY: ${{ steps.built.outputs.directory }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: firmware-${{ matrix.role }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            ${{ steps.built.outputs.directory }}/aumanet_bench.bin
+            ${{ steps.built.outputs.directory }}/build-info.json
+
+  publish:
+    needs: [plan, build]
+    if: github.event_name != 'workflow_dispatch' || inputs.publish
+    runs-on: ubuntu-24.04
+    environment: firmware-releases
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: somethingsomethinglabs/AuMaNET
+      RELEASE_CHANNEL: ${{ needs.plan.outputs.channel }}
+      RELEASE_VERSION: ${{ needs.plan.outputs.version }}
+      RELEASE_COMMIT: ${{ needs.plan.outputs.commit }}
+      RELEASE_TAG: ${{ needs.plan.outputs.tag }}
+      RELEASE_REF: ${{ needs.plan.outputs.ref }}
+      RELEASE_BUILD_ID: ${{ needs.plan.outputs.buildId }}
+      PLAN_ISSUED_AT: ${{ needs.plan.outputs.issuedAt }}
+      PLAN_COMMIT: ${{ needs.plan.outputs.commit }}
+      RELEASE_EVENT: ${{ github.event_name }}
+      REQUESTED_REF: ${{ inputs.ref || github.ref }}
+      REQUESTED_CHANNEL: ${{ inputs.channel || 'nightly' }}
+      REQUESTED_VERSION: ${{ inputs.version || '' }}
+      INITIALIZE_CATALOG: ${{ inputs.initialize_catalog || false }}
+    steps:
+      # Signing tools always come from trusted main, never the selected build branch.
+      # Configure this environment to restrict deployment refs and require review
+      # before adding AUMANET_FIRMWARE_SIGNING_KEY_PEM as an environment secret.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: firmware-*
+          path: incoming
+      - run: npm run firmware:release:test
+      - name: Independently enforce requested channel and source identity
+        run: node dev/releases/plan.mjs --verify-env
+      - id: previous
+        run: node dev/releases/fetch-catalog.mjs previous-catalog.json
+      - name: Verify build identity and sign packages/catalog
+        env:
+          SIGNING_KEY_PEM: ${{ secrets.AUMANET_FIRMWARE_SIGNING_KEY_PEM }}
+          PREVIOUS_PRESENT: ${{ steps.previous.outputs.present }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SIGNING_KEY_PEM"
+          umask 077
+          signing_file="$RUNNER_TEMP/aumanet-firmware-signing.pem"
+          trap 'rm -f -- "$signing_file"' EXIT
+          printf '%s' "$SIGNING_KEY_PEM" > "$signing_file"
+          mkdir -p release-packages
+          for role in A B; do
+            node dev/releases/release.mjs package \
+              --image "incoming/firmware-$role/aumanet_bench.bin" \
+              --expect-role "$role" --expect-channel "$RELEASE_CHANNEL" \
+              --expect-commit "$RELEASE_COMMIT" --expect-version "$RELEASE_VERSION" \
+              --expect-ref "$RELEASE_REF" --expect-build-id "$RELEASE_BUILD_ID" \
+              --image-base-url "https://github.com/$GH_REPO/releases/download/$RELEASE_TAG" \
+              --key-file "$signing_file" --out release-packages
+          done
+          catalog_args=()
+          if [ "$PREVIOUS_PRESENT" = true ]; then catalog_args+=(--previous previous-catalog.json); fi
+          for record in release-packages/release-*.json; do catalog_args+=(--release "$record"); done
+          node dev/releases/release.mjs catalog "${catalog_args[@]}" \
+            --key-file "$signing_file" --out catalog.json
+          node dev/releases/release.mjs verify --catalog catalog.json
+      - name: Publish firmware before advertising it in the catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'Verified %s firmware build %s, commit %s.\n' "$RELEASE_CHANNEL" "$RELEASE_VERSION" "$RELEASE_COMMIT" > release-notes.txt
+          prerelease=()
+          if [ "$RELEASE_CHANNEL" != stable ]; then prerelease+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" --draft --target "$RELEASE_COMMIT" \
+            --title "Firmware $RELEASE_VERSION" --notes-file release-notes.txt "${prerelease[@]}"
+          gh release upload "$RELEASE_TAG" release-packages/*.bin release-packages/release-*.json
+          gh release edit "$RELEASE_TAG" --draft=false
+          if [ "$INITIALIZE_CATALOG" = true ] && [ ! -f previous-catalog.json ]; then
+            printf 'Signed firmware-channel catalog. Packages are verified by the app and node.\n' > catalog-notes.txt
+            gh release create firmware-catalog --target "$RELEASE_COMMIT" --prerelease \
+              --title 'Firmware channel catalog' --notes-file catalog-notes.txt
+          fi
+          gh release upload firmware-catalog catalog.json --clobber

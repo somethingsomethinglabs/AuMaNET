@@ -1,0 +1,41 @@
+menu "AuMaNET isolated bench"
+config AUMANET_RF_ENABLED
+    bool "Enable manually provisioned HaLow bench transport"
+    default n
+    help
+        Requires verified module/antenna and regional operating profile.
+        Disabled builds never boot the radio or start a wireless network.
+config AUMANET_NODE_B
+    bool "Build node B (station); otherwise node A (AP)"
+    default n
+config AUMANET_GATEWAY
+    bool "Experimental physically provisioned phone AP and signed gateway"
+    default n
+    help
+        Requires tools/build.sh explicit gateway mode and its pinned lwIP overlay.
+        Default trust is absent. USB provisioning and signed, expiring grants
+        are required before any phone traffic is forwarded. Not a release mode.
+config AUMANET_PRIVATE_BOOTSTRAP
+    bool "PRIVATE USB bootstrap: import legacy compiled link credentials"
+    default n
+    depends on AUMANET_GATEWAY
+    help
+        Never publish this image. Generic OTA images read retained private NVS
+        and must not include a private compiled SSID/passphrase fallback.
+config AUMANET_SSID
+    string "Isolated HaLow bench SSID"
+    default "AuMaNET-bench"
+config AUMANET_PSK
+    string "Private WPA3 bench passphrase"
+    default ""
+config AUMANET_CHANNEL
+    int "Approved S1G channel number"
+    default 0
+config AUMANET_OPCLASS
+    int "Approved S1G operating class"
+    default 0
+config AUMANET_TX_DBM
+    int "Bench maximum conducted TX power (integer dBm)"
+    range 1 24
+    default 1
+endmenu

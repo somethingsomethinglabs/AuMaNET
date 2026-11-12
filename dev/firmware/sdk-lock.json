@@ -1,0 +1,13 @@
+{
+  "esp_idf": {"repository": "https://github.com/espressif/esp-idf.git", "tag": "v5.4.4", "commit": "296b6eab9445fd720e71aecab961e2d3fbca9944"},
+  "esp_halow": {"repository": "https://github.com/MorseMicro/esp-halow.git", "tag": "2.11.2-esp32-2", "commit": "a402ea973090423a1a3ca413abf18c6ea782347a"},
+  "mm_iot_sdk": {"commit": "b61d4548c55cfd927efe16bffb01b35509d9ef5a"},
+  "morse_firmware": {"commit": "ea18605f53387281c1029ea9eb8e0de2bda7bae2"},
+  "lwip": {"repository": "https://github.com/espressif/esp-lwip.git", "commit": "fd432e4ee2cfb7f7f1c7eb7227e0173412e7b84e"},
+  "target": "esp32s3",
+  "flash_bytes": 8388608,
+  "bcf": "bcf_fgh100mhaamd.bin",
+  "tested_compiler": "xtensa-esp-elf-gcc (crosstool-NG esp-14.2.0_20260121) 14.2.0",
+  "native_esptool": "4.11.0",
+  "note": "Pinned source/build procedure; byte-identical cross-host release reproducibility is not yet accepted."
+}
