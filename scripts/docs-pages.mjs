@@ -1,5 +1,6 @@
 // Source/output ownership for the offline handbook. Preserve historical URLs.
 export const pages = [
+  ['docs/current-app.md', 'docs/current-app.html', 'current'],
   ['docs/index.md', 'docs/handbook.html', 'current'],
   ['docs/capabilities.md', 'docs/capabilities.html', 'current'],
   ['docs/compatibility.md', 'docs/compatibility.html', 'current'],

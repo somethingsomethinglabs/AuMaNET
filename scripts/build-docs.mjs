@@ -36,7 +36,7 @@ function frame(title, body, status, source) {
   const contents = headings.length > 1 ? `<details class="contents"><summary>On this page</summary><ol>${headings.join('')}</ol></details>` : '';
   const notice = status === 'archive'
     ? '<aside id="archive-notice" class="status"><strong>HISTORICAL · SUPERSEDED PI/HELTEC BASELINE</strong> · These choices and build steps do not apply to the current ESP32-S3/HaLow investigation. <a href="index.html">Current handbook</a> · <a href="archive.html">Archive context</a></aside>'
-    : `<p class="status">${status === 'reference' ? 'PROTOTYPE REFERENCE' : 'CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE'} · <a href="capabilities.html">Capabilities and evidence limits</a></p>`;
+    : `<p class="status">${source === 'docs/current-app.md' ? 'CURRENT APP SNAPSHOT · TWO-PHONE PROTOTYPE · 15 NOVEMBER 2026' : status === 'reference' ? 'PROTOTYPE REFERENCE' : 'CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE'} · <a href="capabilities.html">Capabilities and evidence limits</a></p>`;
   const sourceLink = source ? ` · <a data-repository-source="true" href="${esc(path.relative('docs', source).replaceAll('\\', '/'))}">Repository source</a>` : '';
   return `<!doctype html>
 <html lang="en-AU" data-doc-status="${status}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${status === 'archive' ? 'Historical: ' : ''}${esc(title)} · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>

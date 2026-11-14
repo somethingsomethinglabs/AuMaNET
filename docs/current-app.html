@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="current"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>The AuMaNET app now · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
+<main id="main"><p class="status">CURRENT APP SNAPSHOT · TWO-PHONE PROTOTYPE · 15 NOVEMBER 2026 · <a href="capabilities.html">Capabilities and evidence limits</a></p><details class="contents"><summary>On this page</summary><ol><li><a href="#section-1">What we are building</a></li><li><a href="#section-2">Where development stands</a></li><li><a href="#section-3">Screenshots and provenance</a></li><li><a href="#section-4">Testing limits</a></li><li><a href="#section-5">Source boundary</a></li></ol></details><h1 id="the-aumanet-app-now">The AuMaNET app now</h1>
+<p>Landing-page update reviewed 15 November 2026. This dated snapshot describes the current prototype from the local application handoff, device captures and recorded development summaries. Earlier handbook pages describe their own dated design baselines; they do not negate later implementation, and this summary does not rerun physical acceptance tests.</p>
+<h2 id="section-1"><span id="what-we-are-building">What we are building</span></h2>
+<p>An Android companion for Australian 4WD and camping groups: offline maps, consented shared positions, text and photos, and live group voice over small local Wi-Fi HaLow nodes. Mobile data is optional. When available, one phone can explicitly offer internet and another can select that donor.</p>
+<p>Map, Messages, Voice and Network are the four main tabs. Settings and connection details sit behind those everyday views. The UI separates phone-to-node Wi-Fi, group reachability and internet availability. Voice has explicit join, microphone, audio-route and leave controls; connection and location consent remain visible choices.</p>
+<h2 id="section-2"><span id="where-development-stands">Where development stands</span></h2>
+<p>The local application README and development handoff record a working two-phone, two-node Android prototype, including real offline map import/rendering, shared positions, signed text and photos, native group voice and opt-in shared IPv4 internet. The 12 November application-polish summary records automatic node/call recovery and bounded internet sharing on both phones. These are limited development results, not release support or a claim that every requirement has passed.</p>
+<p>The two development phones are a Samsung Z Flip3 and a Nothing Phone (3a) Pro. The current node direction is XIAO ESP32-S3 plus XIAO Wi-Fi HaLow. The phone runs the application; local Wi-Fi connects it to its node, and the direct HaLow link connects the two nodes. Autonomous multi-hop remains unproven.</p>
+<p>The interface also exposes radio settings, connection benchmarking and node-update work. Visible controls establish UI scope; their presence does not establish production readiness or universal hardware support.</p>
+<h2 id="section-3"><span id="screenshots-and-provenance">Screenshots and provenance</span></h2>
+<p>The landing page uses existing on-device captures, without replacing their observed states with invented connected data:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Published capture</th>
+<th>Source and observed state</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Network</td>
+<td><code>dev/artifacts/qa-20261115/01-start.png</code>: node Wi-Fi connected, verification in progress, saved group disconnected, transfers waiting</td>
+</tr>
+<tr>
+<td>Messages</td>
+<td><code>dev/artifacts/qa-20261115/02-messages.png</code>: group connecting, retained test text/photo history and prior delivery receipts</td>
+</tr>
+<tr>
+<td>Voice</td>
+<td><code>dev/artifacts/qa-20261115/03-voice.png</code>: group connecting, channel not joined, join muted, PTT/Always on and audio-route controls</td>
+</tr>
+<tr>
+<td>Connection test</td>
+<td>Owner-supplied Android screenshot <code>2-1000006693.jpg</code>: one completed test dated 12 November 2026, directional cached radio reading and GPS accuracy caveats</td>
+</tr>
+</tbody></table></div>
+<p>The first three captures were reviewed for this update on 15 November. The original local artifact directory identifies that review batch; this is not an assertion that the screens show a newly completed physical test. The connection-test result describes one session and is not a performance specification. Earlier sample-data screenshots remain historical assets and are no longer used on the landing page.</p>
+<h2 id="section-4"><span id="testing-limits">Testing limits</span></h2>
+<ul>
+<li>Two phones and two nodes do not prove autonomous multi-hop or larger-group capacity. A third node and explicit relay acceptance are needed.</li>
+<li>Map locations and connection-test separation depend on phone GPS accuracy. They do not measure exact radio-to-radio distance.</li>
+<li>A cached directional signal reading is not a fresh bidirectional RF measurement. Benchmark upload/download results are session-specific.</li>
+<li>Human listening quality, broader background/lifecycle behavior, range under changing terrain, battery endurance and enclosure fit still need field evidence.</li>
+<li>Shared internet is opt-in, bounded and IPv4-specific in the recorded prototype. Donor changes are explicit; automatic donor selection is not claimed.</li>
+<li>No supported product release, approved complete build kit, guaranteed range or battery-life specification is available.</li>
+</ul>
+<p>Next work is repeatable field testing, recovery and voice checks, followed by larger-group/multi-hop, compatibility and release gates. The <a href="delivery-plan.html">delivery plan</a> and <a href="decisions-current.html">design decisions</a> retain planning context.</p>
+<h2 id="section-5"><span id="source-boundary">Source boundary</span></h2>
+<p>This snapshot was reconciled from the local working copies of <code>README.md</code>, <code>dev/app/README.md</code>, <code>design/demo-application-handoff.md</code> and <code>design-qa.md</code>, plus the device captures above. Those local sources include later development than the previously published handbook. Private logs, coordinates, credentials, device backups and full development artifacts are not bundled with this website update. The source summaries describe recorded results; this publication verified the website and did not repeat device or radio tests.</p>
+</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="current-app.md">Repository source</a><br>Generated from repository sources. External sources need an internet connection.</footer></body></html>

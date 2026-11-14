@@ -1,5 +1,7 @@
 # Capabilities and current status
 
+> **Later app update — 15 November 2026:** the Android prototype has progressed beyond the design baseline below. See [The AuMaNET app now](current-app.md) for the two-phone/two-node development snapshot, current screenshots and testing limits. The tables on this page retain their 8 November review scope and must not be read as the latest implementation inventory.
+
 Reviewed 8 November 2026. The authoritative overview of project status. See the [delivery register](../design/delivery-plan.md) for task order and the [evidence register](evidence.md) for recorded results.
 
 ## Project status matrix

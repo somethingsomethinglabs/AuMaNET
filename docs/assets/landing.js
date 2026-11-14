@@ -10,6 +10,7 @@ document.querySelectorAll('.screen-frame').forEach(button => {
     screenshotImage.src = thumbnail.src;
     screenshotImage.alt = thumbnail.alt;
     screenshotTitle.textContent = `${button.dataset.screenTitle} · App prototype`;
+    screenshotDialog.querySelector('.screenshot-dialog-note').textContent = button.dataset.screenNote || 'Android prototype · captured reconnecting state';
     screenshotDialog.showModal();
     document.documentElement.classList.add('screenshot-open');
   });
