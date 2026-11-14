@@ -7,7 +7,10 @@ The landing page opens at `docs/index.html`; the complete handbook opens at `doc
 | Concern | Authoritative source |
 | --- | --- |
 | Landing page | `docs/index.html`, `docs/assets/landing.css` |
-| Handbook reading paths | `docs/index.md` → `docs/handbook.html` |
+| Handbook introduction | `docs/index.md` → `docs/handbook.html` |
+| Sidebar categories and order | `scripts/docs-navigation.mjs`; unmapped references are collected under Development/history |
+| Reader guide source/output mappings | `scripts/docs-guides.mjs`, imported by `scripts/docs-pages.mjs` |
+| Coverage and missing guides | [Documentation roadmap](documentation-roadmap.md) |
 | Product implementation/status | [Capabilities](capabilities.md) |
 | Confirmed scope and G0–G5 definitions | [Discovery](../discovery/README.md) |
 | Execution order, owners, dependencies and exit/failure decisions | [Delivery register](../design/delivery-plan.md) |
@@ -45,7 +48,17 @@ Private repositories need a GitHub plan that supports Pages for private reposito
 
 Run `npm run pages:build` to package `dist/pages`. It copies the documentation and assets, keeps relative links suitable for the `/AuMaNET/` project path, and verifies published references and anchors. Links to files outside `docs/` become GitHub source or raw-file URLs pinned to the deployment commit (`main` for local builds); these require repository access when the repository is private. Embedded images outside `docs/` are copied into the artifact so they display without repository authentication. The local handbook's offline links remain unchanged. No app build, credentials or print rebuild are needed. The historical landing page keeps its own `archive-landing.css` stylesheet.
 
-The screenshot showcase uses committed PNGs in `docs/assets/screenshots/`, captured from the current browser app at a 412 × 915 viewport. To refresh them, run the app, capture its Map, Messages and Voice screens, and replace the matching files. Keep the prototype/sample-data caption accurate. These are presentation assets, separate from the ignored verification screenshots under `output/playwright/`.
+The landing-page showcase uses committed on-device Network, Messages and Voice captures plus a supplied connection-test image in `docs/assets/screenshots/`. Keep their observed/reconnecting states and date captions accurate. Older browser sample-data captures remain historical assets. Review private details before promoting any new device capture into a public presentation asset.
+
+## Adding and organizing guides
+
+Create a Markdown source under `docs/` and map it in `scripts/docs-guides.mjs` with status `guide`. Put its generated HTML filename and reader-facing title in `scripts/docs-navigation.mjs`. Keep each primary entry unique. Existing engineering sources stay in `scripts/docs-pages.mjs`; unassigned non-archive references appear under **Development → Engineering & evidence**, while dated archive pages appear under history. These auto-collected references use the source's main heading as their label.
+
+The generator provides the sidebar, breadcrumbs, current-page marker, page contents and previous/next navigation. `docs/assets/handbook.css` defines desktop/mobile/print layout. `docs/assets/handbook.js` enhances title filtering and mobile disclosure; all page links and disclosure controls remain usable without JavaScript or network access. Filtering matches navigation titles, not full article text.
+
+Keep article headings stable when practical. The generator retains numbered section anchors and adds descriptive heading anchors. Changing source content can still invalidate a descriptive anchor, so run the link checker. Old page URLs remain mapped rather than being silently deleted.
+
+Use current workflow labels only when observed in the implementation or supplied device records. For plans, state that installation/commands are not available. Add provenance and gaps to the roadmap. Separate publisher/catalog verification, binary verification and physical installation; they are different checks. The 6–8 November capability/compatibility tables are preserved as dated baselines, and current entry pages summarize later development.
 
 To preview the packaged site, serve `dist/pages` with a static HTTP server. Commit the landing page, handbook sources and generated outputs, build script and workflow together. A local build does not publish the site.
 

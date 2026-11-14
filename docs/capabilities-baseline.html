@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en-AU" data-doc-status="reference"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Capabilities and current status · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
+<body><a class="skip" href="#main">Skip to content</a><header class="docs-header"><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET <span class="header-divider">/</span><span class="header-docs">Docs</span></a><nav aria-label="Site"><a href="index.html">Project home</a><a href="current-app.html">Latest update</a><a href="https://github.com/somethingsomethinglabs/AuMaNET">GitHub ↗</a></nav></header>
+<div class="docs-layout"><aside class="docs-sidebar" aria-label="Documentation navigation"><details class="mobile-navigation" open><summary>Browse documentation</summary><div class="sidebar-inner"><a class="docs-home" href="handbook.html">Documentation</a><div class="page-filter" hidden><label for="docs-filter">Find a page</label><input id="docs-filter" type="search" placeholder="Radio, Android, CLI…" autocomplete="off"><p id="filter-status" role="status" aria-live="polite"></p></div><nav aria-label="Documentation sections"><details class="nav-section"><summary>About</summary><ul><li><a href="handbook.html">Introduction</a></li><li><a href="overview.html">How AuMaNET works</a></li><li><a href="current-app.html">The app now</a></li><li><a href="capabilities.html">Project status</a></li><li><a href="contributing.html">Contributing</a></li><li><a href="faq.html">FAQs</a></li></ul></details><details class="nav-section"><summary>Getting started</summary><ul><li><a href="getting-started.html">Before you begin</a></li><li><a href="serial-connection.html">USB &amp; serial connection</a></li><li><a href="flash-firmware.html">Install node firmware</a></li><li><a href="initial-configuration.html">Initial configuration</a></li><li><a href="joining-group.html">Join a group</a></li><li><a href="first-trip.html">First trip checklist</a></li></ul></details><details class="nav-section"><summary>Configuration</summary><ul><li><a href="configuration.html">Configuration overview</a></li><li><a href="radio-configuration.html">Radio channel &amp; width</a></li><li><a href="groups-configuration.html">Groups &amp; membership</a></li><li><a href="maps-location.html">Offline maps &amp; location</a></li><li><a href="voice-configuration.html">Voice &amp; audio</a></li><li><a href="internet-sharing.html">Internet sharing</a></li><li><a href="device-configuration.html">Node management &amp; recovery</a></li></ul></details><details class="nav-section"><summary>Hardware</summary><ul><li><a href="hardware.html">Hardware overview</a></li><li><a href="devices.html">Nodes &amp; phones</a></li><li><a href="antennas-power.html">Antennas &amp; power</a></li><li><a href="enclosures.html">Enclosures &amp; printing</a></li><li><a href="compatibility.html">Compatibility</a></li><li><a href="board-reference.html">Board measurements</a></li><li><a href="enclosure-reference.html">Enclosure study</a></li><li><a href="cad-reference.html">CAD sources</a></li><li><a href="screw-mounts.html">Mounting references</a></li><li><a href="print-workshop.html">Print workshop</a></li><li><a href="print-profiles.html">Print profiles</a></li><li><a href="print-verification.html">Print verification</a></li></ul></details><details class="nav-section"><summary>Software</summary><ul><li><a href="software.html">Software overview</a></li><li><a href="android-app.html">Android app</a></li><li><a href="web-app.html">Web app &amp; design demo</a></li><li><a href="cli.html">Operator CLI · planned</a></li><li><a href="node-firmware.html">Node firmware</a></li><li><a href="firmware-updates.html">Firmware updates</a></li><li><a href="release-channels.html">Release channels &amp; publishing</a></li></ul></details><details class="nav-section"><summary>Troubleshooting</summary><ul><li><a href="troubleshooting.html">Connection &amp; recovery</a></li><li><a href="connection-tests.html">Test the connection</a></li><li><a href="diagnostics.html">Logs &amp; diagnostics</a></li></ul></details><details class="nav-section" open><summary>Development</summary><ul><li><a href="development-guide.html">Development overview</a></li><li><a href="documentation-roadmap.html">Documentation roadmap</a></li><li><a href="maintaining-docs.html">Maintain this site</a></li></ul><details class="nav-references" open><summary>Engineering & evidence</summary><ul><li><a href="capabilities-baseline.html" aria-current="page">Capabilities and current status</a></li><li><a href="compatibility-baseline.html">Hardware and phone compatibility</a></li><li><a href="gateway-readme.html">Experimental routed phone gateway</a></li><li><a href="gateway-protocol.html">Experimental gateway control contract</a></li><li><a href="gateway-ota.html">Node OTA protocol 1</a></li><li><a href="gateway-radio-configuration.html">Signed AU radio profile control, version 1</a></li><li><a href="gateway-signal-telemetry.html">Signed radio cache observations (gateway.10)</a></li><li><a href="gateway-boot-recovery.html">Two-node authenticated boot recovery, version 1</a></li><li><a href="gateway-boot-recovery-bootstrap.html">Explicit owner-A bootstrap ordering</a></li><li><a href="evidence.html">Evidence register</a></li><li><a href="validation.html">Documentation consolidation verification</a></li><li><a href="repository.html">AuMaNET</a></li><li><a href="discovery.html">AuMaNET: discovery</a></li><li><a href="two-node-test-plan.html">First two-node concept test</a></li><li><a href="experiment-template.html">Experiment record template</a></li><li><a href="design.html">Design</a></li><li><a href="phase-status.html">Design phase</a></li><li><a href="delivery-plan.html">Delivery register</a></li><li><a href="requirements-traceability.html">Requirements, implementation and evidence</a></li><li><a href="decisions-current.html">Current architecture decisions</a></li><li><a href="adr-0001.html">ADR-0001: Product scope and hardware investigation baseline</a></li><li><a href="adr-0002.html">ADR-0002: Shared UI and Android host</a></li><li><a href="adr-0003.html">ADR-0003: Autonomous transport and route ownership</a></li><li><a href="adr-0004.html">ADR-0004: Group identity and authorization</a></li><li><a href="adr-0005.html">ADR-0005: Native voice and adaptive playout</a></li><li><a href="adr-0006.html">ADR-0006: Board-served web configuration and shared API</a></li><li><a href="node-management.html">Board-served web configuration</a></li><li><a href="android-app-plan.html">Android application plan</a></li><li><a href="network-and-membership.html">Network and membership: initial proposal</a></li><li><a href="network-stack-plan.html">Mesh networking stack plan</a></li><li><a href="android-connectivity.html">Android hotspot, receiving internet and bridging mesh partitions</a></li><li><a href="architecture-roundtable.html">Architecture roundtable: recommendation and decision gates</a></li><li><a href="software-requirements.html">Software requirements and component strategy</a></li><li><a href="voice-audio-plan.html">Voice, speech detection and audio isolation</a></li><li><a href="development.html">Development</a></li><li><a href="app-development.html">Companion application</a></li><li><a href="android-development.html">Android host</a></li><li><a href="verification.html">Cross-layer acceptance</a></li><li><a href="ui-verification.html">Android UI prototype verification</a></li><li><a href="ux-panel.html">AuMaNET simulated user panel</a></li><li><a href="ux-review-hiker.html">Independent reviewer: first-time recreational hiker</a></li><li><a href="ux-review-leader.html">Independent simulated user review — convoy trip leader</a></li><li><a href="ux-review-casual.html">Simulated camper review — independent agent 3</a></li><li><a href="ux-review-driver.html">Independent driver review</a></li><li><a href="ux-review-privacy.html">Independent simulated user review: privacy-conscious bushwalking member</a></li><li><a href="deployment.html">Deployment</a></li><li><a href="brand.html">AuMaNET identity</a></li><li><a href="logo-research.html">AuMaNET logo council</a></li><li><a href="logo-prompts.html">Image Gen prompts</a></li></ul></details></details><details class="nav-section"><summary>Reference &amp; history</summary><ul><li><a href="glossary.html">Glossary</a></li><li><a href="project-legal.html">Licensing &amp; privacy</a></li><li><a href="archive.html">Historical documentation</a></li><li><a href="parts.html">Historical parts register</a></li></ul><details class="nav-references"><summary>Earlier project pages</summary><ul><li><a href="start-here.html">Build your first AuMaNET node</a></li><li><a href="current-design.html">Current design: one place to check the baseline</a></li><li><a href="operating-hardware.html">Operating hardware: next build stage</a></li><li><a href="firmware-review.html">Firmware compatibility review</a></li><li><a href="power-review.html">Power selection review</a></li><li><a href="upgrades.html">Upgrades, replacements and repair</a></li><li><a href="requirements.html">Pilot requirements</a></li><li><a href="build-and-test.html">Build and field procedure</a></li><li><a href="release-readiness.html">Release readiness</a></li><li><a href="decisions.html">Decision and action register</a></li><li><a href="portable-node.html">Portable Pi 4 radio: modular body and sealed top interfaces</a></li><li><a href="diy-selection.html">DIY hardware selection and connection plan</a></li><li><a href="heltec-hc01p-v2.html">Heltec HT-HC01P V2 + HAT candidate</a></li><li><a href="antennas.html">HaLow antenna shortlist: voice and data, practical range</a></li><li><a href="battery-candidate-01.html">Selected battery format: six-cell 3S2P pack with barrel output</a></li><li><a href="converter-candidate-01.html">Converter candidate 01: blue 12/24 V to 5 V module</a></li><li><a href="converter-candidate-02.html">Preferred converter: F23J5V5A1S-C with captive USB-C output</a></li><li><a href="charger-candidate-01.html">USB-C 3S charger and custom six-cell battery</a></li><li><a href="build-record.html">Build record</a></li><li><a href="legacy-readme.html">AuMaNET</a></li></ul></details></details></nav><p class="sidebar-note">Prototype documentation<br>Reviewed 15 November 2026</p></div></details></aside><div class="article-column"><main id="main"><p class="breadcrumb"><a href="handbook.html">Docs</a><span aria-hidden="true">/</span>Development</p><p class="status">DATED DESIGN / IMPLEMENTATION REFERENCE · CHECK THE SOURCE SCOPE · <a href="capabilities.html">Current status</a></p><article><h1 id="capabilities-and-current-status">Capabilities and current status</h1>
+<blockquote>
+<p><strong>Later app update — 15 November 2026:</strong> the Android prototype has progressed beyond the design baseline below. See <a href="current-app.html">The AuMaNET app now</a> for the two-phone/two-node development snapshot, current screenshots and testing limits. The tables on this page retain their 8 November review scope and must not be read as the latest implementation inventory.</p>
+</blockquote>
+<p>Reviewed 8 November 2026. The authoritative overview of project status. See the <a href="delivery-plan.html">delivery register</a> for task order and the <a href="evidence.html">evidence register</a> for recorded results.</p>
+<h2 id="section-1"><span id="project-status-matrix">Project status matrix</span></h2>
+<p>One status per project area, with what exists and what remains. Completed means the stated scope is finished; a completed demo is not a production release.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Project area</th>
+<th>Status</th>
+<th>What exists today</th>
+<th>What is still needed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Mobile app (Android)</strong></td>
+<td><span class="work-status work-status-progress">In progress</span></td>
+<td>Capacitor debug shell and Map, Messages, Voice, Network and Settings screens; recorded emulator checks with sample data (EV-UI)</td>
+<td>Native services, real phone/node connectivity, physical phone and background-lifecycle tests; W04, W06–W09</td>
+</tr>
+<tr>
+<td><strong>Browser app prototype</strong></td>
+<td><span class="work-status work-status-complete">Completed</span></td>
+<td>Interactive SvelteKit UI with simulated group data and local settings/history; completion is limited to this demo scope (EV-UI)</td>
+<td>Real service integration is tracked separately below; no production web client is claimed</td>
+</tr>
+<tr>
+<td><strong>CLI / command-line interface</strong></td>
+<td><span class="work-status work-status-not-started">Not started</span></td>
+<td>No current-baseline operator CLI implementation is recorded. Documentation, build and print scripts are maintainer tools; older Pi tools are historical</td>
+<td>Define and approve any operator CLI scope before implementation; it is not currently a committed release deliverable</td>
+</tr>
+<tr>
+<td><strong>Node firmware</strong></td>
+<td><span class="work-status work-status-not-started">Not started</span></td>
+<td>Development boundary and design plans only; no pinned exact-board SDK build or running radio firmware</td>
+<td>Exact-board SDK audit, reproducible build and two-node transport; W01–W03</td>
+</tr>
+<tr>
+<td><strong>Board setup UI and shared API</strong></td>
+<td><span class="work-status work-status-not-started">Not started</span></td>
+<td>Offline browser configuration and a shared Android API are accepted design directions; no board server/API implementation (EV-CONFIG pending)</td>
+<td>Implement configuration, persistence, authentication and recovery, then test on hardware; W16</td>
+</tr>
+<tr>
+<td><strong>Shared protocol and core packages</strong></td>
+<td><span class="work-status work-status-progress">In progress</span></td>
+<td>TypeScript contracts, platform boundaries and simulator compile; contracts remain provisional</td>
+<td>Production contracts, authenticated transport and real platform adapters; W06</td>
+</tr>
+<tr>
+<td><strong>Hardware / electronics</strong></td>
+<td><span class="work-status work-status-verify">Needs verification</span></td>
+<td>XIAO ESP32-S3 + XIAO HaLow candidate and manufacturer-model measurements; reported order, but receipt and exact revisions are unconfirmed (EV-MECHANICAL)</td>
+<td>Physical inventory, SDK/pin/power checks and Australian radio suitability; W01, W11</td>
+</tr>
+<tr>
+<td><strong>3D files / enclosure / print project</strong></td>
+<td><span class="work-status work-status-verify">Needs verification</span></td>
+<td>STL/3MF assets, prototype trays and recorded CAD/slicing checks exist (EV-PRINT)</td>
+<td>Actual print/board fit, retention, battery packaging and sealing acceptance; W11</td>
+</tr>
+<tr>
+<td><strong>Website and documentation</strong></td>
+<td><span class="work-status work-status-complete">Completed</span></td>
+<td>Landing page and handbook are published on GitHub Pages; the documented release build passed its checks (EV-PAGES)</td>
+<td>Maintain this status matrix as work changes; this does not complete the product or resolve the local custom-CAD validator issue</td>
+</tr>
+<tr>
+<td><strong>Physical integration and field trials</strong></td>
+<td><span class="work-status work-status-not-started">Not started</span></td>
+<td>Test plans and acceptance gates exist; no recorded current-baseline physical group or field result</td>
+<td>2–5-node integration, real voice/location/messages, range and endurance measurements; W10–W12</td>
+</tr>
+<tr>
+<td><strong>Product release / supported build kit</strong></td>
+<td><span class="work-status work-status-not-started">Not started</span></td>
+<td>No signed product release, supported hardware combination or approved complete kit</td>
+<td>Pass release gates, publish signed artifacts and prove setup/recovery; W13</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-2"><span id="status-key">Status key</span></h2>
+<ul>
+<li><span class="work-status work-status-not-started">Not started</span> — implementation or physical testing for this scope has not begun; a design, plan or scaffold may exist.</li>
+<li><span class="work-status work-status-progress">In progress</span> — part of the implementation works, with required development still outstanding.</li>
+<li><span class="work-status work-status-complete">Completed</span> — the stated, limited deliverable is finished and has recorded checks. This is not automatically a product release.</li>
+<li><span class="work-status work-status-verify">Needs verification</span> — candidate hardware or assets exist, but the tests required to accept them are still outstanding.</li>
+</ul>
+<p>Work status and evidence answer different questions. <strong>Proposed</strong> means design only; <strong>simulated</strong> means sample inputs or mock services; <strong>implemented</strong> means code/assets exist. <strong>Physically tested</strong> requires a named real device and configuration. <strong>Release supported</strong> requires a specific version/configuration to pass its release gates. No product capability below is release supported, and no current-baseline physical phone/radio combination is recorded as tested.</p>
+<h2 id="section-3"><span id="capability-matrix">Capability matrix</span></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Current scope and status</th>
+<th>Evidence</th>
+<th>Work remaining</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Browser application</td>
+<td>Implemented SvelteKit/TypeScript UI; sample data and local settings/history</td>
+<td>EV-UI</td>
+<td>W06–W09 real services and persistence</td>
+</tr>
+<tr>
+<td>Board-served configuration</td>
+<td>Accepted design direction in <a href="adr-0006.html">ADR-0006</a>; offline browser UI and shared Android configuration API are proposed, with no firmware implementation</td>
+<td>EV-CONFIG pending</td>
+<td>W16; W01/W04/W06 foundations, W10/W11 load/endurance, W13 maintenance</td>
+</tr>
+<tr>
+<td>Android application</td>
+<td>Implemented Capacitor shell, debug build and emulator navigation; native background services proposed</td>
+<td>EV-UI</td>
+<td>W04, W06; physical phone lifecycle tests</td>
+</tr>
+<tr>
+<td>Offline maps</td>
+<td>Implemented Leaflet 2.0.0-beta.1 illustrative terrain; real Getlost acquisition/import/storage proposed</td>
+<td>EV-UI</td>
+<td>W08</td>
+</tr>
+<tr>
+<td>Messages and location</td>
+<td>Simulated messages, peers, positions, accuracy and freshness displays</td>
+<td>EV-UI</td>
+<td>W06, W08, W09</td>
+</tr>
+<tr>
+<td>Voice/PTT/Always on</td>
+<td>Simulated UI and speaking state; no microphone, codec, detector or audio transport</td>
+<td>EV-UI</td>
+<td>W07, W10</td>
+</tr>
+<tr>
+<td>Phone-to-node link</td>
+<td>Proposed; Wi-Fi/BLE and Android role handling not selected for production</td>
+<td>EV-HOST pending</td>
+<td>W04</td>
+</tr>
+<tr>
+<td>Autonomous multi-hop</td>
+<td>Proposed; exact MCU SDK/transport topology unproven</td>
+<td>EV-MESH pending</td>
+<td>W01–W03</td>
+</tr>
+<tr>
+<td>All-app internet sharing</td>
+<td>Simulated source controls; native donation, reception and automatic gateway selection proposed</td>
+<td>EV-INTERNET pending</td>
+<td>W05, W10</td>
+</tr>
+<tr>
+<td>Group security</td>
+<td>Proposed; no authenticated pairing, production keys, revocation or secure wire protocol</td>
+<td>EV-SECURITY pending</td>
+<td>W06</td>
+</tr>
+<tr>
+<td>Board/enclosure references</td>
+<td>Implemented manufacturer-model measurements and prototype trays; physical fit unverified</td>
+<td>EV-MECHANICAL</td>
+<td>W01, W11</td>
+</tr>
+<tr>
+<td>Print bundle/workshop</td>
+<td>Implemented canonical geometry bundle and editable workshop; recorded slice/CAD checks, no physical print acceptance</td>
+<td>EV-PRINT</td>
+<td>W11 fit, retention, battery and sealing</td>
+</tr>
+<tr>
+<td>Cost, range and endurance</td>
+<td>Proposed A$45–75 basic node, up-to-1-km LOS single hop and ≥48-hour continuous node operation</td>
+<td>EV-FIELD pending</td>
+<td>W11–W12</td>
+</tr>
+<tr>
+<td>Release/provisioning/updates</td>
+<td>Proposed; no signed product release or supported kit</td>
+<td>EV-RELEASE pending</td>
+<td>W13</td>
+</tr>
+<tr>
+<td>Repository validation</td>
+<td>Published documentation release <code>ecb765d</code> passed TypeScript, handbook and upstream-CAD checks on a clean checkout (EV-PAGES). The local custom-model working tree still has the earlier CAD guard mismatch; this is a different input set</td>
+<td>EV-DOCS, EV-PAGES</td>
+<td>W15 applies to the local custom STL entries; no geometry or print-bundle change in this status update</td>
+</tr>
+</tbody></table></div>
+<h2 id="section-4"><span id="baseline-and-boundaries">Baseline and boundaries</span></h2>
+<p>Android launch support, all-app donation and reception, autonomous forwarding, local group functions without cloud login, and 2–5-node validation remain required. iPhone and camera work are optional. The 48-hour workload includes voice availability, location and relay service; phone endurance is measured separately. See <a href="discovery.html">confirmed scope</a>.</p>
+<p>ESP32-S3/HaLow is the current investigation candidate. Linux/OpenWrt is a functional reference and possible alternative after measurements. Neither is approved production hardware. The optional Pi Zero enclosure tray establishes packaging work only. There is no current AliExpress-only purchasing restriction.</p>
+<h2 id="section-5"><span id="updating-status">Updating status</span></h2>
+<p>When scope or implementation changes, update this matrix, its delivery row, affected decisions, compatibility entries and requirement coverage in the same change. A passed check needs a dated evidence record with exact revisions, method and limitations. Keep not-run separate from failed. Prior records remain historical until revalidated against changed code/hardware. The existing verification reports record earlier runs; editing this page does not rerun them.</p>
+</article><nav class="page-pagination" aria-label="Previous and next pages"><a href="maintaining-docs.html"><small>Previous</small><strong>Maintain this site</strong></a><a href="compatibility-baseline.html"><small>Next</small><strong>Hardware and phone compatibility</strong></a></nav></main><footer><a href="documentation-roadmap.html">Documentation roadmap</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="capabilities-baseline.md">Repository source</a><br>Built from repository sources. Local HTML works offline; external sources need internet.</footer></div><aside class="page-contents" aria-label="On this page"><details open><summary>On this page</summary><ol><li><a href="#section-1">Project status matrix</a></li><li><a href="#section-2">Status key</a></li><li><a href="#section-3">Capability matrix</a></li><li><a href="#section-4">Baseline and boundaries</a></li><li><a href="#section-5">Updating status</a></li></ol></details></aside></div><script src="assets/handbook.js" defer></script></body></html>

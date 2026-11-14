@@ -2,7 +2,7 @@
 
 The app selects **Stable**, **Beta**, **Nightly**, or an advertised Git branch build. These select signed, immutable binaries. The phone does not compile a Git branch or install an arbitrary URL. Switching channels does not automatically download or install anything.
 
-The repository currently has no published firmware releases. The default HTTPS catalog must be published before online checks can offer a release. An unavailable, expired or missing catalog is not evidence that a node is up to date. Previously verified packages can remain available offline.
+As reviewed on 15 November 2026, GitHub has Nightly prerelease assets and a signed catalog. The catalog signature/schema verified with this repository's public trust key at the review date and advertised clean-source CI A/B Nightlies and dirty-source local gateway.15 A/B Nightlies. This documentation check did not independently download/hash/install every image. See [published releases](https://github.com/somethingsomethinglabs/AuMaNET/releases) for current assets; availability and expiry change over time. Nightly publication is not Stable/Beta or supported-product acceptance. An unavailable, expired or missing catalog is not evidence that a node is up to date. Previously verified packages can remain available offline.
 
 ## Keys and compatibility
 

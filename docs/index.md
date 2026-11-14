@@ -1,30 +1,40 @@
-# AuMaNET project handbook
+# AuMaNET documentation
 
-Off-grid group communications for Australian 4WD and camping trips: messages, near-live location and live group voice, with shared phone internet when available.
+Build, understand and test an off-grid group connection. AuMaNET brings offline maps, messages/photos and live voice to Android through small Wi-Fi HaLow nodes, with optional shared phone internet.
 
-**Current baseline — 6 November 2026:** investigate plain XIAO ESP32-S3 + Seeed XIAO HaLow nodes with an Android companion app. The SvelteKit UI and Capacitor Android shell work with simulated data. Radio transport, native audio/location, all-app internet sharing and physical runtime remain unverified. No supported build kit or production release exists.
+**Working prototype · reviewed 15 November 2026.** Two-phone/two-node development results exist. Multi-hop, wider compatibility, range/endurance and a supported complete kit remain open. These guides distinguish current behavior, plans and dated references.
 
-## Documentation
+<span id="documentation"></span>
 
-| Your purpose | Reading path |
+## Start here
+
+| Your next step | Read |
 | --- | --- |
-| Understand the project | [Capabilities and current status](capabilities.md) → [Discovery and confirmed scope](../discovery/README.md) → [Design overview](../design/README.md) |
-| Plan the next work | [Delivery register](../design/delivery-plan.md) → [Current decisions](../design/decisions/README.md) → [Requirements and evidence](../design/requirements-traceability.md) |
-| Plan node setup and recovery | [Board-served web configuration](../design/node-management.md) → [Shared API decision](../design/decisions/0006-board-web-configuration.md) → [Delivery register W16](../design/delivery-plan.md) |
-| Investigate feasibility | [Compatibility matrix](compatibility.md) → [Two-node experiment](../discovery/two-node-test-plan.md) → [Architecture investigation](../design/architecture-roundtable.md) |
-| Develop the prototype | [Development setup](../dev/README.md) → [Web app](../dev/app/README.md) → [Android host](../dev/mobile/README.md) → [Verification](../dev/tests/README.md) |
-| Evaluate results | [Evidence register](evidence.md) → [Requirement coverage](../design/requirements-traceability.md) → [Deployment gates](../deploy/README.md) |
-| Inspect hardware references | [Board measurements](../hardware/reference/seeed-xiao-esp32s3-halow/README.md) → [Enclosure study](../hardware/reference/enclosure-feasibility/README.md) → [Print workshop](../hardware/print/README.md) |
-| Read the earlier project | [Historical documentation directory](archive.md) — Pi/Heltec/OpenMANET material, preserved at its original URLs |
+| Understand the project | [How it works](overview.md) → [Project status](capabilities.md) → [FAQs](faq.md) |
+| Prepare development hardware | [Before you begin](getting-started.md) → [USB & serial](serial-connection.md) → [Install firmware](flash-firmware.md) |
+| Connect provisioned devices | [Initial configuration](initial-configuration.md) → [Join a group](joining-group.md) → [First trip checklist](first-trip.md) |
+| Adjust settings | [Configuration](configuration.md): radio, maps/location, voice, internet and node management |
+| Understand the devices | [Hardware](hardware.md) → [Nodes & phones](devices.md) → [Antennas/power](antennas-power.md) → [Enclosures](enclosures.md) |
+| Explore the clients | [Software](software.md): [Android](android-app.md), [Web](web-app.md), [CLI · planned](cli.md), [Firmware](node-firmware.md) |
+| Diagnose a problem | [Troubleshooting](troubleshooting.md) → [Connection tests](connection-tests.md) → [Diagnostics](diagnostics.md) |
+| Help build the project | [Contributing](contributing.md) → [Development](development-guide.md) → [Documentation roadmap](documentation-roadmap.md) |
 
-## What exists today
+## Use the sidebar
 
-Map, Messages, Voice, Network and Settings screens run in the browser and Android emulator. Their messages, positions, microphone states, nodes and internet sources are demonstration data. Leaflet displays bundled illustrative terrain; Getlost map import and storage are still planned.
+Browse About, Getting started, Configuration, Hardware, Software and Troubleshooting. Development contains the roadmap and expandable engineering/evidence references. Reference & history holds the glossary, policies and earlier project material.
 
-The owner reported ordering the S3 and HaLow boards; quantity, receipt and exact received revisions remain unconfirmed. Three physical nodes are necessary to prove multi-hop. No physical phone/radio test or approved Australian radio profile has been recorded. Use the compatibility matrix before treating any combination as supported.
+On a phone, open **Browse documentation** above the article. **Find a page** filters sidebar titles; clear it to restore the tree. The current section is expanded and page marked. On this page and Previous/Next links help you move through longer guides.
 
-## How this handbook stays current
+<span id="what-exists-today"></span>
 
-The capability matrix owns status, the delivery register owns execution order, and decision records own current choices. Detailed investigations retain alternatives and experiment methods. The evidence register connects results to those decisions without counting simulated UI checks as hardware acceptance.
+## Understand the evidence
 
-Read this HTML handbook locally with its neighbouring files; no server or remote fonts are required. Developer commands require the tools named in their respective guides. See [maintenance instructions](maintaining-docs.md). Range, budget and runtime goals remain acceptance targets rather than demonstrated capabilities.
+The Android app, web demo, experimental node firmware and public website are different deliverables. Demo states are not physical results. A published Nightly catalog is not a supported Stable release. Two nodes do not demonstrate autonomous multi-hop.
+
+See [The app now](current-app.md) for screenshots, [Project status](capabilities.md) for the inventory and [Documentation roadmap](documentation-roadmap.md) for available sources and missing information. Older references retain their dated scope.
+
+<span id="how-this-handbook-stays-current"></span>
+
+## Keep building this handbook
+
+Every generated page links to its Markdown source. Local HTML works with adjacent files; page filtering is optional and external sources need internet. Follow [Maintenance](maintaining-docs.md). Original licensing is undecided; [Licensing & privacy](project-legal.md) lists the policy work.

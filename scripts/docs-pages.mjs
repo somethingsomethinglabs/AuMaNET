@@ -1,5 +1,11 @@
 // Source/output ownership for the offline handbook. Preserve historical URLs.
+import { guidePages } from './docs-guides.mjs';
 export const pages = [
+  ...guidePages,
+  ['docs/capabilities-baseline.md', 'docs/capabilities-baseline.html', 'reference'],
+  ['docs/compatibility-baseline.md', 'docs/compatibility-baseline.html', 'reference'],
+  ['dev/releases/README.md', 'docs/release-channels.html', 'reference'],
+  ...['README', 'PROTOCOL', 'OTA', 'RADIO-CONFIGURATION', 'SIGNAL-TELEMETRY', 'BOOT-RECOVERY', 'BOOT-RECOVERY-BOOTSTRAP'].map(name => [`dev/firmware/gateway/${name}.md`, `docs/gateway-${name.toLowerCase()}.html`, 'reference']),
   ['docs/current-app.md', 'docs/current-app.html', 'current'],
   ['docs/index.md', 'docs/handbook.html', 'current'],
   ['docs/capabilities.md', 'docs/capabilities.html', 'current'],

@@ -3,12 +3,25 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { marked } from 'marked';
 import { pages, manualArchives, isUnbundledArtifact } from './docs-pages.mjs';
+import { documentationNavigation } from './docs-navigation.mjs';
 
 const root = process.cwd();
 const checkOnly = process.argv.includes('--check');
 const outputs = new Map();
 const mapped = new Map(pages.map(([source, output]) => [path.resolve(root, source), output]));
 const esc = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+const navigation = documentationNavigation(pages);
+const pageTitle = source => (fs.readFileSync(source, 'utf8').match(/^# (.+)$/m)?.[1] || source).replace(/<[^>]*>/g, '').trim();
+const labelFor = item => item.label || pageTitle(item.source);
+const navigationItems = navigation.flatMap(section => [...section.items, ...(section.references || [])]);
+function sidebar(current) {
+  const link = item => `<li><a href="${esc(item.href)}"${item.href === current ? ' aria-current="page"' : ''}>${esc(labelFor(item))}</a></li>`;
+  return `<details class="mobile-navigation" open><summary>Browse documentation</summary><div class="sidebar-inner"><a class="docs-home" href="handbook.html">Documentation</a><div class="page-filter" hidden><label for="docs-filter">Find a page</label><input id="docs-filter" type="search" placeholder="Radio, Android, CLI…" autocomplete="off"><p id="filter-status" role="status" aria-live="polite"></p></div><nav aria-label="Documentation sections">${navigation.map(section => {
+    const all = [...section.items, ...(section.references || [])];
+    const active = all.some(item => item.href === current);
+    return `<details class="nav-section"${active ? ' open' : ''}><summary>${esc(section.title)}</summary><ul>${section.items.map(link).join('')}</ul>${section.references?.length ? `<details class="nav-references"${section.references.some(item => item.href === current) ? ' open' : ''}><summary>${section.title === 'Development' ? 'Engineering & evidence' : 'Earlier project pages'}</summary><ul>${section.references.map(link).join('')}</ul></details>` : ''}</details>`;
+  }).join('')}</nav><p class="sidebar-note">Prototype documentation<br>Reviewed 15 November 2026</p></div></details>`;
+}
 
 function rewrite(url, source, output) {
   if (/^(?:https?:|mailto:|#)/.test(url)) return url;
@@ -20,6 +33,7 @@ function rewrite(url, source, output) {
 }
 
 function frame(title, body, status, source) {
+  const current = source ? mapped.get(path.resolve(root, source)).replace(/^docs\//, '') : 'parts.html';
   const headings = [];
   const slugs = new Set();
   body = body.replace(/<h([1-6])>([\s\S]*?)<\/h\1>/g, (_, level, heading) => {
@@ -33,15 +47,20 @@ function frame(title, body, status, source) {
     headings.push(`<li><a href="#${id}">${heading}</a></li>`);
     return `<h2 id="${id}"><span id="${slug}">${heading}</span></h2>`;
   });
-  const contents = headings.length > 1 ? `<details class="contents"><summary>On this page</summary><ol>${headings.join('')}</ol></details>` : '';
+  const contents = headings.length ? `<aside class="page-contents" aria-label="On this page"><details open><summary>On this page</summary><ol>${headings.join('')}</ol></details></aside>` : '';
   const notice = status === 'archive'
     ? '<aside id="archive-notice" class="status"><strong>HISTORICAL · SUPERSEDED PI/HELTEC BASELINE</strong> · These choices and build steps do not apply to the current ESP32-S3/HaLow investigation. <a href="index.html">Current handbook</a> · <a href="archive.html">Archive context</a></aside>'
-    : `<p class="status">${source === 'docs/current-app.md' ? 'CURRENT APP SNAPSHOT · TWO-PHONE PROTOTYPE · 15 NOVEMBER 2026' : status === 'reference' ? 'PROTOTYPE REFERENCE' : 'CURRENT PROJECT · DESIGN / SIMULATED PROTOTYPE'} · <a href="capabilities.html">Capabilities and evidence limits</a></p>`;
+    : `<p class="status">${status === 'guide' || ['docs/index.md', 'docs/current-app.md', 'docs/capabilities.md', 'docs/compatibility.md', 'docs/maintaining-docs.md'].includes(source) ? 'PROTOTYPE DOCUMENTATION · REVIEWED 15 NOVEMBER 2026' : 'DATED DESIGN / IMPLEMENTATION REFERENCE · CHECK THE SOURCE SCOPE'} · <a href="capabilities.html">Current status</a></p>`;
   const sourceLink = source ? ` · <a data-repository-source="true" href="${esc(path.relative('docs', source).replaceAll('\\', '/'))}">Repository source</a>` : '';
+  const category = navigation.find(section => [...section.items, ...(section.references || [])].some(item => item.href === current))?.title || 'Reference & history';
+  const uniqueItems = navigationItems.filter((item, index, items) => items.findIndex(other => other.href === item.href) === index);
+  const position = uniqueItems.findIndex(item => item.href === current);
+  const adjacent = (item, direction) => item ? `<a href="${esc(item.href)}"><small>${direction}</small><strong>${esc(labelFor(item))}</strong></a>` : '<span></span>';
+  const pagination = position >= 0 ? `<nav class="page-pagination" aria-label="Previous and next pages">${adjacent(uniqueItems[position - 1], 'Previous')}${adjacent(uniqueItems[position + 1], 'Next')}</nav>` : '';
   return `<!doctype html>
 <html lang="en-AU" data-doc-status="${status}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${status === 'archive' ? 'Historical: ' : ''}${esc(title)} · AuMaNET</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/handbook.css"></head>
-<body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET</a><nav aria-label="Handbook"><a href="index.html">Project overview</a><a href="capabilities.html">Current status</a><a href="delivery-plan.html">Delivery plan</a><a href="decisions-current.html">Decisions</a><a href="compatibility.html">Compatibility</a><a href="archive.html">History</a></nav></header>
-<main id="main">${notice}${contents}${body}</main><footer>Offline handbook · <a href="index.html#documentation">All documentation</a> · <a href="maintaining-docs.html">Maintenance</a>${sourceLink}<br>Generated from repository sources. External sources need an internet connection.</footer></body></html>\n`;
+<body><a class="skip" href="#main">Skip to content</a><header class="docs-header"><a class="brand" href="index.html"><img class="brand-mark" src="assets/aumanet-mark-light.svg" width="44" height="22" alt="">AuMaNET <span class="header-divider">/</span><span class="header-docs">Docs</span></a><nav aria-label="Site"><a href="index.html">Project home</a><a href="current-app.html">Latest update</a><a href="https://github.com/somethingsomethinglabs/AuMaNET">GitHub ↗</a></nav></header>
+<div class="docs-layout"><aside class="docs-sidebar" aria-label="Documentation navigation">${sidebar(current)}</aside><div class="article-column"><main id="main"><p class="breadcrumb"><a href="handbook.html">Docs</a><span aria-hidden="true">/</span>${esc(category)}</p>${notice}<article>${body}</article>${pagination}</main><footer><a href="documentation-roadmap.html">Documentation roadmap</a> · <a href="maintaining-docs.html">Maintenance</a>${sourceLink}<br>Built from repository sources. Local HTML works offline; external sources need internet.</footer></div>${contents}</div><script src="assets/handbook.js" defer></script></body></html>\n`;
 }
 
 for (const [source, output, status] of pages) {
