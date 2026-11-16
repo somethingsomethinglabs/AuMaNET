@@ -11,7 +11,10 @@ const browser=await chromium.launch({headless:true}),page=await browser.newPage(
 const checks=[];
 try{
   await page.addInitScript(()=>Object.defineProperty(navigator,'serial',{configurable:true,value:{async requestPort(){throw new DOMException('No port selected','NotFoundError');},addEventListener(){}}}));
-  await page.goto(url+'/');await page.getByRole('navigation',{name:'Main navigation'}).getByRole('link',{name:'Install firmware'}).click();
+  await page.goto(url+'/');
+  for(const width of [320,390,768,1280]){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`Marketing page overflow at ${width}`);}
+  checks.push('Landing page including its new navigation has no overflow at 320/390/768/1280');
+  await page.getByRole('navigation',{name:'Main navigation'}).getByRole('link',{name:'Install firmware'}).click();
   await page.getByRole('heading',{name:'Choose a signed package'}).waitFor();await page.getByText('Ready for USB',{exact:false}).waitFor();
   assert.equal(await page.getByRole('button',{name:'Connect node',exact:true}).isEnabled(),false);assert.equal(await page.getByRole('button',{name:'Install verified firmware'}).isEnabled(),false);
   await page.getByLabel('I have checked the board above and can interrupt this node.').check();await page.getByRole('button',{name:'Connect node',exact:true}).click();await page.getByRole('alert').filter({hasText:'No port selected'}).waitFor();assert.equal(await page.getByRole('button',{name:'Install verified firmware'}).isEnabled(),false);
