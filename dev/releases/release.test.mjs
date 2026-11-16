@@ -37,7 +37,7 @@ test('dirty source cannot be labelled stable or beta, while clean stable is supp
 });
 test('corrupt ESP checksum, appended digest, header and custom build identity reject',()=>{
  const image=imageFixture();for(const offset of [0,1000,1103]){const changed=Buffer.from(image);changed[offset]^=1;assert.throws(()=>inspectImage(changed));}
- const role=Buffer.from(image);role[0x120+8]=3;rehash(role);assert.throws(()=>inspectImage(role),/board\/role/);
+ const role=Buffer.from(image);role[0x120+8]=4;rehash(role);assert.throws(()=>inspectImage(role),/board\/role/);
  const version=Buffer.from(image);version[48]=0x31;rehash(version);assert.throws(()=>inspectImage(version),/version mismatch/);
  const profile=Buffer.from(image);profile[0x120+260]^=1;rehash(profile);assert.throws(()=>inspectImage(profile),/profile mismatch/);
 });
@@ -46,7 +46,7 @@ test('embedded descriptor and OTA size bounds are enforced independently of mani
 });
 test('signed but incompatible descriptor cannot bypass role/layout/radio/size policy',()=>{
  const original=Buffer.from(releaseFor().manifest,'base64');
- for(const [offset,value] of [[12,3],[13,4],[15,2],[37,2],[39,2],[380,0x4e],[382,25],[383,1]]){const body=Buffer.from(original);body[offset]=value;assert.throws(()=>verifyRelease(signedRelease(body),trust));}
+ for(const [offset,value] of [[12,4],[13,4],[15,2],[37,2],[39,2],[380,0x4e],[382,25],[383,1]]){const body=Buffer.from(original);body[offset]=value;assert.throws(()=>verifyRelease(signedRelease(body),trust));}
  const large=Buffer.from(original);large.writeUInt32BE(2359297,16);assert.throws(()=>verifyRelease(signedRelease(large),trust),/image size/);
  const unsafe=Buffer.from(original);unsafe.writeBigUInt64BE(1n<<63n,20);assert.throws(()=>verifyRelease(signedRelease(unsafe),trust),/Unsafe/);
 });

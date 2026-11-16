@@ -12,6 +12,10 @@
     "npm": ">=11 <12"
   },
   "scripts": {
+    "web:installer:build": "node scripts/build-web-installer.mjs",
+    "web:installer:sync": "node scripts/build-web-installer.mjs --sync",
+    "web:installer:check": "node scripts/build-web-installer.mjs --check",
+    "web:installer:test": "node --test dev/tests/web-installer.test.mjs",
     "check": "npm run typecheck && npm run docs:check && npm run cad:check",
     "typecheck": "tsc --build",
     "clean": "tsc --build --clean",
@@ -22,7 +26,11 @@
     "firmware:release:test": "node --test dev/releases/release.test.mjs"
   },
   "devDependencies": {
+    "@noble/hashes": "2.4.0",
+    "esptool-js": "0.7.1",
     "marked": "18.1.3",
-    "typescript": "~5.9.3"
+    "playwright": "1.65.0-alpha-2026-10-30",
+    "typescript": "~5.9.3",
+    "vite": "8.3.6"
   }
 }

@@ -1,0 +1,1 @@
+export{t as ESP32C2ROM}from"./esp32c2-DkI5Qmk6.js";

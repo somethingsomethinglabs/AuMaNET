@@ -17,7 +17,7 @@
   <header class="site-header">
     <div class="wrap header-inner">
       <a class="brand" href="index.html" aria-label="AuMaNET home"><img src="assets/aumanet-mark.svg" width="48" height="24" alt=""><span>AuMaNET</span></a>
-      <nav aria-label="Main navigation"><a href="#app">The app</a><a href="#progress">Progress</a><a class="nav-docs" href="handbook.html">View docs</a></nav>
+      <nav aria-label="Main navigation"><a href="#app">The app</a><a href="install/index.html">Install firmware</a><a href="#progress">Progress</a><a class="nav-docs" href="handbook.html">View docs</a></nav>
       <a class="repo-link" href="https://github.com/somethingsomethinglabs/AuMaNET">View on GitHub <span aria-hidden="true">↗</span></a>
     </div>
   </header>
@@ -66,6 +66,10 @@
       <div class="architecture-details"><p><strong>Current prototype node hardware</strong><br>XIAO ESP32-S3 + XIAO Wi-Fi HaLow</p><p><strong>Internet is an optional extra.</strong><br>Local messages, positions and voice use the group connection. Shared mobile data is a separate, opt-in function.</p></div>
       <p class="architecture-note">This diagram describes the direct two-node setup. Autonomous multi-hop, larger groups, dependable range and endurance remain unproven. <a href="network-stack-plan.html">Read the network design <span aria-hidden="true">↗</span></a></p>
     </div></section>
+    <section class="progress-section wrap" id="install" aria-labelledby="install-title">
+      <div class="section-intro"><p class="eyebrow">Your node / USB setup</p><h2 id="install-title">From a USB cable<br>to the next trip.</h2><p>Install AuMaNET firmware from your computer’s browser. Choose a signed package, check the exact node and keep a private recovery backup.</p><a class="button" href="install/index.html">Install firmware <span aria-hidden="true">↗</span></a></div>
+      <div class="progress-cards"><article><span class="progress-label exists">Browser-based installer</span><h3>Check. Back up. Install.</h3><p>For the supported XIAO ESP32S3 + MM6108 HaLow board. Use desktop Chrome or Edge and a USB data cable. A verified, signed installer package is required.</p><p>Existing-node updates preserve configuration regions. Blank-board installation is a separate checked operation. Continue group setup in the Android app; private setup-QR commissioning is still in development.</p></article></div>
+    </section>
     <section class="progress-section wrap" id="progress" aria-labelledby="progress-title">
       <div class="section-intro"><p class="eyebrow">03 / On the workbench</p><h2 id="progress-title">Off the mockup.<br>Onto real phones.</h2><p>The project has moved from a simulated interface to a working Android and radio prototype. The immediate job is to make that experience dependable outside the bench.</p><a class="text-link" href="current-app.html">Current app update <span aria-hidden="true">↗</span></a></div>
       <div class="progress-list"><article><span class="progress-label exists">Now · physically checked prototype</span><h3>The app experience</h3><p>Two Android phones and two ESP32-S3 / HaLow nodes have recorded checks for offline maps, shared positions, signed text and photos, native voice and opt-in shared IPv4 internet.</p></article><article><span class="progress-label">Next · repeatable field testing</span><h3>Make recovery feel routine</h3><p>Exercise reconnects, background delivery and voice during real trips. Check human listening quality, changing radio conditions and repeatable recovery across both phones.</p></article><article><span class="progress-label">Ahead · field acceptance</span><h3>Earn a place in the kit</h3><p>Prove multi-hop with at least three nodes, broader phone compatibility, range, battery endurance and enclosure fit. No supported build kit or production app release is available.</p></article></div>

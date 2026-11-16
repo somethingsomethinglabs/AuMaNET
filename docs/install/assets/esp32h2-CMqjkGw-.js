@@ -1,0 +1,1 @@
+export{t as ESP32H2ROM}from"./esp32h2-CB0UqTOX.js";

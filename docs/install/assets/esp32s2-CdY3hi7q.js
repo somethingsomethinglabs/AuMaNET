@@ -1,0 +1,1 @@
+export{t as ESP32S2ROM}from"./esp32s2-DcNHl-60.js";
