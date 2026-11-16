@@ -25,7 +25,8 @@
     {
       "name": "role",
       "offset": 12,
-      "bytes": 1
+      "bytes": 1,
+      "values": {"A": 1, "B": 2, "U": 3}
     },
     {
       "name": "channel",

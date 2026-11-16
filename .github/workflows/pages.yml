@@ -24,6 +24,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci --ignore-scripts
+      - name: Verify USB installer policy and generated website
+        run: npm run web:installer:test && npm run web:installer:check
       - name: Verify committed handbook
         run: npm run docs:check
       - name: Build and verify Pages artifact

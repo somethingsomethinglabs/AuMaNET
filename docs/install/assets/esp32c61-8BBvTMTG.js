@@ -1,0 +1,1 @@
+export{t as ESP32C61ROM}from"./esp32c61-B-WwSlti.js";

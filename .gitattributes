@@ -2,3 +2,5 @@
 /dev/firmware/** text eol=lf
 /dev/releases/** text eol=lf
 /.github/workflows/firmware-release.yml text eol=lf
+/dev/web-installer/** text eol=lf
+/docs/install/** text eol=lf

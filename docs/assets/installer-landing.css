@@ -1,0 +1,2 @@
+/* Keep the added installer entry accessible in the existing mobile navigation. */
+@media(max-width:760px){.site-header nav{flex-wrap:wrap;gap:12px 18px;justify-content:flex-start}.site-header nav a{display:inline-flex;align-items:center;min-height:36px}}
