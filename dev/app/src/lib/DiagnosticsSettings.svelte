@@ -5,9 +5,11 @@
   import HelpButton from "./HelpButton.svelte";
   import {onDestroy,onMount} from 'svelte';
   import {FileDown,Info,RefreshCw} from '@lucide/svelte';
-  import {DiagnosticsClient,DiagnosticDownload,DIAGNOSTIC_FILENAME,DIAGNOSTIC_LIMITS,type DiagnosticCollection,type DiagnosticComponent,type DiagnosticEvidence,type DiagnosticObservation} from './diagnostics';
+  import {DiagnosticsClient,DiagnosticDownload,DIAGNOSTIC_FILENAME,DIAGNOSTIC_LIMITS,saveDiagnosticCollection,type DiagnosticExportBridge,type DiagnosticCollection,type DiagnosticComponent,type DiagnosticEvidence,type DiagnosticObservation} from './diagnostics';
+  import {Capacitor,registerPlugin} from '@capacitor/core';
   import {nativeDiagnostics} from './native-diagnostics';
   export let client:DiagnosticsClient|undefined=undefined;
+  export let exportBridge:DiagnosticExportBridge|undefined=Capacitor.getPlatform()==='android'&&Capacitor.isPluginAvailable('AuMaNETDiagnosticsExport')?registerPlugin<DiagnosticExportBridge>('AuMaNETDiagnosticsExport'):undefined;
   export let group:unknown=undefined;
   export let voice:unknown=undefined;
   export let messages:unknown=undefined;
@@ -25,6 +27,7 @@
   const labels:Record<DiagnosticComponent,string>={node:'Phone to node',group:'Local group',messages:'Group text storage',voice:'Native voice',location:'Location service'};
   let activeClient:DiagnosticsClient,busy=false,alive=true,operation=0,error='',notice='',href='',copyAvailable=false;
   let collection:DiagnosticCollection|undefined;
+  let saving=false,saveOperation=0;
   let seenGroup:unknown,seenVoice:unknown,seenMessages:unknown,seenNode:unknown,seenLocation:unknown;
   let groupAt:number|undefined,voiceAt:number|undefined,messagesAt:number|undefined,nodeAt:number|undefined,locationAt:number|undefined;
   $: activeClient=client??fallback;
@@ -36,19 +39,26 @@
   onMount(()=>{copyAvailable=typeof navigator.clipboard?.writeText==='function';});
   function observation(state:unknown,receivedAt:number|undefined,failed:boolean):DiagnosticObservation{return {state,failed,...(receivedAt===undefined?{}:{receivedAt})};}
   async function collect(){
-    if(busy)return;const token=++operation;busy=true;error='';notice='';downloads.clear();href='';collection=undefined;
+    if(busy||saving)return;const token=++operation;busy=true;error='';notice='';downloads.clear();href='';collection=undefined;
     try{
       const result=await activeClient.collect({group:observation(group,groupAt,groupError),voice:observation(voice,voiceAt,voiceError),messages:observation(messages,messagesAt,messagesError),
         node:{...observation(node,nodeAt,nodeError),connected:nodeConnected},location:observation(location,locationAt,locationError)});
       if(!alive||token!==operation)return;
       if(evidence==='fixture'&&result.report.evidence!=='fixture')throw new Error('fixture-client-required');
       collection=result;
-      try{href=downloads.prepare(result);}catch{error='Local downloads are unavailable here. You can select and copy the reviewed JSON below.';}
+      try{if(!exportBridge)href=downloads.prepare(result);}catch{error='Local downloads are unavailable here. You can select and copy the reviewed JSON below.';}
       notice='Redacted report ready. Review it before saving or sharing.';
     }catch{if(alive&&token===operation)error='The report could not be collected. Refresh to try again; no connection or permission was changed.';}
     finally{if(alive&&token===operation)busy=false;}
   }
-  function clear(){++operation;busy=false;activeClient.clear();downloads.clear();href='';collection=undefined;error='';notice='Report cleared from this screen.';}
+  function clear(){++operation;++saveOperation;saving=false;busy=false;activeClient.clear();downloads.clear();href='';collection=undefined;error='';notice='Report cleared from this screen.';}
+  async function save(){
+    const selected=collection,bridge=exportBridge;if(!selected||!bridge||saving)return;
+    const token=++saveOperation;saving=true;error='';notice='';
+    try{const name=await saveDiagnosticCollection(bridge,selected);if(alive&&token===saveOperation&&collection===selected)notice=`Saved to Downloads/AuMaNET/${name}`;}
+    catch{if(alive&&token===saveOperation&&collection===selected)error='File saving could not be confirmed. Check Downloads/AuMaNET before saving again, or copy the reviewed JSON.';}
+    finally{if(alive&&token===saveOperation)saving=false;}
+  }
   async function copy(){
     const selected=collection;if(!selected||!copyAvailable)return;
     try{await navigator.clipboard.writeText(selected.json);if(alive&&collection===selected)notice='Reviewed JSON copied. Choose where to share it.';}
@@ -56,13 +66,13 @@
   }
   function age(value:number|null){return value===null?'Unknown':value>=DIAGNOSTIC_LIMITS.ageMs?'7 days or more':value<1000?'Less than 1 second':`${Math.floor(value/1000)} seconds`;}
   function bytes(value:number|undefined){return value===undefined?'Unknown':value>=1024**3?`${(value/1024**3).toFixed(2)} GiB`:`${Math.floor(value/1024)} KiB`;}
-  onDestroy(()=>{alive=false;++operation;activeClient?.cancel();fallback.cancel();downloads.dispose();});
+  onDestroy(()=>{alive=false;++operation;++saveOperation;activeClient?.cancel();fallback.cancel();downloads.dispose();});
 </script>
 
-<section class="card diagnostics-settings" aria-labelledby={page?'live-settings-title':'diagnostics-title'} aria-busy={busy}>
+<section class="card diagnostics-settings" aria-labelledby={page?'live-settings-title':'diagnostics-title'} aria-busy={busy||saving}>
   <PanelHeading title="Diagnostics & about" id="diagnostics-title" icon={Info} {page} {onback}/>
   <p class="hint">Collect a local status report without joining, reconnecting, requesting permissions or starting a test.</p>
-  <div class="diagnostic-actions"><button class="primary" disabled={busy} onclick={()=>void collect()}><RefreshCw size={16}/>{busy?'Collecting…':collection?'Refresh report':'Collect report'}</button>
+  <div class="diagnostic-actions"><button class="primary" disabled={busy||saving} onclick={()=>void collect()}><RefreshCw size={16}/>{busy?'Collecting…':collection?'Refresh report':'Collect report'}</button>
     {#if collection||busy}<button class="outline" onclick={clear}>{busy?'Cancel collection':'Clear report'}</button>{/if}</div>
   {#if error}<p class="diagnostic-error" role="alert">{error}</p>{/if}
   {#if notice}<p class="hint" role="status">{notice}</p>{/if}
@@ -87,7 +97,7 @@
     <label class="review-label" for="diagnostics-reviewed-json">Reviewed JSON · {collection.bytes} bytes / {DIAGNOSTIC_LIMITS.bytes}-byte limit</label>
     <textarea id="diagnostics-reviewed-json" class="diagnostic-json" readonly rows="12" value={collection.json} spellcheck="false" aria-describedby="diagnostic-export-help"></textarea>
     <p id="diagnostic-export-help" class="hint">Saving exports exactly the JSON shown above. No automatic upload occurs. A status report does not establish speech quality, security or physical acceptance.</p>
-    <div class="diagnostic-actions">{#if href}<a class="button outline diagnostic-save" href={href} download={DIAGNOSTIC_FILENAME} target="_blank" rel="noopener noreferrer" onclick={()=>notice='Download requested. Saving depends on this app’s browser; the reviewed JSON remains available below.'}><FileDown size={16}/>Save reviewed JSON</a>{/if}
+    <div class="diagnostic-actions">{#if exportBridge}<button class="outline diagnostic-save" disabled={saving} onclick={()=>void save()}><FileDown size={16}/>{saving?'Saving reviewed JSON…':'Save reviewed JSON'}</button>{:else if href}<a class="button outline diagnostic-save" href={href} download={DIAGNOSTIC_FILENAME} target="_blank" rel="noopener noreferrer" onclick={()=>notice='Download requested. Saving depends on this app’s browser; the reviewed JSON remains available below.'}><FileDown size={16}/>Save reviewed JSON</a>{/if}
       <button class="outline" disabled={!copyAvailable} onclick={()=>void copy()}>Copy reviewed JSON</button></div>
   {/if}
   <div class="help-row"><span>Recovery steps</span><HelpButton title="Recovery steps"><p class="hint">Refresh this report to collect again. If a component is unavailable, open its page and use its explicit reconnect or retry controls. For a voice interruption, keep the microphone muted and use Leave, then Join when ready. This page does not change sessions or clear local history.</p></HelpButton></div>

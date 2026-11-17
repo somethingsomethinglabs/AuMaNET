@@ -6,6 +6,28 @@ The nine references below are interpretations of **earlier screenshots**, captur
 
 Screenshot folder: `C:/Users/rowan/.codex/visualizations/2026/11/16/01a1e4bb-783f-7500-918a-492b4294c4a8/ux-audit/`.
 
+The assessment uses [Jakob Nielsen's usability heuristics](https://www.nngroup.com/articles/ten-usability-heuristics/) and NN/G's explanations of [proximity](https://www.nngroup.com/articles/gestalt-proximity/), [similarity](https://www.nngroup.com/articles/gestalt-similarity/) and [common region](https://www.nngroup.com/articles/common-region/). These explain why a pattern may work; the judgments and AuMaNET proposals below are our assessment, not findings from a comparative user study.
+
+## The questions behind the choices
+
+**Why choose Duolingo for a clear first decision?** Its observed entry screen asks people to recognize their own situation: starting for the first time or returning. That is a smaller decision than learning the product's internal structure. It is the strongest of these captured references for this particular distinction because both routes are explicit at the same moment. For AuMaNET, the corresponding question is whether a person needs first setup or wants their saved connection back. The physical pass confirms explicit reconnect can preserve the existing group and history; it does not establish that a new user understands setup without assistance.
+
+**Why choose Airbnb for a multi-part task?** Where, When and Who are independently editable but combine into one search. A shared boundary expresses that relationship; internal divisions keep each input identifiable. AuMaNET's comparable tasks include choosing a radio channel and width, or a sharing allowance and duration. Put each task's inputs, consequences and action together, while retaining readable labels on narrow screens.
+
+**Why choose Apple for hierarchy?** Its captured product section makes the subject and next actions easy to locate. The transferable property is a small set of meaningful priorities. On AuMaNET's connection screen, that means actual state, a clear next action and nearby recovery guidance. A large attractive card cannot make an unverified connection ready.
+
+**Why choose Google Maps for contextual controls?** Map controls act on the visible geographic object, and status gives the action meaning. AuMaNET needs to show whether a position is current, whether Follow is active and whether saved maps cover the visible area. This pass implements visible location/follow state and truthful partial-coverage wording, and tests recenter/pan behavior on both phones.
+
+**Why choose Stripe for specialist navigation?** The observed navigation lets different audiences recognize a relevant destination. AuMaNET also serves ordinary communication tasks and specialist link diagnostics. Plain tool descriptions and task groups help people find a test without first understanding the implementation. This pass groups Tools and checks its destinations and return paths.
+
+**Why choose Canva for starting from intent?** Recognizable starting tasks give a broad product a usable entry point. In AuMaNET Settings, descriptions and unordered multiword search let a person look for an outcome such as dark mode or distance units. Clear search recovery prevents a narrow query from trapping the person in an apparently empty settings list.
+
+**Why choose Spotify for distinguishing related entities?** Repeated shape and grouping communicate content types before each item is read. AuMaNET's people and nodes similarly need consistent text, roles and status. The implemented empty-roster recovery and tested member details preserve the entity context; no claim is made that shape alone is accessible or sufficient.
+
+**Why choose Uber for an action with a concrete result?** The captured pickup/dropoff form makes the requested inputs and the next result directly related. AuMaNET's connection test should similarly identify its peer, consent, progress and measured result. Physical tests exercised a completed measurement, explicit Stop and transfer of historical rates into the planner; those rates remain measurements of that attempt.
+
+**Why choose Nintendo for stable navigation?** The captured navigation supplies recognizable routes despite changing page content. AuMaNET's five main destinations should stay predictable while connection, voice and location state change. The installed walkthrough checks those routes and nested settings. This is a navigation lesson, not evidence that Nintendo is the best reference for every interaction.
+
 ## What each reference contributes
 
 | Earlier reference and observed pattern | Why it helps; Nielsen / Gestalt mechanism | Limitation in the screenshot | AuMaNET analogy and concrete improvement/check |

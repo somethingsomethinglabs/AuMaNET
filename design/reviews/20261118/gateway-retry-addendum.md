@@ -1,5 +1,7 @@
 # Gateway startup retry finding
 
+**Later status:** the failure observations below are historical. Controlled owner-node maintenance subsequently restored authenticated group proof and enabled the two-phone tests in the [physical follow-up](physical-followup.md). The retry fix remains necessary: it surfaces a retired startup instead of silently starting it again. Recovery did not weaken proof validation and did not change firmware.
+
 Physical investigation used the intended Nothing3a → node B and Z Flip → node A pairing, with the existing identities, keys and membership retained. The hardware operator observed successive gateway generations 48, 49 and 50 with new session IDs, each returning to one emitted packet, zero authenticated boot proofs and no surfaced error while trusted connection remained `connecting-node`. These observations establish repeated startup replacement; they do not establish why node proof failed.
 
 `TrustedConnectionController.ownerGatewayReady` previously started a new gateway job whenever the issuer had no current job. After the gateway's ten-second owner-proof timeout retired its job, ordinary trusted-connection polling therefore created another startup. This hid the prior failure and repeated the original-run bootstrap exception without the explicit node recheck required by `GatewayBootstrapGate`.

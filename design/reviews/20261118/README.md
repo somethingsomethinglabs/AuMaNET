@@ -1,45 +1,42 @@
 # Usability review and implementation — 18 November 2026
 
-This change applies the reference principles to the existing prototype rather than replacing working flows without evidence. It is a reviewed UI improvement pass, **not complete product acceptance**.
-
-Follow-up after the user confirmed Nothing 3a → B / Z Flip → A: both actual node attachments are verified. The [gateway retry addendum](gateway-retry-addendum.md) records refreshed checked boot metadata, a newly discovered and fixed endless verification retry, its physical regression check, and the still-blocked authenticated node proof. Its APK identity supersedes the initial UI candidate below.
+This pass explains the reference patterns, applies them to AuMaNET, implements specific improvements and exercises the installed app on both intended phones. The work is submitted in [PR #12](https://github.com/somethingsomethinglabs/AuMaNET/pull/12) against `testing`, left open for review. No integration branch was pushed directly and no PR was merged.
 
 ## Why these patterns apply
 
-[Reference principles](reference-principles.md) answers why each of Apple, Airbnb, Google Maps, Stripe, Canva, Spotify, Duolingo, Uber and Nintendo is useful, what the earlier screenshots do and do not establish, and where each pattern maps to AuMaNET. Nielsen's heuristics explain task behavior; Gestalt grouping explains perceived relationships. Neither brand reputation nor a screenshot establishes end-to-end usability.
+[Reference principles](reference-principles.md) asks and answers why Apple, Airbnb, Google Maps, Stripe, Canva, Spotify, Duolingo, Uber and Nintendo are useful references, then maps each mechanism to AuMaNET. It uses Nielsen's heuristics and Gestalt grouping. The judgments are our assessment of previously captured screens, not a global ranking or a comparative user study.
 
-The clearest wins are explicit decisions, related controls grouped together, visible state before action, explanations for disabled actions, and recovery without losing work. The implementation makes settings descriptions visible, supports unordered multiword search and clear recovery, explains blocked message sending without hiding the draft, restores empty roster filters, wraps voice status, groups tools by purpose, enlarges map targets, shows location/follow state, and explains offline-storage prerequisites. A physical-screen finding additionally corrected saved-map counts being presented as complete offline viewport coverage. A rectangle-union check distinguishes partial coverage from full geographic coverage; it does not certify tile integrity or successful rendering.
+Duolingo's clearest transferable decision is first setup versus returning to saved progress. AuMaNET should similarly restore an existing connection without replacing identity. Airbnb's transferable grouping is several editable inputs forming one task. For AuMaNET, related prerequisites, choices and consequences must remain next to the action they govern. Status and recovery proved more valuable than a wholesale visual replacement of working flows.
 
-## Section reviews and control inventories
+## Changes implemented
 
-- [Settings](settings-review.md): all ten categories, privacy, appearance and notification states.
-- [Communication](communication-review.md): group roster/management, text/images, voice and audio.
-- [Network, maps and tools](network-maps-review.md): connection, map controls, offline storage and tool destinations.
-- The reference report includes the consolidated source inventory. Source review, browser fixtures, physical navigation and end-to-end operation are distinct evidence levels.
+- Visible settings descriptions, unordered multiword search and clear-search recovery make destinations discoverable from the user's task.
+- Blocked message sending has a persistent explanation while retaining the draft; attachment sending respects readiness. Empty roster filters have a recovery action.
+- Voice status wraps on narrow screens, and error states use the active theme.
+- Tools are grouped by purpose with shorter, expandable guidance.
+- Map controls have larger targets and visible location/follow state. Saved-area counts no longer imply complete offline coverage: rectangle-union checks distinguish partial from full geographic coverage, without certifying tile integrity.
+- Offline storage explains loading, unavailable state and prerequisites.
+- A retired gateway startup now enters attention and requires explicit reconnect, instead of polling silently creating fresh startups forever. Proof checks remain intact.
+- Android diagnostics saves now use a bounded native Downloads export, verify the written bytes and confirm a checked receipt. The old blob action produced no file on either phone. Browser download behavior is retained.
 
-## Measured validation
+## Review and evidence
 
-| Check | Result | Scope |
-| --- | --- | --- |
-| `npm run web:test` | PASS, 537 tests | Host contracts and unit checks |
-| `npm run web:test:ui` | PASS, all 29 scripts | Isolated browser fixtures, including denial, pending, failure, narrow, dark and recovery states |
-| `npm run check -w @aumanet/app` | PASS, zero errors/warnings | Svelte/type diagnostics |
-| `npm run web:build` | PASS | Production web compilation; large-bundle warning remains |
-| Gradle `testDebugUnitTest assembleDebug` | PASS, 229 tests, zero failures/errors | Native JVM tests and debug APK compilation |
-| Nothing A059P / Samsung SM-F711B | PASS, 25 captured screens each | Installed app: five main tabs, ten settings categories, five Tools destinations, four display-choice states and overview; settings search/clear and preference restoration |
-| Physical map controls | PASS on both phones | Zoom in/out, positions dialog open/close; Samsung OS screenshot confirms partial-coverage wording |
-| Physical location-sharing control | Geometry and unavailable state checked | 43 × 26 CSS-pixel track, 20-pixel thumb; confirmed Off and disabled reason when group unavailable. This does not pass actual On/Off sharing. |
+- [Settings](settings-review.md): category inventory, privacy, appearance, notifications and failure-state browser checks.
+- [Communication](communication-review.md): group, messages, images and voice.
+- [Network, maps and tools](network-maps-review.md): connection and map/task flows.
+- [Gateway retry finding](gateway-retry-addendum.md): initial failure, implemented recovery boundary and exact regression tests. Its unresolved-proof statements describe the earlier observation; the later physical follow-up supersedes them.
+- [Physical follow-up](physical-followup.md): successful intended Phone (3a) Pro → node B / Z Flip → node A tests, maintenance recovery, build identities and limits.
 
-The final locally built and installed APK SHA-256 is `37a4182da73ed61dbedc9a7b00fd4363632ad626e2993520de263946f4849f51`. APKs pulled back from **both** phones match. It contains the final application-source changes in this PR, based on `2212730a244ed1c7aacc1de946f67901258ea41f`. Test/report/CI changes made afterwards do not change the installed application. CI produces a separate review APK and identity.
+The initial candidate could navigate correctly but could not exchange group traffic. Controlled owner-node maintenance with the existing firmware restored authenticated proof. The subsequent installed candidate passed two-way text, small images, group voice/PTT runtime checks, location-sharing On/Off, generic Android notifications, connection benchmarking and real cellular/VPN internet sharing. Read-only radio refresh verified matching signed reports from both nodes. These are individually scoped results, not exhaustive acceptance.
 
-Repeatable non-destructive physical walkthrough: `node dev/tests/phone-ui-review.mjs <explicit-local-CDP-port> <private-output-directory>`. It requires the already running installed app's WebView forwarded with ADB. It does not inject fixtures, clear storage, or certify every button. Saved artifacts include available/disabled controls per screen and runtime errors. WebView screenshots may omit the GPU map layer; OS screenshots were used to inspect the actual rendered map. Detailed screenshots, identifiers, installed APKs and raw logs remain in local `output/phone-final-p1` and `output/phone-final-p2`, excluded from this PR because they can contain histories and precise locations.
+## Validation
 
-Initial failures were retained locally: the older phone build lacked the current location-feedback markup; the Android build caught CRLF conversion of byte-verified native notices; two browser tests contained obsolete fixture assumptions; and a browser run overlapped web compilation and navigated during a radio assertion. The final full browser run completed after compilation stopped. LF is now enforced for the locked notices file without relaxing its checksum. Test fixes retain the intended assertions and explicitly publish changed synthetic state.
+The final source passes **545 host web tests, all 30 browser scripts and 229 Android JVM tests**. Svelte checks report zero errors or warnings. The standard `Build-Application.ps1` completed all its host gates and recorded unchanged hashes for 920 inputs across the build. The additional diagnostics-export JVM harness passes. Both phones passed the final 25-screen navigation run with no runtime errors or page overflow, exact diagnostics-file byte checks, fresh two-way UI text delivery and actual location-sharing On/Off checks. The [build summary](build-summary.json) records the final APK identity; the [physical follow-up](physical-followup.md) separates earlier broad tests from final-candidate checks. CI now runs the web suite, relevant browser checks, native message-store/trusted-controller/diagnostics harnesses, and JVM tests before producing its review APK. CI's APK has its own build identity. Production compilation retains its existing large-bundle warning.
 
-## Incomplete acceptance and next priorities
+The repeatable installed-app navigation command is `node dev/tests/phone-ui-review.mjs <explicit-local-CDP-port> <private-output-directory>`. The separate physical-image runner defaults to read-only preflight; generated sends require two explicit phones, an exact APK identity and explicit opt-in. Neither runner clears app storage or treats fixture output as physical evidence. Raw captures, precise locations, identities, USB/debugger output and APKs remain local under `output/`; they are excluded from the PR.
 
-Actual Resume was exercised. Node Wi-Fi was reported connected on both phones, but one group session remained `connecting` with zero connected peers while the other was `hosting`. This was observed before the UI changes and persisted in the review build. No radio reading was confirmed. Consequently two-way text/image delivery, voice audio quality/PTT transmission, shared-position On/Off/background behavior, cross-node routing and connection benchmarking are **BLOCKED by the current group topology**. A green navigation test does not resolve this.
+## Remaining acceptance
 
-The physical walkthrough exercised destinations and reversible display settings, not every operation inside every destination. Permission denial/revocation, failed Stop, clock/storage errors and group-loss recovery were exercised with browser/native host fixtures, not all recreated on the phones. Notification delivery, actual file/share-sheet export/import, interrupted map downloads, membership create/revoke/leave/recovery, firmware update/rollback and real mobile-data/VPN donation remain **NOT RUN physically**. Existing identities, keys, memberships, histories, saved map regions and drafts were preserved; no temporary phone assignments or firmware changes were made. Display choices were restored. No full UAT or firmware/DHCP acceptance claim is made.
+Membership creation/revocation and destructive history operations were not run against the existing group. Firmware installation/rollback, radio changes and optimization, first-time VPN consent, interrupted map downloads/imports, extended background/outage behavior, three-node paths, human speech quality and RF/range budgets remain separate acceptance work. The project's U01–U16 scenarios are not all closed. The firmware gate's three fresh DHCP reconnects and reboot recovery were not completed; no firmware was changed in this pass.
 
-The repository's U01–U16 mandatory scenarios remain open. The locally generated `output/usability-uat-plan.json` is a plan, not acceptance evidence. Three-node paths, RF outages and performance budgets require the specified topology and measured conditions. The highest priority follow-up is restoring and verifying the intended two-phone group connection, then rerunning messages/images, voice, location sharing and transfer coexistence before calling the app fully tested.
+Existing keys, identities, memberships, histories, drafts and saved map regions were preserved. Generated test messages/images and benchmark records remain. Temporary sharing, voice capture/playback, internet sessions and benchmark arming were stopped and saved preferences restored. Nothing's microphone was granted Only this time; the OS controls its expiry. The intended phone assignments and node radio autostart were restored/retained. This is a reviewable improvement candidate with substantial physical coverage, not a claim that every feature and every failure mode has passed.
