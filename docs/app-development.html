@@ -9,8 +9,9 @@ Use location settings to choose sharing; map navigation does not start sharing.
 Coordinate pins and device connection signal details are part of the normal map.</p>
 <p>OpenFreeMap supplies online vectors. Bundled Healesville–Toolangi data provides
 local outdoor vectors, hill shading and contours offline. On Android, move the map
-to an area and open <strong>Maps</strong> to download a named 4 × 4, 10 × 10 or 20 × 20 km
-region, with optional terrain. Downloads continue in a native background service;
+to an area and tap <strong>Save offline</strong>, or tap a coordinate pin and <strong>Save this area offline</strong>.
+Drag the pin or tap to move it, choose a distance of 2–25 km from pin to edge,
+and review the outlined 4–50 km square before <strong>Download area</strong>. Terrain is optional. Downloads continue in a native background service;
 you can cancel, retry interruptions, show saved areas and remove them. Up to four
 areas are stored, with a 256 MiB limit per area. Completed areas are used
 automatically and include the required label fonts. Existing stored raster files
@@ -29,4 +30,7 @@ npm run web:build
 npm run check -w @aumanet/app
 npm run dev -w @aumanet/app
 </code></pre>
+<p>Saved coverage is selected by viewport intersection. One verified tile source
+combines adjacent and overlapping saved regions, with the newest available tile
+first. Existing <code>vector-maps-v1</code> manifests and old per-region URLs remain compatible.</p>
 </article><nav class="page-pagination" aria-label="Previous and next pages"><a href="development.html"><small>Previous</small><strong>Development</strong></a><a href="android-development.html"><small>Next</small><strong>Android host</strong></a></nav></main><footer><a href="documentation-roadmap.html">Documentation roadmap</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../dev/app/README.md">Repository source</a><br>Built from repository sources. Local HTML works offline; external sources need internet.</footer></div><aside class="page-contents" aria-label="On this page"><details open><summary>On this page</summary><ol><li><a href="#section-1">Changes and review builds</a></li><li><a href="#section-2">Local development</a></li></ol></details></aside></div><script src="assets/handbook.js" defer></script></body></html>

@@ -8,7 +8,7 @@ export interface VectorMapsClient {snapshot():Promise<VectorState>;download(requ
 interface Bridge {snapshot():Promise<unknown>;download(request:DownloadRequest&{acknowledgement:string}):Promise<unknown>;cancel(request:{id:string}):Promise<unknown>;remove(request:{id:string;acknowledgement:string}):Promise<unknown>;}
 const id=/^[a-f0-9]{32}$/;
 export function downloadBounds(latitude:number,longitude:number,radiusKm:number):MapBounds{
-  if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||latitude< -80||latitude>80||longitude< -180||longitude>180||![2,5,10].includes(radiusKm))throw Error('Choose a valid centre and area size.');
+  if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||latitude< -80||latitude>80||longitude< -180||longitude>180||!Number.isInteger(radiusKm)||radiusKm<2||radiusKm>25)throw Error('Choose a valid centre and a distance between 2 and 25 km.');
   const dy=radiusKm/111.32,dx=dy/Math.cos(latitude*Math.PI/180),bounds:MapBounds=[longitude-dx,latitude-dy,longitude+dx,latitude+dy];
   if(bounds[0]< -180||bounds[2]>180||bounds[1]< -85||bounds[3]>85)throw Error('Choose an area away from the date line and poles.');return bounds;
 }
@@ -26,6 +26,12 @@ export function nativeVectorMaps(){if(Capacitor.getPlatform()!=='android'||!Capa
 export function regionAt(regions:readonly VectorRegion[],longitude:number,latitude:number){return [...regions].sort((a,b)=>b.installedAt-a.installedAt).find(r=>longitude>=r.bounds[0]&&longitude<=r.bounds[2]&&latitude>=r.bounds[1]&&latitude<=r.bounds[3]);}
 export function regionTileUrl(region:VectorRegion,kind:'base'|'terrain'){return `${globalThis.location.origin}/_aumanet_maps/vector/${region.id}/${kind}/{z}/{x}/{y}.${kind==='base'?'pbf':'webp'}`;}
 
+export function downloadTileCount(latitude:number,longitude:number,radiusKm:number,terrain:boolean){
+  const bounds=downloadBounds(latitude,longitude,radiusKm);let total=0;
+  function count(max:number,buffer:number){for(let z=0;z<=max;z++){const n=2**z,padding=z>=13?buffer:0,toY=(lat:number)=>(1-Math.asinh(Math.tan(lat*Math.PI/180))/Math.PI)/2*n;
+    const x0=Math.max(0,Math.floor((bounds[0]+180)/360*n)-padding),x1=Math.min(n-1,Math.floor((bounds[2]+180)/360*n)+padding),y0=Math.max(0,Math.floor(toY(bounds[3]))-padding),y1=Math.min(n-1,Math.floor(toY(bounds[1]))+padding);total+=(x1-x0+1)*(y1-y0+1);
+  }}count(15,0);if(terrain)count(14,1);return total;
+}
 export function orderedRegions(regions:readonly VectorRegion[]){return [...regions].sort((a,b)=>b.installedAt-a.installedAt||a.id.localeCompare(b.id));}
 export function visibleRegions(regions:readonly VectorRegion[],bounds:MapBounds){return orderedRegions(regions).filter(r=>r.bounds[0]<=bounds[2]&&r.bounds[2]>=bounds[0]&&r.bounds[1]<=bounds[3]&&r.bounds[3]>=bounds[1]);}
 export function regionSetRoot(regions:readonly VectorRegion[]){return globalThis.location.origin+'/_aumanet_maps/vector-set/'+orderedRegions(regions).map(r=>r.id).join('_');}

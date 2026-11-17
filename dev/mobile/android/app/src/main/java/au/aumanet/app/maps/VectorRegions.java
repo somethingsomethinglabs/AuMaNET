@@ -9,7 +9,7 @@ import java.util.*;
 /** Immutable, app-private vector regions. A manifest becomes visible only by atomic rename. */
 public final class VectorRegions {
     public static final long MAX_BYTES=256L*1024*1024;
-    public static final int MAX_TILES=2048,MAX_REGIONS=4;
+    public static final int MAX_TILES=8192,MAX_REGIONS=4;
     private static final Map<String,Cached> CACHE=new LinkedHashMap<String,Cached>(16,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,Cached> e){return size()>16;}};
     private static final class Cached {final long modified,length;final JSONObject value;Cached(File f,JSONObject value){modified=f.lastModified();length=f.length();this.value=value;}}
     public static final class Plan {
@@ -18,7 +18,7 @@ public final class VectorRegions {
         public final boolean terrain;public final int radiusKm;
         public final List<int[]> base=new ArrayList<>(),dem=new ArrayList<>();
         public Plan(double latitude,double longitude,int radius,String name,boolean terrain)throws Exception{
-            if(!Double.isFinite(latitude)||!Double.isFinite(longitude)||latitude< -80||latitude>80||longitude< -180||longitude>180||!(radius==2||radius==5||radius==10))throw new IOException("Choose a valid map centre and a 2, 5 or 10 km radius");
+            if(!Double.isFinite(latitude)||!Double.isFinite(longitude)||latitude< -80||latitude>80||longitude< -180||longitude>180||(radius<2||radius>25))throw new IOException("Choose a valid map centre and a distance between 2 and 25 km");
             this.name=name==null?"Offline area":name.trim();if(this.name.isEmpty()||this.name.length()>64||this.name.codePoints().anyMatch(c->Character.isISOControl(c)))throw new IOException("Use an area name of 1–64 characters");
             this.terrain=terrain;this.radiusKm=radius;double dy=radius/111.32,dx=dy/Math.cos(Math.toRadians(latitude));bounds=new double[]{longitude-dx,latitude-dy,longitude+dx,latitude+dy};
             if(bounds[0]< -180||bounds[2]>180||bounds[1]< -85||bounds[3]>85)throw new IOException("Choose an area away from the date line and poles");
@@ -32,9 +32,9 @@ public final class VectorRegions {
     public static boolean id(String value){return value!=null&&value.matches("[a-f0-9]{32}");}
     public static boolean path(String value){return value!=null&&(value.matches("(base|terrain)/[0-9]{1,2}/[0-9]{1,6}/[0-9]{1,6}\\.(pbf|webp)")||value.matches("glyphs/[0-9]{1,5}-[0-9]{1,5}\\.pbf"));}
     public static JSONObject manifest(File dir)throws Exception{
-        File file=new File(dir,"manifest.json");if(!file.isFile()||file.length()<2||file.length()>1024*1024)throw new IOException("Invalid offline region manifest");
+        File file=new File(dir,"manifest.json");if(!file.isFile()||file.length()<2||file.length()>2*1024*1024)throw new IOException("Invalid offline region manifest");
         synchronized(CACHE){Cached cached=CACHE.get(file.getAbsolutePath());if(cached!=null&&cached.modified==file.lastModified()&&cached.length==file.length())return cached.value;}
-        byte[] metadata;try(InputStream input=new FileInputStream(file)){metadata=VectorPmtiles.bounded(input,1024*1024);}
+        byte[] metadata;try(InputStream input=new FileInputStream(file)){metadata=VectorPmtiles.bounded(input,2*1024*1024);}
         JSONObject m=new JSONObject(new String(metadata,StandardCharsets.UTF_8));
         if(!m.getString("schema").equals("aumanet.vector-region.v1")||!id(m.getString("id"))||!dir.getName().equals(m.getString("id"))||m.getLong("bytes")<1||m.getLong("bytes")>MAX_BYTES||m.getString("name").length()>64)throw new IOException("Invalid offline region");
         JSONArray bounds=m.getJSONArray("bounds");if(bounds.length()!=4)throw new IOException("Invalid region bounds");for(int i=0;i<4;i++)if(!Double.isFinite(bounds.getDouble(i)))throw new IOException("Invalid region bounds");

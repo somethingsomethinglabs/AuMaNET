@@ -1,0 +1,32 @@
+<script lang="ts">
+  import {onMount} from 'svelte';
+  import {Download,X,Scan,LocateFixed} from '@lucide/svelte';
+  import {nativeVectorMaps,downloadBounds,downloadTileCount,type DownloadRequest,type VectorMapsClient,type VectorState} from './vector/downloads';
+  export let selection:{latitude:number;longitude:number;radiusKm:number};
+  export let initial:DownloadRequest|undefined=undefined;
+  export let client:VectorMapsClient|undefined=nativeVectorMaps();
+  export let onradius:(value:number)=>void;
+  export let onfit:()=>void;
+  export let oncentre:()=>void;
+  export let onclose:()=>void;
+  export let onbusy:(busy:boolean)=>void=()=>{};
+  export let onstarted:(request:DownloadRequest,state:VectorState)=>void;
+  let name=initial?.name??'Weekend area',terrain=initial?.terrain??true,state:VectorState|undefined,pending=false,error='';
+  $: geometry=plan(selection,terrain);
+  $: blocked=pending||!client||!state?.ready||!!state?.job?.active||(state?.regions.length??0)>=4||!name.trim()||name.trim().length>64||!!geometry.error;
+  function plan(s:typeof selection,withTerrain:boolean){try{downloadBounds(s.latitude,s.longitude,s.radiusKm);const count=downloadTileCount(s.latitude,s.longitude,s.radiusKm,withTerrain);return{count,error:count>8192?'This area contains too many tiles. Choose a smaller distance.':''};}catch(e){return{count:0,error:(e as Error).message};}}
+  async function save(){if(blocked||!client)return;pending=true;onbusy(true);error='';const request={...selection,name:name.trim(),terrain};try{const next=await client.download(request);onstarted(request,next);}catch(e){error=e instanceof Error?e.message:'Could not start this download.';}finally{pending=false;onbusy(false);}}
+  onMount(()=>{let stopped=false,loading=false;const poll=async()=>{if(!client||loading)return;loading=true;try{const next=await client.snapshot();if(!stopped)state=next;}catch(e){if(!stopped)error=e instanceof Error?e.message:'Map storage unavailable.';}finally{loading=false;}};void poll();const timer=setInterval(()=>void poll(),1000);return()=>{stopped=true;clearInterval(timer);};});
+</script>
+<section class="area-picker" aria-label="Choose offline area">
+  <div class="heading"><div><h2>Save an area offline</h2><p>Tap the map or drag the pin to move it.</p></div><button class="icon" aria-label="Close offline area selection" disabled={pending} onclick={onclose}><X size={20}/></button></div>
+  <label class="name">Area name<input aria-label="Offline area name" maxlength="64" bind:value={name} disabled={pending}/></label>
+  <div class="distance"><label for="offline-distance">Distance from pin to edge <strong>{selection.radiusKm} km</strong></label><input id="offline-distance" type="range" min="2" max="25" step="1" value={selection.radiusKm} disabled={pending} aria-valuetext={`${selection.radiusKm} km; square ${selection.radiusKm*2} by ${selection.radiusKm*2} km`} oninput={event=>onradius(event.currentTarget.valueAsNumber)}/></div>
+  <div class="coverage"><span>Square · {selection.radiusKm*2} × {selection.radiusKm*2} km</span><button onclick={onfit} disabled={pending}><Scan size={15}/>Fit area</button><button onclick={oncentre} disabled={pending}><LocateFixed size={15}/>Use map centre</button></div>
+  <div class="bottom"><label class="terrain"><input type="checkbox" bind:checked={terrain} disabled={pending}/>Terrain & contours</label><button class="save" onclick={()=>void save()} disabled={blocked}><Download size={17}/>{pending?'Starting…':'Download area'}</button></div>
+  {#if !client}<p class="notice">Offline downloads are available in the Android app.</p>{:else if state?.job?.active}<p class="notice">Another area is downloading. It will continue while you choose this area.</p>{:else if (state?.regions.length??0)>=4}<p class="notice">Four areas are saved. Remove one in Maps before saving another.</p>{/if}
+  {#if error||geometry.error}<p role="alert" class="error">{error||geometry.error}</p>{:else}<p class="limits">Up to 256 MiB · Continues in the background. Tiles can extend slightly beyond the outline.</p>{/if}
+</section>
+<style>
+.area-picker{background:var(--card,#fffdf6);color:var(--ink,#214c35);border:1px solid var(--line,#dfe1d5);border-radius:20px;padding:12px 14px;box-shadow:0 6px 28px #10291e26}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.heading h2{font-size:17px;margin:3px 0 4px}.heading p,.limits,.notice,.error{font-size:11px;line-height:1.45;margin:3px 0 6px;color:var(--muted,#65745f)}.icon{border:0;background:transparent;color:inherit;min-width:36px;min-height:36px;display:grid;place-items:center}.name{display:flex;gap:10px;align-items:center;font-size:12px;font-weight:700}.name input{flex:1;width:100%;min-width:0;box-sizing:border-box;height:38px;padding:8px 10px;border:1px solid var(--line,#dfe1d5);border-radius:10px;background:transparent;color:inherit;font-size:13px}.distance{margin-top:10px}.distance label{display:flex;justify-content:space-between;font-size:12px}.distance input{display:block;width:100%;height:28px;padding:0;accent-color:#a56627;background:transparent;border:0}.coverage{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px}.coverage span{margin-right:auto;font-weight:700}.coverage button{display:flex;align-items:center;gap:4px;min-height:32px;padding:3px 2px;color:inherit;background:transparent;border:0;font-size:11px;text-decoration:underline}.bottom{display:flex;align-items:center;gap:10px;justify-content:space-between;margin:5px 0}.terrain{display:flex;align-items:center;gap:6px;font-size:12px}.terrain input{width:43px;height:26px;flex-shrink:0}.save{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;min-height:42px;border:0;border-radius:12px;background:#21583a;color:white;font-size:12px;font-weight:700}.error{color:#a74431;overflow-wrap:anywhere}button{cursor:pointer}button:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible{outline:3px solid #ad6b20;outline-offset:2px}@media(max-height:520px){.area-picker{max-height:45dvh;overflow:auto;padding:8px 12px}.heading p,.limits{display:none}.distance{margin-top:4px}}
+</style>
