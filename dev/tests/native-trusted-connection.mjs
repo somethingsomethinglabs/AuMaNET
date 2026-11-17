@@ -1,0 +1,20 @@
+import {readFile,writeFile,mkdir,mkdtemp,readdir} from 'node:fs/promises';
+import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {join,resolve,delimiter,relative} from 'node:path';
+import {homedir} from 'node:os';
+const root=resolve(import.meta.dirname,'../..'),sha=bytes=>createHash('sha256').update(bytes).digest('hex');
+let output=join(root,'dev/artifacts/native-trusted-connection'),jdk=process.env.JAVA_HOME||join(homedir(),'.codex/aumanet-tools/java/jdk-21.0.13+9');
+const argv=process.argv.slice(2),seen=new Set();
+for(let i=0;i<argv.length;i++){const flag=argv[i];if(!['--output','--jdk'].includes(flag)||seen.has(flag)||!argv[i+1]||argv[i+1].startsWith('--'))throw Error('Use --output <isolated directory> [--jdk <JDK21>]');seen.add(flag);if(flag==='--output')output=resolve(argv[++i]);else jdk=resolve(argv[++i]);}
+await mkdir(output,{recursive:true});const run=await mkdtemp(join(output,'run-')),classes=join(run,'classes');await mkdir(classes);
+const dependency=JSON.parse(await readFile(join(root,'dev/tests/native-group-messages-store/dependencies.json'),'utf8')).dependencies.find(row=>row.name==='org.json');
+const jar=join(root,'dev/artifacts/group-messages',dependency.file),bytes=await readFile(jar);if(bytes.length!==dependency.bytes||sha(bytes)!==dependency.sha256)throw Error('Pinned host JSON checksum mismatch');
+const sources=['TrustedConnectionScope','TrustedConnectionStore','TrustedConnectionRun','GroupNameJson','GroupMessageIntent','NodeRecoveryScan'].map(name=>join(root,'dev/mobile/android/app/src/main/java/au/aumanet/app',name+'.java')).concat(join(root,'dev/tests/native-trusted-connection/TrustedConnectionPolicyTest.java'));
+async function files(dir){const entries=await readdir(dir,{withFileTypes:true});return(await Promise.all(entries.map(entry=>entry.isDirectory()?files(join(dir,entry.name)):[join(dir,entry.name)]))).flat();}
+const runtimeSources=[join(root,'dev/mobile/android/app/src/main/java/au/aumanet/app/TrustedConnectionController.java'),join(root,'dev/tests/native-trusted-connection/TrustedControllerTest.java'),...(await files(join(root,'dev/tests/native-trusted-connection/runtime-stubs'))).filter(path=>path.endsWith('.java'))];
+const result={status:'running',scope:'Actual native permission/store/run/controller with fault-injected storage and declared fake Android/group/attachment/service/voice/location boundaries; not Android Wi-Fi/permissions/FGS/microphone/GPS or physical acceptance',sourceSha256:{},dependencies:[{...dependency,verified:true}]};
+const inputs=[...sources,...runtimeSources,import.meta.filename];for(const path of inputs)result.sourceSha256[relative(root,path).replaceAll('\\','/')]=sha(await readFile(path));
+function command(name,args){const child=spawnSync(join(jdk,'bin',name+(process.platform==='win32'?'.exe':'')),args,{cwd:root,encoding:'utf8',windowsHide:true,timeout:60000});if(child.error||child.status!==0)throw Error(child.stderr||child.error?.message);return child.stdout;}
+try{command('javac',['-encoding','UTF-8','-cp',jar,'-d',classes,...sources]);const policy=JSON.parse(command('java',['-cp',[classes,jar].join(delimiter),'au.aumanet.app.TrustedConnectionPolicyTest']));command('javac',['-encoding','UTF-8','-cp',[classes,jar].join(delimiter),'-d',classes,...runtimeSources]);const runtime=JSON.parse(command('java',['-cp',[classes,jar].join(delimiter),'au.aumanet.app.TrustedControllerTest']));if(policy.status!=='passed'||runtime.status!=='passed')throw Error('Trusted native tests did not pass');Object.assign(result,{status:'pass',testCount:policy.testCount+runtime.testCount,assertionCount:policy.assertionCount+runtime.assertionCount,suites:{policy,runtime},physical:false});for(const path of inputs)if(result.sourceSha256[relative(root,path).replaceAll('\\','/')]!==sha(await readFile(path)))throw Error('Trusted source changed during host run');}
+catch(error){result.status='failed';result.error=error.message;process.exitCode=1;}finally{await writeFile(join(output,'result.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));}

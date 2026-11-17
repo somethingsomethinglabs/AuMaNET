@@ -1,15 +1,32 @@
 # Companion application
 
-Interactive SvelteKit + TypeScript UI prototype matching the design concepts, with locally persisted sample messages, settings and internet source choice. Map, Messages, Voice, Network and the Settings hub are implemented. Leaflet 2.0.0-beta.1 renders a bundled illustrative terrain image; this is not Getlost mapping or real geographic coverage.
+The SvelteKit app is hosted in Capacitor on Android. Open the normal Map tab
+for vector roads, tracks, buildings and available group positions. There is no
+sample-data mode, preview page, raster background selector or raster import UI.
+Use location settings to choose sharing; map navigation does not start sharing.
+Coordinate pins and device connection signal details are part of the normal map.
 
-From the repository root:
+OpenFreeMap supplies online vectors. Bundled Healesville–Toolangi data provides
+local outdoor vectors, hill shading and contours offline. Other areas require
+internet. Arbitrary-area offline vector downloads are not implemented. Existing
+stored raster files are retained but are no longer rendered.
 
-```powershell
-npm ci
-npm run dev -w @aumanet/app
+Messages, voice, group membership, connection management and Tools & checks keep
+their existing behavior. Replacing the map does not change identities, histories,
+keys, microphone permissions or saved connection intent.
+
+## Changes and review builds
+
+Follow the repository's `CONTRIBUTING.md` and `AGENTS.md`. Every change is a
+committed, pushed PR into `testing`. The PR workflow builds a review APK;
+review and revert through Git rather than keeping old/new product switches.
+The vector migration is documented in `dev/maps/vector-preview.md`.
+
+## Local development
+
+```sh
+npm ci --ignore-scripts
+npm run web:build
 npm run check -w @aumanet/app
-npm run build -w @aumanet/app
-npm run preview -w @aumanet/app
+npm run dev -w @aumanet/app
 ```
-
-The static build is bundled into the Capacitor Android host. No backend, cloud account, real microphone, radio, GPS or internet routing is used. Pairing, firmware and device maintenance screens explicitly explain their demo behavior. Real transport/audio/background services remain behind future platform adapters. See the [application plan](../../design/android-app-plan.md).

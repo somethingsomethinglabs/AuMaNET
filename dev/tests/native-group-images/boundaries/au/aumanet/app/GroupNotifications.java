@@ -1,0 +1,1 @@
+package au.aumanet.app;import android.content.Context;final class GroupNotifications{static GroupNotifications get(Context context){return null;}void incoming(boolean first,java.util.function.BooleanSupplier current,long expiry){}}

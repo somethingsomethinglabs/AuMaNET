@@ -1,0 +1,85 @@
+{
+  "schema": "aumanet.bandwidth-scenario.v1",
+  "kind": "assumption-only",
+  "units": "decimal kbps, MB, seconds",
+  "inputs": {
+    "uploadKbps": 130,
+    "downloadKbps": 188,
+    "uncertaintyPercent": 30,
+    "members": 2,
+    "talkers": 1,
+    "codecKbps": 24,
+    "packetMs": 20,
+    "voiceOverheadBytes": 80,
+    "gpsSeconds": 10,
+    "gpsEnvelopeBytes": 500,
+    "textsPerMinute": 2,
+    "textEnvelopeBytes": 1000,
+    "hops": 1,
+    "referenceHops": 1,
+    "contentionPercent": 10,
+    "headroomPercent": 30,
+    "otherKbps": 0,
+    "photoMB": 0.25,
+    "mapMB": 10,
+    "pageMB": 3,
+    "donorUploadKbps": 1000,
+    "donorDownloadKbps": 1000,
+    "tunnelPercent": 10
+  },
+  "formulas": {
+    "capacity": "min(uploadKbps,downloadKbps) * (1 +/- uncertaintyPercent/100) * referenceHops/hops * (1-contentionPercent/100) * (1-headroomPercent/100)",
+    "voice": "(codecKbps + voiceOverheadBytes*8/packetMs) * talkers * (members-1)",
+    "gps": "gpsEnvelopeBytes*8/1000/gpsSeconds * members*(members-1)",
+    "text": "textEnvelopeBytes*8/1000 * textsPerMinute/60 * (members-1)",
+    "seconds": "MB*8000 / remainingKbps",
+    "internet": "min(remainingKbps,donorDownloadKbps,donorUploadKbps)/(1+tunnelPercent/100)"
+  },
+  "result": {
+    "confidence": "Low · assumed scenario, not a prediction",
+    "capacityKbps": [
+      57.32999999999999,
+      106.47
+    ],
+    "voiceStreamKbps": 56,
+    "voiceKbps": 56,
+    "gpsKbps": 0.8,
+    "textKbps": 0.26666666666666666,
+    "demandKbps": 57.06666666666667,
+    "remainingKbps": [
+      0.2633333333333212,
+      49.40333333333333
+    ],
+    "internetKbps": [
+      0.23939393939392836,
+      44.91212121212121
+    ],
+    "talkerUploadKbps": 56,
+    "listenerDownloadKbps": 56,
+    "maxTalkers": [
+      1,
+      1
+    ],
+    "textGpsVerdict": "Fits assumed range",
+    "mixedVerdict": "Fits assumed range",
+    "photoSeconds": [
+      40.48309830645706,
+      7594.936708861109
+    ],
+    "mapSeconds": [
+      1619.3239322582824,
+      303797.46835444437
+    ],
+    "pageSeconds": [
+      534.3768976452332,
+      100253.16455696664
+    ]
+  },
+  "limitations": [
+    "Range is user-selected sensitivity, not a statistical confidence interval.",
+    "All copies assumed to share one half-duplex contention domain; hop scaling is unvalidated.",
+    "Voice overhead is a conservative allowance against large-transfer TCP payload goodput, not exact airtime.",
+    "Transfer times are capacity floors; image pacing, base64, RTT, retries and outages can make them longer.",
+    "No latency, jitter, loss, RF sample freshness or location capability is inferred."
+  ]
+}

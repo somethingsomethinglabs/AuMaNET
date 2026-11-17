@@ -1,0 +1,27 @@
+package au.aumanet.app;
+
+import org.json.*;
+import java.util.*;
+
+/** Repair is allowed only from independently canonical, mutually consistent durable values. */
+final class GroupNameMetadata {
+    static String string(JSONObject value,String key)throws Exception{Object raw=value.get(key);if(!(raw instanceof String))throw new IllegalArgumentException("Invalid saved name metadata type");return(String)raw;}
+    static long number(JSONObject value,String key)throws Exception{Object raw=value.get(key);if(!(raw instanceof Number))throw new IllegalArgumentException("Invalid name metadata revision");long result=((Number)raw).longValue();if(result<0||result>GroupNamePolicy.MAX_REVISION||!Double.isFinite(((Number)raw).doubleValue())||result!=((Number)raw).doubleValue())throw new IllegalArgumentException("Invalid name metadata revision");return result;}
+    static long generation(JSONObject value)throws Exception{return value.has("nameGeneration")?number(value,"nameGeneration"):0;}
+    static String canonical(JSONObject value,String key,int max)throws Exception{String name=string(value,key);if(!name.equals(GroupNamePolicy.label(name,max)))throw new IllegalArgumentException("Noncanonical saved name");return name;}
+    static final class Trusted {final String name,groupName,groupId;final long selfRevision,groupRevision,generation,epoch;Trusted(String n,String gn,String g,long s,long r,long v,long e){name=n;groupName=gn;groupId=g;selfRevision=s;groupRevision=r;generation=v;epoch=e;}}
+    static Trusted read(String self,String profileEncoded,String membershipEncoded)throws Exception{
+        JSONObject profile=GroupNameJson.object(profileEncoded,2048);Set<String> keys=new HashSet<>();profile.keys().forEachRemaining(keys::add);Set<String> allowed=new HashSet<>(Arrays.asList("self","name","revision"));if(profile.has("nameGeneration"))allowed.add("nameGeneration");if(!keys.equals(allowed)||!self.equals(string(profile,"self")))throw new IllegalArgumentException("Untrusted saved profile");
+        String name=canonical(profile,"name",48);long revision=number(profile,"revision"),generation=generation(profile);
+        if(membershipEncoded==null||membershipEncoded.isEmpty())return new Trusted(name,"","",revision,0,generation,0);
+        JSONObject membership=GroupNameJson.object(membershipEncoded,16384);Set<String> membershipKeys=new HashSet<>();membership.keys().forEachRemaining(membershipKeys::add);Set<String> expectedKeys=new HashSet<>(Arrays.asList("self","name","groupId","groupName","owner","role","epoch","host","port","members"));for(String optional:new String[]{"selfNameRevision","groupNameRevision","nameGeneration","offlineRequestHash","offlineApproval"})if(membership.has(optional))expectedKeys.add(optional);if(!membershipKeys.equals(expectedKeys)||!self.equals(string(membership,"self")))throw new IllegalArgumentException("Saved membership identity changed");
+        if(membership.has("offlineRequestHash")||membership.has("offlineApproval")){String hash=string(membership,"offlineRequestHash"),approval=string(membership,"offlineApproval");if(!(hash.isEmpty()&&approval.isEmpty())&&(!hash.matches("[A-F0-9]{64}")||approval.length()>12000||!approval.matches("aumanet://approval/[A-Za-z0-9_-]+")))throw new IllegalArgumentException("Invalid enrollment receipt metadata");}
+        GroupWire.privateIPv4(string(membership,"host"));long port=number(membership,"port");if(port<1||port>65535)throw new IllegalArgumentException("Invalid saved group endpoint");
+        String group=string(membership,"groupId"),owner=string(membership,"owner"),role=string(membership,"role");long epoch=number(membership,"epoch"),groupRevision=membership.has("groupNameRevision")?number(membership,"groupNameRevision"):0,selfRevision=membership.has("selfNameRevision")?number(membership,"selfNameRevision"):0;
+        if(!GroupWire.id(group)||!GroupWire.pin(owner)||!role.equals(owner.equals(self)?"owner":"member")||epoch<1||generation(membership)!=generation||!canonical(membership,"name",48).equals(name)||selfRevision!=revision||generation>0&&(!membership.has("selfNameRevision")||!membership.has("groupNameRevision")||!membership.has("nameGeneration")))throw new IllegalArgumentException("Saved name sources disagree");
+        String groupName=canonical(membership,"groupName",64);JSONArray members=membership.getJSONArray("members");Set<String> ids=new HashSet<>();if(members.length()<1||members.length()>5)throw new IllegalArgumentException("Unbounded saved members");
+        for(int i=0;i<members.length();i++){JSONObject member=members.getJSONObject(i);Set<String> memberKeys=new HashSet<>();member.keys().forEachRemaining(memberKeys::add);Set<String> expectedMemberKeys=new HashSet<>(Arrays.asList("id","name"));if(member.has("nameRevision"))expectedMemberKeys.add("nameRevision");String id=string(member,"id"),label=canonical(member,"name",48);long memberRevision=member.has("nameRevision")?number(member,"nameRevision"):0;if(!memberKeys.equals(expectedMemberKeys)||generation>0&&!member.has("nameRevision")||!GroupWire.pin(id)||!ids.add(id)||id.equals(self)&&(!label.equals(name)||memberRevision!=revision))throw new IllegalArgumentException("Saved member names disagree");}
+        if(!ids.contains(self)||!ids.contains(owner))throw new IllegalArgumentException("Saved membership is incomplete");return new Trusted(name,groupName,group,revision,groupRevision,generation,epoch);
+    }
+    private GroupNameMetadata(){}
+}

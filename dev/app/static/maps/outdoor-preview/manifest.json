@@ -1,0 +1,116 @@
+{
+  "schema": "aumanet.vector-preview.v1",
+  "title": "Healesville, Toolangi & Mount St Leonard",
+  "bounds": [
+    145.44,
+    -37.69,
+    145.56,
+    -37.51
+  ],
+  "terrainBounds": [
+    145.4,
+    -37.73,
+    145.6,
+    -37.47
+  ],
+  "minZoom": 10,
+  "maxDataZoom": 15,
+  "maxDisplayZoom": 19,
+  "terrainMaxZoom": 14,
+  "sources": {
+    "basemap": {
+      "name": "Protomaps / OpenStreetMap / Natural Earth",
+      "url": "https://build.protomaps.com/20261116.pmtiles",
+      "dataDate": "2026-11-16T04:00:00Z",
+      "version": "4.15.2",
+      "license": "ODbL produced work; © OpenStreetMap contributors; Natural Earth public domain",
+      "licenseUrl": "https://www.openstreetmap.org/copyright"
+    },
+    "terrain": {
+      "name": "Mapterhorn",
+      "url": "https://mapterhorn.com/attribution/",
+      "archives": [
+        "planet.pmtiles",
+        "6-57-39.pmtiles"
+      ],
+      "dataDate": "Mixed elevation sources; capture dates vary",
+      "license": "Underlying source attribution applies; see bundled ATTRIBUTION.txt"
+    }
+  },
+  "files": {
+    "basemap.pmtiles": {
+      "bytes": 1387873,
+      "sha256": "6c5acf201053ad0ba027596fc46d99d0306e3afb46335ee5ac6dc48751f5c9f7"
+    },
+    "terrain.pmtiles": {
+      "bytes": 19933575,
+      "sha256": "9412f67dd63c57cbb9f9e1a4940ae8c6aa4a012a1a7ab26cd25103c402c8c594"
+    },
+    "fonts/Noto Sans Regular/0-255.pbf": {
+      "bytes": 76044,
+      "sha256": "62c6d49b15fa836eb6aa45e259c7ca6762f44b011b09e47776efbe4a6db1b397"
+    }
+  },
+  "inspection": {
+    "tileCount": 357,
+    "features": 15421,
+    "roadAttributes": [
+      "access",
+      "is_bridge",
+      "is_link",
+      "is_tunnel",
+      "kind",
+      "kind_detail",
+      "min_zoom",
+      "name",
+      "network",
+      "network_1",
+      "network_2",
+      "oneway",
+      "ref",
+      "service",
+      "shield_text",
+      "shield_text_1",
+      "shield_text_2",
+      "sort_rank"
+    ],
+    "roadKinds": [
+      "corridor",
+      "crossing",
+      "cycleway",
+      "driveway",
+      "footway",
+      "path",
+      "pedestrian",
+      "pier",
+      "primary",
+      "primary_link",
+      "rail",
+      "residential",
+      "rest_area",
+      "runway",
+      "secondary",
+      "secondary_link",
+      "service",
+      "services",
+      "sidewalk",
+      "steps",
+      "taxiway",
+      "tertiary",
+      "tertiary_link",
+      "track",
+      "trunk",
+      "turntable",
+      "unclassified"
+    ],
+    "glyphRanges": [
+      0
+    ]
+  },
+  "limitations": [
+    "Fixed-area built-in prototype, not an arbitrary-area download catalogue.",
+    "No live group positions or radio topology are drawn on this preview.",
+    "Missing surface/access/difficulty fields remain unknown. Terrain shading does not establish track passability.",
+    "Sharper rendering does not improve underlying geometry or elevation accuracy."
+  ]
+}

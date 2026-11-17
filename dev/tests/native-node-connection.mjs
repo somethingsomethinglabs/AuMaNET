@@ -1,0 +1,34 @@
+// Host-only checked profile tests. No device access and no credentials in reports.
+import {readFile,writeFile,mkdir,mkdtemp} from 'node:fs/promises';
+import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {join,resolve,delimiter,relative} from 'node:path';
+import {homedir} from 'node:os';
+import {pathToFileURL} from 'node:url';
+const root=resolve(import.meta.dirname,'../..'),sha=value=>createHash('sha256').update(value).digest('hex');
+export async function main(argv=process.argv.slice(2)){
+  let output=join(root,'dev/artifacts/native-node-connection'),jdk=process.env.JAVA_HOME||join(homedir(),'.codex/aumanet-tools/java/jdk-21.0.13+9');
+  const seen=new Set();for(let i=0;i<argv.length;i++){const key=argv[i];if(seen.has(key)||!['--output','--jdk'].includes(key)||!argv[i+1])throw Error('Use --output directory and --jdk directory');seen.add(key);if(key==='--output')output=resolve(argv[++i]);else jdk=resolve(argv[++i]);}
+  await mkdir(output,{recursive:true});const run=await mkdtemp(join(output,'run-')),classes=join(run,'classes');await mkdir(classes);
+  const report={status:'running',scope:'Host real JCE checked node Wi-Fi profile scope/validation and production recovery-beacon predicate/budget and exact recovery method with declared Android scan/cache/permission boundaries; no Android connection, node authentication, radio or media acceptance',sourceSha256:{}};
+  const sources=['GatewayPublicKeyPolicy','NodeConnectionProfile','NodeRecoveryScan','NodeRecoveryScanBudget'].map(name=>join(root,'dev/mobile/android/app/src/main/java/au/aumanet/app',name+'.java')).concat(join(root,'dev/tests/native-node-connection/NodeConnectionProfileTest.java'),join(root,'dev/tests/native-node-connection/NodeRecoveryScanTest.java'));
+  const inputs=[...sources,import.meta.filename,join(root,'dev/tests/native-group-messages-store/dependencies.json')];
+  const ownerPath=join(root,'dev/mobile/android/app/src/main/java/au/aumanet/app/NodeConnectionOwner.java'),ownerText=await readFile(ownerPath,'utf8'),signature='NodeRecoveryScan.Result recoveryStatus(';let start=ownerText.indexOf(signature),end=-1,depth=0;if(start<0||ownerText.indexOf(signature,start+1)>=0)throw Error('Exact recovery boundary changed');for(let i=ownerText.indexOf('{',start);i<ownerText.length;i++){if(ownerText[i]==='{')depth++;else if(ownerText[i]==='}'&&!--depth){end=i+1;break;}}if(end<0)throw Error('Unclosed recovery boundary');let recovery=ownerText.slice(start,end).replaceAll('WifiManager','RecoveryWifi').replaceAll('android.location.LocationManager','RecoveryLocation').replaceAll('Context.','RecoveryContext.').replaceAll('android.Manifest.permission.ACCESS_FINE_LOCATION','"fine"').replaceAll('android.content.pm.PackageManager.PERMISSION_GRANTED','0').replaceAll('SystemClock.','RecoveryClock.').replaceAll('ScanResult','RecoveryResult');const harness=join(run,'NodeRecoveryHarness.java');await writeFile(harness,`package au.aumanet.app;import java.util.*;import java.util.concurrent.atomic.*;import java.util.function.*;
+final class RecoveryClock{static long now;static long elapsedRealtime(){return now;}}
+final class RecoveryResult{String SSID,BSSID;long timestamp;RecoveryResult(String ssid,String bssid,long micros){SSID=ssid;BSSID=bssid;timestamp=micros;}}
+final class RecoveryWifi{boolean enabled=true,accepted=true;int requests;Runnable afterRead;final List<RecoveryResult> results=new ArrayList<>();boolean isWifiEnabled(){return enabled;}List<RecoveryResult> getRecoveryResults(){if(afterRead!=null)afterRead.run();return results;}boolean startScan(){requests++;return accepted;}}
+final class RecoveryLocation{boolean enabled=true;boolean isLocationEnabled(){return enabled;}}
+final class RecoveryContext{static final String WIFI_SERVICE="wifi",LOCATION_SERVICE="location";final RecoveryWifi wifi;final RecoveryLocation location;int permission;RecoveryContext(RecoveryWifi wifi,RecoveryLocation location){this.wifi=wifi;this.location=location;}Object getSystemService(String key){return key.equals(WIFI_SERVICE)?wifi:location;}int checkSelfPermission(String ignored){return permission;}}
+final class NodeRecoveryHarness{NodeConnectionProfile profile;final AtomicBoolean allowed=new AtomicBoolean(true);static final class Attachment{String token;boolean everAvailable=true;}final AtomicReference<Attachment> current=new AtomicReference<>();final RecoveryWifi wifi=new RecoveryWifi();final RecoveryLocation location=new RecoveryLocation();final RecoveryContext context=new RecoveryContext(wifi,location);long lastRecoveryScan=-1;final NodeRecoveryScanBudget recoveryScanBudget=new NodeRecoveryScanBudget();NodeRecoveryHarness(NodeConnectionProfile p){profile=p;}boolean owns(Attachment a){return current.get()==a&&allowed.get();}void attach(String token){Attachment a=new Attachment();a.token=token;current.set(a);}${recovery}}
+`);sources.push(harness);inputs.splice(inputs.length-1,0,harness,ownerPath);
+  try{
+    const dependency=JSON.parse(await readFile(inputs.at(-1),'utf8')).dependencies.find(row=>row.name==='org.json'),jar=join(root,'dev/artifacts/group-messages',dependency.file),bytes=await readFile(jar);
+    if(bytes.length!==dependency.bytes||sha(bytes)!==dependency.sha256)throw Error('Pinned test JSON dependency mismatch');
+    for(const file of inputs)report.sourceSha256[relative(root,file).replaceAll('\\','/')]=sha(await readFile(file));
+    const command=(name,args)=>{const value=spawnSync(join(jdk,'bin',name+(process.platform==='win32'?'.exe':'')),args,{cwd:root,encoding:'utf8',windowsHide:true,timeout:60000,maxBuffer:1048576});if(value.error||value.status!==0)throw Error(name+' failed: '+(value.stderr||value.error?.message));return value.stdout;};
+    command('javac',['-cp',jar,'-d',classes,...sources]);const profile=JSON.parse(command('java',['-cp',[classes,jar].join(delimiter),'au.aumanet.app.NodeConnectionProfileTest'])),recoveryResult=JSON.parse(command('java',['-cp',[classes,jar].join(delimiter),'au.aumanet.app.NodeRecoveryScanTest']));const result={status:profile.status==='passed'&&recoveryResult.status==='passed'?'passed':'failed',testCount:profile.testCount+recoveryResult.testCount,assertionCount:profile.assertionCount+recoveryResult.assertionCount,suites:{profile,recovery:recoveryResult}};
+    if(result.status!=='passed')throw Error('Profile tests did not pass');Object.assign(report,result,{status:'pass'});
+    for(const file of inputs)if(report.sourceSha256[relative(root,file).replaceAll('\\','/')]!==sha(await readFile(file)))throw Error('Profile source changed during test');
+  }catch(error){report.status='failed';report.error=error.message;process.exitCode=1;}finally{await writeFile(join(output,'result.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));}
+}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href)await main();

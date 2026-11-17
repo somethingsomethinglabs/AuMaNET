@@ -1,0 +1,2 @@
+package com.getcapacitor;
+public class JSObject extends org.json.JSONObject {@Override public JSObject put(String key,Object value){super.put(key,value);return this;}@Override public JSObject put(String key,boolean value){super.put(key,value);return this;}@Override public JSObject put(String key,long value){super.put(key,value);return this;}@Override public JSObject put(String key,int value){super.put(key,value);return this;}public String getString(String key,String fallback){return optString(key,fallback);}}

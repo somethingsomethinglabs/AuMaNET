@@ -1,0 +1,32 @@
+AuMaNET outdoor vector preview
+
+Vector basemap: Protomaps, based on OpenStreetMap and Natural Earth.
+© OpenStreetMap contributors. OSM data is available under the Open Database License:
+https://www.openstreetmap.org/copyright
+https://opendatacommons.org/licenses/odbl/1-0/
+Natural Earth data is in the public domain: https://www.naturalearthdata.com/
+Source: Protomaps 2026-11-16 build, schema 4.15.2; OSM replication timestamp in manifest.json.
+Changes: geographic extraction and a custom outdoor presentation applied on device.
+The source extract is available as basemap.pmtiles beside this notice.
+
+Terrain: © Mapterhorn and its elevation data contributors.
+https://mapterhorn.com/attribution/
+The complete upstream source/producer/licence list is bundled in terrain-sources.json.
+Australian terrain sources include Geoscience Australia, Digital Elevation Model
+(DEM) of Australia derived from LiDAR 5 Metre Grid, CC BY 4.0:
+https://pid.geoscience.gov.au/dataset/ga/89644
+https://creativecommons.org/licenses/by/4.0/
+Global coverage includes COPERNICUS GLO-30:
+© DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018,
+provided under COPERNICUS by the European Union and ESA. All rights reserved.
+Accessed by Mapterhorn via OpenTopography and AWS Open Data.
+Changes: geographic extraction, Terrarium tile reprojection/encoding by Mapterhorn;
+hill shading and derived contour lines generated on device by AuMaNET.
+Underlying source resolutions, capture dates and vertical accuracy vary.
+Archive names and extracted-file checksums are recorded in manifest.json.
+
+Fonts: Noto Sans, SIL Open Font License 1.1; see FONT-LICENSE.txt.
+Bundled glyph range(s) are enumerated and checksummed in manifest.json.
+
+Software: MapLibre GL JS, PMTiles and maplibre-contour use BSD-3-Clause licences.
+Their notices are included in SOFTWARE-LICENSES.txt beside this notice.

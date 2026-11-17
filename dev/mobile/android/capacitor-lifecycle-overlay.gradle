@@ -1,0 +1,56 @@
+// App-owned, SHA/context-pinned source overlay; original npm SDK sources stay unchanged.
+import org.gradle.api.tasks.compile.JavaCompile
+import groovy.json.JsonSlurper
+
+def overlayHome = new File(rootProject.projectDir, 'capacitor-lifecycle-overlay')
+def capacitorModule = project(':capacitor-android')
+def overlaySources = rootProject.layout.buildDirectory.dir('generated/aumanet-capacitor-lifecycle')
+def overlaySpec = new JsonSlurper().parse(new File(overlayHome, 'patches.json'))
+def originals = overlaySpec.files.collect { new File(capacitorModule.projectDir, it.path).canonicalFile }.toSet()
+def sdkJavaRoot = new File(capacitorModule.projectDir, 'src/main/java')
+
+def generateOverlay = rootProject.tasks.register('generateAuMaNETLifecycleOverlay', Exec) {
+    inputs.files(new File(overlayHome,'generate.mjs'),new File(overlayHome,'patches.json'),new File(capacitorModule.projectDir,'../package.json'))
+    inputs.files(originals)
+    inputs.dir(new File(overlayHome,'src'))
+    outputs.dir(overlaySources)
+    commandLine 'node', new File(overlayHome,'generate.mjs').absolutePath,
+        '--sdk',capacitorModule.projectDir.absolutePath,'--output',overlaySources.get().asFile.absolutePath
+}
+
+capacitorModule.plugins.withId('com.android.library') {
+    // Use the producing task so every source consumer, including annotation
+    // extraction on a clean build, depends on generation automatically.
+    capacitorModule.android.sourceSets.getByName('main').java.srcDir(generateOverlay)
+}
+
+// AGP's annotation extractor flattens the Java source provider and drops its
+// task dependency. Keep this consumer explicitly ordered on clean builds too.
+capacitorModule.tasks.configureEach {
+    if (name.startsWith('extract') && name.endsWith('Annotations')) dependsOn(generateOverlay)
+}
+
+capacitorModule.tasks.withType(JavaCompile).configureEach { compilation ->
+    if (!(compilation.name in ['compileDebugJavaWithJavac','compileReleaseJavaWithJavac'])) return
+    dependsOn(generateOverlay)
+    // A basename/path-pattern exclusion would also exclude the generated class.
+    // Match only the original absolute file identities, then add replacements.
+    exclude { element -> originals.contains(element.file.canonicalFile) }
+    doFirst {
+        def selected = compilation.source.files.collect { it.canonicalFile }.toSet()
+        if (!Collections.disjoint(selected, originals)) throw new GradleException('Unpatched Capacitor source remained selected')
+        def outputRoot = overlaySources.get().asFile
+        def expected = overlaySpec.files.collect { new File(outputRoot,it.path.substring('src/main/java/'.length())).canonicalFile }
+        expected.addAll(overlaySpec.helpers.collect { new File(outputRoot,it.path).canonicalFile })
+        expected.each { generated ->
+            if (!selected.contains(generated)) throw new GradleException('A lifecycle overlay source was not selected: '+generated.name)
+            def sameName = selected.findAll { it.name == generated.name && it.path.replace('\\','/').endsWith('/com/getcapacitor/' + (generated.parentFile.name=='cordova'?'cordova/':'') + generated.name) }
+            if (sameName.size()!=1) throw new GradleException('Duplicate lifecycle overlay class selected')
+        }
+        rootProject.fileTree(sdkJavaRoot) { include '**/*.java' }.files.each { original ->
+            def actual=original.canonicalFile
+            if (!originals.contains(actual) && !selected.contains(actual)) throw new GradleException('An untouched Capacitor SDK source was lost')
+        }
+        logger.lifecycle('AuMaNET lifecycle source selection verified: 3 replacements, 2 helpers; untouched SDK retained')
+    }
+}
