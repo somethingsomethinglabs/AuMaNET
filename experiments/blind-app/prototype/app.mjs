@@ -1,4 +1,5 @@
 import {initialState,transition,bytes,planCapacity,SCHEMA,operationMatches} from './model.mjs';
+import {persistTransition} from './persistence.mjs';
 import {terrainSVG,creekSVG} from './art.mjs';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -33,8 +34,8 @@ const empty=(title,description,cta='')=>`<div class="empty"><div class="status-i
 const owner=()=>state.group?.owner==='self';
 function route(){return location.hash.slice(1).split('?')[0]||(fresh?'onboarding':'field');}
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),5000);}
-function persist(){if(showcase)return true;try{localStorage.setItem(storageKey,JSON.stringify(state));storageAvailable=true;return true;}catch{storageAvailable=false;return false;}}
-function dispatch(action,p={},render=true){try{const next=transition(state,action,p);if(action==='draft'&&!storageAvailable){next.draft.state='error';}state=next;if(!persist()){if(action==='draft')state.draft.state='error';if(action==='preferences')toast('Device storage is unavailable; reload before changing preferences.');}if(render)renderApp();if(state.notice)toast(state.notice);return true;}catch(error){toast(error.message);const inline=$('.error-text');if(inline)inline.textContent=error.message;return false;}}
+function persist(next=state){if(showcase)return true;try{localStorage.setItem(storageKey,JSON.stringify(next));storageAvailable=true;return true;}catch{storageAvailable=false;return false;}}
+function dispatch(action,p={},render=true){try{const result=persistTransition(state,action,p,persist);state=result.state;if(render)renderApp();if(state.notice)toast(state.notice);if(!result.ok){const inline=$('.error-text');if(inline)inline.textContent=state.notice;}return result.ok;}catch(error){toast(error.message);const inline=$('.error-text');if(inline)inline.textContent=error.message;return false;}}
 function header(title,subtitle,eyebrow='YOUR FIELD NETWORK',actions=''){return `<header class="page-head"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1>${subtitle?`<p class="subtitle">${subtitle}</p>`:''}</div>${actions?`<div class="head-actions">${actions}</div>`:''}</header>`;}
 function back(title='Field kit',to='kit'){return `<a class="back-link" href="#${to}">${icon('back')}${title}</a>`;}
 function footer(){return `<footer class="footnote"><span><i class="badge-dot"></i>Independent design experiment · fictional people & simulated connections</span><a href="#roadmap">Built for the field. Honest about the limits. ${icon('arrow','sm').replace('class="icon sm"','class="icon sm" style="display:inline;width:11px;height:11px;vertical-align:middle"')}</a></footer>`;}

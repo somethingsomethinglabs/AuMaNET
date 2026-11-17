@@ -4,8 +4,8 @@ Verified on 18 November 2026. This record applies to the independent browser pro
 
 ## Automated checks
 
-- `node --test tests/model.test.mjs`: **33 passed, 0 failed**.
-- `node --check app.mjs`, `node --check model.mjs`, `node --check art.mjs`, and `node --check server.mjs`: passed.
+- `node --test tests/*.test.mjs`: **47 passed, 0 failed** (33 original checks plus 14 focused review regressions).
+- JavaScript syntax checks passed; the review follow-up rechecked `app.mjs`, `model.mjs` and the new `persistence.mjs`.
 - Requirements-to-coverage comparison: **124 requirements, 124 unique coverage rows, no missing or extra IDs**.
 - `git diff --check`: passed.
 - Scoped CI is provided by `.github/workflows/blind-app-experiment.yml`.
@@ -43,6 +43,18 @@ All 18 ordinary/advanced routes were visited successfully: field, chat, map, peo
 ## Defects found and corrected
 
 The independent review led to fresh-only location attachments, invalidation of photo callbacks during maintenance, honest unknown-restoration handling, checked firmware target validation, guards against replacing active maintenance operations, removal of a hardcoded conversation badge, data-derived offline-area counts, and removal of unsupported two-node reachability claims from solo setup. Regression tests cover the consequential state changes. Evaluator fault controls require a separate review-only URL.
+
+## Review follow-up
+
+Three reproduced findings against `b2a2cb971f3f0401514f1d21c7e59baec3c20ff1` were corrected:
+
+- Sending stages the proposed state and requires a successful storage write before accepting the new message or clearing the draft. Quota/security errors, a false write result and the evaluator write fault return failure, retain the text and leave messages/deduplication unchanged. Failed edits remain in memory with an unsaved label. Explicit retry confirms recovery. Privacy stops and cancellation still take effect locally if saving fails.
+- Tests and channel comparisons capture a fresh, already-shared position when the operation starts. Completion and cancellation retain that snapshot or unknown; later GPS acquisition, sharing or movement cannot fill the historical gap. Older in-progress records without a snapshot remain unknown.
+- Uncommitted radio-trial expiry uses the same restoration handling as cancellation. A lost restoration reply leaves the result unknown, invalidates the old callback and keeps transfers/maintenance blocked until explicit recheck.
+
+The focused browser check used a separate local origin on port 4318 and only fictional data. With the review-only storage fault enabled after saving a draft, Send created no message and preserved the text with a failure notice. Editing and retrying while the fault remained active preserved the edited text and showed failure. After disabling the fault, explicit retry confirmed saving; one subsequent send survived reload with one visible message and an empty saved draft. No console warnings or errors were observed. `prototype/screenshots/persistence-failure.jpg` captures the failed-send feedback. The original showcase captures and their source-hash manifest remain unchanged.
+
+This follow-up is limited to the standalone prototype. It remains review-only on PR #13, with no integration or device testing.
 
 ## Limits
 

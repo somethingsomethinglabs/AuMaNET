@@ -53,7 +53,7 @@ Modes: **I** = interactive local behavior; **P** = interactive core plus a state
 | ID | Mode | Prototype behavior and route | Limits / gap |
 | --- | --- | --- | --- |
 | MSG-01 | I | `#chat` group-scoped local history, sender, time, storage observation, immutable ID and state details; readable disconnected. Archived scopes isolate history. | No actual remote storage. |
-| MSG-02 | I | Editable local draft saves on input, offline too; saved/error visible; retry in options; reconnect/navigation never transmits the draft. | Writes are synchronous browser-local rather than native async journal. |
+| MSG-02 | I | Editable local draft saves on input, offline too; saved/error visible; retry in options. Failed writes retain text, reject sends and preserve the outbox; reconnect/navigation never transmits the draft. | Writes are synchronous browser-local rather than native async journal. Unsaved edits survive only in the current window until retry succeeds. |
 | MSG-03 | I | 4,096-byte draft limit and connected group’s configured 2,048-byte send limit counted as UTF-8; unsaved/oversized submissions rejected without truncation. | One supported 2,048-byte group capability is exercised; 240-byte legacy text is separate. |
 | MSG-04 | P | Original immutable intent/recipients survive interruption; queued, uncertain, partial, stored, received, cancelled and expired states; uncertain outcome resolves the original intent. | Retry pacing and a real recipient queue are simplified; no radio retransmission machinery. |
 | MSG-05 | I | Per-recipient device storage detail versus awaiting/not attempted/exhausted; no read receipts. | Peer acknowledgements are synthetic. |
@@ -154,7 +154,7 @@ Modes: **I** = interactive local behavior; **P** = interactive core plus a state
 | --- | --- | --- | --- |
 | RAD-01 | I | Per-node channel/frequency/width; common status tied to two associated matching reports; unknown restoration blocks claim. | Sample reports are synthetic. |
 | RAD-02 | I | Owner proposes complete allowed choices for channels 1/6/11 at 20 MHz; frequency bound to channel; no transmit-power control. | Only the representative checked firmware profile. |
-| RAD-03 | I | Separate proposal, bounded trial/progress, both-node verification, explicit commit, 30-second rollback, cancel/restoration/unknown states. | Radio transition is simulated. |
+| RAD-03 | I | Separate proposal, bounded trial/progress, both-node verification, explicit commit, 30-second rollback, cancel/restoration/unknown states. Expiry with an unknown restoration keeps transfers blocked until explicit recheck. | Radio transition is simulated. |
 | RAD-04 | I | Unknown restoration requires explicit two-node recheck; scope tokens reject stale results; conflicting mutations blocked. | Real reboot/identity observation changes must be externally supplied. |
 | RAD-05 | I/P | Both phones’ temporary consent, shared-internet stop prerequisite, same-antenna/position guidance, bounded comparison. | Repeated finalists and baseline retest are retained synthetic samples, not actual channel workloads. |
 | RAD-06 | I | Comparison retains a failed sample, reliability-first / slower-direction median ordering, suppresses recommendation when restoration unknown. | Full statistical consistency/baseline-drift evaluator is descriptive. |
@@ -167,7 +167,7 @@ Modes: **I** = interactive local behavior; **P** = interactive core plus a state
 | TST-01 | I | Explicit local 15-minute permit, eligible approved Mara peer and peer permit guard; permission itself does not start a test; stop accept/run. | Synthetic peer permission initially granted, naturally expires. |
 | TST-02 | I | Review before bounded test; shared internet blocked, calls/transfers paused, microphone muted. | No real payload path. |
 | TST-03 | I/P | Preparation, directional warmup/measure, progress/bytes/rate labels; stop preserves null missing directions. | Compressed ~11-second demonstration; native 2+10-second bounds described, not real measured throughput. |
-| TST-04 | I | Up to 100 complete/failed/cancelled results with rates/time/config/signal and only already-shared position; byte cap flag. No GPS side effect. | No authentic node separation or radio evidence. |
+| TST-04 | I | Up to 100 complete/failed/cancelled results with rates/time/config/signal and a fresh already-shared position captured at test start; otherwise unknown. Later location changes cannot backfill it. Byte cap flag; no GPS side effect. | No authentic node separation or radio evidence. |
 | TST-05 | P | Retained comparison bars/table, recorded-channel filter, start/end observation choice, unknown historical gaps and detail inspection. | Signal/position are tabulated rather than full interactive scatter plots; end positions can remain unrecorded. |
 | TST-06 | I | Deliberate JSON export review, CSV export, browser-selected save destination, privacy text about identifiers/positions. | No native share-sheet destination chooser. |
 | TST-07 | I | Planner manual/historical rates, group/talkers, voice rate, overhead/packet contention, location, messages, hops, reserve, other/donor traffic and transfer sizes. | Packet timing is folded into editable multiplier; no precise native codec model. |

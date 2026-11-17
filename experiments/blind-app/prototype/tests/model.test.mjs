@@ -114,3 +114,65 @@ test('solo provisioning and rejoining never invent peer radio evidence',()=>{
 test('locally issued invitation expiry is enforced against its actual timestamp',()=>{
  let s=act(initial(),'invite');const code=s.invitation.code;assert.throws(()=>move(s,'inspectInvite',{code},NOW+11*60000),/expired/);s.invitation.consumed=true;assert.throws(()=>act(s,'inspectInvite',{code}),/already been used/);
 });
+
+for(const action of ['runTest','compareChannels']) {
+ test(`${action} never backfills a start position from later location sharing`,()=>{
+  let s=act(permit(initial()),action);const token=s.ops.test.token;
+  assert.equal(s.ops.test.startPosition,null);
+  s=move(s,'locate',{},NOW+1000);
+  s=move(s,'position',{token:s.ops.location.token},NOW+2000);
+  s=move(s,'shareLocation',{},NOW+2000);
+  const cancelled=move(s,'stopTest',{},NOW+3000);
+  assert.equal(cancelled.testing.results[0].position,null);
+  s=move(s,'testComplete',{token},NOW+11000);
+  assert.equal(s.testing.results[0].position,null);
+  assert.equal(s.location.sharing,true);
+ });
+
+ test(`${action} retains the already shared start fix through movement or cancellation`,()=>{
+  let s=act(permit(initial()),'locate');s=act(s,'position',{token:s.ops.location.token});s=act(s,'shareLocation');
+  const start=structuredClone(s.location.fix);s=act(s,action);const token=s.ops.test.token;
+  s=move(s,'locate',{},NOW+2000);s=move(s,'position',{token:s.ops.location.token},NOW+3000);
+  s=move(s,'stopLocation',{},NOW+4000);
+  const cancelled=move(s,'stopTest',{},NOW+5000);
+  assert.deepEqual(cancelled.testing.results[0].position,start);
+  s=move(s,'testComplete',{token},NOW+11000);
+  assert.deepEqual(s.testing.results[0].position,start);
+  assert.equal(s.location.sharing,false);
+ });
+}
+
+test('private, stale, future and stopped fixes stay unknown at test start',()=>{
+ for(const condition of ['private','stale','future','stopped']){
+  let s=act(permit(initial()),'locate');s=act(s,'position',{token:s.ops.location.token});s=act(s,'shareLocation');
+  if(condition==='private')s.location.sharing=false;
+  if(condition==='stale')s.location.fix.time=NOW-60001;
+  if(condition==='future')s.location.fix.time=NOW+1;
+  if(condition==='stopped')s.location.acquiring=false;
+  s=act(s,'runTest');s=act(s,'testComplete',{token:s.ops.test.token});
+  assert.equal(s.testing.results[0].position,null,condition);
+ }
+});
+
+test('resumed older test without a start snapshot leaves historical position unknown',()=>{
+ let s=act(permit(initial()),'runTest');delete s.ops.test.startPosition;
+ s=act(s,'locate');s=act(s,'position',{token:s.ops.location.token});s=act(s,'shareLocation');
+ s=act(s,'testComplete',{token:s.ops.test.token});assert.equal(s.testing.results[0].position,null);
+});
+
+test('expired trial with lost restoration reply stays blocked until explicit recheck',()=>{
+ let s=act(initial(),'proposeRadio',{channel:11});s=act(s,'trialRadio');const token=s.ops.radio.token;
+ s=act(s,'radioProgress',{token,progress:100});s=act(s,'fault',{key:'restore',value:true});
+ s=move(s,'tick',{},NOW+30000);
+ assert.equal(s.radio.status,'outcome unknown');assert.equal(s.radio.reportsVerified,false);
+ assert.equal(s.connection.transfer,false);assert.equal(s.ops.radio,undefined);
+ assert.match(s.notice,/Restoration is unknown/);
+ assert.throws(()=>act(s,'trialRadio'),/Recheck/);assert.throws(()=>act(s,'runTest'),/Recheck/);
+ assert.throws(()=>act(s,'commitRadio'),/expired/);
+ s=move(s,'radioProgress',{token,progress:100},NOW+31000);
+ assert.equal(s.radio.status,'outcome unknown');assert.equal(s.connection.transfer,false);
+ s=act(s,'fault',{key:'restore',value:false});s=move(s,'tick',{},NOW+60000);
+ assert.equal(s.radio.status,'outcome unknown');assert.equal(s.connection.transfer,false);
+ s=act(s,'recheckRadio');assert.equal(s.radio.status,'restored');
+ assert.equal(s.radio.reportsVerified,true);assert.equal(s.connection.transfer,true);
+});

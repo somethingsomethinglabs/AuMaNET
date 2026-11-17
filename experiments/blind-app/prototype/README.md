@@ -20,7 +20,8 @@ When copied into another checkout, run `node server.mjs` from that checkout's pr
 ```powershell
 node --check app.mjs
 node --check model.mjs
-node --test tests/model.test.mjs
+node --check persistence.mjs
+node --test tests/*.test.mjs
 ```
 
 The tests use Node's built-in runner. They verify consent, persistent identities, isolated group scopes, cancellation and stale callbacks, UTF-8 limits, unknown send outcomes, location freshness, maintenance conflicts, verified firmware targets, radio restoration, privacy redaction, and workload arithmetic. These are model tests, not hardware or browser acceptance. Browser inspection and screenshots are performed by the parent agent through `cua_repl`; no standalone browser automation framework is required.
@@ -79,7 +80,7 @@ All artwork is local SVG/code. Typography uses system Arial and Georgia, so the 
 ## State, safety and simulation limits
 
 - `model.mjs` is a deterministic-transition domain model; the UI owns elapsed-time scheduling. Operation tokens include the group and epoch. Cancellation or scope changes make old callbacks inert. Maintenance mutations cannot replace active operations or bypass unknown outcomes.
-- Browser `localStorage` stores the active state, identities, membership, drafts, history, preferences and retained records. It is **not encrypted** and is not a production security design. Another group creation archives the prior scope internally; switching archived memberships is model-tested but has no added production navigation feature in this experiment.
+- Browser `localStorage` stores the active state, identities, membership, drafts, history, preferences and retained records. `persistence.mjs` checks the write before accepting a send; failure retains the draft and reports that it was not sent. Unsaved draft edits remain in memory for explicit retry. Privacy stops still take effect locally if storage fails. Storage is **not encrypted** and is not a production security design. Another group creation archives the prior scope internally; switching archived memberships is model-tested but has no added production navigation feature in this experiment.
 - `?fresh=1` has its own state namespace. `?showcase=...` bypasses storage entirely so phone frames cannot read, overwrite or restart the interactive session. Each showcase frame is independent and resets on reload.
 - Hash navigation recreates the interface around the current in-memory session. A page reload during active voice, publication or a trusted run is treated as a process restart and requires explicit safe resumption. There is no actual native background service. Some in-progress non-service records survive reload but need explicit retry; coverage notes call out limits.
 - All peers, signatures, identities, radio rates, signal samples, package identities, firmware installation, VPN consent, GPS fixes, permissions, node provisioning and transfer progress are fictional. No physical USB/DHCP, audio, security, range, routing, release or firmware acceptance is implied.
@@ -89,7 +90,7 @@ All artwork is local SVG/code. Typography uses system Arial and Georgia, so the 
 
 ## Files
 
-`index.html` is the entry point; `app.mjs` renders routes and dialogs; `model.mjs` owns transitions; `styles.css` is responsive styling; `art.mjs` contains original map/footbridge SVGs; `server.mjs` serves loopback-only static assets; `showcase.html` embeds isolated live screens; `tests/model.test.mjs` contains the behavioral checks.
+`index.html` is the entry point; `app.mjs` renders routes and dialogs; `model.mjs` owns transitions; `persistence.mjs` checks writes before accepting changes; `styles.css` is responsive styling; `art.mjs` contains original map/footbridge SVGs; `server.mjs` serves loopback-only static assets; `showcase.html` embeds isolated live screens; `tests/*.test.mjs` contains the model and persistence checks.
 
 ## Source boundary
 
