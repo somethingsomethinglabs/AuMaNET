@@ -11,8 +11,9 @@
   export let sourceError='';
   export let sharingAvailable=false;
   export let sharingEnabled=false;
-  export let onsharingchange:(enabled:boolean)=>void=()=>{};
-  let busy=false,error='',now=0,receivedAt=0;
+  export let onsharingchange:(enabled:boolean)=>Promise<unknown>=async()=>{throw new Error('Location sharing is unavailable.');};
+  let busy=false,sharingBusy=false,sharingError='',error='',now=0,receivedAt=0;
+  $: sharingHint=sharingBusy?'Updating location sharing…':sharingEnabled?'New position fixes are shared with the connected group, including while the screen is off. Turn sharing off or use Stop sharing in the Android notification to stop new updates.':!sharingAvailable?'Connect to a verified group to share your position.':sourceError?'Location status is unavailable. Wait for it to refresh before enabling sharing.':!state?'Loading location status…':state.backgroundSharing==='starting'?'Preparing location sharing…':'Sharing is off. Turn it on to request location access and share new fixes with the connected group.';
   $: if(state){receivedAt=performance.now();}
   $: view=locationView(state,Math.max(0,now-receivedAt));
   $: freshness=sourceError&&state?.fix?'stale':view.freshness;
@@ -22,6 +23,16 @@
     try{await action();}catch(e){error=e instanceof Error?e.message:String(e);}finally{busy=false;}
   }
   async function stop(){try{await client.stop();error='';}catch(e){error=e instanceof Error?e.message:String(e);}}
+  async function changeSharing(input:HTMLInputElement){
+    const enabled=input.checked;
+    // A native permission prompt or rejected command must not leave an optimistic checkmark.
+    input.checked=sharingEnabled;
+    if(sharingBusy)return;
+    sharingBusy=true;sharingError='';
+    try{await onsharingchange(enabled);}
+    catch(e){sharingError=e instanceof Error?e.message:String(e);}
+    finally{sharingBusy=false;input.checked=sharingEnabled;}
+  }
 </script>
 
 <section class="card native-location">
@@ -45,11 +56,12 @@
   {#if busy}<button class="text-button" onclick={()=>void stop()}>Cancel / stop</button>{/if}
   {#if state?.permission==='denied'}<button class="text-button" onclick={()=>void run(()=>client.settings('app'))}>Open app location permissions</button>{/if}
   {#if state?.status==='provider-disabled'||state?.status==='unavailable'}<button class="text-button" onclick={()=>void run(()=>client.settings('location'))}>Open Android Location settings</button>{/if}
-  <label class="sharing-row"><span>Share my position</span><input type="checkbox" aria-label="Share my position" checked={sharingEnabled}
-    disabled={!sharingEnabled&&(!sharingAvailable||!state||!!sourceError)} onchange={event=>onsharingchange(event.currentTarget.checked)}/></label>
-  <p class="hint">{sharingEnabled?'New position fixes are shared with the connected group, including while the screen is off. Turn sharing off or use Stop sharing in the Android notification to stop new updates.':state?.backgroundSharing==='starting'?'Preparing location sharing…':sharingAvailable?'Sharing is off. Turn it on to request location access and share new fixes with the connected group.':'Connect to a verified group to share your position.'} No track is saved.</p>
+  <label class="switch-row sharing-row"><span>Share my position</span><input type="checkbox" aria-label="Share my position" aria-describedby="location-sharing-hint" checked={sharingEnabled}
+    disabled={sharingBusy||(!sharingEnabled&&(!sharingAvailable||!state||!!sourceError))} onchange={event=>void changeSharing(event.currentTarget)}/></label>
+  {#if sharingError}<p class="location-error" role="alert">{sharingError}</p>{/if}
+  <p class="hint" id="location-sharing-hint" role="status">{sharingHint} No track is saved.</p>
 </section>
 <style>
   .native-location h2{display:flex;align-items:center;gap:8px}.position-state{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.position-state span{font-size:12px}.location-actions{display:flex;flex-wrap:wrap;gap:8px}.location-actions button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}.location-error{color:#9f301f;background:#fff0e7;border-radius:8px;padding:10px}dl{margin:16px 0}dl div{display:flex;justify-content:space-between;gap:10px;padding:5px 0}dt{color:var(--muted)}dd{margin:0;text-align:right;overflow-wrap:anywhere}.hint{line-height:1.5}
-  .sharing-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;min-height:44px;font-weight:600}.sharing-row input{width:22px;height:22px;accent-color:var(--green,#21583a)}
+  .sharing-row{margin-top:18px}
 </style>

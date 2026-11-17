@@ -53,7 +53,7 @@
 </script>
 
 {#if managementOnly}
-<section class="position-card" aria-label="Map settings"><VectorDownloads client={mapClient} {onshowmap} onchoose={onchoosearea}/>{#if onshowmap}<button class="map-outline" onclick={()=>onshowmap?.()}>Back to map</button>{/if}</section>
+<section class="position-card" aria-label="Map settings"><VectorDownloads client={mapClient} {onshowmap} onchoose={onchoosearea}/>{#if onshowmap}<button class="map-outline" onclick={()=>onshowmap?.()}>Open map</button>{/if}</section>
 {:else}
 <section class="map-surface" aria-label="Map and group positions">
   <GeographicMap bind:this={view} areaSelection={selection} areaLocked={pickerBusy} onareapin={point=>{if(selection)selection={...selection,...point};}} onofflinepick={point=>void chooseArea({...point,radiusKm:5,name:'Weekend area',terrain:true})} {focusBounds} {navigationToken} {fix} {ageMs} {active} members={roster} {connections} {selected} {follow} onbasemap={label=>basemapLabel=label} onfollowcancel={()=>follow=false} onselect={id=>{selected=id;onmemberdetails?.(id);}} onnameselect={onmembernamedetails} {nodeMemberIds}/>
