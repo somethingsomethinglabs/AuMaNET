@@ -21,3 +21,11 @@ Regional vector downloads add `native-vector-downloads.mjs` (set `JAVA_HOME`),
 `downloaded-map-browser.mjs` renders that actual saved data with a declared
 simulated Android file bridge. Background/notification/process lifecycle
 acceptance remains an installed-device check, separate from these fixtures.
+
+`offline-area-browser.mjs` checks the real pin, drag/tap movement, square bounds,
+distance slider, narrow layouts, explicit start, background status and retry flow
+using a declared simulated native client. It is not a normal app route.
+
+`connected-map-handoff-browser.mjs` mounts the real application shell with a
+simulated map client and checks that Maps → Choose area retains two navigated
+centres across map recreation, with explicit Retry metadata taking precedence.
