@@ -78,7 +78,7 @@ def command(port, command, expected_type, timeout=8):
                 except (ValueError, UnicodeError):
                     continue
                 records.append(record)
-                if record.get("type") == expected_type:
+                if record.get("type") == expected_type or record.get("schema") == expected_type:
                     return record, bytes(transcript)
     raise RuntimeError(f"No {expected_type} response to {command!r}:\n" + transcript.decode(errors="replace"))
 

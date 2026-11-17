@@ -1,0 +1,21 @@
+name: Phone DHCP tooling host checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  host:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pyserial==3.5
+      - run: python dev/tests/phone-dhcp-app-state.test.py
+      - run: python dev/tests/phone-dhcp-console.test.py
+      - run: node --check dev/firmware/tools/phone_app_action.mjs
