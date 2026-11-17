@@ -11,4 +11,4 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm run check
-      - run: node --test dev/releases/release.test.mjs dev/releases/acceptance.test.mjs
+      - run: node --test dev/releases/release.test.mjs dev/releases/acceptance.test.mjs dev/releases/candidate.test.mjs
