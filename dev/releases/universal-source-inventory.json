@@ -1,0 +1,250 @@
+{
+  "schema": 1,
+  "observedDate": "2026-11-17",
+  "baseCommit": "f019d984c56f7831583f5bd4a8e8ecee79a57163",
+  "source": "Uncommitted shared checkout read-only inventory; not a candidate or installed identity",
+  "normalization": "CRLF to LF before SHA-256",
+  "acceptance": "incomplete",
+  "paths": [
+    {
+      "path": "dev/firmware/Build-Local.ps1",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "09cd5f8db32a0f81dabbf98f988ee9e0a0f02bb80df9827cf1c0cbef68e82933"
+    },
+    {
+      "path": "dev/firmware/gateway/boot_transport.c",
+      "status": "modified",
+      "normalizedSourceSha256": "9d4653f80ea71d96cb43562c3c76cb7e23f884b7eb52c36d1cf94e740d2a93ac"
+    },
+    {
+      "path": "dev/firmware/gateway/CMakeLists.txt",
+      "status": "modified",
+      "normalizedSourceSha256": "4e7464034797927c3c98a9272ba2af38fc981c79ca3285d7c7177a37b42b4dcf"
+    },
+    {
+      "path": "dev/firmware/gateway/gateway.c",
+      "status": "modified",
+      "normalizedSourceSha256": "3ab36ce12a6ccd903c84f5ef504eb9fba1a070e5939565614478e373bf1dcc2a"
+    },
+    {
+      "path": "dev/firmware/gateway/include/aumanet_boot_transport.h",
+      "status": "modified",
+      "normalizedSourceSha256": "77d7f6de8fe640e9b910ad5de80de950ae5a5fe526d335e0bda9809dc007b8fc"
+    },
+    {
+      "path": "dev/firmware/gateway/include/aumanet_gateway.h",
+      "status": "modified",
+      "normalizedSourceSha256": "548351c200539e643ce333ef1c08a57b3107b3eb713b334c1231a21b1d976e35"
+    },
+    {
+      "path": "dev/firmware/gateway/include/aumanet_gateway_build.h",
+      "status": "modified",
+      "normalizedSourceSha256": "8cd29941b7b7e3b5e2c8700b33e590c2fd006386749b76e4e4abd2203e43efa9"
+    },
+    {
+      "path": "dev/firmware/gateway/include/aumanet_radio_control.h",
+      "status": "modified",
+      "normalizedSourceSha256": "59d4699cf36de7d7d6bce8491ef9801c2d41e9f8bdf305bf89a983393f959dea"
+    },
+    {
+      "path": "dev/firmware/gateway/include/aumanet_relay_recovery.h",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "85b796c27a11e249d41c0f10c3ec68a6998d95dac3f0a0d6fd17b14142055675"
+    },
+    {
+      "path": "dev/firmware/gateway/include/aumanet_routed_lan.h",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "fcb467b05cae008638828fd94c87018d291741bdb20b7e2451462206b6d1208a"
+    },
+    {
+      "path": "dev/firmware/gateway/ota.c",
+      "status": "modified",
+      "normalizedSourceSha256": "6b45f463bbd36c0690ce7a09bb4b2e707ebc6792d491754182ba43cd1c3f258d"
+    },
+    {
+      "path": "dev/firmware/gateway/prepare_lwip.py",
+      "status": "modified",
+      "normalizedSourceSha256": "4e2deb70a8ae693bd30a6577fa74c74d56b04f02ba219fb8ba59e9fabb7d3bf8"
+    },
+    {
+      "path": "dev/firmware/gateway/PROTOCOL.md",
+      "status": "modified",
+      "normalizedSourceSha256": "47bbe26c79b80b1f1fe51df3d9f6af69895cd9fabf9b2c25cf87ec53f3cd162e"
+    },
+    {
+      "path": "dev/firmware/gateway/radio_control.c",
+      "status": "modified",
+      "normalizedSourceSha256": "689ff9c611280325a85789fb8d33a223fe6c6c8e39910170cdfd32733322dabd"
+    },
+    {
+      "path": "dev/firmware/gateway/relay_recovery.c",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "de5a47d30bdcc6e09d835bf0c2ed22f08c609cb5063ea72019195af8bcc07e76"
+    },
+    {
+      "path": "dev/firmware/gateway/routed_lan.c",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "d27526ac0de669e847358aadd4ff7289a1190e05d57b7a0f2d089e3cf64897cb"
+    },
+    {
+      "path": "dev/firmware/main/bench.c",
+      "status": "modified",
+      "normalizedSourceSha256": "fc90f4d6518e28c619c51cea530cb35f594680b4d0881c5d490ca75b68c3d800"
+    },
+    {
+      "path": "dev/firmware/main/CMakeLists.txt",
+      "status": "modified",
+      "normalizedSourceSha256": "fb30f42079eaf4f381e2904d02e06ccf59d81918020b2dc6ba2f3193d5e012b8"
+    },
+    {
+      "path": "dev/firmware/main/gateway_lan.inc",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "8d6b6423cc5b2e1ee4996524ad21554e258327260cdff749b9d2e2abbe6d23e8"
+    },
+    {
+      "path": "dev/firmware/main/gateway_main.c",
+      "status": "modified",
+      "normalizedSourceSha256": "0d307a72215e9f497d208c6498a0cc01c45052b7862d353b1ea3e45d490248a7"
+    },
+    {
+      "path": "dev/firmware/main/gateway_ota.c",
+      "status": "modified",
+      "normalizedSourceSha256": "6496eadd05ce8b46220493a84096297c3034132cad8d4fed0df9cf95159161ce"
+    },
+    {
+      "path": "dev/firmware/main/gateway_ota.h",
+      "status": "modified",
+      "normalizedSourceSha256": "837f362dc821194080c7bf4bb2a6f5fc145aab36e2acc1a7fcc770b80260fd8a"
+    },
+    {
+      "path": "dev/firmware/main/gateway_ota_build.c",
+      "status": "modified",
+      "normalizedSourceSha256": "36589fc1fc5f7695629377da5075518770c628020f79560183ccbc9f286c8235"
+    },
+    {
+      "path": "dev/firmware/main/Kconfig.projbuild",
+      "status": "modified",
+      "normalizedSourceSha256": "a4202507208d79261cc2ce62746c3dd5cf2bcded7773ae708f5a8872312a309b"
+    },
+    {
+      "path": "dev/firmware/main/link.c",
+      "status": "modified",
+      "normalizedSourceSha256": "1762b2fd11f85aafe91852220034b9e0f6ff34baab70a7be7187a47cce0da119"
+    },
+    {
+      "path": "dev/firmware/main/link.h",
+      "status": "modified",
+      "normalizedSourceSha256": "f91ea3aad3a7108e875fc581de0cc3d441634235add1aa61cd049ff3cd797299"
+    },
+    {
+      "path": "dev/firmware/main/link_credentials.c",
+      "status": "modified",
+      "normalizedSourceSha256": "dcbf2671670707cc14d403f8a45a27d6435c1ee3bfb141ec0433801b30a13f5a"
+    },
+    {
+      "path": "dev/firmware/main/link_credentials.h",
+      "status": "modified",
+      "normalizedSourceSha256": "0a2e15c612d8120a9b61921b948f2173ec577099782985439a18652971a7a83c"
+    },
+    {
+      "path": "dev/firmware/main/link_setup.c",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "96580f87efc26ff0ecfc07f393a7facbe0a958a24ab89f36a3c346774b035732"
+    },
+    {
+      "path": "dev/firmware/main/link_setup.h",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "cc86e422be75fc36bb98228996647e3615ec2f45f071437dd3cb80467b1f6782"
+    },
+    {
+      "path": "dev/firmware/main/messages.c",
+      "status": "modified",
+      "normalizedSourceSha256": "a094a6cc016617549a589bc26ee8f90c2159226c25bf501903bc35993b46db4f"
+    },
+    {
+      "path": "dev/firmware/main/node_profile.c",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "66bdda048df6610a30bb17261f4b13bec198689fedb6c7fe905441f0bec08416"
+    },
+    {
+      "path": "dev/firmware/main/node_profile.h",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "efb29a61d38caa4be5e5b4234f8e38a8b4242d0d760fb35bfefcce869366feb5"
+    },
+    {
+      "path": "dev/firmware/main/relay_mode.c",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "c05064cc16392773624ca029312475edd4d6218f312678a3d4845e9da6a83ed2"
+    },
+    {
+      "path": "dev/firmware/main/relay_mode.h",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "5b0b1599f1e0782d1ebe070fd43009deee8635651e2d72db81463612062e9e0a"
+    },
+    {
+      "path": "dev/firmware/main/relay_status.c",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "c55e638dccf29968b6c9c49cc8406e69cadbe222226846880806a9c266c80bf8"
+    },
+    {
+      "path": "dev/firmware/main/relay_status.h",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "8d56fb27b36a6f9661db85cb3d44bcfffb0c68cac96938743eb0e1609e5a3a92"
+    },
+    {
+      "path": "dev/firmware/sdk-upstream-lock.json",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "a1dc08ccf96b60e1aa7892d24c15e8c9f317e503b659996e275613cf070215b5"
+    },
+    {
+      "path": "dev/firmware/tools/build.sh",
+      "status": "modified",
+      "normalizedSourceSha256": "e261862c02d3e08accbedd6c858571262b239f47b459d48ae620d551a657cbe3"
+    },
+    {
+      "path": "dev/firmware/tools/node_setup.py",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "a39864669d5dc4308bc0966ee98c15f8fd184362c268644b514d31337352769f"
+    },
+    {
+      "path": "dev/firmware/tools/ota_build_meta.py",
+      "status": "modified",
+      "normalizedSourceSha256": "91f6e1ae31d63d4fead6559bd9a68005ff8d98e442104b2ce80daf2b79bc2341"
+    },
+    {
+      "path": "dev/firmware/tools/ota_check_image.py",
+      "status": "modified",
+      "normalizedSourceSha256": "baf23f1e0b1a0a4370b1b0437f61aa102d68e057f84cfa2ee7479e504d39f257"
+    },
+    {
+      "path": "dev/firmware/tools/prepare_upstream.py",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "fd7592b4b08f27bef666ebe9f90ca9c79adea5d4310087dfd3eabe44aa167235"
+    },
+    {
+      "path": "dev/firmware/tools/sdk_inventory.py",
+      "status": "modified",
+      "normalizedSourceSha256": "84723cd60bdcedd8d017b0447a008e63a01b771c031e6bb5d7a5d878c41cd750"
+    },
+    {
+      "path": "dev/firmware/tools/test_prepare_upstream.py",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "8882d4ca770f6ae14a1b0d1d326f8cfb0797bbb3be8d4015968a09c7dcec5f0d"
+    },
+    {
+      "path": "dev/firmware/tools/upstream-patches/001-relay-sources.patch",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "a6909eedb0015f2dde9ad3174963fb1627d80c1e3ddcbc5d746761c7b0f36bd7"
+    },
+    {
+      "path": "dev/firmware/tools/upstream-patches/002-root-host-tx-vif.patch",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "f3249a63a21171c5f7529735996cf66038f119c3c3c1a4343542b303296c8324"
+    },
+    {
+      "path": "dev/firmware/tools/upstream-patches/003-relay-ap-teardown-address.patch",
+      "status": "untracked-shared-source",
+      "normalizedSourceSha256": "efd3d57613d44d3369af5fd5dcd3ef011781aef05684a6e101721697addbc439"
+    }
+  ]
+}
