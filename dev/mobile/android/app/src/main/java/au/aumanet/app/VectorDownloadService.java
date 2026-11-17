@@ -49,7 +49,7 @@ public final class VectorDownloadService extends Service {
     @Override public void onCreate(){super.onCreate();if(Build.VERSION.SDK_INT>=26)getSystemService(NotificationManager.class).createNotificationChannel(new NotificationChannel(CHANNEL,"Offline vector maps",NotificationManager.IMPORTANCE_LOW));}
     @Override public int onStartCommand(Intent intent,int flags,int startId){
         if(intent==null){stopSelf(startId);return START_NOT_STICKY;}
-        if(CANCEL.equals(intent.getAction())){cancel(intent.getStringExtra("jobId"));return START_NOT_STICKY;}
+        if(CANCEL.equals(intent.getAction())){cancel(intent.getStringExtra("jobId"));if(owned==null&&!running())stopSelf(startId);return START_NOT_STICKY;}
         Job job;synchronized(LOCK){job=current;}
         if(!START.equals(intent.getAction())||job==null||!job.running||!job.id.equals(intent.getStringExtra("jobId"))){if(owned==null)stopSelf(startId);return START_NOT_STICKY;}
         if(owned!=null)return START_NOT_STICKY;owned=job;

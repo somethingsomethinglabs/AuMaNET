@@ -15,6 +15,7 @@ public final class VectorMapsPlugin extends Plugin {
     private final ExecutorService worker=Executors.newSingleThreadExecutor();
     private volatile boolean ready;
     @Override public void load(){worker.execute(()->{synchronized(VectorDownloadService.LOCK){try{VectorDownloadService.status(getContext());if(!VectorDownloadService.running())VectorRegions.cleanStaging(VectorDownloadService.root(getContext()));ready=true;}catch(Exception ignored){}}});}
+    @Override protected void handleOnDestroy(){worker.shutdown();}
     private JSObject state()throws Exception{JSArray regions=new JSArray();for(JSONObject m:VectorRegions.list(VectorDownloadService.root(getContext())))regions.put(VectorRegions.summary(m));JSObject job=VectorDownloadService.status(getContext());return new JSObject().put("schema","aumanet.vector-maps.v1").put("ready",ready).put("regions",regions).put("job",job==null?JSONObject.NULL:job);}
     @PluginMethod public void snapshot(PluginCall call){worker.execute(()->{try{call.resolve(state());}catch(Exception e){call.reject("Offline vector storage is unavailable");}});}
     @PluginMethod public void download(PluginCall call){
