@@ -1,0 +1,10 @@
+import {mkdir,mkdtemp,readFile,writeFile} from 'node:fs/promises';
+import {resolve,join,delimiter} from 'node:path';import {spawnSync} from 'node:child_process';import {createHash} from 'node:crypto';
+const root=resolve(import.meta.dirname,'../..'),output=join(root,'dev/artifacts/offline-enrollment-host');await mkdir(output,{recursive:true});const run=await mkdtemp(join(output,'run-'));
+const jdk=process.env.JAVA_HOME;if(!jdk)throw Error('Set JAVA_HOME to JDK21');
+function command(name,args){const r=spawnSync(join(jdk,'bin',name+'.exe'),args,{encoding:'utf8',windowsHide:true,timeout:60000});if(r.error||r.status!==0)throw Error(name+' failed: '+(r.stderr||r.error));return r.stdout;}
+const manifest=JSON.parse(await readFile(join(root,'dev/tests/native-group-messages-store/dependencies.json'),'utf8')).dependencies.find(d=>d.name==='org.json'),jar=join(root,'dev/artifacts/group-messages',manifest.file),bytes=await readFile(jar);if(createHash('sha256').update(bytes).digest('hex')!==manifest.sha256)throw Error('Test dependency changed');
+for(const name of ['owner','member'])command('keytool',['-genkeypair','-alias','fixture','-keyalg','EC','-groupname','secp256r1','-dname','CN=Disposable enrollment test','-validity','2','-storetype','PKCS12','-storepass','fixture-only','-keypass','fixture-only','-keystore',join(run,name+'.p12')]);
+const sources=['GroupNamePolicy','GroupNameJson','GatewayPublicKeyPolicy','GroupOfflineEnrollment'].map(n=>join(root,'dev/mobile/android/app/src/main/java/au/aumanet/app',n+'.java')).concat(join(root,'dev/tests/OfflineEnrollmentTest.java'));
+command('javac',['-cp',jar,'-d',run,...sources]);const result=JSON.parse(command('java',['-cp',[run,jar].join(delimiter),'au.aumanet.app.OfflineEnrollmentTest',join(run,'owner.p12'),join(run,'member.p12')]));
+result.scope='Production enrollment parsing/signatures with real P256 X509 keys; no Android/USB/phone acceptance';await writeFile(join(output,'result.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));

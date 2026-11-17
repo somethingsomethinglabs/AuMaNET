@@ -1,0 +1,112 @@
+apply plugin: 'com.android.application'
+apply from: '../capacitor-lifecycle-overlay.gradle'
+
+android {
+    namespace = "au.aumanet.app"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "au.aumanet.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "0.1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+            noCompress 'pmtiles'
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    maven {
+        url 'https://jitpack.io'
+        content { includeGroup 'com.github.gkonovalov.android-vad' }
+    }
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+configurations {
+    voiceLabAudit { canBeConsumed = false; transitive = false }
+    voiceDetectorAudit { canBeConsumed = false; transitive = false }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation('androidx.webkit:webkit:1.14.0') { version { strictly '1.14.0' } }
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+    // Bounded native voice experiment. No media library/service in release builds.
+    debugImplementation('io.github.webrtc-sdk:android:150.7871.04') { version { strictly '150.7871.04' } }
+    voiceLabAudit 'io.github.webrtc-sdk:android:150.7871.04@aar'
+    debugImplementation('com.github.gkonovalov.android-vad:webrtc:2.0.10') { version { strictly '2.0.10' } }
+    voiceDetectorAudit 'com.github.gkonovalov.android-vad:webrtc:2.0.10@aar'
+}
+
+apply from: 'capacitor.build.gradle'
+
+tasks.register('verifyVoiceLabArtifact') {
+    doLast {
+        def artifact = configurations.voiceLabAudit.singleFile
+        def actual = java.security.MessageDigest.getInstance('SHA-256').digest(artifact.bytes).encodeHex().toString()
+        if (actual != '1872dda4e3bf7d6ea6f7c6e11861332081c57081a1e62fc82fab72415c69c84c')
+            throw new GradleException('Native voice lab AAR checksum mismatch')
+    }
+}
+tasks.configureEach { if (name == 'preDebugBuild') dependsOn 'verifyVoiceLabArtifact' }
+
+tasks.register('verifyVoiceDetectorArtifact') {
+    doLast {
+        def artifact = configurations.voiceDetectorAudit.singleFile
+        def actual = java.security.MessageDigest.getInstance('SHA-256').digest(artifact.bytes).encodeHex().toString()
+        if (actual != '9af5ed5185b97dd4832d9cf41e7f1d7d11367760d5011689b5e32b8fee073db4')
+            throw new GradleException('Native speech detector AAR checksum mismatch')
+    }
+}
+tasks.configureEach { if (name == 'preDebugBuild') dependsOn 'verifyVoiceDetectorArtifact' }
+
+// Reviewed native VPN engine is local and immutable: no build-time downloads.
+tasks.register('verifyInternetNativeArtifact') {
+    doLast {
+        def lock = new groovy.json.JsonSlurper().parse(file('internet-native-lock.json'))
+        if (lock.schema != 'aumanet.internet-native.v1' || lock.platform != 29 || lock.ndk != 'r27d' ||
+            lock.abis.keySet() != ['arm64-v8a','armeabi-v7a','x86','x86_64'].toSet())
+            throw new GradleException('Native internet lock contract changed')
+        def checksum = { target -> java.security.MessageDigest.getInstance('SHA-256').digest(target.bytes).encodeHex().toString() }
+        lock.abis.each { abi, expected ->
+            def library = file("src/main/jniLibs/${abi}/libhev-socks5-tunnel.so")
+            if (!library.isFile() || checksum(library) != expected)
+                throw new GradleException("Native internet engine checksum mismatch: ${abi}")
+        }
+        def notices = file('src/main/res/raw/internet_native_notices.txt')
+        if (!notices.isFile() || checksum(notices) != lock.noticeSha256)
+            throw new GradleException('Native internet notices checksum mismatch')
+    }
+}
+tasks.configureEach { if (name == 'preBuild') dependsOn 'verifyInternetNativeArtifact' }
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
+

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 470" role="img" aria-label="Offline terrain illustration. Sample member positions." preserveAspectRatio="xMidYMid slice">
+    <defs><pattern id="contours" width="140" height="115" patternUnits="userSpaceOnUse"><path d="M-30 95Q25-5 70 35T170 40M-35 105Q25 5 70 45T175 50M-40 115Q25 15 70 55T180 60M-45 125Q25 25 70 65T185 70M-50 135Q25 35 70 75T190 80M-55 145Q25 45 70 85T195 90" fill="none" stroke="#8fa67a" stroke-width=".7"/></pattern><radialGradient id="hill"><stop stop-color="#94b27f"/><stop offset="1" stop-color="#dce3b5"/></radialGradient></defs>
+    <rect width="420" height="470" fill="#dce3b5"/>
+    <g transform="translate(210 235) scale(1) translate(-210 -235)">
+      <ellipse cx="300" cy="150" rx="210" ry="250" fill="url(#hill)"/><ellipse cx="40" cy="400" rx="190" ry="200" fill="url(#hill)"/>
+      <rect x="-500" y="-500" width="1400" height="1500" fill="url(#contours)"/>
+      <path d="M-20 360Q70 295 125 335T220 285T300 220T450 185" fill="none" stroke="#8bbcc3" stroke-width="5"/>
+      <path d="M70 480Q115 390 95 310T170 215T195 110T240-20" fill="none" stroke="#f8f3dc" stroke-width="9"/>
+      <path d="M70 480Q115 390 95 310T170 215T195 110T240-20" fill="none" stroke="#997e59" stroke-width="3" stroke-dasharray="5 6"/>
+      <path d="M95 310Q210 350 280 275T440 330" fill="none" stroke="#f8f3dc" stroke-width="7"/>
+      <path d="M95 310Q210 350 280 275T440 330" fill="none" stroke="#997e59" stroke-width="2" stroke-dasharray="4 5"/>
+      <text x="260" y="75" fill="#496040" font-size="16" font-style="italic">Victorian</text><text x="250" y="94" fill="#496040" font-size="16" font-style="italic">High Country</text>
+      <text x="248" y="176" fill="#46613c" font-size="11">▲ Mt Semaphore</text><text x="280" y="190" fill="#46613c" font-size="10">1,917 m</text>
+      <text x="25" y="260" fill="#775f40" font-size="12" transform="rotate(-12 25 260)">Howqua Track</text>
+      <text x="20" y="378" fill="#437a8c" font-size="12" font-style="italic">Howqua River</text>
+      
+    </g>
+  </svg>

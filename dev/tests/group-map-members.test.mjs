@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {pathToFileURL} from 'node:url';
+import ts from 'typescript';
+const output=resolve('dev/artifacts/group-map-members');await mkdir(output,{recursive:true});
+const source=await readFile('dev/app/src/lib/maps/group-members.ts','utf8');
+const modulePath=resolve(output,'group-members.mjs');await writeFile(modulePath,ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText);
+const {groupMapMembers}=await import(pathToFileURL(modulePath));
+const fix={latitude:-37,longitude:146,accuracy:10,timestamp:1,ageMs:15000};
+const group={group:{id:'fixture'},status:'connected',identity:{id:'self'},members:[{id:'self',name:'You',connected:true,sharingLocation:true,fix},{id:'peer',name:'Peer',connected:true,sharingLocation:true,fix},{id:'no-fix',name:'No fix',connected:true,sharingLocation:false}]};
+test('cached peer observation continues ageing without device wall-clock comparisons',()=>{const initial=groupMapMembers(group,0),later=groupMapMembers(group,50000);assert.equal(initial[0].ageMs,15000);assert.equal(later[0].ageMs,65000);assert.equal(later[0].fix,fix);assert.equal(fix.ageMs,15000);assert.equal(later[1].fix,undefined);assert.equal(later[1].ageMs,Infinity);assert.equal(later.length,2);});
+test('bridge failure and disconnected group cannot present a current peer fix',()=>{for(const members of [groupMapMembers(group,1,true),groupMapMembers({...group,status:'interrupted'},1)]){assert.equal(members[0].connected,false);assert.equal(members[0].locationActive,false);assert.equal(members[0].fix,fix);assert.equal(members[1].fix,undefined);}});
+test('group switch clears old members and invalid elapsed time cannot invent a current age',()=>{assert.deepEqual(groupMapMembers(undefined,0),[]);assert.deepEqual(groupMapMembers({...group,group:undefined},0),[]);for(const elapsed of [-1,NaN,Infinity])assert.equal(groupMapMembers(group,elapsed)[0].ageMs,Infinity);assert.equal(groupMapMembers({...group,members:[group.members[0]]},0).length,0);});

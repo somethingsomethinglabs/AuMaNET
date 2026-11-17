@@ -1,0 +1,1 @@
+package android.system;import java.io.*;public final class Os{public static int syncCount;public static FileDescriptor open(String path,int flags,int mode)throws Exception{if(!new File(path).isDirectory())throw new IOException("Not a directory");return new FileDescriptor();}public static void fsync(FileDescriptor fd){syncCount++;}public static void close(FileDescriptor fd){}}

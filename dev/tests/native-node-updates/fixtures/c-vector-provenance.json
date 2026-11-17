@@ -1,0 +1,12 @@
+{
+  "scope": "Replacement for missing original C vector fixtures; genuine archived production-C-generated signed wire report, not newly fabricated data",
+  "sourceDirectory": "dev/artifacts/gateway-ota15-host/c-vector",
+  "files": {
+    "c-status-report.bin": {"source": "report.bin", "sha256": "272d1dce83d86bd1745964feb78d36ecfe874fe0da03572c34483ab71cae8adb"},
+    "c-node-public.der": {"source": "node-public.der", "sha256": "bea024c4e11a338561feb3a656c5680ebb3fe39bc296890fd25a247666f8055c"}
+  },
+  "missingOriginalHashes": {
+    "c-status-report.bin": "0e1e05b21845cdf7b03ffa90a00276756b441e2c7895afdab62821c582ebdfd6",
+    "c-node-public.der": "90ac89dc293a42d2698c70e581655f26c2a6b90374e2ed3782e2cbcbabd98a9e"
+  }
+}

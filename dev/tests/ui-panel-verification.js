@@ -1,0 +1,71 @@
+async (page) => {
+  const check = (ok, message) => { if (!ok) throw new Error(message); };
+  const button = name => page.getByRole('button', {name, exact:true});
+  const nav = name => page.getByRole('navigation').getByRole('button',{name,exact:true}).click();
+  const fitsMain = locator => locator.evaluate(el => {
+    const box=el.getBoundingClientRect(), main=document.querySelector('main').getBoundingClientRect();
+    return box.top>=main.top && box.bottom<=main.bottom;
+  });
+  await page.setViewportSize({width:412,height:915});
+  await nav('Map');
+  await button('View all 4 group members').click();
+  const roster=page.getByRole('dialog',{name:'Group members',exact:true});
+  check(await roster.isVisible(),'Map roster did not open');
+  check(await roster.getByText('Jess',{exact:true}).isVisible(),'Disconnected member missing');
+  check(await roster.getByText('No current position available',{exact:true}).isVisible(),'Missing-position state absent');
+  check(await roster.getByRole('button',{name:/Alex/}).isVisible(),'Connected member shortcut missing');
+  await roster.getByRole('button',{name:/Alex/}).click();
+  check(await page.getByText(/Sample fix · 2 min ago/).isVisible(),'Roster did not open Alex details');
+  await button('Close member details').click();
+  await button('View all 4 group members').click();
+  await page.keyboard.press('Escape');
+  check(await page.getByRole('dialog').count()===0,'Roster Escape dismissal failed');
+
+  for(const width of [320,360,412]) {
+    await page.setViewportSize({width,height:740});
+    await nav('Voice');
+    await button('Push to talk').click();
+    check(await fitsMain(button('Hold to talk')),'Talk control below viewport at '+width);
+    await button('Hold to talk').focus();
+    await page.keyboard.down('Space');
+    check(await button('Transmitting · Demo').isVisible(),'Keyboard PTT start failed');
+    await page.keyboard.up('Space');
+    check(await button('Hold to talk').isVisible(),'Keyboard PTT release failed');
+    await button('Mute').click();
+    check(await button('Hold to talk').isDisabled(),'Mute failed to block PTT');
+    await nav('Map');
+    check(await page.locator('.strip-title').getByText('Mic muted',{exact:true}).isVisible(),'Persistent mute state unclear');
+    check(await fitsMain(button('View all 4 group members')),'Map roster clipped at '+width);
+    check(await page.locator('.voice-strip').evaluate(el=>el.scrollWidth<=el.clientWidth),'Voice strip overflow at '+width);
+    await button('Unmute microphone').click();
+    await nav('Voice');
+    await button('Always on').click();
+    await nav('Map');
+    check(await page.locator('.strip-title').getByText('Mic on · Voice activated',{exact:true}).isVisible(),'Automatic microphone state unclear');
+    check(await page.locator('main').evaluate(el=>el.scrollWidth<=el.clientWidth),'Main overflow at '+width);
+    await button('View all 4 group members').click();
+    check(await page.getByRole('dialog').evaluate(el=>el.scrollWidth<=el.clientWidth && el.getBoundingClientRect().bottom<=innerHeight),'Roster overflow at '+width);
+    await button('Close dialog').click();
+  }
+  await page.setViewportSize({width:412,height:915});
+  await nav('Map');
+  await page.screenshot({path:'output/playwright/after-map.png'});
+  await button('View all 4 group members').click();
+  await page.screenshot({path:'output/playwright/after-roster.png'});
+  await page.getByRole('dialog').getByRole('button',{name:/Alex/}).click();
+  await page.screenshot({path:'output/playwright/after-member.png'});
+  await button('Close member details').click();
+  await nav('Voice');
+  await page.screenshot({path:'output/playwright/after-voice-auto.png'});
+  await button('Push to talk').click();
+  await page.screenshot({path:'output/playwright/after-voice.png'});
+  await button('Mute').click();
+  await page.screenshot({path:'output/playwright/after-voice-muted.png'});
+  await button('Unmute').click();
+  await nav('Messages');
+  await page.screenshot({path:'output/playwright/after-messages.png'});
+  await nav('Network');
+  await page.screenshot({path:'output/playwright/after-network.png'});
+  await nav('Map');
+  return 'PASS: roster contents, member selection, Escape, PTT visibility/keyboard/mute, explicit mic state and overflow at 320/360/412 × 740; walkthrough captures at 412 × 915.';
+}

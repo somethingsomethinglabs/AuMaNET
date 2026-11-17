@@ -1,0 +1,18 @@
+LibriSpeech speech reference 2277-149896-0026
+LibriSpeech (c) 2014 by Vassil Panayotov.
+Source: https://www.openslr.org/12/
+Archive: https://www.openslr.org/resources/12/dev-clean.tar.gz
+Entry: LibriSpeech/dev-clean/2277/149896/2277-149896-0026.flac
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+Copyright/license notice is retained in LICENSE.txt.
+
+Changes: lossless FLAC decoded to 16-bit mono PCM and resampled from 16 kHz
+to 48 kHz by Chromium's OfflineAudioContext. No transcript/book text is bundled.
+See manifest.json for exact source/derived hashes, browser version and tool.
+The debug helper may add silence, reduce gain or add deterministic test noise.
+Those are additional test transformations of this CC-BY-4.0 reference.
+
+This is a licensed recording for controlled code tests, not the phone's actual
+microphone audio and not an acoustic quality or personalized isolation result.
+The fixture is debug-only and is not enabled by loading the app or joining voice.

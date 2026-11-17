@@ -1,0 +1,22 @@
+{
+  "schema": "aumanet.internet-native.v1",
+  "source": "https://github.com/heiher/hev-socks5-tunnel",
+  "commits": {
+    ".": "786edc86f92e17e91d180f43f1f70cd323f6a243",
+    "src/core": "b43fa857fb39c854da01d13bc55eded66b4f4a3b",
+    "third-part/hev-task-system": "ded55c412b3951bc7decb5cb3b9135701e762998",
+    "third-part/lwip": "8115cd6150ab32500db3d4d8bd8ad7ec6648534c",
+    "third-part/yaml": "0c82efd10dc67b9e7f159d2c7f5d1dc3c1b5bc11"
+  },
+  "ndk": "r27d",
+  "ndkZipSha256": "601246087a682d1944e1e16dd85bc6e49560fe8b6d61255be2829178c8ed15d9",
+  "platform": 29,
+  "abis": {
+    "arm64-v8a": "6a4fdbf1117063d01d7f4868c193b0cf1c39c70afc0cfab0aef8a365b0ee4f83",
+    "armeabi-v7a": "434bc463e507330767ae9619368aac891c84b73581512d0fef22bfda8ecb5f79",
+    "x86": "cc616d07e5462d3b22280ea4becbb785eb60b393661ce3f492dd9818a077ce1c",
+    "x86_64": "1c23b3311f648a21b35fd9690bf31cd838085745993c521adc9521ffcf03494d"
+  },
+  "upstreamUnmodified": true,
+  "noticeSha256": "82d3bd2647993c52cca29270929f359a04a191d59daa149ebbd9ef1bc50f4084"
+}

@@ -1,0 +1,6 @@
+/** Presentation values projected from checked native capabilities/readbacks.
+ * This layer never creates an option or treats a proposed value as applied. */
+export interface RadioSettingOption{readonly id:number;readonly channel:number;readonly operatingClass:number;readonly globalOperatingClass:number;readonly bandwidthMHz:number;readonly centerFrequencyHz:number;}
+export interface RadioNodeView{readonly id:string;readonly name:string;readonly channel?:number;readonly bandwidthMHz?:number;readonly centerFrequencyHz?:number;readonly fresh:boolean;readonly associated:boolean;readonly reportLabel:string;}
+export function radioSettingLabel(value:Pick<RadioSettingOption,'channel'|'bandwidthMHz'|'centerFrequencyHz'>){return`Channel ${value.channel} · ${value.bandwidthMHz} MHz · ${new Intl.NumberFormat(undefined,{maximumFractionDigits:3}).format(value.centerFrequencyHz/1e6)} MHz`;}
+export function matchingRadioNodes(nodes:readonly RadioNodeView[]){if(nodes.length!==2||nodes.some(node=>!node.fresh||!node.associated||node.channel===undefined||node.bandwidthMHz===undefined||node.centerFrequencyHz===undefined))return false;const[a,b]=nodes;return a.channel===b.channel&&a.bandwidthMHz===b.bandwidthMHz&&a.centerFrequencyHz===b.centerFrequencyHz;}
