@@ -60,6 +60,10 @@ jobs:
       - run: npm run check -w @aumanet/app
       - run: node --test dev/tests/map-connections.test.mjs dev/tests/vector-map-contract.test.mjs dev/tests/vector-downloads.test.mjs
       - run: node dev/tests/native-vector-downloads.mjs
+      - name: Verify preserved message storage and trusted connection recovery
+        run: |
+          node dev/tests/native-group-messages-store.mjs --jdk "$JAVA_HOME" --output output/native-message-store
+          node dev/tests/native-trusted-connection.mjs --jdk "$JAVA_HOME" --output output/native-trusted-connection
       - run: npm run sync -w @aumanet/mobile
       - name: Install Android platform
         run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0"'

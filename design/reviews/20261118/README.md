@@ -2,6 +2,8 @@
 
 This change applies the reference principles to the existing prototype rather than replacing working flows without evidence. It is a reviewed UI improvement pass, **not complete product acceptance**.
 
+Follow-up after the user confirmed Nothing 3a → B / Z Flip → A: both actual node attachments are verified. The [gateway retry addendum](gateway-retry-addendum.md) records refreshed checked boot metadata, a newly discovered and fixed endless verification retry, its physical regression check, and the still-blocked authenticated node proof. Its APK identity supersedes the initial UI candidate below.
+
 ## Why these patterns apply
 
 [Reference principles](reference-principles.md) answers why each of Apple, Airbnb, Google Maps, Stripe, Canva, Spotify, Duolingo, Uber and Nintendo is useful, what the earlier screenshots do and do not establish, and where each pattern maps to AuMaNET. Nielsen's heuristics explain task behavior; Gestalt grouping explains perceived relationships. Neither brand reputation nor a screenshot establishes end-to-end usability.

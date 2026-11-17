@@ -197,9 +197,18 @@ final class TrustedConnectionController {
         GatewayLeaseIssuer issuer=GatewayLeaseIssuer.get(context);
         org.json.JSONObject expected=new org.json.JSONObject().put("processId",scope.process).put("groupId",scope.group).put("epoch",scope.epoch).put("ownerPin",scope.self);
         GatewayOwnerAuthority.Scope live=issuer.capture(expected,true);GatewayLeaseIssuer.Job existing=issuer.current();long now=SystemClock.elapsedRealtime();
+        // One explicit connection intent owns one gateway startup. Losing that
+        // exact job (including bootstrap proof timeout) requires review; polling
+        // must not silently emit a fresh original-run bootstrap every ten seconds.
+        if(job.gatewayJob!=null&&existing!=job.gatewayJob)throw new IllegalStateException("Previous gateway field session ended; verify the node before explicitly reconnecting");
         if(existing!=null){
             if(issuer.owns(existing)&&existing.scope.same(live,true)){job.gatewayOwned=job.gatewayOwned&&job.gatewayJob==existing;job.gatewayJob=existing;job.gatewayWait=0;return issuer.ownerReady(existing);}
-            if(job.gatewayOwned&&job.gatewayJob==existing)issuer.stop(existing.session.id,existing.session.generation,"");
+            if(job.gatewayOwned&&job.gatewayJob==existing){
+                // A verified group/network scope switch deliberately retires
+                // our old transport; permit its bounded replacement, not an
+                // unrelated failed or externally replaced field session.
+                if(!issuer.stop(existing.session.id,existing.session.generation,""))throw new IllegalStateException("Previous gateway field session ended before its scope switch");job.gatewayJob=null;job.gatewayOwned=false;
+            }
             if(job.gatewayWait==0)job.gatewayWait=now;if(now-job.gatewayWait>=5000)throw new IllegalStateException("Previous gateway owner has not stopped");return false;
         }
         if(!issuer.snapshot().getBoolean("canStartConfigured")){if(job.gatewayWait==0)job.gatewayWait=now;if(now-job.gatewayWait>=5000)throw new IllegalStateException("Checked gateway renewal unavailable");return false;}
