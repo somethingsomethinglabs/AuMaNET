@@ -3,6 +3,7 @@
 A functional recreation of AuMaNET designed from a neutral requirements brief. This is an isolated browser prototype; it is not wired into the Android application.
 
 - [Run the prototype and read its design rationale](prototype/README.md)
+- [App-only mobile preview](prototype/mobile.html) with portrait/landscape rotation
 - [Captured screenshot gallery](prototype/gallery.html) and [individual screenshots](prototype/screenshots/)
 - [Functional requirements: 124 requirements and 21 scenarios](requirements-brief.md)
 - [Prototype coverage and limits](prototype/COVERAGE.md)

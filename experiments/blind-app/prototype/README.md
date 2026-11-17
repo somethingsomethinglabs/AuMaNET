@@ -11,7 +11,9 @@ Set-Location 'C:\Users\rowan\Documents\projects\AuMaNET\experiments\blind-app\pr
 node server.mjs
 ```
 
-Open [the prototype](http://127.0.0.1:4317/), [the captured screenshot gallery](http://127.0.0.1:4317/gallery.html), or [the four-screen live showcase](http://127.0.0.1:4317/showcase.html). The server binds only to `127.0.0.1`. Stop it with Ctrl+C. Set the `PORT` environment variable before starting if port 4317 is already in use.
+Open [the mobile preview](http://127.0.0.1:4317/mobile.html), [the full browser prototype](http://127.0.0.1:4317/), [the captured screenshot gallery](http://127.0.0.1:4317/gallery.html), or [the four-screen live showcase](http://127.0.0.1:4317/showcase.html). The server binds only to `127.0.0.1`. Stop it with Ctrl+C. Set the `PORT` environment variable before starting if port 4317 is already in use.
+
+The mobile preview contains only the live app in a phone frame and an icon-only rotate button. Portrait uses a 390×844 viewport; landscape uses 844×390 and keeps mobile navigation. The frame scales to fit the available pane. Rotation resizes the existing session without reloading it. It uses the ordinary prototype's saved state; navigation updates the preview URL. Add `?orientation=landscape` to open sideways, or a route such as `#chat` to open a specific screen.
 
 When copied into another checkout, run `node server.mjs` from that checkout's prototype directory; every asset uses a relative URL. Opening `index.html` as `file://` is not supported because the app uses ES modules.
 
@@ -52,6 +54,7 @@ The normal first launch opens a fictional populated group so the proof of concep
 | `/#roadmap` | All six future / physical-evidence boundaries, explicitly not delivered promises |
 | `/?fresh=1#onboarding` | Fresh offline profile in a separate local storage namespace |
 | `/showcase.html` | Four **actual live app screens** in phone frames, each with isolated ephemeral state |
+| `/mobile.html` | One live app in a phone frame, with portrait/landscape rotation and no surrounding explanatory content |
 
 Useful screenshot sizes are 1440×1000 (desktop), 390×844 (phone), and 844×390 (landscape). The main navigation becomes a fixed bottom bar on phones. Screenshot routes are view states, not flattened mockups; all use the same application renderer.
 
@@ -90,7 +93,7 @@ All artwork is local SVG/code. Typography uses system Arial and Georgia, so the 
 
 ## Files
 
-`index.html` is the entry point; `app.mjs` renders routes and dialogs; `model.mjs` owns transitions; `persistence.mjs` checks writes before accepting changes; `styles.css` is responsive styling; `art.mjs` contains original map/footbridge SVGs; `server.mjs` serves loopback-only static assets; `showcase.html` embeds isolated live screens; `tests/*.test.mjs` contains the model and persistence checks.
+`index.html` is the app entry point; `mobile.html`, `mobile.css` and `mobile.mjs` provide the rotatable phone preview; `app.mjs` renders routes and dialogs; `model.mjs` owns transitions; `persistence.mjs` checks writes before accepting changes; `styles.css` is responsive styling; `art.mjs` contains original map/footbridge SVGs; `server.mjs` serves loopback-only static assets; `showcase.html` embeds isolated live screens; `tests/*.test.mjs` contains the model and persistence checks.
 
 ## Source boundary
 

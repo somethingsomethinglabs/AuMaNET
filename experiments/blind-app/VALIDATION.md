@@ -56,6 +56,14 @@ The focused browser check used a separate local origin on port 4318 and only fic
 
 This follow-up is limited to the standalone prototype. It remains review-only on PR #13, with no integration or device testing.
 
+## Mobile preview follow-up
+
+The requested app-only preview wraps the live application in a 390×844 phone viewport, or 844×390 in landscape, with one icon-only rotate control. Landscape keeps the mobile navigation. Rotation resizes the same iframe; an open conversation dialog remained open through rotation, and subsequent navigation updated the parent URL. This preview uses the existing local session, not showcase fixtures.
+
+Browser inspection verified both orientations in a 1280×900 pane and the default narrow pane, plus automatic fitting at 320×640. The outer page and inspected conversation viewport had no horizontal overflow. The wrapper rendered no surrounding text. The viewport override was reset and the live preview was left open in portrait. Captures are `prototype/screenshots/mobile-preview-portrait.jpg` and `prototype/screenshots/mobile-preview-landscape.jpg`; the earlier showcase manifest still describes its original captures. Browser logs contained an unattributed `MutationObserver` error; none of the prototype sources uses that API, and the inspected interactions rendered successfully.
+
+`node --check mobile.mjs`, the existing 47 model/persistence tests and `git diff --check` passed. No model or native-device behavior changed.
+
 ## Limits
 
 This is a proof of concept with interactive core flows. `prototype/COVERAGE.md` marks partial and descriptive branches individually. Some native error permutations, full background-process recovery, real remote offers and advanced engineering operations are represented only partially or descriptively. The browser walkthrough is representative, not exhaustive execution of every requirement permutation or an accessibility certification.
