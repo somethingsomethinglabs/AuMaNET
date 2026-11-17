@@ -15,6 +15,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  ui-controls:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run typecheck
+      - run: npx playwright install --with-deps chromium
+      - name: Verify settings and location controls
+        env:
+          AUMANET_TEST_URL: http://127.0.0.1:5181/
+        run: |
+          npm run dev -w @aumanet/app -- --port 5181 --strictPort > /tmp/aumanet-ui.log 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent "$AUMANET_TEST_URL" > /dev/null; then break; fi
+            sleep 1
+          done
+          node dev/tests/location-sharing-browser-verification.mjs
+          node dev/tests/settings-shell-verification.mjs
+          node dev/tests/ui-clarity-browser-verification.mjs
   app:
     runs-on: ubuntu-latest
     steps:

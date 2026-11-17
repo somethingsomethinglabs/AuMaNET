@@ -5,7 +5,7 @@ import {chromium} from 'playwright';
 const output='output/playwright/settings-shell';await mkdir(output,{recursive:true});
 const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:412,height:915}}),errors=[];
 page.on('pageerror',error=>errors.push(error.message));
-const categories=['Nodes','Group & members','Voice & audio','Internet sharing','Maps & storage','Location & privacy','Notifications','Appearance','Diagnostics & about'];
+const categories=['Tools & checks','Nodes','Group & members','Voice & audio','Internet sharing','Maps & storage','Location & privacy','Notifications','Appearance','Diagnostics & about'];
 const heading=name=>page.getByRole('heading',{name,exact:true}).first();
 const category=name=>page.locator('[data-settings-category]').filter({has:page.getByText(name,{exact:true})});
 const result={status:'running',scope:'Browser navigation fixture; no Android Back/OS font-scale or physical service acceptance',checks:[],viewports:[]};
@@ -15,7 +15,7 @@ try{
   await page.evaluate(async()=>await import('/src/lib/__tests__/developer-options-fixture.ts'));
   await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
   await page.getByRole('button',{name:'Open settings',exact:true}).click();await heading('Settings').waitFor();
-  assert.equal(await page.locator('[data-settings-category]').count(),9);
+  assert.equal(await page.locator('[data-settings-category]').count(),categories.length);
   const search=page.getByRole('searchbox',{name:'Search settings'});
   await search.fill('distance');assert.equal(await page.locator('[data-settings-category]').count(),1);await category('Appearance').waitFor();
   await search.fill('no-such-setting');await page.getByRole('status').filter({hasText:'No settings match'}).waitFor();
@@ -50,6 +50,6 @@ try{
   const observed=await page.evaluate(()=>({calls:window.__developerOptionsFixture.calls,muted:window.__developerOptionsFixture.muted}));
   assert.ok(observed.calls.length>0);assert.ok(observed.calls.every(call=>call==='snapshot'));assert.equal(observed.muted,true);assert.deepEqual(errors,[]);
   await page.evaluate(()=>window.__developerOptionsFixture.destroy());
-  result.status='pass';result.checks=['Nine searchable settings categories with empty-result recovery','Nested Back/Escape and keyboard focus return','Group details opens actual membership category','Voice strip remains available in every category','No pairing/recorder outside explicit Developer options','Navigation only observes native voice and preserves mute','Narrow/landscape/desktop and 200% browser text remain reachable'];
+  result.status='pass';result.checks=['Ten searchable settings categories with empty-result recovery','Nested Back/Escape and keyboard focus return','Group details opens actual membership category','Voice strip remains available in every category','No pairing/recorder outside explicit Developer options','Navigation only observes native voice and preserves mute','Narrow/landscape/desktop and 200% browser text remain reachable'];
   await writeFile(`${output}/result.json`,JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
 }finally{await browser.close();}

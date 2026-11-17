@@ -38,7 +38,7 @@
 </script>
 
 {#if managementOnly}
-<section class="position-card" aria-label="Map settings"><h2>Maps</h2><p>Roads, tracks and places use vector maps that stay sharp as you zoom.</p><p>Outdoor terrain is available offline around Healesville and Toolangi. Maps in other areas need an internet connection.</p>{#if onshowmap}<button class="map-outline" onclick={onshowmap}>Back to map</button>{/if}</section>
+<section class="position-card" aria-label="Map settings"><h2>Maps</h2><p>Roads, tracks and places use vector maps that stay sharp as you zoom.</p><p>Outdoor terrain is available offline around Healesville and Toolangi. Maps in other areas need an internet connection.</p>{#if onshowmap}<button class="map-outline" onclick={onshowmap}>Open map</button>{/if}</section>
 {:else}
 <section class="map-surface" aria-label="Map and group positions">
   <GeographicMap bind:this={view} {navigationToken} {fix} {ageMs} {active} members={roster} {connections} {selected} {follow} onbasemap={label=>basemapLabel=label} onfollowcancel={()=>follow=false} onselect={id=>{selected=id;onmemberdetails?.(id);}} onnameselect={onmembernamedetails} {nodeMemberIds}/>

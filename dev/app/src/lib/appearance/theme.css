@@ -80,3 +80,12 @@
 .live-shell.settings-screen main section.card{border:0;border-bottom:1px solid var(--line);border-radius:0;box-shadow:none;background:transparent;padding:18px 0;margin:0 0 8px}
 .live-shell.settings-screen main .card:first-child{padding-top:0}
 @media(max-width:600px){.comparison-options{grid-template-columns:1fr!important}}
+/* Switches describe immediate settings; native checkboxes describe consent choices. */
+.live-shell .switch-row{min-height:48px;cursor:pointer}
+.live-shell .switch-row:has(input:disabled){cursor:default}
+.live-shell .switch-row input[type=checkbox]{width:43px;min-width:43px;height:26px;padding:0;margin:0;border:1px solid var(--control-line);background:var(--muted)}
+.live-shell .switch-row input[type=checkbox]::before{top:2px;left:2px}
+.live-shell .switch-row input[type=checkbox]:checked{background:var(--forest);border-color:var(--forest)}
+.live-shell.dark .switch-row input[type=checkbox]:checked::before{background:var(--bg)}
+.live-shell label:has(>input[type=checkbox]){min-height:48px}
+@media(forced-colors:active){.live-shell .switch-row input[type=checkbox]{appearance:auto;width:26px;min-width:26px}.live-shell .switch-row input[type=checkbox]::before{content:none}}
