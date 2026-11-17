@@ -30,3 +30,13 @@ export function outdoorStyle(basemap:string,terrain:string):StyleSpecification {
   return{version:8,name:'AuMaNET Outdoor',glyphs:`${globalThis.location.origin}/maps/outdoor-preview/fonts/{fontstack}/{range}.pbf`,
     sources:{base:{type:'vector',url:basemap,bounds:manifest.bounds as [number,number,number,number]},terrain:{type:'raster-dem',url:terrain,encoding:'terrarium',tileSize:512,maxzoom:14},contours:{type:'vector',tiles:['aumanet-contours://{z}/{x}/{y}'],minzoom:13,maxzoom:14,bounds:manifest.bounds as [number,number,number,number]}},layers};
 }
+
+export function downloadedStyle(region:import('./downloads').VectorRegion):StyleSpecification{
+  const root=globalThis.location.origin+'/_aumanet_maps/vector/'+region.id;
+  const style=outdoorStyle('','');style.name='AuMaNET Offline · '+region.name;
+  style.glyphs=root+'/glyphs/{fontstack}/{range}.pbf';
+  style.sources.base={type:'vector',tiles:[root+'/base/{z}/{x}/{y}.pbf'],minzoom:0,maxzoom:15,bounds:region.bounds};
+  if(region.terrain){style.sources.terrain={type:'raster-dem',tiles:[root+'/terrain/{z}/{x}/{y}.webp'],encoding:'terrarium',tileSize:512,minzoom:0,maxzoom:14,bounds:region.bounds};style.sources.contours={type:'vector',tiles:['aumanet-contours://{z}/{x}/{y}'],minzoom:13,maxzoom:14,bounds:region.bounds};}
+  else{delete style.sources.terrain;delete style.sources.contours;style.layers=style.layers.filter(layer=>!['hillshade','contour-lines','contour-labels'].includes(layer.id));}
+  return style;
+}

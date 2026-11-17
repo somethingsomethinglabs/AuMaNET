@@ -14,6 +14,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(NodeUpdatePlugin.class);
         registerPlugin(LocationPlugin.class);
         registerPlugin(OfflineMapsPlugin.class);
+        registerPlugin(VectorMapsPlugin.class);
         registerPlugin(au.aumanet.app.maps.GeoTiffPreparationPlugin.class);
         registerPlugin(GroupPlugin.class);
         registerPlugin(GroupMessagesPlugin.class);

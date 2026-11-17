@@ -4,19 +4,22 @@
   import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
   import 'maplibre-gl/dist/maplibre-gl.css';
   import {previewProtocols} from './vector/protocol';
-  import {outdoorStyle} from './vector/style';
+  import {outdoorStyle,downloadedStyle} from './vector/style';
   import {manifest} from './vector/archive';
+  import {nativeVectorMaps,regionAt,regionTileUrl,type VectorRegion,type MapBounds} from './vector/downloads';
+  export let focusBounds:MapBounds|undefined=undefined;
+  let regions:VectorRegion[]=[];
   export let onbasemap:(label:string)=>void=()=>{};
   let vectorContainer:HTMLDivElement,vector:VectorMap|undefined,protocols:ReturnType<typeof previewProtocols>|undefined;
   let vectorMode='',connectionDetail:MapConnection|undefined,detailDialog:HTMLDialogElement;
   function openConnection(id:string){connectionDetail=connections.find(item=>item.id===id);if(connectionDetail)detailDialog.showModal();}
-  function startVector(){try{setWorkerUrl(mapWorkerUrl);protocols=previewProtocols();vector=new VectorMap({container:vectorContainer,style:{version:8,sources:{},layers:[]},interactive:false,attributionControl:false,maxTileCacheSize:48});vector.on('error',()=>{onbasemap(vectorMode==='online'?'Online map unavailable · Check your internet connection':'Offline vector map unavailable');});}catch{vector?.remove();vector=undefined;protocols?.close();protocols=undefined;onbasemap('Vector map unavailable on this device');}}
+  function startVector(){try{setWorkerUrl(mapWorkerUrl);vector=new VectorMap({container:vectorContainer,style:{version:8,sources:{},layers:[]},interactive:false,attributionControl:false,maxTileCacheSize:48});vector.on('error',()=>{onbasemap(vectorMode==='online'?'Online map unavailable · Check your internet connection':'Offline vector map unavailable');});}catch{vector?.remove();vector=undefined;protocols?.close();protocols=undefined;onbasemap('Vector map unavailable on this device');}}
   function syncVector(){
     if(!map||!vector)return;const center=map.getCenter(),[w,s,e,n]=manifest.bounds;
-    const local=map.getZoom()>=11&&center.lng>=w&&center.lng<=e&&center.lat>=s&&center.lat<=n,mode=local?'local':'online';
-    if(vectorMode!==mode){vectorMode=mode;vector.setStyle(local?outdoorStyle(protocols!.basemap,protocols!.terrain):'https://tiles.openfreemap.org/styles/liberty');}
+    const region=regionAt(regions,center.lng,center.lat),local=map.getZoom()>=11&&center.lng>=w&&center.lng<=e&&center.lat>=s&&center.lat<=n,mode=region?'region/'+region.id:local?'local':'online';
+    if(vectorMode!==mode){vectorMode=mode;protocols?.close();protocols=region||local?previewProtocols(region?.terrain?{terrainTemplate:regionTileUrl(region,'terrain')}:{}):undefined;vector.setStyle(region?downloadedStyle(region):local?outdoorStyle(protocols!.basemap,protocols!.terrain):'https://tiles.openfreemap.org/styles/liberty',{diff:false});}
     vector.jumpTo({center:[center.lng,center.lat],zoom:map.getZoom()-1});
-    onbasemap(local?'Offline outdoor map':'Online map · Internet required');
+    onbasemap(region?'Offline · '+region.name:local?'Offline outdoor map':'Online map · Internet required');
   }
   import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup} from 'leaflet';
   import 'leaflet/styles.css';
@@ -45,6 +48,7 @@
   function framePositions(){if(!map)return;const points=freshGroupPositions(fix,ageMs,active,members).map(p=>[p.latitude,p.longitude] as [number,number]);if(points.length)map.fitBounds(new LatLngBounds(points),{animate:false,padding:[40,40],maxZoom:15});}
   function defaultView(){
     if(!map)return;viewport.navigate(navigationToken);
+    if(focusBounds){if(viewport.next(false,true)==='coverage'){viewport.interact();const[w,s,e,n]=focusBounds;map.fitBounds(new LatLngBounds([s,w],[n,e]),{animate:false,padding:[18,18],maxZoom:16});}return;}
     if(viewport.next(freshGroupPositions(fix,ageMs,active,members).length>0,false)==='group')framePositions();
   }
   function reportCoverage(){syncVector();}
@@ -86,12 +90,14 @@
   $: if(map)syncMarkers();
   $: {fix;ageMs;active;members;selected;follow;nodeMemberIds;if(map)syncMarkers();}
   $: {connections;if(map)syncConnections();}
-  $: {navigationToken;fix;ageMs;active;members;if(map)defaultView();}
+  $: {navigationToken;focusBounds;fix;ageMs;active;members;if(map)defaultView();}
+  $: {regions;if(map)syncVector();}
+  export function center(){const p=map?.getCenter();return p?{latitude:p.lat,longitude:p.lng}:undefined;}
   export function zoomIn(){interact();map?.zoomIn();}
   export function zoomOut(){interact();map?.zoomOut();}
   export function focusPosition(p:Position){interact();if(valid(p))map?.setView([p.latitude,p.longitude],Math.max(map?.getZoom()??0,14),{animate:false});}
   export function fitMembers(){interact();framePositions();}
-  onMount(()=>{startVector();map=new LeafletMap(container,{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:18,scrollWheelZoom:true,zoomAnimation:false,fadeAnimation:false});map.createPane('connections').style.zIndex='350';map.on('click',event=>{if((event.originalEvent?.target as Element)?.closest('.leaflet-interactive,.leaflet-tooltip'))return;const text=document.createElement('div');text.textContent=`${event.latlng.lat.toFixed(6)}, ${event.latlng.lng.toFixed(6)}`;text.setAttribute('aria-label','Pinned coordinates');new Popup().setLatLng(event.latlng).setContent(text).openOn(map!);});map.on('dragstart',interact);map.on('move zoom',syncVector);map.on('moveend zoomend',reportCoverage);const first=freshGroupPositions(fix,ageMs,active,members)[0];map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);syncConnections();syncMarkers();defaultView();const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();reportCoverage();});observer.observe(container);container.addEventListener('pointerdown',interact);container.addEventListener('wheel',interact,{passive:true});container.addEventListener('keydown',interact);return()=>{container.removeEventListener('pointerdown',interact);container.removeEventListener('wheel',interact);container.removeEventListener('keydown',interact);observer.disconnect();vector?.remove();vector=undefined;protocols?.close();map?.remove();map=undefined;markers.clear();connectionLines.clear();};});
+  onMount(()=>{let stopped=false,loading=false;const client=nativeVectorMaps();const refresh=async()=>{if(!client||loading)return;loading=true;try{const state=await client.snapshot();if(!stopped)regions=state.regions;}catch{}finally{loading=false;}};void refresh();const poll=setInterval(()=>void refresh(),5000);startVector();map=new LeafletMap(container,{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:18,scrollWheelZoom:true,zoomAnimation:false,fadeAnimation:false});map.createPane('connections').style.zIndex='350';map.on('click',event=>{if((event.originalEvent?.target as Element)?.closest('.leaflet-interactive,.leaflet-tooltip'))return;const text=document.createElement('div');text.textContent=`${event.latlng.lat.toFixed(6)}, ${event.latlng.lng.toFixed(6)}`;text.setAttribute('aria-label','Pinned coordinates');new Popup().setLatLng(event.latlng).setContent(text).openOn(map!);});map.on('dragstart',interact);map.on('move zoom',syncVector);map.on('moveend zoomend',reportCoverage);const first=freshGroupPositions(fix,ageMs,active,members)[0];map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);syncConnections();syncMarkers();defaultView();const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();reportCoverage();});observer.observe(container);container.addEventListener('pointerdown',interact);container.addEventListener('wheel',interact,{passive:true});container.addEventListener('keydown',interact);return()=>{stopped=true;clearInterval(poll);container.removeEventListener('pointerdown',interact);container.removeEventListener('wheel',interact);container.removeEventListener('keydown',interact);observer.disconnect();vector?.remove();vector=undefined;protocols?.close();map?.remove();map=undefined;markers.clear();connectionLines.clear();};});
 </script>
 <div class="vector-background" bind:this={vectorContainer} aria-hidden="true"></div>
 <div class="geographic-map" bind:this={container} aria-label="Geographic map and group positions"></div>

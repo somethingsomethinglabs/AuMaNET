@@ -8,7 +8,7 @@ self.onmessage=async(event:MessageEvent)=>{
   if(message.type==='init'){
     const {archive}=previewArchive('terrain.pmtiles',message.native===true);
     manager=new contour.LocalDemManager({demUrlPattern:'dem://{z}/{x}/{y}',encoding:'terrarium',maxzoom:14,cacheSize:16,timeoutMs:15000,
-      getTile:async(url,controller)=>{const match=/^dem:\/\/(\d+)\/(\d+)\/(\d+)$/.exec(url);if(!match)throw new Error('Invalid DEM tile');const[z,x,y]=match.slice(1).map(Number);const tile=await archive.getZxy(z,x,y,controller.signal);if(!tile)throw new Error('Terrain is outside the preview coverage');return{data:new Blob([tile.data],{type:'image/webp'})};}});
+      getTile:async(url,controller)=>{const match=/^dem:\/\/(\d+)\/(\d+)\/(\d+)$/.exec(url);if(!match)throw new Error('Invalid DEM tile');const[z,x,y]=match.slice(1).map(Number);if(message.terrainTemplate){const address=String(message.terrainTemplate).replace('{z}',String(z)).replace('{x}',String(x)).replace('{y}',String(y));if(!address.startsWith(self.location.origin+'/_aumanet_maps/vector/'))throw Error('Invalid offline elevation source');const response=await fetch(address,{signal:controller.signal});if(!response.ok)throw Error('Offline elevation tile unavailable');const data=await response.arrayBuffer();if(data.byteLength>2*1024*1024)throw Error('Oversized elevation tile');return{data:new Blob([data],{type:'image/webp'})};}const tile=await archive.getZxy(z,x,y,controller.signal);if(!tile)throw new Error('Terrain is outside the preview coverage');return{data:new Blob([tile.data],{type:'image/webp'})};}});
     return;
   }
   if(message.type==='cancel'){active.get(message.id)?.abort();return;}

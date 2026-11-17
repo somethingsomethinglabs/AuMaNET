@@ -1,5 +1,9 @@
 <script lang="ts">
   import {MapPin,LocateFixed,Navigation,Plus,Minus,Users,Map,X} from '@lucide/svelte';
+  import VectorDownloads from './maps/VectorDownloads.svelte';
+  import type {MapBounds} from './maps/vector/downloads';
+  export let downloadCenter:{latitude:number;longitude:number}|undefined=undefined;
+  export let focusBounds:MapBounds|undefined=undefined;
   import GeographicMap from './maps/GeographicMap.svelte';
   import MapConnectionsLegend from './maps/MapConnectionsLegend.svelte';
   import {formatAccuracy,formatDistance,straightLineDistance} from './appearance/distance';
@@ -10,8 +14,8 @@
   import {groupMapConnections} from './maps/connections';
   export let units:Units='Metric';
   export let managementOnly=false;
-  export let onmanage:(()=>void)|undefined=undefined;
-  export let onshowmap:(()=>void)|undefined=undefined;
+  export let onmanage:((center?:{latitude:number;longitude:number})=>void)|undefined=undefined;
+  export let onshowmap:((bounds?:MapBounds)=>void)|undefined=undefined;
   export let group:GroupSnapshot|undefined=undefined;
   export let groupElapsedMs=0;
   export let groupUnavailable=false;
@@ -38,13 +42,13 @@
 </script>
 
 {#if managementOnly}
-<section class="position-card" aria-label="Map settings"><h2>Maps</h2><p>Roads, tracks and places use vector maps that stay sharp as you zoom.</p><p>Outdoor terrain is available offline around Healesville and Toolangi. Maps in other areas need an internet connection.</p>{#if onshowmap}<button class="map-outline" onclick={onshowmap}>Back to map</button>{/if}</section>
+<section class="position-card" aria-label="Map settings"><VectorDownloads center={downloadCenter??fix} {onshowmap}/>{#if onshowmap}<button class="map-outline" onclick={()=>onshowmap?.()}>Back to map</button>{/if}</section>
 {:else}
 <section class="map-surface" aria-label="Map and group positions">
-  <GeographicMap bind:this={view} {navigationToken} {fix} {ageMs} {active} members={roster} {connections} {selected} {follow} onbasemap={label=>basemapLabel=label} onfollowcancel={()=>follow=false} onselect={id=>{selected=id;onmemberdetails?.(id);}} onnameselect={onmembernamedetails} {nodeMemberIds}/>
+  <GeographicMap bind:this={view} {focusBounds} {navigationToken} {fix} {ageMs} {active} members={roster} {connections} {selected} {follow} onbasemap={label=>basemapLabel=label} onfollowcancel={()=>follow=false} onselect={id=>{selected=id;onmemberdetails?.(id);}} onnameselect={onmembernamedetails} {nodeMemberIds}/>
   <div class="coverage-label" aria-label="Map availability"><Map size={16}/><span>{basemapLabel}</span></div>
   <div class="map-actions"><button aria-label="Zoom in" onclick={()=>view?.zoomIn()}><Plus size={20}/></button><button aria-label="Zoom out" onclick={()=>view?.zoomOut()}><Minus size={20}/></button><button aria-label="Recenter on my position" disabled={!fix} onclick={()=>fix&&view?.focusPosition(fix)}><LocateFixed size={20}/></button></div>
-  <div class="map-tools">{#if onmemberdetails}<button aria-label="Follow my position" aria-pressed={follow} disabled={!fix||!active} onclick={()=>follow=!follow}><Navigation size={18}/></button>{/if}<button aria-label="Fit group positions" disabled={!freshPositions.length} onclick={()=>{follow=false;view?.fitMembers();}}><LocateFixed size={18}/>Show group</button><button aria-label="Open group positions" onclick={()=>positionsDialog.showModal()}><Users size={18}/>{roster.length+1}</button>{#if onmanage}<button onclick={onmanage}><Map size={18}/>Maps</button>{/if}</div>
+  <div class="map-tools">{#if onmemberdetails}<button aria-label="Follow my position" aria-pressed={follow} disabled={!fix||!active} onclick={()=>follow=!follow}><Navigation size={18}/></button>{/if}<button aria-label="Fit group positions" disabled={!freshPositions.length} onclick={()=>{follow=false;view?.fitMembers();}}><LocateFixed size={18}/>Show group</button><button aria-label="Open group positions" onclick={()=>positionsDialog.showModal()}><Users size={18}/>{roster.length+1}</button>{#if onmanage}<button onclick={()=>onmanage?.(view?.center())}><Map size={18}/>Maps</button>{/if}</div>
 </section>
 <dialog bind:this={positionsDialog} class="map-people-dialog" aria-labelledby="map-people-title"><div class="manager-heading"><h2 id="map-people-title">Group positions</h2><button class="map-outline" aria-label="Close group positions" onclick={()=>positionsDialog.close()}><X size={20}/></button></div>
 <div class="location-access"><span>{fix?positionState(active,ageMs):locationStatus==='idle'?'Location is off':locationStatus}</span><button onclick={()=>{positionsDialog.close();onprivacysettings();}}>Location settings</button></div>
