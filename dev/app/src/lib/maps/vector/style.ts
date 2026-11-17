@@ -34,11 +34,11 @@ export function outdoorStyle(basemap:string,terrain:string):StyleSpecification {
 
 export function downloadedStyle(value:import('./downloads').VectorRegion|readonly import('./downloads').VectorRegion[]):StyleSpecification{
   const regions=Array.isArray(value)?value:[value as import('./downloads').VectorRegion],root=regionSetRoot(regions);
-  const union=(items:readonly import('./downloads').VectorRegion[]):[number,number,number,number]=>[Math.min(...items.map(r=>r.bounds[0])),Math.min(...items.map(r=>r.bounds[1])),Math.max(...items.map(r=>r.bounds[2])),Math.max(...items.map(r=>r.bounds[3]))];
+  const union=(items:readonly import('./downloads').VectorRegion[]):[number,number,number,number]=>[Math.min(manifest.bounds[0],...items.map(r=>r.bounds[0])),Math.min(manifest.bounds[1],...items.map(r=>r.bounds[1])),Math.max(manifest.bounds[2],...items.map(r=>r.bounds[2])),Math.max(manifest.bounds[3],...items.map(r=>r.bounds[3]))];
   const style=outdoorStyle('','');style.name='AuMaNET Offline';style.glyphs=root+'/glyphs/{fontstack}/{range}.pbf';
   style.sources.base={type:'vector',tiles:['aumanet-offline-base://{z}/{x}/{y}'],minzoom:0,maxzoom:15,bounds:union(regions)};
   const terrain=regions.filter(r=>r.terrain);
-  if(terrain.length){style.sources.terrain={type:'raster-dem',tiles:[root+'/terrain/{z}/{x}/{y}.webp'],encoding:'terrarium',tileSize:512,minzoom:0,maxzoom:14,bounds:union(terrain)};style.sources.contours={type:'vector',tiles:['aumanet-contours://{z}/{x}/{y}'],minzoom:13,maxzoom:14,bounds:union(terrain)};}
+  if(terrain.length){style.sources.terrain={type:'raster-dem',tiles:['aumanet-offline-dem://{z}/{x}/{y}'],encoding:'terrarium',tileSize:512,minzoom:0,maxzoom:14,bounds:union(terrain)};style.sources.contours={type:'vector',tiles:['aumanet-contours://{z}/{x}/{y}'],minzoom:13,maxzoom:14,bounds:union(terrain)};}
   else{delete style.sources.terrain;delete style.sources.contours;style.layers=style.layers.filter(layer=>!['hillshade','contour-lines','contour-labels'].includes(layer.id));}
   return style;
 }

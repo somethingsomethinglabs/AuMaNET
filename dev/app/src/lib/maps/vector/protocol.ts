@@ -9,8 +9,14 @@ export function previewProtocols(options:{terrainTemplate?:string;regionRoot?:st
   if(options.regionRoot)addProtocol('aumanet-offline-base',async(request,controller)=>{
     const match=/^aumanet-offline-base:\/\/(\d+)\/(\d+)\/(\d+)$/.exec(request.url);if(!match)throw Error('Invalid offline tile');
     const response=await fetch(options.regionRoot+'/base/'+match.slice(1).join('/')+'.pbf',{signal:controller.signal});
-    if(response.status===204)return{data:new ArrayBuffer(0)};
+    if(response.status===204){const[z,x,y]=match.slice(1).map(Number),tile=await basemap.archive.getZxy(z,x,y,controller.signal);return{data:tile?.data??new ArrayBuffer(0)};}
     if(!response.ok)throw Error('Offline map tile failed verification');const data=await response.arrayBuffer();if(data.byteLength>2*1024*1024)throw Error('Oversized offline tile');return{data};
+  });
+  if(options.regionRoot)addProtocol('aumanet-offline-dem',async(request,controller)=>{
+    const match=/^aumanet-offline-dem:\/\/(\d+)\/(\d+)\/(\d+)$/.exec(request.url);if(!match)throw Error('Invalid offline elevation tile');
+    const response=await fetch(options.regionRoot+'/terrain/'+match.slice(1).join('/')+'.webp',{signal:controller.signal});
+    if(response.status===204){const[z,x,y]=match.slice(1).map(Number),tile=await terrain.archive.getZxy(z,x,y,controller.signal);if(!tile)throw Error('Offline elevation coverage is unavailable');return{data:tile.data};}
+    if(!response.ok)throw Error('Offline elevation tile failed verification');const data=await response.arrayBuffer();if(data.byteLength>2*1024*1024)throw Error('Oversized elevation tile');return{data};
   });
   const worker=new Worker(new URL('./terrain-worker.ts',import.meta.url),{type:'module'});
   worker.postMessage({type:'init',native,...options});
@@ -28,5 +34,5 @@ export function previewProtocols(options:{terrainTemplate?:string;regionRoot?:st
     if(controller.signal.aborted){abort();return;}controller.signal.addEventListener('abort',abort,{once:true});worker.postMessage({type:'contour',id,z,x,y});
   }));
   return{basemap:`pmtiles://${basemap.source.url}`,terrain:`pmtiles://${terrain.source.url}`,metrics:()=>({basemap:{...basemap.source.metrics},terrain:{...terrain.source.metrics},pendingContours:pending.size}),
-    close(){closed=true;for(const value of pending.values()){value.cleanup();value.reject(new DOMException('Map closed','AbortError'));}pending.clear();worker.terminate();removeProtocol('pmtiles');removeProtocol('aumanet-contours');if(options.regionRoot)removeProtocol('aumanet-offline-base');}};
+    close(){closed=true;for(const value of pending.values()){value.cleanup();value.reject(new DOMException('Map closed','AbortError'));}pending.clear();worker.terminate();removeProtocol('pmtiles');removeProtocol('aumanet-contours');if(options.regionRoot){removeProtocol('aumanet-offline-base');removeProtocol('aumanet-offline-dem');}}};
 }
