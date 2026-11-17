@@ -6,8 +6,8 @@ const page=await browser.newPage({viewport:{width:412,height:915}});
 try {
   await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5181/');
   await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
-  // The browser fallback is also a product screen: local recording belongs in
-  // Developer options and must not be confused with joining a real voice call.
+  // The browser fallback is also a product screen: retired recording controls
+  // must remain absent across all destinations, including Developer options.
   for(const tab of ['Map','Messages','Voice','Network']){
     await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:tab,exact:true}).click();
     assert.equal(await page.getByRole('heading',{name:'Microphone check',exact:true}).count(),0);
@@ -17,8 +17,8 @@ try {
   assert.equal(await page.getByRole('heading',{name:'Microphone check',exact:true}).count(),0);
   assert.equal(await page.getByRole('heading',{name:'Device capabilities',exact:true}).count(),0);
   await page.getByRole('button',{name:'Developer options',exact:true}).click();
-  await page.getByRole('heading',{name:'Microphone check',exact:true}).waitFor();
-  await page.getByRole('heading',{name:'Device capabilities',exact:true}).waitFor();
+  assert.equal(await page.getByRole('heading',{name:'Microphone check',exact:true}).count(),0);
+  assert.equal(await page.getByRole('heading',{name:'Device capabilities',exact:true}).count(),0);
   await page.getByRole('button',{name:'Back to settings',exact:true}).click();
   assert.equal(await page.getByRole('heading',{name:'Microphone check',exact:true}).count(),0);
   await page.getByRole('button',{name:'Close settings',exact:true}).click();
@@ -49,5 +49,5 @@ try {
   console.log(JSON.stringify({status:'pass',scope:'Browser fixture only; no Android devices or microphone capture',checks:[
     'No pairing/diagnostics on four normal destinations','Explicit Settings → Developer options entry','Back hides developer controls',
     'Navigation performs read-only audio snapshots and preserves mute',
-    'Browser microphone check appears only under Settings → Developer options']},null,2));
+    'Retired browser microphone check and device capabilities remain absent']},null,2));
 } finally {await browser.close();}
