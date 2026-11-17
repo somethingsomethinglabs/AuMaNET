@@ -70,4 +70,4 @@ Download and verify before pausing the group. Install one selected node at a tim
 
 The debug-only USB-loopback catalog fixture is for local acceptance tests. It is explicitly labelled in the app, expires, is not persisted as a production feed, and does not bypass signatures or image compatibility. It must be cleared after tests. Crypto-only vectors and early parser checkpoints in ignored artifacts must never be installed or published.
 
-Nightly publication now requires the [acceptance protocol](ACCEPTANCE.md) and the separate `nightly-promote.yml` dispatch. `publish=true` in the build workflow never publishes Nightly. Existing published assets are historical, not fresh acceptance.
+Nightly publication now requires the [acceptance protocol](https://github.com/somethingsomethinglabs/AuMaNET/blob/testing/dev/releases/ACCEPTANCE.md) and the separate `nightly-promote.yml` dispatch. `publish=true` in the build workflow never publishes Nightly. Existing published assets are historical, not fresh acceptance.
