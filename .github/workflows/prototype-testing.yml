@@ -40,6 +40,9 @@ jobs:
           node dev/tests/location-sharing-browser-verification.mjs
           node dev/tests/settings-shell-verification.mjs
           node dev/tests/ui-clarity-browser-verification.mjs
+          node dev/tests/group-messages-browser-verification.mjs
+          node dev/tests/map-connections-browser-verification.mjs
+          node dev/tests/map-storage-browser-verification.mjs
   app:
     runs-on: ubuntu-latest
     steps:

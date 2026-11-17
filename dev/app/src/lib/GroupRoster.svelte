@@ -6,6 +6,7 @@
   export let onmember:(id:string)=>void;
   export let onmanage:()=>void;
   let search='',connectedOnly=false;
+  function clearFilters(){search='';connectedOnly=false;}
   $: live=!!state&&!sourceError&&['hosting','connected'].includes(state.status);
   $: roster=state?.group?state.members:[];
   $: connectedCount=live?roster.filter(member=>member.connected).length:0;
@@ -29,7 +30,7 @@
           {#if online}<span class="activity"><span><Mic size={13}/>{member.voiceJoined?'In voice':'Not in voice'}</span><span><MapPin size={13}/>{member.sharingLocation?'Sharing location':'Location off'}</span></span>{/if}
         </span><ChevronRight size={18}/>
       </button>
-    {:else}<p class="empty" role="status">No members match your filters.</p>{/each}
+    {:else}<div class="empty"><p role="status">No members match your filters.</p><button class="outline" onclick={clearFilters}>Clear filters</button></div>{/each}
   </div>
 {:else}<section class="card empty"><Users size={32}/><p>{!state?'Group membership is unavailable on this device.':state.group?'No members available yet.':'Create a group or join with a private invitation to see everyone here.'}</p></section>{/if}
 

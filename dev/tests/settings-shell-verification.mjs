@@ -18,8 +18,9 @@ try{
   assert.equal(await page.locator('[data-settings-category]').count(),categories.length);
   const search=page.getByRole('searchbox',{name:'Search settings'});
   await search.fill('distance');assert.equal(await page.locator('[data-settings-category]').count(),1);await category('Appearance').waitFor();
+  await search.fill('units distance');assert.equal(await page.locator('[data-settings-category]').count(),1);await category('Appearance').getByText('Light or dark theme and distance units',{exact:true}).waitFor();
   await search.fill('no-such-setting');await page.getByRole('status').filter({hasText:'No settings match'}).waitFor();
-  await search.fill('');
+  await page.getByRole('button',{name:'Clear settings search',exact:true}).click();assert.equal(await search.inputValue(),'');assert.equal(await search.evaluate(input=>input===document.activeElement),true);assert.equal(await page.locator('[data-settings-category]').count(),categories.length);
   for(const name of categories){
     await category(name).click();await heading(name).waitFor();
     assert.equal(await page.getByRole('heading',{name:'Voice developer tools',exact:true}).count(),0);
@@ -50,6 +51,6 @@ try{
   const observed=await page.evaluate(()=>({calls:window.__developerOptionsFixture.calls,muted:window.__developerOptionsFixture.muted}));
   assert.ok(observed.calls.length>0);assert.ok(observed.calls.every(call=>call==='snapshot'));assert.equal(observed.muted,true);assert.deepEqual(errors,[]);
   await page.evaluate(()=>window.__developerOptionsFixture.destroy());
-  result.status='pass';result.checks=['Ten searchable settings categories with empty-result recovery','Nested Back/Escape and keyboard focus return','Group details opens actual membership category','Voice strip remains available in every category','No pairing/recorder outside explicit Developer options','Navigation only observes native voice and preserves mute','Narrow/landscape/desktop and 200% browser text remain reachable'];
+  result.status='pass';result.checks=['Ten searchable categories with visible descriptions, unordered multiword matching and clear-search focus recovery','Nested Back/Escape and keyboard focus return','Group details opens actual membership category','Voice strip remains available in every category','No pairing/recorder outside explicit Developer options','Navigation only observes native voice and preserves mute','Narrow/landscape/desktop and 200% browser text remain reachable'];
   await writeFile(`${output}/result.json`,JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
 }finally{await browser.close();}

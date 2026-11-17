@@ -2,3 +2,5 @@
 /dev/firmware/** text eol=lf
 /dev/releases/** text eol=lf
 /.github/workflows/firmware-release.yml text eol=lf
+# This file is byte-verified against internet-native-lock.json during Android builds.
+/dev/mobile/android/app/src/main/res/raw/internet_native_notices.txt text eol=lf

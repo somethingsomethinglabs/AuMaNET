@@ -19,6 +19,10 @@ try{
  checks.push('Group positions closes before navigating to Location settings; no blocking modal remains');
  await button('Close settings').click();await button('Map').click();await button('Maps').click();await button('Back to map').waitFor();await button('Back to map').click();await page.locator('.map-surface').waitFor();
  checks.push('Map management opens a separate Settings page and returns directly to the map');
+ await button('Group').click();const memberSearch=page.getByRole('textbox',{name:'Search group members',exact:true});await memberSearch.fill('No matching member fixture');
+ await page.getByRole('switch',{name:'Connected only',exact:true}).check();await page.getByText('No members match your filters.',{exact:true}).waitFor();await button('Clear filters').click();
+ assert.equal(await memberSearch.inputValue(),'');assert.equal(await page.getByRole('switch',{name:'Connected only',exact:true}).isChecked(),false);assert.ok(await page.locator('.roster-member').count()>0);
+ checks.push('Empty group search offers one action that clears both filters and restores members');
  await button('Messages').click();const composer=page.getByRole('textbox',{name:'Message group',exact:true});await composer.focus();
  await page.setViewportSize({width:390,height:500});await page.waitForFunction(()=>document.querySelector('.live-shell.composing'));
  assert.equal(await page.getByRole('navigation',{name:'Primary navigation'}).isVisible(),false);await page.screenshot({path:`${out}/keyboard-resize.png`});
