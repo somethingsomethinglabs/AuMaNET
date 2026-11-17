@@ -1,0 +1,97 @@
+name: Firmware candidate build only
+on:
+  pull_request:
+    branches: [testing]
+    paths: ['dev/firmware/**', 'dev/releases/**', '.github/workflows/firmware-candidate.yml']
+  push:
+    branches: [testing]
+    paths: ['dev/firmware/**', 'dev/releases/**', '.github/workflows/firmware-candidate.yml']
+  workflow_dispatch:
+    inputs:
+      matrix:
+        type: choice
+        options: [legacy-ab-v1, universal-u-v1]
+        default: legacy-ab-v1
+        description: Universal remains blocked until its coherent source prerequisite is reviewed
+permissions:
+  contents: read
+concurrency:
+  group: firmware-candidate-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      commit: ${{ steps.plan.outputs.commit }}
+      version: ${{ steps.plan.outputs.version }}
+      buildId: ${{ steps.plan.outputs.buildId }}
+      ref: ${{ steps.plan.outputs.ref }}
+      roles: ${{ steps.plan.outputs.roles }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+      - run: node --test dev/releases/release.test.mjs dev/releases/acceptance.test.mjs dev/releases/candidate.test.mjs
+      - id: plan
+        env:
+          CANDIDATE_MATRIX: ${{ inputs.matrix || 'legacy-ab-v1' }}
+        run: node dev/releases/candidate.mjs plan
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: build-only-candidate-plan
+          path: candidate-plan.json
+          retention-days: 14
+          if-no-files-found: error
+  build:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        role: ${{ fromJSON(needs.plan.outputs.roles) }}
+    env:
+      AUMANET_RELEASE_COMMIT: ${{ needs.plan.outputs.commit }}
+      AUMANET_RELEASE_REF: ${{ needs.plan.outputs.ref }}
+      AUMANET_RELEASE_CHANNEL: nightly
+      AUMANET_RELEASE_VERSION: ${{ needs.plan.outputs.version }}
+      AUMANET_RELEASE_BUILD_ID: ${{ needs.plan.outputs.buildId }}
+      BUILD_ROLE: ${{ matrix.role }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ needs.plan.outputs.commit }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: build-only-candidate-plan
+      - name: Set isolated SDK location
+        run: printf 'AUMANET_TOOLS_ROOT=%s/aumanet-tools\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - name: Install pinned SDK host prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends git wget flex bison gperf python3 python3-venv python3-pip cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+      - run: bash dev/firmware/tools/setup.sh
+      - run: bash dev/firmware/tools/build.sh "$BUILD_ROLE" dev/firmware/gateway/generic-au.defaults gateway generic
+      - id: built
+        run: node dev/releases/find-build.mjs --role "$BUILD_ROLE"
+      - name: Bind candidate hashes and clean embedded identity to source and SDK
+        env:
+          BUILD_DIRECTORY: ${{ steps.built.outputs.directory }}
+        run: node dev/releases/candidate.mjs manifest candidate-plan.json "$BUILD_ROLE" "$BUILD_DIRECTORY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: build-only-firmware-${{ matrix.role }}-${{ needs.plan.outputs.commit }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            ${{ steps.built.outputs.directory }}/aumanet_bench.bin
+            ${{ steps.built.outputs.directory }}/build-info.json
+            ${{ steps.built.outputs.directory }}/candidate-manifest.json
