@@ -6,20 +6,21 @@
   import {previewProtocols} from './vector/protocol';
   import {outdoorStyle,downloadedStyle} from './vector/style';
   import {manifest} from './vector/archive';
-  import {nativeVectorMaps,regionAt,regionTileUrl,type VectorRegion,type MapBounds} from './vector/downloads';
+  import {nativeVectorMaps,visibleRegions,regionSetRoot,type VectorRegion,type MapBounds} from './vector/downloads';
   export let focusBounds:MapBounds|undefined=undefined;
   let regions:VectorRegion[]=[];
   export let onbasemap:(label:string)=>void=()=>{};
   let vectorContainer:HTMLDivElement,vector:VectorMap|undefined,protocols:ReturnType<typeof previewProtocols>|undefined;
   let vectorMode='',connectionDetail:MapConnection|undefined,detailDialog:HTMLDialogElement;
   function openConnection(id:string){connectionDetail=connections.find(item=>item.id===id);if(connectionDetail)detailDialog.showModal();}
-  function startVector(){try{setWorkerUrl(mapWorkerUrl);vector=new VectorMap({container:vectorContainer,style:{version:8,sources:{},layers:[]},interactive:false,attributionControl:false,maxTileCacheSize:48});vector.on('error',()=>{onbasemap(vectorMode==='online'?'Online map unavailable · Check your internet connection':'Offline vector map unavailable');});}catch{vector?.remove();vector=undefined;protocols?.close();protocols=undefined;onbasemap('Vector map unavailable on this device');}}
+  function startVector(){try{setWorkerUrl(mapWorkerUrl);vector=new VectorMap({container:vectorContainer,style:{version:8,sources:{},layers:[]},interactive:false,attributionControl:false,maxTileCacheSize:48});vector.on('error',(event)=>{if(String(event.error?.message).includes('Offline elevation coverage is unavailable'))return;onbasemap(vectorMode==='online'?'Online map unavailable · Check your internet connection':'Offline vector map unavailable');});}catch{vector?.remove();vector=undefined;protocols?.close();protocols=undefined;onbasemap('Vector map unavailable on this device');}}
   function syncVector(){
     if(!map||!vector)return;const center=map.getCenter(),[w,s,e,n]=manifest.bounds;
-    const region=regionAt(regions,center.lng,center.lat),local=map.getZoom()>=11&&center.lng>=w&&center.lng<=e&&center.lat>=s&&center.lat<=n,mode=region?'region/'+region.id:local?'local':'online';
-    if(vectorMode!==mode){vectorMode=mode;protocols?.close();protocols=region||local?previewProtocols(region?.terrain?{terrainTemplate:regionTileUrl(region,'terrain')}:{}):undefined;vector.setStyle(region?downloadedStyle(region):local?outdoorStyle(protocols!.basemap,protocols!.terrain):'https://tiles.openfreemap.org/styles/liberty',{diff:false});}
+    const viewport=map.getBounds(),bounds:MapBounds=[viewport.getWest(),viewport.getSouth(),viewport.getEast(),viewport.getNorth()];
+    const visible=visibleRegions(regions,bounds),region=visible[0],local=map.getZoom()>=11&&bounds[0]<=e&&bounds[2]>=w&&bounds[1]<=n&&bounds[3]>=s,root=region?regionSetRoot(regions):'',mode=region?'regions/'+root:local?'local':'online';
+    if(vectorMode!==mode){vectorMode=mode;protocols?.close();protocols=region||local?previewProtocols(region?{regionRoot:root,terrainTemplate:root+'/terrain/{z}/{x}/{y}.webp'}:{}):undefined;vector.setStyle(region?downloadedStyle(regions):local?outdoorStyle(protocols!.basemap,protocols!.terrain):'https://tiles.openfreemap.org/styles/liberty',{diff:false});}
     vector.jumpTo({center:[center.lng,center.lat],zoom:map.getZoom()-1});
-    onbasemap(region?'Offline · '+region.name:local?'Offline outdoor map':'Online map · Internet required');
+    onbasemap(region?'Offline · '+(visible.length>1?visible.length+' saved areas':region.name):local?'Offline outdoor map':'Online map · Internet required');
   }
   import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup} from 'leaflet';
   import 'leaflet/styles.css';

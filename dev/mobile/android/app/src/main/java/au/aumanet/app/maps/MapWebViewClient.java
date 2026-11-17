@@ -27,14 +27,16 @@ public final class MapWebViewClient extends BridgeWebViewClient {
                     WebResourceResponse response=new WebResourceResponse("application/octet-stream",null,200,"OK",value,new BoundedAssetInputStream(asset,range[0],range[1]));transferred=true;return response;
                 }finally{if(!transferred)asset.close();}
             }
-            if(parts.length>=5&&parts[0].equals("vector")){
+            if(parts.length>=5&&(parts[0].equals("vector")||parts[0].equals("vector-set"))){
                 if(url.getEncodedQuery()!=null)return failure(400,"Bad Request");
                 String relative;String mime;
                 if(parts.length==6&&(parts[2].equals("base")||parts[2].equals("terrain"))&&parts[3].matches("[0-9]{1,2}")&&parts[4].matches("[0-9]{1,6}")&&parts[5].matches("[0-9]{1,6}\\.(pbf|webp)")){
                     int z=Integer.parseInt(parts[3]),x=Integer.parseInt(parts[4]),y=Integer.parseInt(parts[5].substring(0,parts[5].lastIndexOf('.')));if(z>15||x>=(1<<z)||y>=(1<<z))return failure(404,"Not Found");
                     relative=parts[2]+"/"+parts[3]+"/"+parts[4]+"/"+parts[5];mime=parts[2].equals("terrain")?"image/webp":"application/x-protobuf";
                 }else if(parts.length==5&&parts[2].equals("glyphs")&&parts[3].equals("Noto%20Sans%20Regular")&&parts[4].matches("[0-9]{1,5}-[0-9]{1,5}\\.pbf")){relative="glyphs/"+parts[4];mime="application/x-protobuf";}else return failure(404,"Not Found");
-                File file=VectorRegions.file(new File(owner.getContext().getFilesDir(),"vector-maps-v1"),parts[1],relative);
+                File regionRoot=new File(owner.getContext().getFilesDir(),"vector-maps-v1");
+                File file=parts[0].equals("vector-set")?VectorRegions.fileFromSet(regionRoot,parts[1],relative):VectorRegions.file(regionRoot,parts[1],relative);
+                if(file==null)return failure(204,"No Content");
                 return new WebResourceResponse(mime,null,200,"OK",headers(file.length()),file.length()==0?new ByteArrayInputStream(new byte[0]):new BoundedMapInputStream(file,0,file.length()));
             }
             if(parts.length==2&&parts[0].equals("source")&&parts[1].matches("[a-f0-9]{32}")){

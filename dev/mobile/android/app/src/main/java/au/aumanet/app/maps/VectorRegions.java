@@ -43,6 +43,13 @@ public final class VectorRegions {
     }
     public static List<JSONObject> list(File root){List<JSONObject> list=new ArrayList<>();File[] dirs=root.listFiles();if(dirs!=null)for(File dir:dirs)if(id(dir.getName()))try{list.add(manifest(dir));}catch(Exception ignored){}list.sort((a,b)->Long.compare(b.optLong("installedAt"),a.optLong("installedAt")));return list;}
     public static JSONObject summary(JSONObject m)throws JSONException{JSONObject row=new JSONObject();for(String key:new String[]{"id","key","name","bounds","bytes","installedAt","terrain","dataDate"})row.put(key,m.get(key));return row;}
+    /** Resolve one verified tile across immutable regions, in caller supplied priority order. */
+    public static File fileFromSet(File root,String set,String path)throws Exception{
+        if(set==null||!set.matches("[a-f0-9]{32}(_[a-f0-9]{32}){0,3}")||!path(path))throw new IOException("Invalid vector region set");
+        Set<String> seen=new HashSet<>(Arrays.asList(set.split("_")));if(seen.size()!=set.split("_").length)throw new IOException("Duplicate vector region");
+        for(String id:set.split("_")){File dir=new File(root,id);if(!new File(dir,"manifest.json").isFile())continue;JSONObject m=manifest(dir);if(m.getJSONObject("files").has(path))return file(root,id,path);}
+        return null;
+    }
     public static File file(File root,String id,String path)throws Exception{
         if(!id(id)||!path(path))throw new IOException("Invalid vector tile path");File dir=new File(root,id);JSONObject m=manifest(dir),entry=m.getJSONObject("files").optJSONObject(path);if(entry==null)throw new FileNotFoundException("Tile outside downloaded coverage");
         File f=new File(dir,path);if(!f.isFile()||f.length()!=entry.getLong("bytes"))throw new IOException("Offline map file is incomplete");MessageDigest digest=MessageDigest.getInstance("SHA-256");try(InputStream in=new FileInputStream(f)){byte[] b=new byte[16384];int n;while((n=in.read(b))!=-1)digest.update(b,0,n);}if(!hex(digest.digest()).equals(entry.getString("sha256")))throw new IOException("Offline map file checksum failed");return f;

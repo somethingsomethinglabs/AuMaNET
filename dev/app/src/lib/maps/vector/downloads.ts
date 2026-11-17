@@ -25,3 +25,7 @@ let native:VectorMapsClient|undefined;
 export function nativeVectorMaps(){if(Capacitor.getPlatform()!=='android'||!Capacitor.isPluginAvailable('AuMaNETVectorMaps'))return undefined;return native??=vectorMapsClient(registerPlugin<Bridge>('AuMaNETVectorMaps'));}
 export function regionAt(regions:readonly VectorRegion[],longitude:number,latitude:number){return [...regions].sort((a,b)=>b.installedAt-a.installedAt).find(r=>longitude>=r.bounds[0]&&longitude<=r.bounds[2]&&latitude>=r.bounds[1]&&latitude<=r.bounds[3]);}
 export function regionTileUrl(region:VectorRegion,kind:'base'|'terrain'){return `${globalThis.location.origin}/_aumanet_maps/vector/${region.id}/${kind}/{z}/{x}/{y}.${kind==='base'?'pbf':'webp'}`;}
+
+export function orderedRegions(regions:readonly VectorRegion[]){return [...regions].sort((a,b)=>b.installedAt-a.installedAt||a.id.localeCompare(b.id));}
+export function visibleRegions(regions:readonly VectorRegion[],bounds:MapBounds){return orderedRegions(regions).filter(r=>r.bounds[0]<=bounds[2]&&r.bounds[2]>=bounds[0]&&r.bounds[1]<=bounds[3]&&r.bounds[3]>=bounds[1]);}
+export function regionSetRoot(regions:readonly VectorRegion[]){return globalThis.location.origin+'/_aumanet_maps/vector-set/'+orderedRegions(regions).map(r=>r.id).join('_');}
