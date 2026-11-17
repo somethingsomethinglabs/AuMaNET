@@ -1,7 +1,5 @@
 name: Firmware builds and signed release channels
 on:
-  schedule:
-    - cron: '15 15 * * *'
   push:
     tags: ['v*']
   workflow_dispatch:
@@ -60,7 +58,14 @@ jobs:
           RELEASE_CHANNEL: ${{ inputs.channel || 'nightly' }}
           RELEASE_VERSION: ${{ inputs.version || '' }}
           RESOLVE_REQUESTED_REF: 'true'
-        run: node dev/releases/plan.mjs
+        run: node dev/releases/plan.mjs > plan.json
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: candidate-plan
+          path: plan.json
+          if-no-files-found: error
+          retention-days: 14
 
   build:
     needs: plan
@@ -111,7 +116,7 @@ jobs:
 
   publish:
     needs: [plan, build]
-    if: github.event_name != 'workflow_dispatch' || inputs.publish
+    if: needs.plan.outputs.channel != 'nightly' && (github.event_name != 'workflow_dispatch' || inputs.publish)
     runs-on: ubuntu-24.04
     environment: firmware-releases
     permissions:
