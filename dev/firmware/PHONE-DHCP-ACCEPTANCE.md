@@ -88,7 +88,7 @@ reviewed build/runtime matrix before installation. Tool availability grants no
 installation permission or universal firmware acceptance.
 
 Host-only verification (no USB calls): run
-`python dev/tests/phone-dhcp-app-state.test.py`,
+`python dev/tests/phone-dhcp-tooling-state.test.py`,
 `python dev/tests/phone-dhcp-console.test.py`, and
 `node --check dev/firmware/tools/phone_app_action.mjs`.
 

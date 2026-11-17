@@ -16,6 +16,6 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install pyserial==3.5
-      - run: python dev/tests/phone-dhcp-app-state.test.py
+      - run: python dev/tests/phone-dhcp-tooling-state.test.py
       - run: python dev/tests/phone-dhcp-console.test.py
       - run: node --check dev/firmware/tools/phone_app_action.mjs
