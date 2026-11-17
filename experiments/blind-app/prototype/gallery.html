@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AuMaNET — captured design showcase</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 38px 34px 28px; background: #e8ecdf; color: #244834; font-family: Arial, sans-serif; }
+    header, main, footer { max-width: 1160px; margin: auto; }
+    header { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 28px; }
+    .eyebrow { margin-bottom: 10px; font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
+    h1 { margin: 0; font: normal 42px/1.08 Georgia, serif; letter-spacing: -1px; }
+    header p { max-width: 310px; margin: 0; color: #63765d; font-size: 12px; line-height: 1.7; }
+    main { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 27px; }
+    figure { margin: 0; min-width: 0; }
+    .frame { padding: 7px; border-radius: 27px; background: #244834; overflow: hidden; box-shadow: 0 14px 30px #2448341a; }
+    img { display: block; width: 100%; height: auto; border-radius: 20px; }
+    figcaption { padding: 17px 3px 0; font-size: 12px; line-height: 1.5; }
+    figcaption b { font-weight: 600; }
+    figcaption span { display: block; color: #6c7e65; font-size: 11px; margin-top: 3px; }
+    footer { margin-top: 25px; padding-top: 18px; border-top: 1px solid #ccd7c0; display: flex; gap: 24px; justify-content: space-between; color: #718367; font-size: 10px; line-height: 1.6; }
+    a { color: inherit; }
+    @media(max-width: 700px) { body { padding: 28px 20px; } header { display: block; } header p { margin-top: 18px; } h1 { font-size: 34px; } main { grid-template-columns: 1fr; max-width: 390px; } footer { flex-wrap: wrap; } }
+  </style>
+</head>
+<body>
+  <header><div><div class="eyebrow">AuMaNET · Independent design experiment</div><h1 id="title"></h1></div><p>A new design built from a functional brief.<br>Actual browser captures of the working prototype, with fictional people and simulated connections.</p></header>
+  <main id="screens"></main>
+  <footer><span>18 November 2026 · No original app code or images supplied to the designer.</span><span><a href="index.html#field">Open prototype</a> · <a href="gallery.html">Everyday</a> · <a href="gallery.html?set=explore">Explore</a> · <a href="gallery.html?set=tools">Prepare</a> · <a href="showcase.html">Live frames</a></span></footer>
+  <script>
+    const sets = {
+      everyday: {title:'Your people, within reach.', screens:[['field','A shared starting point','Group connection, privacy choices, and local context.'],['chat','A conversation that stays','Durable messages, photos, and honest delivery states.'],['voice','A familiar voice','Join muted. Listen freely. Speak deliberately.']]},
+      explore: {title:'A little closer, out there.', screens:[['map','Find your bearings','Explore locally. Choose when to share a position.'],['people','A small, trusted circle','Membership and live presence stay separate.'],['kit','Everything within reach','Connection, internet, maintenance, and planning tools.']]},
+      tools: {title:'Ready before you head out.', screens:[['offline','Bring the map along','Named areas, terrain, progress, and usable coverage.'],['firmware','Care for the connection','Exact firmware identities and a deliberate update flow.'],['planner','Leave room for the group','Explore capacity assumptions and their consequences.']]}
+    };
+    const selected = sets[new URLSearchParams(location.search).get('set')] || sets.everyday;
+    document.getElementById('title').textContent = selected.title;
+    for (const [route,title,caption] of selected.screens) {
+      const figure = document.createElement('figure');
+      const frame = document.createElement('div'); frame.className = 'frame';
+      const img = document.createElement('img'); img.src = `screenshots/${route}-mobile.jpg`; img.alt = `${title}: captured ${route} screen`;
+      frame.append(img);
+      const label = document.createElement('figcaption');
+      const heading = document.createElement('b'); heading.textContent = title;
+      const detail = document.createElement('span'); detail.textContent = caption;
+      label.append(heading, detail); figure.append(frame, label); document.getElementById('screens').append(figure);
+    }
+  </script>
+</body>
+</html>
