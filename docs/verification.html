@@ -14,4 +14,10 @@ changes retain the acceptance requirements in <code>AGENTS.md</code>.</p>
 <code>vector-map-contract.test.mjs</code> and <code>map-connections-browser-verification.mjs</code>.
 Browser fixtures use synthetic positions and radio observations; their results
 must not be described as measured physical radio or location acceptance.</p>
+<p>Regional vector downloads add <code>native-vector-downloads.mjs</code> (set <code>JAVA_HOME</code>),
+<code>vector-downloads.test.mjs</code> and <code>vector-downloads-browser.mjs</code>. The optional
+<code>native-vector-downloads.mjs --download</code> performs a real provider extraction;
+<code>downloaded-map-browser.mjs</code> renders that actual saved data with a declared
+simulated Android file bridge. Background/notification/process lifecycle
+acceptance remains an installed-device check, separate from these fixtures.</p>
 </article><nav class="page-pagination" aria-label="Previous and next pages"><a href="android-development.html"><small>Previous</small><strong>Android host</strong></a><a href="ui-verification.html"><small>Next</small><strong>Android UI prototype verification</strong></a></nav></main><footer><a href="documentation-roadmap.html">Documentation roadmap</a> · <a href="maintaining-docs.html">Maintenance</a> · <a data-repository-source="true" href="../dev/tests/README.md">Repository source</a><br>Built from repository sources. Local HTML works offline; external sources need internet.</footer></div></div><script src="assets/handbook.js" defer></script></body></html>

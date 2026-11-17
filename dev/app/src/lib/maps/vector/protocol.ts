@@ -2,12 +2,18 @@ import {Capacitor} from '@capacitor/core';
 import {addProtocol,removeProtocol} from 'maplibre-gl';
 import {Protocol} from 'pmtiles';
 import {previewArchive} from './archive';
-export function previewProtocols(){
+export function previewProtocols(options:{terrainTemplate?:string;regionRoot?:string}={}){
   const native=Capacitor.getPlatform()==='android';
   const basemap=previewArchive('basemap.pmtiles',native),terrain=previewArchive('terrain.pmtiles',native),protocol=new Protocol();
   protocol.add(basemap.archive);protocol.add(terrain.archive);addProtocol('pmtiles',protocol.tile);
+  if(options.regionRoot)addProtocol('aumanet-offline-base',async(request,controller)=>{
+    const match=/^aumanet-offline-base:\/\/(\d+)\/(\d+)\/(\d+)$/.exec(request.url);if(!match)throw Error('Invalid offline tile');
+    const response=await fetch(options.regionRoot+'/base/'+match.slice(1).join('/')+'.pbf',{signal:controller.signal});
+    if(response.status===204)return{data:new ArrayBuffer(0)};
+    if(!response.ok)throw Error('Offline map tile failed verification');const data=await response.arrayBuffer();if(data.byteLength>2*1024*1024)throw Error('Oversized offline tile');return{data};
+  });
   const worker=new Worker(new URL('./terrain-worker.ts',import.meta.url),{type:'module'});
-  worker.postMessage({type:'init',native});
+  worker.postMessage({type:'init',native,...options});
   let sequence=0,closed=false;
   const pending=new Map<number,{resolve:(value:{data:ArrayBuffer})=>void;reject:(error:Error)=>void;cleanup:()=>void}>();
   worker.onmessage=event=>{const value=pending.get(event.data.id);if(!value)return;pending.delete(event.data.id);value.cleanup();if(event.data.error)value.reject(new Error(event.data.error));else value.resolve({data:event.data.data});};
@@ -22,5 +28,5 @@ export function previewProtocols(){
     if(controller.signal.aborted){abort();return;}controller.signal.addEventListener('abort',abort,{once:true});worker.postMessage({type:'contour',id,z,x,y});
   }));
   return{basemap:`pmtiles://${basemap.source.url}`,terrain:`pmtiles://${terrain.source.url}`,metrics:()=>({basemap:{...basemap.source.metrics},terrain:{...terrain.source.metrics},pendingContours:pending.size}),
-    close(){closed=true;for(const value of pending.values()){value.cleanup();value.reject(new DOMException('Map closed','AbortError'));}pending.clear();worker.terminate();removeProtocol('pmtiles');removeProtocol('aumanet-contours');}};
+    close(){closed=true;for(const value of pending.values()){value.cleanup();value.reject(new DOMException('Map closed','AbortError'));}pending.clear();worker.terminate();removeProtocol('pmtiles');removeProtocol('aumanet-contours');if(options.regionRoot)removeProtocol('aumanet-offline-base');}};
 }
