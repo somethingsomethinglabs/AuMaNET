@@ -1,0 +1,19 @@
+{
+  "purpose": "Crypto verification only: non-executable payload, no ESP header; MUST NOT install or publish",
+  "manifest": "QVVNRlcxAAAAAQABAQIAAQAABAAAAAAAAAAAAQAAAABq9UlgAAEAAb4dKUGwVGJjdvpYFVzg741jV90N78v56qN9Gf9gmIc8zMzMzMzMzMzMzMzMzMzMzMzMzMwBLHl/qQEjHS3Yn536uvacntHx22xPkleAwh3nLm8jGjAuNy4wLWZpeHR1cmUAAAAAAAAAAAAAAAAAAAAAAAAAd29ya2luZy10cmVlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABjcnlwdG8tZml4dHVyZS1ub3QtaW5zdGFsbGFibGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAl9992lhUA6ITovXqdDoHG7km+T9QKDftioUY99fM301BVRgA",
+  "signature": "MEUCICHM1xUJXLnm6Ru44v8spHg41/HLHSuWwwC8IadHYQzeAiEA8QxqyWf3Zivu7QUtw/z6dohrdori3oDEV4UEDLsB9pk=",
+  "metadata": {
+    "role": "A",
+    "channel": "nightly",
+    "imageBytes": 1024,
+    "imageSha256": "be1d2941b054626376fa58155ce0ef8d6357dd0defcbf9eaa37d19ff6098873c",
+    "sequence": 1,
+    "issuedUnixSeconds": 1794460000,
+    "dirtySource": true,
+    "commit": "cccccccccccccccccccccccccccccccccccccccc",
+    "gitRef": "working-tree",
+    "buildId": "crypto-fixture-not-installable",
+    "version": "0.7.0-fixture"
+  },
+  "keyId": "012c797fa901231d2dd89f9dfabaf69c9ed1f1db6c4f925780c21de72e6f231a"
+}

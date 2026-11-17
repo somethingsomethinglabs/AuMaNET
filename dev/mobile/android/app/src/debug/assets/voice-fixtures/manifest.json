@@ -1,0 +1,53 @@
+{
+  "schema": "aumanet.debug-speech-fixture.v1",
+  "scope": "Licensed recording for code tests; not actual microphone/acoustic quality acceptance",
+  "source": {
+    "resource": "LibriSpeech SLR12",
+    "url": "https://www.openslr.org/12/",
+    "archive": "https://www.openslr.org/resources/12/dev-clean.tar.gz",
+    "entry": "LibriSpeech/dev-clean/2277/149896/2277-149896-0026.flac",
+    "license": "CC-BY-4.0",
+    "copyright": "LibriSpeech (c) 2014 by Vassil Panayotov",
+    "sha256": "3909a6c5ae93112518681fcbf0a74df43615a4f88bd6d5cd788775255296e3f6",
+    "bytes": 95629,
+    "sampleRate": 16000,
+    "channels": 1,
+    "bits": 16,
+    "samples": 78720,
+    "seconds": 4.92,
+    "decodedPcmMd5": "55f5a7763817658c062b2b4d08fd1025",
+    "decodedPcmMd5Verified": true,
+    "acquisition": "Only hash-pinned bytes0–1048575 of the official archive were downloaded; whole archive checksum was not verified"
+  },
+  "derived": {
+    "file": "librispeech-2277-149896-0026-48k.pcm",
+    "sha256": "a03059bca319b398c01e62eb3bf14742a5bb854e6c204b919624f65ac39005f7",
+    "bytes": 472320,
+    "sampleRate": 48000,
+    "channels": 1,
+    "bits": 16,
+    "encoding": "PCM16LE",
+    "samples": 236160,
+    "seconds": 4.92
+  },
+  "preparation": {
+    "script": "dev/tests/Prepare-VoiceSpeechFixture.ps1 + prepare-voice-speech-pcm.mjs",
+    "method": "Chromium OfflineAudioContext decodeAudioData/resampling; source PCM checked against FLAC MD5",
+    "browserVersion": "157.0.8103.15",
+    "nodeVersion": "v24.13.0"
+  },
+  "runtime": {
+    "frameMs": 10,
+    "samplesPerFrame": 480,
+    "leadingSilenceFrames": 50,
+    "trailingSilenceFrames": 50,
+    "totalFrames": 592,
+    "totalSeconds": 5.92,
+    "quietGain": 0.25,
+    "noisePeakPcm16": 4096,
+    "noiseSeedHex": "13579bdf",
+    "speechSection": "Scheduled reference interval only; not per-frame speech ground truth"
+  },
+  "releaseIncluded": false,
+  "personalMicrophoneCaptured": false
+}

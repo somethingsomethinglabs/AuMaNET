@@ -1,0 +1,19 @@
+import {mount,unmount} from 'svelte';
+import ChannelOptimisationPanel from '../ChannelOptimisationPanel.svelte';
+import {GATEWAY_RADIO_OPTIONS,type GroupSnapshot} from '@aumanet/protocol';
+import type {NativeGatewayRadioSettingsClient} from '@aumanet/core';
+import type {LinkBenchmarkClient} from '../link-benchmark';
+import '../../styles.css';
+// Synthetic UI-only fixture. No native bridge or device commands.
+let actual=1,sequence=0,resultId=0,configGeneration=0;
+const calls:unknown[]=[];
+const radioListeners=new Set<(value:unknown)=>void>(),testListeners=new Set<(value:unknown)=>void>();
+const scope={groupId:'group',selfId:'owner',epoch:1,sourceRun:1};
+const reports=()=>['ap','station'].map((role,i)=>({nodeId:role,role,sourceRun:`boot${i}`,observationId:`obs${sequence}-${i}`,actualOptionId:actual,status:'idle',associated:true,persistenceKnown:true,configuredTxPowerDbm:24,reportAgeMs:0,nodeConfigGeneration:configGeneration}));
+const radioState=()=>({processId:'radio',scope,fieldSessionId:'field',fieldGeneration:1,canChange:true,owner:true,available:true,state:'idle',options:GATEWAY_RADIO_OPTIONS.slice(0,3),nodes:reports(),operationId:`operation${sequence}`});
+const radio={state:{loaded:true,error:'',snapshot:radioState()},async snapshot(){return structuredClone(this.state.snapshot);},async prepareComparison(){return this.refresh();},async refresh(){calls.push('refresh');sequence++;this.state.snapshot=radioState();for(const l of radioListeners)l(this.state);return this.snapshot();},async apply(id:number){calls.push(['apply',id]);actual=id;sequence++;configGeneration++;this.state.snapshot={...radioState(),state:'applied'};for(const l of radioListeners)l(this.state);return this.snapshot();},async cancel(){return this.snapshot();},subscribe(l:(value:unknown)=>void){radioListeners.add(l);l(this.state);return()=>radioListeners.delete(l);}};
+const benchmark={state:{loaded:true,error:'',busy:false,snapshot:{processId:'benchmark',scope,armed:true,canArm:false,armId:'arm',armRemainingMs:900000,state:'armed',peers:[{peerId:'peer',armId:'peer-arm'}],results:[] as unknown[],result:undefined as unknown}},async refresh(){},async start(peerId:string){calls.push(['test',actual]);const rate=actual*100000,measure={complete:true,goodputBitsPerSecond:rate};const result={testProfile:'channel-comparison',id:`result${++resultId}`,peerId,selfId:'owner',groupId:'group',status:'complete',upload:measure,download:measure,observationsAtStart:{radioConfigurations:reports()},observationsAtEnd:{radioConfigurations:reports()}};this.state.snapshot={...this.state.snapshot,state:'complete',result,results:[...this.state.snapshot.results,result]};for(const l of testListeners)l(this.state);},async stop(){},async arm(){},subscribe(l:(value:unknown)=>void){testListeners.add(l);l(this.state);return()=>testListeners.delete(l);}};
+const target=document.createElement('main');target.className='app-shell';target.style.cssText='height:auto;min-height:100dvh;padding:16px;max-width:700px;margin:auto;background:#f7f5eb;color:#174d35;--ink:#174d35;--muted:#65745f;--card:#fffdf6;--line:#dfe1d5';document.body.replaceChildren(target);
+const group={group:{id:'group',epoch:1,ownerId:'owner'},identity:{id:'owner'},members:[{id:'peer',name:'Test phone'}]} as unknown as GroupSnapshot;
+const mounted=mount(ChannelOptimisationPanel,{target,props:{radio:radio as unknown as NativeGatewayRadioSettingsClient,benchmark:benchmark as unknown as LinkBenchmarkClient,group}});
+Object.assign(window,{__channelOptimisationFixture:{calls,get actual(){return actual;},async destroy(){await unmount(mounted);target.remove();}}});

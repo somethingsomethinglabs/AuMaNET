@@ -1,0 +1,7 @@
+{
+  "scope": "Host tests only. These jars are not Android/APK dependencies.",
+  "dependencies": [
+    {"name":"sqlite-jdbc","version":"3.54.1.0","file":"sqlite-jdbc-3.54.1.0.jar","bytes":12132578,"sha256":"f8dce420a6016278497f4f0560f65602b9db858de141b541cf91a4644ebe4639","url":"https://repo.maven.apache.org/maven2/org/xerial/sqlite-jdbc/3.54.1.0/sqlite-jdbc-3.54.1.0.jar"},
+    {"name":"org.json","version":"20250517","file":"json-20250517.jar","bytes":82710,"sha256":"3ea61b2a06e31edf1c91134fe9106b0ebb16628be169f3db75bc7a2b06b45796","url":"https://repo.maven.apache.org/maven2/org/json/json/20250517/json-20250517.jar"}
+  ]
+}

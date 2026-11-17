@@ -1,0 +1,30 @@
+// Host-only policy/source-generation checks. No Android runtime or device acceptance.
+import {readFile,writeFile,mkdir,mkdtemp,cp} from 'node:fs/promises';
+import {spawnSync} from 'node:child_process';
+import {resolve,join,relative,delimiter} from 'node:path';
+import {createHash} from 'node:crypto';
+import {homedir} from 'node:os';
+import {pathToFileURL} from 'node:url';
+import {generateOverlay} from '../mobile/android/capacitor-lifecycle-overlay/generate.mjs';
+const root=resolve(import.meta.dirname,'../..'),folder=join(root,'dev/mobile/android/capacitor-lifecycle-overlay'),sha=value=>createHash('sha256').update(value).digest('hex');
+export async function main(argv=process.argv.slice(2)){
+  let output=join(root,'dev/artifacts/capacitor-lifecycle'),jdk=process.env.JAVA_HOME||join(homedir(),'.codex/aumanet-tools/java/jdk-21.0.13+9');const seen=new Set();
+  for(let i=0;i<argv.length;i++){const flag=argv[i];if(!['--output','--jdk'].includes(flag)||seen.has(flag)||!argv[i+1]||argv[i+1].startsWith('--'))throw new Error('Use --output <isolated directory> [--jdk JDK21]');seen.add(flag);if(flag==='--output')output=resolve(argv[++i]);else jdk=resolve(argv[++i]);}
+  await mkdir(output,{recursive:true});const run=await mkdtemp(join(output,'run-')),classes=join(run,'classes');await mkdir(classes);const result={status:'running',scope:'Actual pure UI lifetime policy and pinned source overlay generation only; no Android/FGS/WebView/phone acceptance',testCount:0,assertionCount:0,sourceSha256:{}};
+  const spec=JSON.parse(await readFile(join(folder,'patches.json'),'utf8')),sdk=join(root,'node_modules/@capacitor/android/capacitor'),maps=join(root,'dev/mobile/android/app/src/main/java/au/aumanet/app/maps'),sources=[join(folder,'src/com/getcapacitor/BridgeReplyScope.java'),join(root,'dev/tests/capacitor-lifecycle/BridgeReplyScopeTest.java'),join(root,'dev/tests/capacitor-lifecycle/MapNavigationOwnerTest.java'),...['MapFileRegistry','MapPreparationFiles','MapMutationLease','OfflineMapValidation'].map(name=>join(maps,name+'.java'))];
+  const inputs=[...sources,join(folder,'src/com/getcapacitor/WebViewLifetime.java'),join(folder,'patches.json'),join(folder,'generate.mjs'),join(folder,'review.patch'),join(folder,'../capacitor-lifecycle-overlay.gradle'),import.meta.filename];
+  let extraTests=0,extraAssertions=0;const check=(ok)=>{extraAssertions++;if(!ok)throw new Error('Overlay generation assertion failed');};async function rejects(work){extraAssertions++;let failed=false;try{await work();}catch{failed=true;}if(!failed)throw new Error('Unreviewed overlay input was accepted');}
+  try{
+    const dependency=JSON.parse(await readFile(join(root,'dev/tests/native-group-messages-store/dependencies.json'),'utf8')).dependencies.find(row=>row.name==='org.json'),jar=join(root,'dev/artifacts/group-messages',dependency.file),jarBytes=await readFile(jar);if(jarBytes.length!==dependency.bytes||sha(jarBytes)!==dependency.sha256)throw new Error('Pinned test JSON dependency checksum mismatch');result.dependencies=[{...dependency,verified:true}];
+    for(const file of inputs)result.sourceSha256[relative(root,file).replaceAll('\\','/')]=sha(await readFile(file));
+    const original={};for(const file of spec.files)original[file.path]=sha(await readFile(join(sdk,file.path)));
+    extraTests++;const generated=join(run,'generated');await generateOverlay({sdk,output:generated});await generateOverlay({sdk,output:generated,check:true});for(const file of spec.files){check(sha(await readFile(join(sdk,file.path)))===original[file.path]);check(sha(await readFile(join(generated,file.path.slice('src/main/java/'.length))))===file.generatedSha256);}
+    extraTests++;await rejects(()=>generateOverlay({sdk,output:join(sdk,'build/forbidden-overlay')}));
+    const copy=join(run,'fake-sdk/capacitor');await mkdir(copy,{recursive:true});await cp(join(sdk,'../package.json'),join(copy,'../package.json'));for(const file of spec.files){const target=join(copy,file.path);await mkdir(resolve(target,'..'),{recursive:true});await cp(join(sdk,file.path),target);}
+    const changed=join(copy,spec.files[0].path);await writeFile(changed,(await readFile(changed,'utf8'))+'\n// unreviewed\n');await rejects(()=>generateOverlay({sdk:copy,output:join(run,'unknown-sdk')}));await cp(join(sdk,spec.files[0].path),changed);const pkg=JSON.parse(await readFile(join(copy,'../package.json'),'utf8'));pkg.version='8.6.1';await writeFile(join(copy,'../package.json'),JSON.stringify(pkg));await rejects(()=>generateOverlay({sdk:copy,output:join(run,'wrong-version')}));
+    const cmd=(name,args)=>{const value=spawnSync(join(jdk,'bin',name+(process.platform==='win32'?'.exe':'')),args,{cwd:root,encoding:'utf8',windowsHide:true,timeout:60000,maxBuffer:1024*1024});if(value.error||value.status!==0)throw new Error(value.stderr||value.error?.message);return value.stdout;};cmd('javac',['-cp',jar,'-d',classes,...sources]);const checks=JSON.parse(cmd('java',['-cp',classes,'com.getcapacitor.BridgeReplyScopeTest'])),mapChecks=JSON.parse(cmd('java',['-cp',[classes,jar].join(delimiter),'au.aumanet.app.maps.MapNavigationOwnerTest']));if(checks.status!=='passed'||mapChecks.status!=='passed')throw new Error('UI lifetime checks did not report pass');Object.assign(result,{status:'pass',testCount:checks.testCount+mapChecks.testCount+extraTests,assertionCount:checks.assertionCount+mapChecks.assertionCount+extraAssertions});
+    for(const file of inputs)check(result.sourceSha256[relative(root,file).replaceAll('\\','/')]===sha(await readFile(file)));
+    result.assertionCount=checks.assertionCount+mapChecks.assertionCount+extraAssertions;
+  }catch(error){result.status='failed';result.error=error.message;process.exitCode=1;}finally{await writeFile(join(output,'result.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify({status:result.status,testCount:result.testCount,assertionCount:result.assertionCount,error:result.error}));}
+}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href)await main();

@@ -1,0 +1,295 @@
+{
+  "base": {
+    "schema": "aumanet.offline-map.v1",
+    "id": "fixture-region",
+    "title": "Contract fixture",
+    "bounds": [
+      144,
+      -37.8,
+      144.05,
+      -37.75
+    ],
+    "minZoom": 10,
+    "maxZoom": 10,
+    "tileSize": 256,
+    "format": "image/png",
+    "source": {
+      "name": "Fixture source",
+      "url": "https://example.org/map",
+      "fileName": "fixture.tif",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "attribution": "Synthetic fixture only",
+      "license": "Fixture",
+      "licenseUrl": "https://example.org/license",
+      "dataDate": "Unknown",
+      "preparedAt": "2026-11-10",
+      "changes": "Fixture"
+    },
+    "tiles": [
+      {
+        "z": 10,
+        "x": 921,
+        "y": 628,
+        "bytes": 24,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "id raw int",
+      "path": [
+        "id"
+      ],
+      "value": 5
+    },
+    {
+      "name": "title raw int",
+      "path": [
+        "title"
+      ],
+      "value": 5
+    },
+    {
+      "name": "schema raw int",
+      "path": [
+        "schema"
+      ],
+      "value": 5
+    },
+    {
+      "name": "format raw int",
+      "path": [
+        "format"
+      ],
+      "value": 5
+    },
+    {
+      "name": "tileSize raw str",
+      "path": [
+        "tileSize"
+      ],
+      "value": "256"
+    },
+    {
+      "name": "tileSize raw float",
+      "path": [
+        "tileSize"
+      ],
+      "value": 256.5
+    },
+    {
+      "name": "minZoom raw str",
+      "path": [
+        "minZoom"
+      ],
+      "value": "10"
+    },
+    {
+      "name": "minZoom raw float",
+      "path": [
+        "minZoom"
+      ],
+      "value": 10.5
+    },
+    {
+      "name": "maxZoom raw str",
+      "path": [
+        "maxZoom"
+      ],
+      "value": "10"
+    },
+    {
+      "name": "maxZoom raw float",
+      "path": [
+        "maxZoom"
+      ],
+      "value": 10.5
+    },
+    {
+      "name": "source.name raw number",
+      "path": [
+        "source",
+        "name"
+      ],
+      "value": 2026
+    },
+    {
+      "name": "source.url raw number",
+      "path": [
+        "source",
+        "url"
+      ],
+      "value": 2026
+    },
+    {
+      "name": "source.fileName raw number",
+      "path": [
+        "source",
+        "fileName"
+      ],
+      "value": 2026
+    },
+    {
+      "name": "source.sha256 raw number",
+      "path": [
+        "source",
+        "sha256"
+      ],
+      "value": 2026
+    },
+    {
+      "name": "source.attribution raw number",
+      "path": [
+        "source",
+        "attribution"
+      ],
+      "value": 2026
+    },
+    {
+      "name": "source.license raw number",
+      "path": [
+        "source",
+        "license"
+      ],
+      "value": 2026
+    },
+    {
+      "name": "source.licenseUrl raw number",
+      "path": [
+        "source",
+        "licenseUrl"
+      ],
+      "value": 2026
+    },
+    {
+      "name": "source.dataDate raw number",
+      "path": [
+        "source",
+        "dataDate"
+      ],
+      "value": 2026
+    },
+    {
+      "name": "source.preparedAt raw number",
+      "path": [
+        "source",
+        "preparedAt"
+      ],
+      "value": 2026
+    },
+    {
+      "name": "source.changes raw number",
+      "path": [
+        "source",
+        "changes"
+      ],
+      "value": 2026
+    },
+    {
+      "name": "tile.z raw str",
+      "path": [
+        "tiles",
+        0,
+        "z"
+      ],
+      "value": "10"
+    },
+    {
+      "name": "tile.z raw float",
+      "path": [
+        "tiles",
+        0,
+        "z"
+      ],
+      "value": 10.5
+    },
+    {
+      "name": "tile.x raw str",
+      "path": [
+        "tiles",
+        0,
+        "x"
+      ],
+      "value": "921"
+    },
+    {
+      "name": "tile.x raw float",
+      "path": [
+        "tiles",
+        0,
+        "x"
+      ],
+      "value": 921.5
+    },
+    {
+      "name": "tile.y raw str",
+      "path": [
+        "tiles",
+        0,
+        "y"
+      ],
+      "value": "628"
+    },
+    {
+      "name": "tile.y raw float",
+      "path": [
+        "tiles",
+        0,
+        "y"
+      ],
+      "value": 628.5
+    },
+    {
+      "name": "tile.bytes raw str",
+      "path": [
+        "tiles",
+        0,
+        "bytes"
+      ],
+      "value": "24"
+    },
+    {
+      "name": "tile.bytes raw float",
+      "path": [
+        "tiles",
+        0,
+        "bytes"
+      ],
+      "value": 24.5
+    },
+    {
+      "name": "tile.sha256 raw int",
+      "path": [
+        "tiles",
+        0,
+        "sha256"
+      ],
+      "value": 5
+    },
+    {
+      "name": "bounds raw string",
+      "path": [
+        "bounds",
+        0
+      ],
+      "value": "144"
+    },
+    {
+      "name": "bounds raw bool",
+      "path": [
+        "bounds",
+        0
+      ],
+      "value": true
+    },
+    {
+      "name": "source date raw null",
+      "path": [
+        "source",
+        "dataDate"
+      ],
+      "value": null
+    }
+  ]
+}

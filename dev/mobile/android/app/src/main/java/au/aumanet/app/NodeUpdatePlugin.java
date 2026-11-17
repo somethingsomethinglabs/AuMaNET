@@ -1,0 +1,15 @@
+package au.aumanet.app;
+import androidx.lifecycle.Lifecycle;import com.getcapacitor.*;import com.getcapacitor.annotation.CapacitorPlugin;
+/** Typed native update intent only. No URLs, firmware bytes or signing payload bridge. */
+@CapacitorPlugin(name="AuMaNETNodeUpdates")
+public final class NodeUpdatePlugin extends Plugin {
+ private volatile boolean destroyed;private boolean foreground(){return !destroyed&&getActivity()!=null&&getActivity().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED);}private NodeUpdateController control()throws Exception{return NodeUpdateController.get(getContext());}
+ @PluginMethod public void debugFixture(PluginCall call){try{call.resolve(control().debugFixture(call.getData(),this::foreground));}catch(Exception denied){call.reject("The local USB test catalog was not enabled","NODE_UPDATE_NOT_ACCEPTED");}}
+ @PluginMethod public void snapshot(PluginCall call){try{call.resolve(control().snapshot());}catch(Exception unavailable){call.reject("Firmware status is unavailable","NODE_UPDATE_STATUS_UNAVAILABLE");}}
+ @PluginMethod public void refreshNode(PluginCall call){try{call.resolve(control().refreshNode(call.getData()));}catch(Exception unavailable){call.reject("The checked node could not be requested","NODE_UPDATE_NOT_ACCEPTED");}}
+ @PluginMethod public void checkReleases(PluginCall call){if(!foreground()){call.reject("Open AuMaNET before checking releases","NODE_UPDATE_NOT_ACCEPTED");return;}try{call.resolve(control().checkReleases(call.getData()));}catch(Exception unavailable){call.reject("The signed release catalog could not be requested","NODE_UPDATE_NOT_ACCEPTED");}}
+ @PluginMethod public void download(PluginCall call){long capturedIntent=TrustedConnectionController.intentEpoch();if(!foreground()){call.reject("Open AuMaNET before downloading firmware","NODE_UPDATE_NOT_ACCEPTED");return;}try{call.resolve(control().download(call.getData(),this::foreground,capturedIntent));}catch(NodeUpdateController.NotAccepted denied){call.reject("The firmware download did not start","NODE_UPDATE_NOT_ACCEPTED");}catch(Exception unknown){call.reject("Check the native firmware download status","NODE_UPDATE_OUTCOME_UNKNOWN");}}
+ @PluginMethod public void install(PluginCall call){long capturedIntent=TrustedConnectionController.intentEpoch();if(!foreground()){call.reject("Open AuMaNET before updating a node","NODE_UPDATE_NOT_ACCEPTED");return;}try{call.resolve(control().install(call.getData(),this::foreground,capturedIntent));}catch(NodeUpdateController.NotAccepted denied){call.reject("The firmware installation did not start","NODE_UPDATE_NOT_ACCEPTED");}catch(Exception unknown){call.reject("The node update outcome is not confirmed. Check its authenticated status","NODE_UPDATE_OUTCOME_UNKNOWN");}}
+ @PluginMethod public void cancel(PluginCall call){try{call.resolve(control().cancel(call.getData()));}catch(Exception unknown){call.reject("Cancellation was not confirmed. Check the current update phase","NODE_UPDATE_OUTCOME_UNKNOWN");}}
+ @Override protected void handleOnDestroy(){destroyed=true;super.handleOnDestroy();}
+}

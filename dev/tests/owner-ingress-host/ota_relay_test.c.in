@@ -1,0 +1,62 @@
+/* Extracted production OTA relay/admission functions. Crypto is an explicit
+ * allow/deny fixture; this tests endpoint/session policy, not encryption. */
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#else
+#include <arpa/inet.h>
+#endif
+#include "gateway_ota.h"
+#include "aumanet_ota.h"
+#include "aumanet_routed_lan.h"
+static struct gateway_ota_config config;
+static int allowed=1;
+static int current(void*v){(void)v;return allowed;}
+static int owner_verify(void*v,const uint8_t*p,size_t n,const uint8_t*s,size_t z){(void)v;(void)p;(void)n;(void)s;return allowed&&z==8;}
+static int gb_crypto_hash(const uint8_t*p,size_t n,uint8_t out[32]){(void)p;(void)n;memset(out,9,32);return 1;}
+@@PRODUCTION@@
+static struct sockaddr_in endpoint(uint32_t ip,uint16_t port){struct sockaddr_in a={0};a.sin_family=AF_INET;a.sin_addr.s_addr=htonl(ip);a.sin_port=htons(port);return a;}
+static size_t frame(uint8_t p[1200],int kind){
+ memset(p,0,1200);memcpy(p,config.peer,16);uint8_t*b=p+16;memcpy(b,"AUGWOQ1",8);b[5]=(uint8_t)kind;b[8]=1;memcpy(b+16,config.peer,16);memcpy(b+32,config.group,16);b[55]=1;memcpy(b+56,config.owner_pin,32);memcpy(b+88,config.node,16);memset(b+104,0x77,32);
+ size_t n=kind=='Q'?AO_QUERY:kind=='R'?AO_REPORT:kind=='S'?AO_START:AO_COMMAND;p[16+n]=8;memcpy(p+17+n,(uint8_t[]){0x30,6,2,1,1,2,1,1},8);assert(ao_frame_kind(p,25+n)==kind);return 25+n;
+}
+static void topology(unsigned role){
+ memset(&config,0,sizeof config);memset(&relay,0,sizeof relay);config.role=role;memset(config.node,0x11,16);memset(config.peer,0x22,16);memcpy(config.relay,config.node,16);memset(config.group,1,16);memset(config.owner_pin,5,32);config.epoch=1;config.phone_ip=0x0a4d0064;config.peer_ip=role==1?0x0a4e0002:0x0a4e0001;
+ assert(ingress_scope(&config));assert(ingress_source(config.phone_ip,50000));assert(!ingress_source(config.peer_ip,AO_PORT));assert(!ingress_source(config.phone_ip,0));
+ struct sockaddr_in owner=endpoint(config.phone_ip,50000),other=endpoint(config.phone_ip,50001),peer=endpoint(config.peer_ip,AO_PORT),wrong=endpoint(config.peer_ip,AO_PORT+1),to;
+ uint8_t p[1200];size_t n=frame(p,'Q');allowed=0;assert(!relay_packet(p,n,'Q',&owner,100,&to));allowed=1;
+ assert(relay_packet(p,n,'Q',&owner,100,&to)&&same_endpoint(&to,&peer));assert(relay.query_at==100);
+ assert(!relay_packet(p,n,'Q',&other,200,&to));assert(relay_packet(p,n,'Q',&owner,200,&to)&&relay.query_at==100);
+ n=frame(p,'R');assert(!relay_packet(p,n,'R',&wrong,300,&to));assert(relay_packet(p,n,'R',&peer,300,&to)&&same_endpoint(&to,&owner));
+ /* Real worker admission: local A query, remote B query, then B report all
+  * arrive in the same second. The report must not be a third owner request. */
+ struct receive_budget budget={0};assert(receive_budget_take(&budget,'Q',0,100));assert(receive_budget_take(&budget,'Q',0,100));
+ assert(peer_report_source(p,n,&peer,300));assert(receive_budget_take(&budget,'R',peer_report_source(p,n,&peer,300),300));
+ assert(!receive_budget_take(&budget,'Q',0,300));assert(budget.requests==2);
+ assert(!peer_report_source(p,n,&wrong,300));assert(!receive_budget_take(&budget,'R',0,300));
+ for(unsigned i=1;i<4;i++)assert(receive_budget_take(&budget,'R',1,300));assert(!receive_budget_take(&budget,'R',1,300));
+ p[16+104]^=1;assert(!peer_report_source(p,n,&peer,300));p[16+104]^=1;
+ assert(!peer_report_source(p,n,&peer,100+AO_CHALLENGE_MS));
+ while(receive_budget_take(&budget,'E',0,300)){}assert(budget.total==32);assert(receive_budget_take(&budget,'Q',0,1000));
+ assert(!relay_packet(p,n,'R',&peer,100+AO_CHALLENGE_MS,&to));
+ n=frame(p,'S');assert(!relay_packet(p,n,'S',&other,500,&to));assert(relay_packet(p,n,'S',&owner,500,&to));assert(relay.active&&relay.session_at==500);
+ assert(relay_packet(p,n,'S',&owner,600,&to)&&relay.session_at==500);
+ memset(p,0,sizeof p);memcpy(p,config.peer,16);memcpy(p+16,"AUGWOE1",8);memcpy(p+24,relay.session,16);p[16+33]=16;n=88;assert(ao_frame_kind(p,n)=='E');
+ assert(relay_packet(p,n,'E',&owner,1000,&to));assert(!relay_packet(p,n,'E',&other,1000,&to));assert(relay_packet(p,n,'E',&peer,1000,&to)&&same_endpoint(&to,&owner));p[24]^=1;assert(!relay_packet(p,n,'E',&owner,1000,&to));p[24]^=1;assert(!relay_packet(p,n,'E',&owner,500+AO_SESSION_MS,&to));
+ n=frame(p,'C');memcpy(p+16+184,relay.session,16);memcpy(p+16+200,relay.artifact,32);assert(!relay_packet(p,n,'C',&other,20000,&to));assert(relay_packet(p,n,'C',&owner,20000,&to));assert(relay.session_at==500);
+ /* After ingress restart, confirmation can follow a fresh signed query. */
+ memset(&relay,0,sizeof relay);n=frame(p,'C');assert(!relay_packet(p,n,'C',&owner,21000,&to));n=frame(p,'Q');assert(relay_packet(p,n,'Q',&owner,21000,&to));n=frame(p,'C');assert(relay_packet(p,n,'C',&owner,21001,&to));
+ memcpy(config.relay,config.peer,16);assert(ingress_scope(&config));assert(!ingress_source(config.phone_ip,50000));assert(ingress_source(config.peer_ip,AO_PORT));assert(!ingress_source(config.peer_ip,AO_PORT+1));n=frame(p,'Q');assert(!relay_packet(p,n,'Q',&owner,22000,&to));
+ memset(config.relay,0x33,16);assert(!ingress_scope(&config));memcpy(config.relay,config.node,16);config.role=3;assert(!ingress_scope(&config));
+}
+static void manifest_roles(void){
+ uint8_t m[384]={0};memcpy(m,"AUMFW1",6);m[9]=m[11]=m[15]=m[27]=m[35]=m[37]=1;m[12]=3;m[13]=2;m[18]=2;m[19]=0x44;memset(m+40,1,32);memset(m+72,1,20);
+ const uint8_t key[32]={0x01,0x2c,0x79,0x7f,0xa9,0x01,0x23,0x1d,0x2d,0xd8,0x9f,0x9d,0xfa,0xba,0xf6,0x9c,0x9e,0xd1,0xf1,0xdb,0x6c,0x4f,0x92,0x57,0x80,0xc2,0x1d,0xe7,0x2e,0x6f,0x23,0x1a};
+ const uint8_t profile[32]={0x97,0xdf,0x7d,0xda,0x58,0x54,0x03,0xa2,0x13,0xa2,0xf5,0xea,0x74,0x3a,0x07,0x1b,0xb9,0x26,0xf9,0x3f,0x50,0x28,0x37,0xed,0x8a,0x85,0x18,0xf7,0xd7,0xcc,0xdf,0x4d};
+ memcpy(m+92,key,32);memcpy(m+348,profile,32);memcpy(m+124,"test",4);memcpy(m+156,"main",4);memcpy(m+284,"fixture",7);memcpy(m+380,"AU",2);m[382]=24;
+ assert(ao_manifest_checked(m,1)&&ao_manifest_checked(m,2));assert(!ao_manifest_checked(m,3));m[12]=1;assert(ao_manifest_checked(m,1)&&!ao_manifest_checked(m,2));m[12]=2;assert(!ao_manifest_checked(m,1)&&ao_manifest_checked(m,2));m[12]=4;assert(!ao_manifest_checked(m,1)&&!ao_manifest_checked(m,2));m[12]=3;m[348]^=1;assert(!ao_manifest_checked(m,1));
+}
+int main(void){manifest_roles();topology(1);topology(2);puts("OTA owner ingress: 2 radio-role suites and manifest compatibility passed");return 0;}

@@ -1,0 +1,345 @@
+--- capacitor-8.6.0/src/main/java/com/getcapacitor/Bridge.java
++++ generated-overlay/src/main/java/com/getcapacitor/Bridge.java
+@@ -148,7 +148,7 @@
+     private Map<String, PluginHandle> plugins = new HashMap<>();
+ 
+     // Stored plugin calls that we're keeping around to call again someday
+-    private Map<String, PluginCall> savedCalls = new HashMap<>();
++    private final Map<String, PluginCall> savedCalls = new java.util.concurrent.ConcurrentHashMap<>();
+ 
+     // The call IDs of saved plugin calls with associated plugin id for handling permissions
+     private Map<String, LinkedList<String>> savedPermissionCallIds = new HashMap<>();
+@@ -574,7 +574,8 @@
+     }
+ 
+     public void reset() {
+-        savedCalls = new HashMap<>();
++        msgHandler.onNavigation(savedCalls);
++        if(cordovaWebView instanceof MockCordovaWebViewImpl)((MockCordovaWebViewImpl)cordovaWebView).onNavigation();
+         for (PluginHandle handle : this.plugins.values()) {
+             handle.getInstance().removeAllListeners();
+         }
+@@ -820,6 +821,7 @@
+      * @param call the call object to pass to the method
+      */
+     public void callPluginMethod(String pluginId, final String methodName, final PluginCall call) {
++        if(!msgHandler.isLiveCall(call)){call.release(this);return;}
+         try {
+             final PluginHandle plugin = this.getPlugin(pluginId);
+ 
+@@ -843,6 +845,7 @@
+             }
+ 
+             Runnable currentThreadTask = () -> {
++                if(!msgHandler.isLiveCall(call)){call.release(this);return;}
+                 try {
+                     plugin.invoke(methodName, call);
+ 
+@@ -872,8 +875,7 @@
+      *                 after calling the JS
+      */
+     public void eval(final String js, final ValueCallback<String> callback) {
+-        Handler mainHandler = new Handler(context.getMainLooper());
+-        mainHandler.post(() -> webView.evaluateJavascript(js, callback));
++        WebViewLifetime.post(webView,()->webView.evaluateJavascript(js,callback));
+     }
+ 
+     public void logToJs(final String message, final String level) {
+@@ -923,7 +925,7 @@
+      * @param call
+      */
+     public void saveCall(PluginCall call) {
+-        this.savedCalls.put(call.getCallbackId(), call);
++        msgHandler.retain(call,savedCalls);
+     }
+ 
+     /**
+@@ -954,7 +956,7 @@
+      * @param call a call to release
+      */
+     public void releaseCall(PluginCall call) {
+-        releaseCall(call.getCallbackId());
++        if(call.getCallbackId()!=null)this.savedCalls.remove(call.getCallbackId(),call);
+     }
+ 
+     /**
+@@ -962,7 +964,7 @@
+      * @param callbackId an ID of a callback to release
+      */
+     public void releaseCall(String callbackId) {
+-        this.savedCalls.remove(callbackId);
++        if(callbackId!=null)this.savedCalls.remove(callbackId);
+     }
+ 
+     /**
+@@ -1395,7 +1397,10 @@
+      * Handle onDestroy lifecycle event and notify the plugins
+      */
+     public void onDestroy() {
++        msgHandler.close();
++        savedCalls.clear();
+         for (PluginHandle plugin : plugins.values()) {
++            plugin.getInstance().removeAllListeners();
+             plugin.getInstance().handleOnDestroy();
+         }
+ 
+@@ -1410,6 +1415,10 @@
+      * Handle onDetachedFromWindow lifecycle event
+      */
+     public void onDetachedFromWindow() {
++        msgHandler.close();
++        savedCalls.clear();
++        if(WebViewLifetime.isDestroyed(webView))return;
++        WebViewLifetime.beforeDestroy(webView);
+         webView.removeAllViews();
+         webView.destroy();
+     }
+@@ -1425,7 +1434,7 @@
+      */
+     public void setServerBasePath(String path) {
+         localServer.hostFiles(path);
+-        webView.post(() -> webView.loadUrl(appUrl));
++        WebViewLifetime.post(webView,() -> webView.loadUrl(appUrl));
+     }
+ 
+     /**
+@@ -1435,14 +1444,14 @@
+      */
+     public void setServerAssetPath(String path) {
+         localServer.hostAssets(path);
+-        webView.post(() -> webView.loadUrl(appUrl));
++        WebViewLifetime.post(webView,() -> webView.loadUrl(appUrl));
+     }
+ 
+     /**
+      * Reload the WebView
+      */
+     public void reload() {
+-        webView.post(() -> webView.loadUrl(appUrl));
++        WebViewLifetime.post(webView,() -> webView.loadUrl(appUrl));
+     }
+ 
+     public String getLocalUrl() {
+--- capacitor-8.6.0/src/main/java/com/getcapacitor/MessageHandler.java
++++ generated-overlay/src/main/java/com/getcapacitor/MessageHandler.java
+@@ -6,6 +6,7 @@
+ import androidx.webkit.WebViewCompat;
+ import androidx.webkit.WebViewFeature;
+ import org.apache.cordova.PluginManager;
++import java.util.Map;
+ 
+ /**
+  * MessageHandler handles messages from the WebView, dispatching them
+@@ -17,6 +18,19 @@
+     private WebView webView;
+     private PluginManager cordovaPluginManager;
+     private JavaScriptReplyProxy javaScriptReplyProxy;
++    private boolean listenerRegistered;
++    private static final class ScopedCall extends PluginCall {
++        final BridgeReplyScope.Ticket ticket;
++        final JavaScriptReplyProxy reply;
++        ScopedCall(MessageHandler handler,String plugin,String callback,String method,JSObject data,BridgeReplyScope.Ticket ticket,JavaScriptReplyProxy reply){super(handler,plugin,callback,method,data);this.ticket=ticket;this.reply=reply;}
++    }
++    public boolean isLiveCall(PluginCall call){return !WebViewLifetime.isClosed(webView)&&(call instanceof ScopedCall?WebViewLifetime.accepts(webView,((ScopedCall)call).ticket):PluginCall.CALLBACK_ID_DANGLING.equals(call.getCallbackId()));}
++    public void onNavigation(Map<?,?> retained){javaScriptReplyProxy=null;WebViewLifetime.navigate(webView,retained);}
++    public void retain(PluginCall call,Map<String,PluginCall> retained){if(call.getCallbackId()==null||!isLiveCall(call))return;BridgeReplyScope.Ticket ticket=call instanceof ScopedCall?((ScopedCall)call).ticket:WebViewLifetime.capture(webView);WebViewLifetime.retain(webView,ticket,retained,call.getCallbackId(),call);}
++    public void close(){
++        WebViewLifetime.close(webView);javaScriptReplyProxy=null;
++        if(listenerRegistered&&!WebViewLifetime.isDestroyed(webView)){WebViewCompat.removeWebMessageListener(webView,"androidBridge");listenerRegistered=false;}
++    }
+ 
+     public MessageHandler(Bridge bridge, WebView webView, PluginManager cordovaPluginManager) {
+         this.bridge = bridge;
+@@ -25,15 +39,16 @@
+ 
+         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER) && !bridge.getConfig().isUsingLegacyBridge()) {
+             WebViewCompat.WebMessageListener capListener = (view, message, sourceOrigin, isMainFrame, replyProxy) -> {
+-                if (isMainFrame) {
+-                    postMessage(message.getData());
++                if (isMainFrame && !WebViewLifetime.isClosed(webView)) {
+                     javaScriptReplyProxy = replyProxy;
++                    postMessage(message.getData(),WebViewLifetime.capture(webView),replyProxy);
+                 } else {
+                     Logger.warn("Plugin execution is allowed in Main Frame only");
+                 }
+             };
+             try {
+                 WebViewCompat.addWebMessageListener(webView, "androidBridge", bridge.getAllowedOriginRules(), capListener);
++                listenerRegistered=true;
+             } catch (Exception ex) {
+                 webView.addJavascriptInterface(this, "androidBridge");
+             }
+@@ -50,6 +65,10 @@
+     @JavascriptInterface
+     @SuppressWarnings("unused")
+     public void postMessage(String jsonStr) {
++        postMessage(jsonStr,WebViewLifetime.capture(webView),null);
++    }
++    private void postMessage(String jsonStr,BridgeReplyScope.Ticket ticket,JavaScriptReplyProxy replyProxy) {
++        if(!WebViewLifetime.accepts(webView,ticket))return;
+         try {
+             JSObject postData = new JSObject(jsonStr);
+ 
+@@ -78,7 +97,7 @@
+                         actionArgs
+                 );
+ 
+-                this.callCordovaPluginMethod(callbackId, service, action, actionArgs);
++                this.callCordovaPluginMethod(callbackId, service, action, actionArgs,ticket);
+             } else if (isJavaScriptError) {
+                 Logger.error("JavaScript Error: " + jsonStr);
+             } else {
+@@ -91,7 +110,7 @@
+                     "To native (Capacitor plugin): callbackId: " + callbackId + ", pluginId: " + pluginId + ", methodName: " + methodName
+                 );
+ 
+-                this.callPluginMethod(callbackId, pluginId, methodName, methodData);
++                this.callPluginMethod(callbackId, pluginId, methodName, methodData,ticket,replyProxy);
+             }
+         } catch (Exception ex) {
+             Logger.error("Post message error:", ex);
+@@ -100,6 +119,7 @@
+ 
+     public void sendResponseMessage(PluginCall call, PluginResult successResult, PluginResult errorResult) {
+         try {
++            if(!isLiveCall(call))return;
+             PluginResult data = new PluginResult();
+             data.put("save", call.isKeptAlive());
+             data.put("callbackId", call.getCallbackId());
+@@ -119,39 +139,39 @@
+             }
+ 
+             boolean isValidCallbackId = !call.getCallbackId().equals(PluginCall.CALLBACK_ID_DANGLING);
++            BridgeReplyScope.Ticket ticket=call instanceof ScopedCall?((ScopedCall)call).ticket:WebViewLifetime.capture(webView);
++            JavaScriptReplyProxy target=call instanceof ScopedCall?((ScopedCall)call).reply:null;
++            final String encoded=data.toString();
+             if (isValidCallbackId) {
+-                if (bridge.getConfig().isUsingLegacyBridge()) {
+-                    legacySendResponseMessage(data);
+-                } else if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER) && javaScriptReplyProxy != null) {
+-                    javaScriptReplyProxy.postMessage(data.toString());
+-                } else {
+-                    legacySendResponseMessage(data);
+-                }
++                WebViewLifetime.post(webView,ticket,()->{
++                    try{if(!bridge.getConfig().isUsingLegacyBridge()&&target!=null)target.postMessage(encoded);
++                    else webView.evaluateJavascript("window.Capacitor.fromNative("+encoded+")",null);
++                    }catch(Exception unavailable){Logger.error("Native UI response could not be delivered");}
++                });
+             } else {
+-                bridge.getApp().fireRestoredResult(data);
++                WebViewLifetime.post(webView,ticket,()->{try{bridge.getApp().fireRestoredResult(data);}catch(Exception unavailable){Logger.error("Restored UI response could not be delivered");}});
+             }
+         } catch (Exception ex) {
+             Logger.error("sendResponseMessage: error: " + ex);
+-        }
+-        if (!call.isKeptAlive()) {
+-            call.release(bridge);
++        } finally {
++            if (!call.isKeptAlive() || !isLiveCall(call))call.release(bridge);
+         }
+     }
+ 
+     private void legacySendResponseMessage(PluginResult data) {
+         final String runScript = "window.Capacitor.fromNative(" + data.toString() + ")";
+         final WebView webView = this.webView;
+-        webView.post(() -> webView.evaluateJavascript(runScript, null));
++        WebViewLifetime.post(webView,() -> webView.evaluateJavascript(runScript, null));
+     }
+ 
+-    private void callPluginMethod(String callbackId, String pluginId, String methodName, JSObject methodData) {
+-        PluginCall call = new PluginCall(this, pluginId, callbackId, methodName, methodData);
++    private void callPluginMethod(String callbackId, String pluginId, String methodName, JSObject methodData,BridgeReplyScope.Ticket ticket,JavaScriptReplyProxy reply) {
++        PluginCall call = new ScopedCall(this, pluginId, callbackId, methodName, methodData,ticket,reply);
+         bridge.callPluginMethod(pluginId, methodName, call);
+     }
+ 
+-    private void callCordovaPluginMethod(String callbackId, String service, String action, String actionArgs) {
++    private void callCordovaPluginMethod(String callbackId, String service, String action, String actionArgs,BridgeReplyScope.Ticket ticket) {
+         bridge.execute(() -> {
+-            cordovaPluginManager.exec(service, action, callbackId, actionArgs);
++            if(WebViewLifetime.accepts(webView,ticket))cordovaPluginManager.exec(service, action, callbackId, actionArgs);
+         });
+     }
+ }
+--- capacitor-8.6.0/src/main/java/com/getcapacitor/cordova/MockCordovaWebViewImpl.java
++++ generated-overlay/src/main/java/com/getcapacitor/cordova/MockCordovaWebViewImpl.java
+@@ -7,6 +7,8 @@
+ import android.webkit.ValueCallback;
+ import android.webkit.WebChromeClient;
+ import android.webkit.WebView;
++import com.getcapacitor.BridgeReplyScope;
++import com.getcapacitor.WebViewLifetime;
+ import java.util.List;
+ import java.util.Map;
+ import org.apache.cordova.CordovaInterface;
+@@ -70,7 +72,7 @@
+ 
+         @Override
+         public void onNativeToJsMessageAvailable(final NativeToJsMessageQueue queue) {
+-            cordova.getActivity().runOnUiThread(() -> {
++            WebViewLifetime.post(webView,() -> {
+                 String js = queue.popAndEncodeAsJs();
+                 if (js != null) {
+                     webView.evaluateJavascript(js, null);
+@@ -92,7 +94,7 @@
+     @Override
+     public void loadUrlIntoView(String url, boolean recreatePlugins) {
+         if (url.equals("about:blank") || url.startsWith("javascript:")) {
+-            webView.loadUrl(url);
++            WebViewLifetime.post(webView,()->webView.loadUrl(url));
+             return;
+         }
+     }
+@@ -172,6 +174,8 @@
+ 
+     @Override
+     public void handleDestroy() {
++        if(webView!=null)WebViewLifetime.close(webView);
++        if(nativeToJsMessageQueue!=null)nativeToJsMessageQueue.reset();
+         if (!isInitialized()) {
+             return;
+         }
+@@ -181,13 +185,14 @@
+     @Deprecated
+     @Override
+     public void sendJavascript(String statememt) {
+-        nativeToJsMessageQueue.addJavaScript(statememt);
++        if(webView!=null&&!WebViewLifetime.isClosed(webView))nativeToJsMessageQueue.addJavaScript(statememt);
+     }
+ 
+     public void eval(final String js, final ValueCallback<String> callback) {
+-        Handler mainHandler = new Handler(context.getMainLooper());
+-        mainHandler.post(() -> webView.evaluateJavascript(js, callback));
+-    }
++        WebViewLifetime.post(webView,()->webView.evaluateJavascript(js,callback));
++    }
++    /** Activity closure is exact; opaque legacy Cordova callback IDs are not a document nonce. */
++    public void onNavigation(){if(nativeToJsMessageQueue!=null)nativeToJsMessageQueue.reset();}
+ 
+     public void triggerDocumentEvent(final String eventName) {
+         eval("window.Capacitor.triggerEvent('" + eventName + "', 'document');", (s) -> {});
+@@ -225,7 +230,7 @@
+ 
+     @Override
+     public void sendPluginResult(PluginResult cr, String callbackId) {
+-        nativeToJsMessageQueue.addPluginResult(cr, callbackId);
++        if(webView!=null&&!WebViewLifetime.isClosed(webView))nativeToJsMessageQueue.addPluginResult(cr, callbackId);
+     }
+ 
+     @Override
+@@ -269,12 +274,12 @@
+     }
+ 
+     public void setPaused(boolean value) {
+-        if (value) {
++        WebViewLifetime.post(webView,()->{if (value) {
+             webView.onPause();
+             webView.pauseTimers();
+         } else {
+             webView.onResume();
+             webView.resumeTimers();
+-        }
++        }});
+     }
+ }

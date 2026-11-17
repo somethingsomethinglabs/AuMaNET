@@ -20,6 +20,10 @@ build/
 local.properties
 *.jks
 *.keystore
-
-# Generated firmware and local device evidence
+.playwright-cli/
 dev/artifacts/
+dev/tests/*.png
+dev/mobile/android/app/src/main/assets/public/
+dev/mobile/android/app/src/main/assets/capacitor.config.json
+dev/mobile/android/app/src/main/assets/capacitor.plugins.json
+dev/mobile/android/capacitor-cordova-android-plugins/
