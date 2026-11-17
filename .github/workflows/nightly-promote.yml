@@ -10,6 +10,14 @@ on:
         type: string
         required: true
         description: Committed dev/releases/acceptance/<id>.json reviewed record
+      evidence_pr:
+        type: string
+        required: true
+        description: Merged PR that contains the reviewed acceptance record
+      evidence_review:
+        type: string
+        required: true
+        description: Independent approval review ID on the exact evidence PR head
 permissions:
   contents: read
 concurrency:
@@ -23,6 +31,7 @@ jobs:
     permissions:
       contents: write
       actions: read
+      pull-requests: read
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: somethingsomethinglabs/AuMaNET
@@ -46,6 +55,8 @@ jobs:
         env:
           EVIDENCE: ${{ inputs.evidence }}
           CANDIDATE_RUN: ${{ inputs.candidate_run }}
+          EVIDENCE_PR: ${{ inputs.evidence_pr }}
+          EVIDENCE_REVIEW: ${{ inputs.evidence_review }}
         run: node dev/releases/acceptance.mjs "$EVIDENCE" incoming
       - name: Preserve reviewed acceptance with release
         env:

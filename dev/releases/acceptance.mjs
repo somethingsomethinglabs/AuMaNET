@@ -9,6 +9,19 @@ const requireThat=(ok,message)=>{if(!ok)throw Error(message);};
 const digest=x=>/^[0-9a-f]{64}$/.test(x||'');
 const commit=x=>/^[0-9a-f]{40}$/.test(x||'');
 const link=x=>typeof x==='string'&&/^https:\/\/[^\s]+$/.test(x);
+export function validateCoverage(e){
+ requireThat(e.matrix==='legacy-ab-v1','Unsupported target matrix: universal U requires reviewed build/signing support');
+ requireThat(Array.isArray(e.affectedPairs)&&e.affectedPairs.length>=2,'Reviewed affected node/phone inventory required');
+ const pair=p=>JSON.stringify([p.node,p.phone,p.role,p.runtimeRole]);
+ for(const p of [...e.affectedPairs,...e.devices])requireThat(p.node?.length>0&&p.phone?.length>0&&['A','B'].includes(p.role)&&p.runtimeRole===p.role,'Unsupported image/runtime role in affected pair');
+ const expected=e.affectedPairs.map(pair).sort(),actual=e.devices.map(pair).sort();
+ requireThat(new Set(expected).size===expected.length&&JSON.stringify(expected)===JSON.stringify(actual),'Every affected pair must have exactly one acceptance result');
+ requireThat(e.review?.coverageApproved===true&&e.review?.evidenceVerified===true&&e.review.reviewer?.length>0,'Independent evidence and coverage review required');
+}
+export function validateEvidenceReview(e,pr,review){
+ requireThat(pr.merged===true&&pr.base.ref==='testing','Evidence PR/head must be merged into testing');
+ requireThat(review.state==='APPROVED'&&review.commit_id===pr.head.sha&&review.user.login===e.review.reviewer&&review.user.login!==pr.user.login,'Independent approval of exact evidence PR head required');
+}
 export function validateAcceptance(e,plan,images,run,checks){
  requireThat(e.schema===1&&e.state==='accepted'&&e.decision==='publish-nightly','Explicit accepted nightly decision required');
  requireThat(commit(e.integratedCommit)&&e.integratedCommit===plan.commit&&plan.channel==='nightly','Integrated nightly identity mismatch');
@@ -23,6 +36,8 @@ export function validateAcceptance(e,plan,images,run,checks){
  requireThat(e.scope?.length>0&&e.acceptedBy?.length>0&&link(e.userAcceptance)&&Number.isFinite(Date.parse(e.acceptedAt))&&Date.parse(e.acceptedAt)>=Date.parse(run.updated_at),'Fresh device/user acceptance required');
  requireThat(Array.isArray(e.failures)&&e.failures.length===0&&Array.isArray(e.supersedes)&&e.bench?.restored===true&&link(e.bench.lease),'Unresolved failures or unrestored bench');
  requireThat(Array.isArray(e.devices)&&e.devices.length>=2,'Physical node/phone evidence required');
+ validateCoverage(e);
+ requireThat(Object.keys(e.images||{}).sort().join(',')==='A,B'&&Object.keys(images).sort().join(',')==='A,B','Unsupported or incomplete published image matrix');
  for(const role of ['A','B']){
   const image=images[role],identity=inspectImage(image),record=e.images?.[role];
   requireThat(record&&digest(record.sha256)&&record.sha256===sha(image),'Tested image hash mismatch');
@@ -47,6 +62,14 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).hr
  const checks=e.checks.map(c=>api(`${repo}/actions/runs/${Number(c.runId)}`));
  const comparison=api(`${repo}/compare/${plan.commit}...testing`);
  requireThat(['ahead','identical'].includes(comparison.status),'Candidate must be integrated into testing');
+ const evidencePr=api(`${repo}/pulls/${Number(process.env.EVIDENCE_PR)}`);
+ const evidenceReview=api(`${repo}/pulls/${Number(process.env.EVIDENCE_PR)}/reviews/${Number(process.env.EVIDENCE_REVIEW)}`);
+ validateEvidenceReview(e,evidencePr,evidenceReview);
+ const evidenceIntegration=api(`${repo}/compare/${evidencePr.merge_commit_sha}...${process.env.GITHUB_SHA}`);
+ requireThat(['ahead','identical'].includes(evidenceIntegration.status),'Reviewed evidence must be integrated into dispatched workflow commit');
+ // Bind the loaded record to the exact reviewed file, not a later edited copy.
+ const reviewedFile=api(`${repo}/contents/${evidencePath}?ref=${evidencePr.head.sha}`);
+ requireThat(reviewedFile.encoding==='base64'&&Buffer.from(reviewedFile.content,'base64').equals(readFileSync(evidencePath)),'Evidence differs from approved PR head');
  for(const candidate of e.candidates){
   const pr=api(`${repo}/pulls/${Number(candidate.pr)}`);
   requireThat(pr.merged===true&&pr.base.ref==='testing'&&pr.head.sha===candidate.head,'Candidate PR/head was not merged into testing');

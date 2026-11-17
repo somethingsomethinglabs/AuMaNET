@@ -57,7 +57,13 @@ code or change the public trust key as part of testing.
    stays in access-controlled storage; public records contain aliases and links,
    never MACs, serials, private addresses, credentials or raw phone dumps.
 9. After actual device/user acceptance, dispatch `nightly-promote.yml` with
-   `candidate_run` and the committed evidence path. Review the protected
+   `candidate_run`, the committed evidence path, `evidence_pr` and `evidence_review`
+   (the independent GitHub APPROVED review ID). The evidence PR must already be
+   merged into testing and included in the dispatched workflow commit. The gate
+   fetches its current head and the approval through GitHub, requires a reviewer
+   different from the PR author, and byte-compares the record against that reviewed
+   head. A later edit, dismissed approval, stale-head review or self-review fails.
+   Review the protected
    `firmware-releases` environment approval. It downloads the original artifacts,
    verifies hashes/embedded clean-source identity, successful run/attempt, merged
    candidate heads, ancestry in testing and integrated checks. Only then do trusted
@@ -84,8 +90,11 @@ The validator tests contain synthetic fixtures solely for CI.
 | `bench` | `{lease: HTTPS coordination link, restored: true}` |
 | `images` | `A` and `B`, each `{sha256}` of downloaded unmodified binary |
 | `devices` | Every affected node/intended phone pair; at least one for each published A/B role |
+| `matrix` | `legacy-ab-v1`; unknown/universal matrices fail closed |
+| `affectedPairs` | Reviewed complete inventory of `{node, phone, role, runtimeRole}`; exact one-to-one match with devices, including multiple phones/nodes for a role |
+| `review` | `{reviewer: GitHub login, coverageApproved: true, evidenceVerified: true}`; independent GitHub approval additionally verified by API |
 
-Each device records `role`, private aliases `node`/`phone`, `apkSha256`,
+Each device records `role`, `runtimeRole` (A or B, equal to the image role), private aliases `node`/`phone`, `apkSha256`,
 `firmwareSha256`, `firmwareBuildId`, `intendedSsidMac` (private evidence reference),
 `freshDhcpReconnects` (at least 3), `rebootRecovery`, `stableAddress`,
 `installedAppResume`, `restoredAssignmentsRetest` (all true), `evidence` (HTTPS JSON
@@ -109,9 +118,32 @@ independent of the submitting code. Existing older workflow revisions and manual
 local signing remain maintainer-controlled paths; this is not a repository-wide
 cryptographic enforcement against an authorized signer.
 
-The current firmware matrix is A/B. Universal-role publication requires a separate
-reviewed matrix/validator change and acceptance for that role. The phone DHCP tool
-and APK workflow are not present in current remote testing; PR #2 supplies the app
-snapshot and review workflow. Do not infer hardware readiness from this setup PR.
+The remote source build script, build-discovery and trusted main signer currently
+support A/B. The shared uncommitted firmware supports universal U and PR #1 adds
+publisher U compatibility, but neither supplies reviewed universal build/runtime
+support here. This gate therefore rejects U images, U runtime roles and universal
+campaigns; **do not install legacy A/B candidates on the current U bench** to test
+this protocol. Universal publication requires a reviewed firmware/build-discovery/
+matrix/signer change, defined runtime-role coverage and new physical acceptance.
+The reviewer's coverage attestation must enumerate every affected physical
+node/intended-phone pair and runtime-role scenario from the integration diff and
+bench inventory; a complete declared roster cannot prove an omitted real device.
+GitHub verifies independent approval, not the truth of a DHCP report or roster.
+Required environment reviewers/ref restrictions are still an operational setup
+check; this PR does not create a GitHub environment or assert its settings.
+
+The phone DHCP tooling is supplied by a separate `codex/phone-dhcp-prerequisites`
+PR based on testing. It must be reviewed/merged before hardware testing. PR #2
+supplies the app snapshot and review workflow. Do not infer hardware readiness
+from this setup PR.
 No device installation, hosted promotion exercise or release publication is needed
 to validate this configuration change.
+
+## Integration with PR #2
+
+This PR deliberately leaves `package.json` unchanged and invokes release and gate
+tests directly in `.github/workflows/check.yml`. PR #2 can retain all app scripts
+and its `firmware:release:test` command. Either merge order preserves both sets of
+tests. The coordinator should rebase this branch onto testing after each prerequisite
+merge and rerun integration CI; never modify PR #2's originating branch to resolve
+this setup. Other conflicts must be reviewed against the final combined tree.
