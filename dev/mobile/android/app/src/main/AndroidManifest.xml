@@ -51,6 +51,7 @@
             android:stopWithTask="false" />
         <service android:name=".NodeUpdateService" android:exported="false" android:foregroundServiceType="connectedDevice" android:stopWithTask="false" />
         <service android:name=".LinkBenchmarkService" android:exported="false" android:foregroundServiceType="connectedDevice" android:stopWithTask="false" />
+        <service android:name=".VectorDownloadService" android:exported="false" android:foregroundServiceType="dataSync" android:stopWithTask="false" />
         <service android:name=".GeoscienceDownloadService" android:exported="false" android:foregroundServiceType="dataSync" android:stopWithTask="false" />
 
         <provider

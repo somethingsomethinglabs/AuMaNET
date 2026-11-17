@@ -4,21 +4,40 @@
   import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
   import 'maplibre-gl/dist/maplibre-gl.css';
   import {previewProtocols} from './vector/protocol';
-  import {outdoorStyle} from './vector/style';
+  import {outdoorStyle,downloadedStyle} from './vector/style';
   import {manifest} from './vector/archive';
+  import {nativeVectorMaps,visibleRegions,regionSetRoot,downloadBounds,type VectorRegion,type MapBounds} from './vector/downloads';
+  export let focusBounds:MapBounds|undefined=undefined;
+  let regions:VectorRegion[]=[];
+  export let areaSelection:{latitude:number;longitude:number;radiusKm:number}|undefined=undefined;
+  export let areaLocked=false;
+  export let onareapin:((point:{latitude:number;longitude:number})=>void)|undefined=undefined;
+  export let onofflinepick:((point:{latitude:number;longitude:number})=>void)|undefined=undefined;
+  let areaOutline:Rectangle|undefined,areaPin:Marker|undefined;
+  function syncArea(){
+    if(!map)return;if(!areaSelection){areaOutline?.remove();areaPin?.remove();areaOutline=undefined;areaPin=undefined;return;}
+    const point:[number,number]=[areaSelection.latitude,areaSelection.longitude];
+    try{const[w,s,e,n]=downloadBounds(...point,areaSelection.radiusKm),bounds=new LatLngBounds([s,w],[n,e]);
+      if(!areaOutline)areaOutline=new Rectangle(bounds,{pane:'offline-area',color:'#a56627',weight:2.5,fillColor:'#c78a39',fillOpacity:.08,dashArray:'8 5',interactive:false,className:'offline-download-outline'}).addTo(map);else areaOutline.setBounds(bounds);
+    }catch{areaOutline?.remove();areaOutline=undefined;}
+    if(!areaPin){const icon=new DivIcon({className:'offline-area-marker',html:'<span class="offline-area-pin"></span>',iconSize:[28,36],iconAnchor:[14,32]});areaPin=new Marker(point,{icon,draggable:true,keyboard:true,title:'Download centre pin; drag to move'}).addTo(map);areaPin.on('dragend',()=>{const p=areaPin!.getLatLng();onareapin?.({latitude:p.lat,longitude:p.lng});});}else areaPin.setLatLng(point);
+    if(areaLocked)areaPin.dragging?.disable();else areaPin.dragging?.enable();
+  }
+
   export let onbasemap:(label:string)=>void=()=>{};
   let vectorContainer:HTMLDivElement,vector:VectorMap|undefined,protocols:ReturnType<typeof previewProtocols>|undefined;
   let vectorMode='',connectionDetail:MapConnection|undefined,detailDialog:HTMLDialogElement;
   function openConnection(id:string){connectionDetail=connections.find(item=>item.id===id);if(connectionDetail)detailDialog.showModal();}
-  function startVector(){try{setWorkerUrl(mapWorkerUrl);protocols=previewProtocols();vector=new VectorMap({container:vectorContainer,style:{version:8,sources:{},layers:[]},interactive:false,attributionControl:false,maxTileCacheSize:48});vector.on('error',()=>{onbasemap(vectorMode==='online'?'Online map unavailable · Check your internet connection':'Offline vector map unavailable');});}catch{vector?.remove();vector=undefined;protocols?.close();protocols=undefined;onbasemap('Vector map unavailable on this device');}}
+  function startVector(){try{setWorkerUrl(mapWorkerUrl);vector=new VectorMap({container:vectorContainer,style:{version:8,sources:{},layers:[]},interactive:false,attributionControl:false,maxTileCacheSize:48});vector.on('error',(event)=>{if(String(event.error?.message).includes('Offline elevation coverage is unavailable'))return;onbasemap(vectorMode==='online'?'Online map unavailable · Check your internet connection':'Offline vector map unavailable');});}catch{vector?.remove();vector=undefined;protocols?.close();protocols=undefined;onbasemap('Vector map unavailable on this device');}}
   function syncVector(){
     if(!map||!vector)return;const center=map.getCenter(),[w,s,e,n]=manifest.bounds;
-    const local=map.getZoom()>=11&&center.lng>=w&&center.lng<=e&&center.lat>=s&&center.lat<=n,mode=local?'local':'online';
-    if(vectorMode!==mode){vectorMode=mode;vector.setStyle(local?outdoorStyle(protocols!.basemap,protocols!.terrain):'https://tiles.openfreemap.org/styles/liberty');}
+    const viewport=map.getBounds(),bounds:MapBounds=[viewport.getWest(),viewport.getSouth(),viewport.getEast(),viewport.getNorth()];
+    const visible=visibleRegions(regions,bounds),region=visible[0],local=map.getZoom()>=11&&bounds[0]<=e&&bounds[2]>=w&&bounds[1]<=n&&bounds[3]>=s,root=region?regionSetRoot(regions):'',mode=region?'regions/'+root:local?'local':'online';
+    if(vectorMode!==mode){vectorMode=mode;protocols?.close();protocols=region||local?previewProtocols(region?{regionRoot:root,terrainTemplate:root+'/terrain/{z}/{x}/{y}.webp'}:{}):undefined;vector.setStyle(region?downloadedStyle(regions):local?outdoorStyle(protocols!.basemap,protocols!.terrain):'https://tiles.openfreemap.org/styles/liberty',{diff:false});}
     vector.jumpTo({center:[center.lng,center.lat],zoom:map.getZoom()-1});
-    onbasemap(local?'Offline outdoor map':'Online map · Internet required');
+    onbasemap(region?'Offline · '+(visible.length>1?visible.length+' saved areas':region.name):local?'Offline outdoor map':'Online map · Internet required');
   }
-  import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup} from 'leaflet';
+  import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup,Rectangle,Marker,DivIcon} from 'leaflet';
   import 'leaflet/styles.css';
   import type {Position,MapMember} from './format';
   import {freshGroupPositions,validPosition,MapNavigationView} from './map-view';
@@ -45,16 +64,18 @@
   function framePositions(){if(!map)return;const points=freshGroupPositions(fix,ageMs,active,members).map(p=>[p.latitude,p.longitude] as [number,number]);if(points.length)map.fitBounds(new LatLngBounds(points),{animate:false,padding:[40,40],maxZoom:15});}
   function defaultView(){
     if(!map)return;viewport.navigate(navigationToken);
+    if(focusBounds){if(viewport.next(false,true)==='coverage'){viewport.interact();const[w,s,e,n]=focusBounds;map.fitBounds(new LatLngBounds([s,w],[n,e]),{animate:false,padding:[18,18],maxZoom:16});}return;}
     if(viewport.next(freshGroupPositions(fix,ageMs,active,members).length>0,false)==='group')framePositions();
   }
   function reportCoverage(){syncVector();}
+  function activateMember(id:string,details=false){if(areaSelection){const p=markers.get(id)?.point.getLatLng();if(p&&!areaLocked)onareapin?.({latitude:p.lat,longitude:p.lng});}else (details?(onnameselect??onselect):onselect)(id);}
   function syncMarkers(){
     if(!map)return;const entries:Array<{id:string;name:string;fix:Position;fresh:boolean}>=[];
     if(valid(fix))entries.push({id:'self',name:'You',fix,fresh:active&&ageMs<=60000});
     for(const member of members)if(member.authorized&&valid(member.fix))entries.push({id:member.id,name:member.name,fix:member.fix,fresh:member.connected&&member.locationActive!==false&&member.ageMs<=60000});
     const keep=new Set(entries.map(e=>e.id));for(const[id,item]of markers)if(!keep.has(id)){item.point.remove();item.accuracy.remove();markers.delete(id);}
     for(const entry of entries){const p:[number,number]=[entry.fix.latitude,entry.fix.longitude],color=entry.fresh?(entry.id==='self'?'#2a6c92':'#21583a'):'#7b786b';let item=markers.get(entry.id);
-      if(!item){const point=new CircleMarker(p,{radius:entry.id==='self'?9:8,color:'#fffdf4',weight:3,fillColor:color,fillOpacity:1}),accuracy=new Circle(p,{radius:entry.fix.accuracy,color,weight:1,fillColor:color,fillOpacity:.09,interactive:false});const label=document.createElement('span');label.textContent=entry.name;label.role='button';label.tabIndex=0;label.addEventListener('click',event=>{event.stopPropagation();(onnameselect??onselect)(entry.id);});label.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();(onnameselect??onselect)(entry.id);}});point.bindTooltip(label,{direction:entry.id==='self'?'top':'bottom',offset:entry.id==='self'?[0,-8]:[0,8],permanent:true,interactive:true});point.on('click',()=>onselect(entry.id));accuracy.addTo(map);point.addTo(map);point.getElement()?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();onselect(entry.id);}});item={point,accuracy,label};markers.set(entry.id,item);}
+      if(!item){const point=new CircleMarker(p,{radius:entry.id==='self'?9:8,color:'#fffdf4',weight:3,fillColor:color,fillOpacity:1}),accuracy=new Circle(p,{radius:entry.fix.accuracy,color,weight:1,fillColor:color,fillOpacity:.09,interactive:false});const label=document.createElement('span');label.textContent=entry.name;label.role='button';label.tabIndex=0;label.addEventListener('click',event=>{event.stopPropagation();activateMember(entry.id,true);});label.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();activateMember(entry.id,true);}});point.bindTooltip(label,{direction:entry.id==='self'?'top':'bottom',offset:entry.id==='self'?[0,-8]:[0,8],permanent:true,interactive:true});point.on('click',()=>activateMember(entry.id));accuracy.addTo(map);point.addTo(map);point.getElement()?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();activateMember(entry.id);}});item={point,accuracy,label};markers.set(entry.id,item);}
       // A name edit keeps the same identity/marker. Update the existing label;
       // passing a string to Leaflet tooltip APIs would interpret names as HTML.
       if(item.label.textContent!==entry.name)item.label.textContent=entry.name;
@@ -86,14 +107,18 @@
   $: if(map)syncMarkers();
   $: {fix;ageMs;active;members;selected;follow;nodeMemberIds;if(map)syncMarkers();}
   $: {connections;if(map)syncConnections();}
-  $: {navigationToken;fix;ageMs;active;members;if(map)defaultView();}
+  $: {navigationToken;focusBounds;fix;ageMs;active;members;if(map)defaultView();}
+  $: {regions;if(map)syncVector();}
+  $: {areaSelection;areaLocked;if(map)syncArea();}
+  export function fitDownloadArea(bounds:MapBounds,bottom=260){interact();if(!map)return;const[w,s,e,n]=bounds;map.fitBounds(new LatLngBounds([s,w],[n,e]),{animate:false,paddingTopLeft:[24,60],paddingBottomRight:[24,Math.min(bottom+18,Math.max(50,container.clientHeight-160))],maxZoom:16});}
+  export function center(){const p=map?.getCenter();return p?{latitude:p.lat,longitude:p.lng}:undefined;}
   export function zoomIn(){interact();map?.zoomIn();}
   export function zoomOut(){interact();map?.zoomOut();}
   export function focusPosition(p:Position){interact();if(valid(p))map?.setView([p.latitude,p.longitude],Math.max(map?.getZoom()??0,14),{animate:false});}
   export function fitMembers(){interact();framePositions();}
-  onMount(()=>{startVector();map=new LeafletMap(container,{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:18,scrollWheelZoom:true,zoomAnimation:false,fadeAnimation:false});map.createPane('connections').style.zIndex='350';map.on('click',event=>{if((event.originalEvent?.target as Element)?.closest('.leaflet-interactive,.leaflet-tooltip'))return;const text=document.createElement('div');text.textContent=`${event.latlng.lat.toFixed(6)}, ${event.latlng.lng.toFixed(6)}`;text.setAttribute('aria-label','Pinned coordinates');new Popup().setLatLng(event.latlng).setContent(text).openOn(map!);});map.on('dragstart',interact);map.on('move zoom',syncVector);map.on('moveend zoomend',reportCoverage);const first=freshGroupPositions(fix,ageMs,active,members)[0];map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);syncConnections();syncMarkers();defaultView();const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();reportCoverage();});observer.observe(container);container.addEventListener('pointerdown',interact);container.addEventListener('wheel',interact,{passive:true});container.addEventListener('keydown',interact);return()=>{container.removeEventListener('pointerdown',interact);container.removeEventListener('wheel',interact);container.removeEventListener('keydown',interact);observer.disconnect();vector?.remove();vector=undefined;protocols?.close();map?.remove();map=undefined;markers.clear();connectionLines.clear();};});
+  onMount(()=>{let stopped=false,loading=false;const client=nativeVectorMaps();const refresh=async()=>{if(!client||loading)return;loading=true;try{const state=await client.snapshot();if(!stopped)regions=state.regions;}catch{}finally{loading=false;}};void refresh();const poll=setInterval(()=>void refresh(),5000);startVector();map=new LeafletMap(container,{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:18,scrollWheelZoom:true,zoomAnimation:false,fadeAnimation:false});map.createPane('connections').style.zIndex='350';map.createPane('offline-area').style.zIndex='390';map.on('click',event=>{if((event.originalEvent?.target as Element)?.closest('.leaflet-interactive,.leaflet-tooltip,.leaflet-marker-icon'))return;const point={latitude:event.latlng.lat,longitude:event.latlng.lng};if(areaSelection){if(!areaLocked)onareapin?.(point);return;}const text=document.createElement('div');text.textContent=`${event.latlng.lat.toFixed(6)}, ${event.latlng.lng.toFixed(6)}`;text.setAttribute('aria-label','Pinned coordinates');if(onofflinepick){const button=document.createElement('button');button.textContent='Save this area offline';button.className='pin-save-area';button.addEventListener('click',()=>{map?.closePopup();onofflinepick?.(point);});text.append(document.createElement('br'),button);}new Popup().setLatLng(event.latlng).setContent(text).openOn(map!);});map.on('dragstart',interact);map.on('move zoom',syncVector);map.on('moveend zoomend',reportCoverage);const first=freshGroupPositions(fix,ageMs,active,members)[0];map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);syncConnections();syncMarkers();syncArea();defaultView();const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();reportCoverage();});observer.observe(container);container.addEventListener('pointerdown',interact);container.addEventListener('wheel',interact,{passive:true});container.addEventListener('keydown',interact);return()=>{stopped=true;clearInterval(poll);container.removeEventListener('pointerdown',interact);container.removeEventListener('wheel',interact);container.removeEventListener('keydown',interact);observer.disconnect();vector?.remove();vector=undefined;protocols?.close();map?.remove();map=undefined;markers.clear();connectionLines.clear();};});
 </script>
 <div class="vector-background" bind:this={vectorContainer} aria-hidden="true"></div>
 <div class="geographic-map" bind:this={container} aria-label="Geographic map and group positions"></div>
 <dialog bind:this={detailDialog} aria-label="Connection signal" class="signal-detail"><button class="close-signal" onclick={()=>detailDialog.close()} aria-label="Close connection signal">Close</button>{#if connectionDetail}<h3>{connectionDetail.from.name} ↔ {connectionDetail.to.name}</h3><strong>{connectionDetail.strength}</strong><p>{connectionDetail.detail}</p>{/if}</dialog>
-<style>.vector-background,.geographic-map{position:absolute;inset:0;height:100%;min-height:0}.geographic-map{background:transparent!important}.signal-detail{max-width:420px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:22px;padding:22px;background:var(--card,#fffdf6);color:var(--ink,#214c35);box-shadow:0 12px 60px #0003}.signal-detail::backdrop{background:#10291e66}.signal-detail p{font-size:13px;line-height:1.6}.close-signal{float:right;border:0;background:transparent;color:inherit;min-height:44px;padding:8px}.signal-detail h3{font-size:18px;clear:both}:global(.leaflet-tooltip){font-family:inherit;border-radius:8px;color:#214c35;background:#fffdf3;border:1px solid #d8ddcb;font-weight:700}:global(.leaflet-control-container){display:none}</style>
+<style>.vector-background,.geographic-map{position:absolute;inset:0;height:100%;min-height:0}.geographic-map{background:transparent!important}.signal-detail{max-width:420px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:22px;padding:22px;background:var(--card,#fffdf6);color:var(--ink,#214c35);box-shadow:0 12px 60px #0003}.signal-detail::backdrop{background:#10291e66}.signal-detail p{font-size:13px;line-height:1.6}.close-signal{float:right;border:0;background:transparent;color:inherit;min-height:44px;padding:8px}.signal-detail h3{font-size:18px;clear:both}:global(.offline-area-pin){display:block;box-sizing:border-box;width:27px;height:27px;border:3px solid #fffdf4;border-radius:50% 50% 50% 0;background:#a56627;transform:rotate(-45deg);box-shadow:0 2px 7px #0004}:global(.pin-save-area){min-height:36px;margin-top:5px;border:0;border-radius:8px;padding:6px 10px;background:#21583a;color:#fff;font:inherit;font-weight:700}:global(.leaflet-tooltip){font-family:inherit;border-radius:8px;color:#214c35;background:#fffdf3;border:1px solid #d8ddcb;font-weight:700}:global(.leaflet-control-container){display:none}</style>

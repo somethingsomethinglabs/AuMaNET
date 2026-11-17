@@ -14,3 +14,18 @@ For the vector map, use `map-connections.test.mjs`,
 `vector-map-contract.test.mjs` and `map-connections-browser-verification.mjs`.
 Browser fixtures use synthetic positions and radio observations; their results
 must not be described as measured physical radio or location acceptance.
+
+Regional vector downloads add `native-vector-downloads.mjs` (set `JAVA_HOME`),
+`vector-downloads.test.mjs` and `vector-downloads-browser.mjs`. The optional
+`native-vector-downloads.mjs --download` performs a real provider extraction;
+`downloaded-map-browser.mjs` renders that actual saved data with a declared
+simulated Android file bridge. Background/notification/process lifecycle
+acceptance remains an installed-device check, separate from these fixtures.
+
+`offline-area-browser.mjs` checks the real pin, drag/tap movement, square bounds,
+distance slider, narrow layouts, explicit start, background status and retry flow
+using a declared simulated native client. It is not a normal app route.
+
+`connected-map-handoff-browser.mjs` mounts the real application shell with a
+simulated map client and checks that Maps → Choose area retains two navigated
+centres across map recreation, with explicit Retry metadata taking precedence.

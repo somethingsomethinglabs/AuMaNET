@@ -59,7 +59,11 @@
   import {LocalGroupVoiceCoordinator,joinGroupVoiceExplicit, type NativeGroupClient, type GroupSnapshot, type LocalGroupVoiceState} from '@aumanet/core';
   import {locationView, type NativeLocationClient, type LocationSnapshot} from '@aumanet/core';
   import {MapPin, MessageCircle, Mic, Network, Users, Router, Settings, ArrowLeft, Wifi, X, LocateFixed, Info} from '@lucide/svelte';
-  let mapNavigation=0;
+  import {nativeVectorMaps,type VectorMapsClient,type MapBounds,type DownloadRequest} from './maps/vector/downloads';
+  export let mapClient:VectorMapsClient|undefined=nativeVectorMaps();
+  let mapDownloadIntent:{token:number;request?:DownloadRequest}|undefined,downloadIntentToken=0;
+  function chooseOfflineArea(request?:DownloadRequest){const selected=request??(mapDownloadCenter?{...mapDownloadCenter,radiusKm:5,name:'Weekend area',terrain:true}:undefined);navigate('Map');mapDownloadIntent={token:++downloadIntentToken,request:selected};}
+  let mapNavigation=0,mapFocusBounds:MapBounds|undefined,mapDownloadCenter:{latitude:number;longitude:number}|undefined;
   let tab='Network', settings=false, settingsCategory='', developerOptions=false,returnToMap=false;
   let keyboardVisible=false;
   onMount(()=>{
@@ -108,17 +112,17 @@
   const tabs=[['Map',MapPin],['Messages',MessageCircle],['Voice',Mic],['Group',Users],['Network',Network]] as const;
   const explain=(e: unknown)=>e instanceof Error?e.message:String(e);
   function navigate(name: string) {
-    if(name==='Map')mapNavigation++;
+    if(name==='Map'){mapNavigation++;mapFocusBounds=undefined;mapDownloadIntent=undefined;}
     void voiceClient?.endPtt();
     settings=false; settingsCategory=''; developerOptions=false; tab=name;
     void tick().then(()=>scroller?.scrollTo({top:name==='Messages'?scroller.scrollHeight:0}));
   }
-  function showMap(){navigate('Map');}
+  function showMap(bounds?:MapBounds){navigate('Map');mapFocusBounds=bounds;}
   function openSettings(category=''){
     returnToMap=false;void voiceClient?.endPtt();settings=true;settingsCategory=category;developerOptions=false;
     void tick().then(()=>{scroller?.scrollTo({top:0});document.getElementById('live-settings-title')?.focus();});
   }
-  function openMapManagement(){openSettings('Maps & storage');returnToMap=true;}
+  function openMapManagement(center?:{latitude:number;longitude:number}){mapDownloadCenter=center;openSettings('Maps & storage');returnToMap=true;}
   function backSettings(){
     void voiceClient?.endPtt();const previous=settingsCategory,wasDeveloper=developerOptions;
     if(returnToMap){returnToMap=false;settings=false;settingsCategory='';}
@@ -223,7 +227,7 @@
       {#if settings&&settingsCategory==='Appearance'}<AppearanceSettings page onback={backSettings} client={appearance}/>{/if}
       {#if settings&&settingsCategory==='Notifications'}<NotificationSettings page onback={backSettings}/>{/if}
       {#if settings&&settingsCategory==='Diagnostics & about'}<DiagnosticsSettings page onback={backSettings} group={groupState} voice={voiceState} messages={groupMessagesClient?.state} location={locationState} groupError={!!groupError} voiceError={!!voiceError} locationError={!!nativeLocationError}/>{/if}
-      {#if settings&&settingsCategory==='Maps & storage'}<MapPanel managementOnly units={$appearance.units} onshowmap={showMap}/><section class="card"><h2>Local messages</h2><p>Manage saved conversation history in Messages.</p><button class="outline" onclick={()=>navigate('Messages')}>Open Messages</button></section>{/if}
+      {#if settings&&settingsCategory==='Maps & storage'}<MapPanel {mapClient} managementOnly onchoosearea={chooseOfflineArea} downloadCenter={mapDownloadCenter} units={$appearance.units} onshowmap={showMap}/><section class="card"><h2>Local messages</h2><p>Manage saved conversation history in Messages.</p><button class="outline" onclick={()=>navigate('Messages')}>Open Messages</button></section>{/if}
       {#if settings&&settingsCategory==='Internet sharing'}<InternetSettings client={internetClient} state={internetState} group={groupState} groupUnavailable={!!groupError} onnotifications={()=>openSettings('Notifications')}/>{/if}
       {#if settings&&settingsCategory==='Test connection'}<LinkBenchmarkPanel client={benchmarkClient} group={groupState} units={$appearance.units} ontools={()=>openSettings('Tools & checks')} onplan={result=>{planningRates={uploadKbps:result.upload.goodputBitsPerSecond/1000,downloadKbps:result.download.goodputBitsPerSecond/1000,completedAt:result.completedAt};openSettings('Plan bandwidth');}}/>{/if}
       {#if settings&&settingsCategory==='Tools & checks'}<ToolsPanel onopen={category=>{if(category==='Plan bandwidth')planningRates=undefined;openSettings(category);}}/>{/if}
@@ -241,12 +245,12 @@
       {#if groupMessagesClient}<NativeGroupMessages client={groupMessagesClient} group={groupState} units={$appearance.units} onconnect={()=>navigate('Network')}/>
       {:else}<section class="card"><h2>Group messages</h2><p>Open the Android app to send and receive messages with your group.</p></section>{/if}
     {:else if tab==='Map'}
-      {#if locationClient}<MapPanel units={$appearance.units} fix={locationState?.fix} ageMs={ownLocationView.ageMs??Infinity} active={locationState?.status==='active'&&!!locationState.active&&!nativeLocationError}
+      {#if locationClient}<MapPanel {mapClient} units={$appearance.units} fix={locationState?.fix} ageMs={ownLocationView.ageMs??Infinity} active={locationState?.status==='active'&&!!locationState.active&&!nativeLocationError}
         locationStatus={nativeLocationError||locationState?.message||locationState?.status||'Location is off'}
-        members={mapMembers} group={groupState} groupElapsedMs={Math.max(0,locationClock-groupReceivedAt)} groupUnavailable={!!groupError} onmemberdetails={showMember} onmembernamedetails={showMapName} nodeMemberIds={mapNodeMemberIds} navigationToken={mapNavigation} onprivacysettings={()=>openSettings('Location & privacy')} onmanage={openMapManagement}/>
+        members={mapMembers} group={groupState} groupElapsedMs={Math.max(0,locationClock-groupReceivedAt)} groupUnavailable={!!groupError} onmemberdetails={showMember} onmembernamedetails={showMapName} nodeMemberIds={mapNodeMemberIds} navigationToken={mapNavigation} downloadIntent={mapDownloadIntent} focusBounds={mapFocusBounds} onprivacysettings={()=>openSettings('Location & privacy')} onmanage={openMapManagement}/>
       {:else}
-      <MapPanel units={$appearance.units} fix={fix?{latitude:fix.latitude,longitude:fix.longitude,accuracy:fix.accuracy,timestamp:fixAt}:undefined} ageMs={fix?Math.max(0,clock-fixAt):Infinity} active={!!fix}
-        locationStatus={locationError||'Location is off'} navigationToken={mapNavigation} onprivacysettings={()=>openSettings('Location & privacy')} onmanage={openMapManagement}/>
+      <MapPanel {mapClient} units={$appearance.units} fix={fix?{latitude:fix.latitude,longitude:fix.longitude,accuracy:fix.accuracy,timestamp:fixAt}:undefined} ageMs={fix?Math.max(0,clock-fixAt):Infinity} active={!!fix}
+        locationStatus={locationError||'Location is off'} navigationToken={mapNavigation} downloadIntent={mapDownloadIntent} focusBounds={mapFocusBounds} onprivacysettings={()=>openSettings('Location & privacy')} onmanage={openMapManagement}/>
       {/if}
     {:else if tab==='Voice'}
       {#if voiceClient}<NativeVoicePanel client={voiceClient} state={voiceState} sourceError={voiceError||groupVoiceState?.error||''}

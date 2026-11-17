@@ -1,3 +1,4 @@
+import {regionSetRoot} from './downloads';
 import type {StyleSpecification,ExpressionSpecification,LayerSpecification} from 'maplibre-gl';
 import {manifest} from './archive';
 const name:ExpressionSpecification=['coalesce',['get','name:en'],['get','name'],''];
@@ -29,4 +30,15 @@ export function outdoorStyle(basemap:string,terrain:string):StyleSpecification {
   ];
   return{version:8,name:'AuMaNET Outdoor',glyphs:`${globalThis.location.origin}/maps/outdoor-preview/fonts/{fontstack}/{range}.pbf`,
     sources:{base:{type:'vector',url:basemap,bounds:manifest.bounds as [number,number,number,number]},terrain:{type:'raster-dem',url:terrain,encoding:'terrarium',tileSize:512,maxzoom:14},contours:{type:'vector',tiles:['aumanet-contours://{z}/{x}/{y}'],minzoom:13,maxzoom:14,bounds:manifest.bounds as [number,number,number,number]}},layers};
+}
+
+export function downloadedStyle(value:import('./downloads').VectorRegion|readonly import('./downloads').VectorRegion[]):StyleSpecification{
+  const regions=Array.isArray(value)?value:[value as import('./downloads').VectorRegion],root=regionSetRoot(regions);
+  const union=(items:readonly import('./downloads').VectorRegion[]):[number,number,number,number]=>[Math.min(manifest.bounds[0],...items.map(r=>r.bounds[0])),Math.min(manifest.bounds[1],...items.map(r=>r.bounds[1])),Math.max(manifest.bounds[2],...items.map(r=>r.bounds[2])),Math.max(manifest.bounds[3],...items.map(r=>r.bounds[3]))];
+  const style=outdoorStyle('','');style.name='AuMaNET Offline';style.glyphs=root+'/glyphs/{fontstack}/{range}.pbf';
+  style.sources.base={type:'vector',tiles:['aumanet-offline-base://{z}/{x}/{y}'],minzoom:0,maxzoom:15,bounds:union(regions)};
+  const terrain=regions.filter(r=>r.terrain);
+  if(terrain.length){style.sources.terrain={type:'raster-dem',tiles:['aumanet-offline-dem://{z}/{x}/{y}'],encoding:'terrarium',tileSize:512,minzoom:0,maxzoom:14,bounds:union(terrain)};style.sources.contours={type:'vector',tiles:['aumanet-contours://{z}/{x}/{y}'],minzoom:13,maxzoom:14,bounds:union(terrain)};}
+  else{delete style.sources.terrain;delete style.sources.contours;style.layers=style.layers.filter(layer=>!['hillshade','contour-lines','contour-labels'].includes(layer.id));}
+  return style;
 }
