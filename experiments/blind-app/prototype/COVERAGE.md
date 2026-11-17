@@ -1,6 +1,6 @@
 # Requirement coverage — independent AuMaNET prototype
 
-This maps **124 / 124** IDs from the sole product source, `../requirements-brief.md`. It is not a claim of native, physical, cryptographic or release acceptance. Every participant, node, network measurement and package result is synthetic. Ordinary screens carry a subtle experiment note; reviewer fault injection is only exposed by `?evaluate=1#operator`.
+This maps **124 / 124** IDs from the sole product source, `../requirements-brief.md`. It is not a claim of native, physical, cryptographic or release acceptance. Every participant, node, network measurement and package result is synthetic. About this prototype identifies the simulation boundaries; reviewer fault injection is only exposed by `?evaluate=1#operator`.
 
 Modes: **I** = interactive local behavior; **P** = interactive core plus a stated partial/descriptive branch; **D** = intentional descriptive boundary. “Simulated” means visible state consequences, not a real backend or device operation. Model tests and parent browser QA are separate evidence.
 
@@ -9,7 +9,7 @@ Modes: **I** = interactive local behavior; **P** = interactive core plus a state
 | ID | Mode | Prototype behavior and route | Limits / gap |
 | --- | --- | --- | --- |
 | FND-01 | I | Local ES modules, fonts/art, localStorage; populated saved profile or separate `?fresh=1#onboarding`; map usable without group/internet. | Requires a local HTTP server for modules; no installable native shell/service worker. |
-| FND-02 | I | `#connection` separately reports Wi-Fi, checked node, approved group, radio, transfer and usable internet; privacy rows independently report voice, location and donation. | All observations are synthetic; solo-node setup does not claim two-node radio evidence. |
+| FND-02 | I | `#connection` separately reports Wi-Fi, checked node, approved group, radio, transfer and usable internet; dedicated Voice, Map and Shared internet screens plus Active services independently report consent and activity. | All observations are synthetic; solo-node setup does not claim two-node radio evidence. |
 | FND-03 | P | Known/off, pending, preparing, interrupted, stale, denied, failed and unknown outcomes appear in context. Missing reverse radio, remote battery and historical positions remain unknown. | Not every native unsupported/error permutation has a distinct simulator control. |
 | FND-04 | I | localStorage persists identities, scope, roster, drafts/history/preferences; disconnect confirmation names what ends and what stays. New group creation archives prior data internally. | Archive switching is model-tested, without an added ordinary product feature. Browser storage is unencrypted. |
 | FND-05 | I | Navigation/refresh/inspection never starts sends, permissions, publication, donation, approval, firmware or measurements. Drafts load without submission. | Local maintenance scheduler only advances previously explicit operations. |
@@ -40,7 +40,7 @@ Modes: **I** = interactive local behavior; **P** = interactive core plus a state
 | ID | Mode | Prototype behavior and route | Limits / gap |
 | --- | --- | --- | --- |
 | CON-01 | P | Six states in `#connection` distinguish local Wi-Fi, verified node/group and personal internet; recheck is read-only. | OS Wi-Fi settings are described rather than opened. |
-| CON-02 | I | “Remember this connection” reviews exact phone/group revision/node; chooses group-only, muted voice or fresh-hold readiness. | No real saved-network selection. Hands-free is never restored automatically. |
+| CON-02 | I | Save connection / Saved connection reviews exact phone/group revision/node; chooses group-only, muted voice or fresh-hold readiness. | No real saved-network selection. Hands-free is never restored automatically. |
 | CON-03 | I | Separate unchecked position checkbox in trusted-choice review; changed approved revision prevents resume until review. | Native location consent is simulated. |
 | CON-04 | I | Explicit resume has joining → verification → synchronization stages, blocks traffic until verified; incomplete provisioning fails with guidance. | Missing/revoked setup represented by state/model guards; no real discovery. |
 | CON-05 | I | Review-only node loss/return during an authorized run preserves allowed recovery choices; same-scope re-verification, muted fresh hold, separately authorized publication. | Bounded recovery timing is compressed; physical reconnection is not tested. |
@@ -53,7 +53,7 @@ Modes: **I** = interactive local behavior; **P** = interactive core plus a state
 | ID | Mode | Prototype behavior and route | Limits / gap |
 | --- | --- | --- | --- |
 | MSG-01 | I | `#chat` group-scoped local history, sender, time, storage observation, immutable ID and state details; readable disconnected. Archived scopes isolate history. | No actual remote storage. |
-| MSG-02 | I | Editable local draft saves on input, offline too; saved/error visible; retry in options. Failed writes retain text, reject sends and preserve the outbox; reconnect/navigation never transmits the draft. | Writes are synchronous browser-local rather than native async journal. Unsaved edits survive only in the current window until retry succeeds. |
+| MSG-02 | I | Editable local draft saves on input, offline too; saved/error visible; Retry appears in the composer and conversation options. Failed writes retain text, reject sends and preserve the outbox; reconnect/navigation never transmits the draft. | Writes are synchronous browser-local rather than native async journal. Unsaved edits survive only in the current window until retry succeeds. |
 | MSG-03 | I | 4,096-byte draft limit and connected group’s configured 2,048-byte send limit counted as UTF-8; unsaved/oversized submissions rejected without truncation. | One supported 2,048-byte group capability is exercised; 240-byte legacy text is separate. |
 | MSG-04 | P | Original immutable intent/recipients survive interruption; queued, uncertain, partial, stored, received, cancelled and expired states; uncertain outcome resolves the original intent. | Retry pacing and a real recipient queue are simplified; no radio retransmission machinery. |
 | MSG-05 | I | Per-recipient device storage detail versus awaiting/not attempted/exhausted; no read receipts. | Peer acknowledgements are synthetic. |

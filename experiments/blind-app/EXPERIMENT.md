@@ -26,3 +26,7 @@ These are the original handoff byte hashes, recorded before Git line-ending norm
 ## Review
 
 The branch is submitted as an open pull request targeting `testing`. The prototype remains separate from normal product screens and contains no old/new implementation switch in the application.
+
+## Mobile UX follow-up
+
+Following the user’s critique of the phone-framed website layout, the parent reviewed four current screens and replaced the presentation with a viewport-based app experience. The correction uses the independent prototype and the user’s feedback only; no original-app code, imagery or layout was consulted. It introduces direct Messages/Voice/Map/People/Tools navigation, a pinned composer, full-screen map, reachable voice controls, compact lists and contextual sheets. The original two-agent design provenance above remains unchanged. [UX-REVIEW.md](UX-REVIEW.md) records the before/after evidence, interaction checks and remaining native/accessibility limits.

@@ -11,7 +11,9 @@ Set-Location 'C:\Users\rowan\Documents\projects\AuMaNET\experiments\blind-app\pr
 node server.mjs
 ```
 
-Open [the mobile preview](http://127.0.0.1:4317/mobile.html), [the full browser prototype](http://127.0.0.1:4317/), [the captured screenshot gallery](http://127.0.0.1:4317/gallery.html), or [the four-screen live showcase](http://127.0.0.1:4317/showcase.html). The server binds only to `127.0.0.1`. Stop it with Ctrl+C. Set the `PORT` environment variable before starting if port 4317 is already in use.
+Open [the mobile preview](http://127.0.0.1:4317/mobile.html), [the full browser prototype](http://127.0.0.1:4317/), [the original captured screenshot gallery](http://127.0.0.1:4317/gallery.html), or [the four-screen live showcase](http://127.0.0.1:4317/showcase.html). The server binds only to `127.0.0.1`. Stop it with Ctrl+C. Set the `PORT` environment variable before starting if port 4317 is already in use.
+
+The current UX review and before/after captures are in [UX-REVIEW.md](../UX-REVIEW.md). Earlier gallery images are historical captures of the first design.
 
 The mobile preview contains only the live app in a phone frame and an icon-only rotate button. Portrait uses a 390×844 viewport; landscape uses 844×390 and keeps mobile navigation. The frame scales to fit the available pane. Rotation resizes the existing session without reloading it. It uses the ordinary prototype's saved state; navigation updates the preview URL. Add `?orientation=landscape` to open sideways, or a route such as `#chat` to open a specific screen.
 
@@ -30,11 +32,11 @@ The tests use Node's built-in runner. They verify consent, persistent identities
 
 ## Experience and routes
 
-The normal first launch opens a fictional populated group so the proof of concept can be explored immediately. It is labeled throughout as an independent experiment with simulated connections. Normal navigation contains no fixture selectors or implementation switches.
+The normal first launch opens a fictional populated group so the proof of concept can be explored immediately. About this prototype explains the simulated connections, audio, GPS and hardware. Ordinary screens show relevant state rather than repeated experiment copy. Normal navigation contains no fixture selectors or implementation switches.
 
 | Route | Useful screen / interaction |
 | --- | --- |
-| `/#field` | Main field overview: map, connection, recent conversation, voice and private choices |
+| `/#field` | Legacy route alias for Messages |
 | `/#chat` | Group text, saved drafts, photo preparation, delivery details, history policy |
 | `/#map` | Pan/zoom representative map, member focus, temporary coordinate inspection, own position |
 | `/#people` | Roster, complete identities, owner invitations, membership requests and removal |
@@ -56,7 +58,7 @@ The normal first launch opens a fictional populated group so the proof of concep
 | `/showcase.html` | Four **actual live app screens** in phone frames, each with isolated ephemeral state |
 | `/mobile.html` | One live app in a phone frame, with portrait/landscape rotation and no surrounding explanatory content |
 
-Useful screenshot sizes are 1440×1000 (desktop), 390×844 (phone), and 844×390 (landscape). The main navigation becomes a fixed bottom bar on phones. Screenshot routes are view states, not flattened mockups; all use the same application renderer.
+Useful screenshot sizes are 1440×1000 (desktop), 390×844 (phone), and 844×390 (landscape). The five main destinations stay in a persistent bottom bar. Messages scrolls only its history; its composer remains visible. Map and Voice fill the available screen, while secondary screens use one vertical scroller. Screenshot routes are view states, not flattened mockups; all use the same application renderer.
 
 ## Deliberate review-only environment
 
@@ -72,9 +74,9 @@ To review a download, either choose Mara's simulated internet offer or enable si
 
 ## Design rationale
 
-The visual idea is a field notebook, with warm paper, forest ink, muted mineral colours and an open serif voice. The map is the shared centre, while conversation, people and practical tools each have a clear place. The overview answers what is connected and what the person has consented to without burying microphone or location choices in a global connection switch.
+The independent visual palette retains warm paper, forest ink and muted mineral colours. The user-requested UX revision replaces large editorial headings and promotional cards with compact app bars, direct task controls, list navigation and contextual sheets. Messages opens first; Voice and Map each have a dedicated screen. Consent remains explicit at the relevant action.
 
-The five primary destinations are Field, Conversation, Map, People and Field kit. Maintenance and engineering remain secondary to communication. The map uses deliberately schematic roads, contour lines, trails, buildings, creek, labelled places and directional observations. It is locally drawn artwork for geographic interaction, not real cartography. No map data licence is borrowed or implied.
+The five primary destinations are Messages, Voice, Map, People and Tools. Maintenance and engineering remain secondary to communication. The map uses deliberately schematic roads, contour lines, trails, buildings, creek, labelled places and directional observations. It is locally drawn artwork for geographic interaction, not real cartography. No map data licence is borrowed or implied.
 
 Muted transmission, local position acquisition, published position, approved membership, checked node association, live radio evidence, transfer readiness and optional internet are different states. Explanatory text is placed where a person makes the relevant choice. Message receipts describe device storage and never claim human reading.
 
@@ -93,7 +95,7 @@ All artwork is local SVG/code. Typography uses system Arial and Georgia, so the 
 
 ## Files
 
-`index.html` is the app entry point; `mobile.html`, `mobile.css` and `mobile.mjs` provide the rotatable phone preview; `app.mjs` renders routes and dialogs; `model.mjs` owns transitions; `persistence.mjs` checks writes before accepting changes; `styles.css` is responsive styling; `art.mjs` contains original map/footbridge SVGs; `server.mjs` serves loopback-only static assets; `showcase.html` embeds isolated live screens; `tests/*.test.mjs` contains the model and persistence checks.
+`index.html` is the app entry point; `mobile.html`, `mobile.css` and `mobile.mjs` provide the rotatable phone preview; `app.mjs` renders routes and dialogs; `model.mjs` owns transitions; `persistence.mjs` checks writes before accepting changes; `styles.css` contains the shared visual components and `app-layout.css` defines the viewport-based app layout; `art.mjs` contains original map/footbridge SVGs; `server.mjs` serves loopback-only static assets; `showcase.html` embeds isolated live screens; `tests/*.test.mjs` contains the model and persistence checks.
 
 ## Source boundary
 

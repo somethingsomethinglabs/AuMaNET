@@ -64,6 +64,14 @@ Browser inspection verified both orientations in a 1280×900 pane and the defaul
 
 `node --check mobile.mjs`, the existing 47 model/persistence tests and `git diff --check` passed. No model or native-device behavior changed.
 
+## Mobile app UX correction
+
+[UX-REVIEW.md](UX-REVIEW.md) records four reviewed flows with current-run before/after screenshots. The replacement removes rendered promotional headings and repeated explanatory copy, provides five direct destinations, pins the conversation composer and navigation, fills the map screen and keeps primary voice controls in reach. Secondary pages use one vertical scroller and optional details.
+
+Browser checks confirmed conversation document/viewport equality at 390×844, 844×390 and 320×640, no horizontal overflow, composer/navigation boundaries without overlap, multiline draft retention through rotation, successful send with focus return, and latest-message anchoring through rotation. Voice join-muted, explicit enable, keyboard hold/release, persistent mute/leave, settings apply-and-mute and leaving were exercised. Map member sheets made the background inert. Connection, firmware, radio, offline maps, planner, settings and diagnostics rendered with reachable controls; the planner recalculated after an input change. A review-only storage fault kept the draft and created no message; disabling it, using inline Retry, then sending created exactly one message.
+
+The current 47 model/persistence tests, syntax checks and whitespace validation pass. The nine new captures are in `prototype/screenshots/ux-review/`. Earlier screenshot manifests remain tied to their historical captures. Viewport overrides were reset and the user’s live preview was restored to portrait Messages. Real mobile keyboards, screen readers and native hardware behavior were not validated.
+
 ## Limits
 
 This is a proof of concept with interactive core flows. `prototype/COVERAGE.md` marks partial and descriptive branches individually. Some native error permutations, full background-process recovery, real remote offers and advanced engineering operations are represented only partially or descriptively. The browser walkthrough is representative, not exhaustive execution of every requirement permutation or an accessibility certification.
