@@ -5,15 +5,15 @@
   export let center:{latitude:number;longitude:number}|undefined=undefined;
   export let client:VectorMapsClient|undefined=nativeVectorMaps();
   export let onshowmap:((bounds?:MapBounds)=>void)|undefined=undefined;
-  let state:VectorState|undefined,error='',pending=false,latitude=center?.latitude?.toFixed(6)??'',longitude=center?.longitude?.toFixed(6)??'',name='Offline area',radiusKm=5,terrain=true;
+  let state:VectorState|undefined,error='',pending=false,edited=false,latitude=center?.latitude?.toFixed(6)??'',longitude=center?.longitude?.toFixed(6)??'',name='Offline area',radiusKm=5,terrain=true;
   let removing:string|undefined,removeDialog:HTMLDialogElement;
   $: valid=latitude.trim()!==''&&longitude.trim()!==''&&!!name.trim()&&name.trim().length<=64&&Number.isFinite(Number(latitude))&&Number.isFinite(Number(longitude))&&Math.abs(Number(latitude))<=80&&Math.abs(Number(longitude))<=180;
   $: active=!!state?.job?.active;
   function size(bytes:number){return`${(bytes/1048576).toFixed(1)} MiB`;}
-  async function refresh(){if(client)state=await client.snapshot();}
-  async function run(action:()=>Promise<VectorState>){if(pending)return;pending=true;error='';try{state=await action();}catch(e){error=e instanceof Error?e.message:'Offline map operation failed.';}finally{pending=false;}}
-  async function download(request?:DownloadRequest){if(!client)return;const next=request??{latitude:Number(latitude),longitude:Number(longitude),radiusKm:Number(radiusKm),name,terrain};try{downloadBounds(next.latitude,next.longitude,next.radiusKm);}catch(e){error=(e as Error).message;return;}await run(()=>client!.download(next));}
-  onMount(()=>{let stopped=false,polling=false;const poll=async()=>{if(!client||polling)return;polling=true;try{const next=await client.snapshot();if(!stopped)state=next;}catch(e){if(!stopped)error=e instanceof Error?e.message:'Offline map storage unavailable.';}finally{polling=false;}};void poll();const timer=setInterval(()=>void poll(),1000);return()=>{stopped=true;clearInterval(timer);};});
+  function accept(next:VectorState){if(!state&&next.job?.active&&next.job.request&&!edited){const r=next.job.request;latitude=r.latitude.toFixed(6);longitude=r.longitude.toFixed(6);radiusKm=r.radiusKm;name=r.name;terrain=r.terrain;}state=next;}
+  async function run(action:()=>Promise<VectorState>){if(pending)return;pending=true;error='';try{accept(await action());}catch(e){error=e instanceof Error?e.message:'Offline map operation failed.';}finally{pending=false;}}
+  async function download(request?:DownloadRequest){if(!client)return;if(!request&&!valid){error='Choose a valid name and map centre.';return;}const next=request??{latitude:Number(latitude),longitude:Number(longitude),radiusKm:Number(radiusKm),name,terrain};try{downloadBounds(next.latitude,next.longitude,next.radiusKm);}catch(e){error=(e as Error).message;return;}await run(()=>client!.download(next));}
+  onMount(()=>{let stopped=false,polling=false;const poll=async()=>{if(!client||polling)return;polling=true;try{const next=await client.snapshot();if(!stopped)accept(next);}catch(e){if(!stopped)error=e instanceof Error?e.message:'Offline map storage unavailable.';}finally{polling=false;}};void poll();const timer=setInterval(()=>void poll(),1000);return()=>{stopped=true;clearInterval(timer);};});
 </script>
 
 <section class="downloads" aria-label="Offline vector maps">
@@ -21,7 +21,7 @@
   <p>Save roads, tracks and places with the same sharp detail as the map. Add terrain for hill shading and contours.</p>
   {#if !client}<p class="muted">Download offline areas in the Android app.</p>
   {:else}
-    <form onsubmit={event=>{event.preventDefault();if(valid&&!active)void download();}}>
+    <form oninput={()=>edited=true} onsubmit={event=>{event.preventDefault();if(valid&&!active)void download();}}>
       <label>Area name<input maxlength="64" bind:value={name} disabled={pending||active}/></label>
       <div class="coordinates"><label>Latitude<input type="text" inputmode="decimal" bind:value={latitude} disabled={pending||active}/></label><label>Longitude<input type="text" inputmode="decimal" bind:value={longitude} disabled={pending||active}/></label></div>
       <p class="muted">Centred on the map you were viewing. To choose another area, return to the map and move it, or enter coordinates.</p>
@@ -30,7 +30,7 @@
       <p class="muted">Up to 256 MiB per area · Four saved areas. Downloads use internet and continue when you leave this screen. Android may interrupt a download; Retry starts it again.</p>
       <button class="primary" type="submit" disabled={!state?.ready||!valid||pending||active||(state?.regions.length??0)>=4}><Download size={18}/>{pending&&!active?'Starting…':'Download area'}</button>
     </form>
-    {#if state?.job}{@const job=state.job}<div class="job" role="status"><strong>{job.name}</strong><p>{job.phase==='ready'?'Available offline':job.phase==='cancelling'?'Cancelling…':job.phase==='cancelled'?'Download cancelled':job.phase==='interrupted'?'Download interrupted':job.phase==='failed'?'Download failed':job.phase==='fonts'?'Saving map labels…':job.phase==='verifying'?'Finishing…':'Downloading…'} · {size(job.bytes)}</p>{#if job.active}<progress max={Math.max(1,job.total)} value={job.completed}></progress><p class="muted">{job.completed} / {job.total} files · Continues in the background</p><button class="outline" disabled={pending||job.phase==='cancelling'} onclick={()=>void run(()=>client!.cancel(job.id))}>Cancel download</button>{/if}{#if job.error}<p class="error">{job.error}</p>{/if}{#if !job.active&&['failed','interrupted','cancelled'].includes(job.phase)&&job.request}<button class="outline" disabled={pending} onclick={()=>void download(job.request)}>Retry download</button>{/if}</div>{/if}
+    {#if state?.job}{@const job=state.job}<div class="job" role="status"><strong>{job.name}</strong><p>{job.phase==='ready'?'Available offline':job.phase==='cancelling'?'Cancelling…':job.phase==='cancelled'?'Download cancelled':job.phase==='interrupted'?'Download interrupted':job.phase==='failed'?'Download failed':job.phase==='fonts'?'Saving map labels…':job.phase==='verifying'?'Finishing…':'Downloading…'} · {size(job.bytes)}</p>{#if job.active}<progress max={Math.max(1,job.total)} value={job.completed}></progress><p class="muted">{job.completed} / {job.total} files · Continues in the background</p><button class="outline" disabled={pending||job.phase==='cancelling'} onclick={()=>void run(()=>client!.cancel(job.id))}>Cancel download</button>{/if}{#if job.error}<p class="error">{job.error}</p>{/if}{#if !job.active&&['failed','interrupted','cancelled'].includes(job.phase)&&job.request}<button class="outline" disabled={pending||(edited&&!valid)} onclick={()=>void download(edited?undefined:job.request)}>Retry download</button>{/if}</div>{/if}
     {#if error}<p role="alert" class="error">{error}</p>{/if}
     <h3>Saved areas</h3>
     {#each state?.regions??[] as region(region.id)}<article class="region"><div><strong>{region.name}</strong><small>{size(region.bytes)} · {region.terrain?'With terrain':'Roads and tracks'} · {region.dataDate.slice(0,10)}</small></div><div class="actions">{#if onshowmap}<button class="outline" onclick={()=>onshowmap?.(region.bounds)}><MapPin size={16}/>Show map</button>{/if}<button class="outline" aria-label={`Remove ${region.name}`} disabled={pending||active} onclick={()=>{removing=region.id;removeDialog.showModal();}}><Trash2 size={18}/></button></div></article>{:else}<p class="muted">No downloaded areas yet. The built-in Healesville–Toolangi map is always available.</p>{/each}
