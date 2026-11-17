@@ -13,7 +13,7 @@ try{
   await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5181/');await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
   await page.evaluate(async()=>await import('/src/lib/__tests__/map-connections-fixture.svelte.ts'));
   await line().waitFor();assert.equal(await line().count(),1);assert.equal(await line().getAttribute('stroke-dasharray'),null);assert.equal(await line().getAttribute('stroke'),'#3c843f');checks++;
-  await page.waitForFunction(()=>Number(document.querySelector('.vector-background')?.getAttribute('data-vector-features'))>0);checks++;
+  await page.waitForFunction(()=>window.__mapConnectionsFixture.vectorState().features>0);checks++;
   await page.locator('.geographic-map').click({position:{x:70,y:130}});await page.getByLabel('Pinned coordinates',{exact:true}).waitFor();assert.match(await page.getByLabel('Pinned coordinates',{exact:true}).innerText(),/-37\.\d{6}, 145\.\d{6}/);await page.locator('.leaflet-popup-close-button').click();checks++;
   await mkdir('output/playwright/map-connections',{recursive:true});await page.screenshot({path:'output/playwright/map-connections/default-vector.png',fullPage:true});
   await line().focus();await page.keyboard.press('Enter');await page.getByRole('dialog',{name:'Connection signal',exact:true}).waitFor();assert.match(await page.getByRole('dialog',{name:'Connection signal',exact:true}).innerText(),/[−-]45 dBm/);await page.screenshot({path:'output/playwright/map-connections/signal-detail.png',fullPage:true});await page.getByRole('button',{name:'Close connection signal',exact:true}).click();checks++;
@@ -33,8 +33,8 @@ try{
   }
   await page.evaluate(()=>document.documentElement.style.fontSize='200%');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);checks++;
   await call('unmapped');await page.waitForFunction(()=>[...document.querySelectorAll('[data-map-connection]')].every(line=>line.getAttribute('stroke')==='#7b8085'));checks++;
-  await page.route('https://tiles.openfreemap.org/**',route=>route.abort());await call('viewAt',{latitude:-33.86,longitude:151.2,zoom:15});await page.getByText('Online map unavailable · Download a map for offline use',{exact:true}).waitFor();assert.equal(await page.locator('[data-map-member]').count(),3);checks++;
-  await call('viewAt',{latitude:-37.6535,longitude:145.5159,zoom:15});await page.waitForFunction(()=>document.querySelector('.vector-background')?.getAttribute('data-vector-mode')==='local'&&Number(document.querySelector('.vector-background')?.getAttribute('data-vector-features'))>0);checks++;
+  await page.route('https://tiles.openfreemap.org/**',route=>route.abort());await call('viewAt',{latitude:-33.86,longitude:151.2,zoom:15});await page.getByText('Online map unavailable · Check your internet connection',{exact:true}).waitFor();assert.equal(await page.locator('[data-map-member]').count(),3);checks++;
+  await call('viewAt',{latitude:-37.6535,longitude:145.5159,zoom:15});await page.waitForFunction(()=>window.__mapConnectionsFixture.vectorState().style==='AuMaNET Outdoor'&&window.__mapConnectionsFixture.vectorState().features>0);checks++;
   await call('disconnect');await page.waitForFunction(()=>!document.querySelector('[data-map-connection]'));assert.equal(await page.locator('.connection-legend').count(),0);checks++;
   assert.deepEqual(await page.evaluate(()=>window.__mapConnectionsFixture.calls),[]);assert.deepEqual(errors,[]);assert.deepEqual(sideEffects,[]);checks++;
   await writeFile('output/playwright/map-connections/result.json',JSON.stringify({schema:'aumanet.map-connections-browser.v1',checks,result:'PASS',physical:false,description:'Synthetic positions/reports; actual Leaflet/Svelte; no GPS/phone/transport starts'},null,2)+'\n');

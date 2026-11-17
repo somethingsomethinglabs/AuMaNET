@@ -12,7 +12,7 @@
     {name:'Group & members',description:'Your name, invitations, roles and membership',icon:Users},
     {name:'Voice & audio',description:'Input mode, detection and audio output',icon:AudioLines},
     {name:'Internet sharing',description:'Shared internet availability and support',icon:Globe},
-    {name:'Maps & storage',description:'Offline regions, import and local history',icon:Map},
+    {name:'Maps & storage',description:'Vector maps and local history',icon:Map},
     {name:'Location & privacy',description:'Location permission, sharing and history',icon:MapPin},
     {name:'Notifications',description:'Group alerts and notification permission',icon:Bell},
     {name:'Appearance',description:'Light or dark theme and distance units',icon:Palette},

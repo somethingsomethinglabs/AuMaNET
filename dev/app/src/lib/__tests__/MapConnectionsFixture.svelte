@@ -1,11 +1,9 @@
 <script lang="ts">
-  import OfflineMapPanel from '../OfflineMapPanel.svelte';
+  import MapPanel from '../MapPanel.svelte';
   import {groupMapMembers} from '../maps/group-members';
-  import type {MapStore} from '../maps/store';
   import type {GroupSnapshot,RadioSignal} from '@aumanet/protocol';
   import DeviceDetails from '../DeviceDetails.svelte';
   import {networkNodes,mapNameSelection,type DeviceSelection} from '../network-topology';
-  export let store:MapStore;
   const self='A'.repeat(64),peer='B'.repeat(64),third='C'.repeat(64);
   const own={latitude:-37.6535,longitude:145.5159,accuracy:5,timestamp:1};
   let fix=own,ageMs=0,active=true,dark=false;
@@ -23,6 +21,6 @@
   export function disconnect(){group={...group,status:'interrupted'};}
   export function theme(value:boolean){dark=value;}
 </script>
-<main class="live-shell" class:dark><h1>Map connection fixture</h1><p>Synthetic positions and signed-report shapes. No phones or GPS.</p><OfflineMapPanel {store} {fix} {ageMs} {active} {members} {group} onmemberdetails={id=>selection={kind:'phone',id:id==='self'?self:id}} onmembernamedetails={id=>selection=mapNameSelection(nodes,self,id)} nodeMemberIds={nodes.flatMap(node=>node.phones.map(phone=>phone.id===self?'self':phone.id))}/></main>
+<main class="live-shell" class:dark><h1>Map connection fixture</h1><p>Synthetic positions and signed-report shapes. No phones or GPS.</p><MapPanel {fix} {ageMs} {active} {members} {group} onmemberdetails={id=>selection={kind:'phone',id:id==='self'?self:id}} onmembernamedetails={id=>selection=mapNameSelection(nodes,self,id)} nodeMemberIds={nodes.flatMap(node=>node.phones.map(phone=>phone.id===self?'self':phone.id))}/></main>
 <DeviceDetails {selection} {group} {nodes} ownFix={fix} ownAgeMs={ageMs} ownActive={active} {dark} onselect={value=>selection=value} onclose={()=>selection=undefined}/>
 <style>.live-shell{box-sizing:border-box;padding:12px;max-width:800px;margin:auto;--card:#fffdf6;--line:#dfe1d5;--ink:#214c35;--muted:#65745f;background:#f5f3e9;color:var(--ink)}.live-shell.dark{--card:#202d26;--line:#4f6255;--ink:#eaf0e7;--muted:#b9c6b5;background:#162019}h1{font-size:18px;margin:0}main>p{font-size:12px}</style>

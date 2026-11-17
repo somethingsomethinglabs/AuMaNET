@@ -27,6 +27,6 @@ export function outdoorStyle(basemap:string,terrain:string):StyleSpecification {
     {id:'outdoor-poi-labels',type:'symbol',source:'base','source-layer':'pois',minzoom:14,filter:['in',['get','kind'],['literal',['camp_site','campground','drinking_water','toilets','shelter','peak','alpine_hut','wilderness_hut','picnic_site','viewpoint','fuel']]],layout:{'text-field':name,'text-font':font,'text-size':11,'text-anchor':'top','text-offset':[0,.6]},paint:{'text-color':'#365240','text-halo-color':'#fffdf3','text-halo-width':1.4}},
     {id:'place-labels',type:'symbol',source:'base','source-layer':'places',layout:{'text-field':name,'text-font':font,'text-size':['interpolate',['linear'],['zoom'],10,12,15,17],'text-max-width':8},paint:{'text-color':'#394b3b','text-halo-color':'#fffdf3','text-halo-width':1.5}},
   ];
-  return{version:8,name:'AuMaNET Outdoor Preview',glyphs:`${globalThis.location.origin}/maps/outdoor-preview/fonts/{fontstack}/{range}.pbf`,
+  return{version:8,name:'AuMaNET Outdoor',glyphs:`${globalThis.location.origin}/maps/outdoor-preview/fonts/{fontstack}/{range}.pbf`,
     sources:{base:{type:'vector',url:basemap,bounds:manifest.bounds as [number,number,number,number]},terrain:{type:'raster-dem',url:terrain,encoding:'terrarium',tileSize:512,maxzoom:14},contours:{type:'vector',tiles:['aumanet-contours://{z}/{x}/{y}'],minzoom:13,maxzoom:14,bounds:manifest.bounds as [number,number,number,number]}},layers};
 }

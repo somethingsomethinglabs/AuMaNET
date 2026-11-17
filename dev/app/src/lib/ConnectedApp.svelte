@@ -44,7 +44,7 @@
   import NativeVoiceSettings from './NativeVoiceSettings.svelte';
   import {nativeLocation} from './native-location';
   import NativeLocationPanel from './NativeLocationPanel.svelte';
-  import OfflineMapPanel from './OfflineMapPanel.svelte';
+  import MapPanel from './MapPanel.svelte';
   import {groupMapMembers} from './maps/group-members';
   import {appearance} from './appearance';
   import AppearanceSettings from './AppearanceSettings.svelte';
@@ -62,7 +62,7 @@
   import {LocalGroupVoiceCoordinator,joinGroupVoiceExplicit, type NativeGroupClient, type GroupSnapshot, type LocalGroupVoiceState} from '@aumanet/core';
   import {locationView, type NativeLocationClient, type LocationSnapshot} from '@aumanet/core';
   import {MapPin, MessageCircle, Mic, Network, Users, Router, Settings, ArrowLeft, Bluetooth, Wifi, RefreshCw, Send, X, LocateFixed, Square, Info} from '@lucide/svelte';
-  let mapNavigation=0,mapFocusRegion='';
+  let mapNavigation=0;
   let tab='Network', settings=false, settingsCategory='', developerOptions=false,returnToMap=false;
   let keyboardVisible=false;
   onMount(()=>{
@@ -148,12 +148,12 @@
     });
   }
   function navigate(name: string) {
-    if(name==='Map'){mapNavigation++;mapFocusRegion='';}
+    if(name==='Map')mapNavigation++;
     void voiceClient?.endPtt();
     if(name!==tab) stopRecording(); settings=false; settingsCategory=''; developerOptions=false; tab=name;
     void tick().then(()=>scroller?.scrollTo({top:name==='Messages'?scroller.scrollHeight:0}));
   }
-  function showOfflineMap(id:string){navigate('Map');mapFocusRegion=id;}
+  function showMap(){navigate('Map');}
   function openSettings(category=''){
     returnToMap=false;void voiceClient?.endPtt();stopRecording();settings=true;settingsCategory=category;developerOptions=false;
     void tick().then(()=>{scroller?.scrollTo({top:0});document.getElementById('live-settings-title')?.focus();});
@@ -322,7 +322,7 @@
     {#if storageError}<div class="card live-error" role="alert">Local message storage: {storageError} Sending is disabled. Existing data has been preserved; reload after resolving storage access.</div>{/if}
     {#if settings && developerOptions}
       <div class="title-row"><h1 id="live-settings-title" tabindex="-1">Developer options</h1><button class="outline" onclick={backSettings}>Back to settings</button></div>
-      <section class="card"><h2>Device capabilities</h2><div class="info-row"><span>Bluetooth API</span><strong>{supported?'Available':'Unavailable'}</strong></div><div class="info-row"><span>Geolocation API</span><strong>{locationSupported?'Available':'Unavailable'}</strong></div><div class="info-row"><span>Microphone recording</span><strong>{micSupported?'Available':'Unavailable'}</strong></div><p class="hint">Permissions are requested when you use each feature. Android notifications provide stop controls for active voice and location sharing.</p><a href="/?demo=1">Open sample-data preview</a></section>
+      <section class="card"><h2>Device capabilities</h2><div class="info-row"><span>Bluetooth API</span><strong>{supported?'Available':'Unavailable'}</strong></div><div class="info-row"><span>Geolocation API</span><strong>{locationSupported?'Available':'Unavailable'}</strong></div><div class="info-row"><span>Microphone recording</span><strong>{micSupported?'Available':'Unavailable'}</strong></div><p class="hint">Permissions are requested when you use each feature. Android notifications provide stop controls for active voice and location sharing.</p></section>
       {#if voiceClient}<NativeVoiceDeveloper client={voiceClient} state={voiceState} sourceError={voiceError}/>{/if}
       <GatewayDeveloper/>
       <LegacyNodeConnection {native} {secure} {supported} {available} {busy} {connection} {snapshot} {updated}
@@ -359,7 +359,7 @@
       {#if settings&&settingsCategory==='Appearance'}<AppearanceSettings page onback={backSettings} client={appearance}/>{/if}
       {#if settings&&settingsCategory==='Notifications'}<NotificationSettings page onback={backSettings}/>{/if}
       {#if settings&&settingsCategory==='Diagnostics & about'}<DiagnosticsSettings page onback={backSettings} group={groupState} voice={voiceState} messages={groupMessagesClient?.state} node={snapshot} nodeConnected={connected} location={locationState} groupError={!!groupError} voiceError={!!voiceError} locationError={!!nativeLocationError} nodeError={!!error}/>{/if}
-      {#if settings&&settingsCategory==='Maps & storage'}<OfflineMapPanel managementOnly units={$appearance.units} onshowmap={showOfflineMap}/><section class="card"><h2>Local messages</h2><p>Manage saved conversation history in Messages.</p><button class="outline" onclick={()=>navigate('Messages')}>Open Messages</button></section>{/if}
+      {#if settings&&settingsCategory==='Maps & storage'}<MapPanel managementOnly units={$appearance.units} onshowmap={showMap}/><section class="card"><h2>Local messages</h2><p>Manage saved conversation history in Messages.</p><button class="outline" onclick={()=>navigate('Messages')}>Open Messages</button></section>{/if}
       {#if settings&&settingsCategory==='Internet sharing'}<InternetSettings client={internetClient} state={internetState} group={groupState} groupUnavailable={!!groupError} onnotifications={()=>openSettings('Notifications')}/>{/if}
       {#if settings&&settingsCategory==='Test connection'}<LinkBenchmarkPanel client={benchmarkClient} group={groupState} units={$appearance.units} ontools={()=>openSettings('Tools & checks')} onplan={result=>{planningRates={uploadKbps:result.upload.goodputBitsPerSecond/1000,downloadKbps:result.download.goodputBitsPerSecond/1000,completedAt:result.completedAt};openSettings('Plan bandwidth');}}/>{/if}
       {#if settings&&settingsCategory==='Tools & checks'}<ToolsPanel onopen={category=>{if(category==='Plan bandwidth')planningRates=undefined;openSettings(category);}}/>{/if}
@@ -386,12 +386,12 @@
       <div class="help-row"><span>Message storage</span><HelpButton title="Message storage"><p>Up to 64 observed messages and 16 unconfirmed attempts per node are saved on this device. The board retains eight messages. Peer storage does not mean a person has read it. Browser/app data removal can erase local drafts and history.</p><p>Text travels over HaLow between the nodes. This legacy connection uses Bluetooth between the app and node.</p></HelpButton></div>
       {/if}
     {:else if tab==='Map'}
-      {#if locationClient}<OfflineMapPanel units={$appearance.units} fix={locationState?.fix} ageMs={ownLocationView.ageMs??Infinity} active={locationState?.status==='active'&&!!locationState.active&&!nativeLocationError}
+      {#if locationClient}<MapPanel units={$appearance.units} fix={locationState?.fix} ageMs={ownLocationView.ageMs??Infinity} active={locationState?.status==='active'&&!!locationState.active&&!nativeLocationError}
         locationStatus={nativeLocationError||locationState?.message||locationState?.status||'Location is off'}
-        members={mapMembers} group={groupState} groupElapsedMs={Math.max(0,locationClock-groupReceivedAt)} groupUnavailable={!!groupError} onmemberdetails={showMember} onmembernamedetails={showMapName} nodeMemberIds={mapNodeMemberIds} navigationToken={mapNavigation} focusRegionId={mapFocusRegion} onprivacysettings={()=>openSettings('Location & privacy')} onmanage={openMapManagement}/>
+        members={mapMembers} group={groupState} groupElapsedMs={Math.max(0,locationClock-groupReceivedAt)} groupUnavailable={!!groupError} onmemberdetails={showMember} onmembernamedetails={showMapName} nodeMemberIds={mapNodeMemberIds} navigationToken={mapNavigation} onprivacysettings={()=>openSettings('Location & privacy')} onmanage={openMapManagement}/>
       {:else}
-      <OfflineMapPanel units={$appearance.units} fix={fix?{latitude:fix.latitude,longitude:fix.longitude,accuracy:fix.accuracy,timestamp:fixAt}:undefined} ageMs={fix?Math.max(0,clock-fixAt):Infinity} active={!!fix}
-        locationStatus={locationError||'Location is off'} navigationToken={mapNavigation} focusRegionId={mapFocusRegion} onprivacysettings={()=>openSettings('Location & privacy')} onmanage={openMapManagement}/>
+      <MapPanel units={$appearance.units} fix={fix?{latitude:fix.latitude,longitude:fix.longitude,accuracy:fix.accuracy,timestamp:fixAt}:undefined} ageMs={fix?Math.max(0,clock-fixAt):Infinity} active={!!fix}
+        locationStatus={locationError||'Location is off'} navigationToken={mapNavigation} onprivacysettings={()=>openSettings('Location & privacy')} onmanage={openMapManagement}/>
       {/if}
     {:else if tab==='Voice'}
       {#if voiceClient}<NativeVoicePanel client={voiceClient} state={voiceState} sourceError={voiceError||groupVoiceState?.error||''}

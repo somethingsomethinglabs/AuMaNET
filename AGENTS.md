@@ -1,5 +1,26 @@
 # Project workflow
 
+## Prototype changes and pull requests
+
+Every change must be committed, pushed to a `codex/<change>` branch, and opened
+as a pull request targeting `testing`. Use an isolated worktree when the shared
+checkout contains other work. Do not commit unrelated changes or private bench
+data. Keep normal product screens free of sample-data previews, test fixtures,
+and experimental old/new implementation switches; replace the implementation
+and use Git for rollback. Developer tests belong in the test suite and CI.
+
+`testing` is the prototype integration branch. PRs and updates to it produce
+review APKs through `.github/workflows/prototype-testing.yml`; there is no need
+to wait for a nightly run. Leave PRs open for review. Do not push directly to
+`testing` or `main`, merge a PR, publish a release, or install on devices unless
+the user has authorized that step. Push completed work before handing it off,
+and provide the PR link. If a change causes a regression, submit a revert PR
+against `testing`; do not reset or force-push shared history. Promotion from
+`testing` to `main` is a separate reviewed PR.
+
+See `CONTRIBUTING.md` for the branch, review-build and rollback workflow. The
+firmware and print acceptance requirements below still apply to their changes.
+
 ## Firmware physical acceptance
 
 Every firmware change must include physical USB-debugging Wi-Fi/DHCP regression
