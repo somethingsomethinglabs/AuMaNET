@@ -19,7 +19,7 @@
     "docs:build": "node scripts/build-docs.mjs",
     "docs:check": "node scripts/build-docs.mjs --check && node scripts/check-docs.mjs",
     "pages:build": "node scripts/build-pages.mjs",
-    "firmware:release:test": "node --test dev/releases/release.test.mjs"
+    "firmware:release:test": "node --test dev/releases/release.test.mjs dev/releases/acceptance.test.mjs"
   },
   "devDependencies": {
     "marked": "18.1.3",

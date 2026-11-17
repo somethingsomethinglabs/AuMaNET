@@ -58,7 +58,7 @@ Omit `--previous` only for deliberate first publication. An expired but validly 
 
 ## Hosted builds and publication
 
-`.github/workflows/firmware-release.yml` prepares nightly builds daily, Beta/Stable builds from matching version tags, and manually selected branch builds. Its trusted-main planner resolves the requested ref to an exact commit. Build jobs receive read-only repository access and no signing key. The publisher uses main's tools, independently checks original channel/ref/version/build intent, and checks the embedded image against that plan.
+`.github/workflows/firmware-release.yml` prepares candidate Nightly builds on demand, Beta/Stable builds from matching version tags, and manually selected branch builds. Its trusted-main planner resolves the requested ref to an exact commit. Build jobs receive read-only repository access and no signing key. The publisher uses main's tools, independently checks original channel/ref/version/build intent, and checks the embedded image against that plan.
 
 Before enabling publication, configure a **firmware-releases** GitHub environment with appropriate deployment-ref restrictions and required review. Add the matching private key as its environment secret `AUMANET_FIRMWARE_SIGNING_KEY_PEM`, rather than giving branch build code a repository-wide key. Review the actual workflow and public verification key before doing this. Hosted execution and environment protection are separate acceptance steps; source-level checks do not prove they are configured.
 
@@ -69,3 +69,5 @@ The first reviewed manual publication sets `initialize_catalog=true`; only an ac
 Download and verify before pausing the group. Install one selected node at a time. Owner authorization and publisher authorization are checked separately. Transfer uses the node's checked Wi-Fi path and an authenticated encrypted upload session; it does not require the node itself to have Internet. Only an inactive application slot is written. Success requires fresh signed proof of the expected running image and health confirmation after reboot. Lost replies trigger status reconciliation, never automatic activation replay. Incomplete uploads stay unbootable. Pending unconfirmed firmware rolls back; USB remains the recovery path for the initial setup or hardware faults.
 
 The debug-only USB-loopback catalog fixture is for local acceptance tests. It is explicitly labelled in the app, expires, is not persisted as a production feed, and does not bypass signatures or image compatibility. It must be cleared after tests. Crypto-only vectors and early parser checkpoints in ignored artifacts must never be installed or published.
+
+Nightly publication now requires the [acceptance protocol](ACCEPTANCE.md) and the separate `nightly-promote.yml` dispatch. `publish=true` in the build workflow never publishes Nightly. Existing published assets are historical, not fresh acceptance.
