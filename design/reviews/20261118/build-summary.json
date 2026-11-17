@@ -18,6 +18,8 @@
     "fail": 0
   },
   "browserScripts": {
+    "runs": 30,
+    "uniqueScripts": 29,
     "pass": 30,
     "fail": 0
   },

@@ -106,8 +106,7 @@ The standard `dev/mobile/Build-Application.ps1` completed with
 `sourceStableDuringBuild: true`, 920 input hashes unchanged across the build,
 545 web tests, zero Svelte errors/warnings and 229 Android JVM cases. Its native
 host gates passed, including the production trusted controller (69 tests/325
-assertions) and real SQLite message storage (19 tests/262 assertions). All 30
-browser scripts and the separate diagnostics-export JVM validator also passed.
+assertions) and real SQLite message storage (19 tests/262 assertions). All 30 browser runs (29 unique scripts) and the separate diagnostics-export JVM validator also passed.
 The local full manifest records base commit `18dcac3` plus the then-uncommitted
 inputs; it does not assert a clean checkout or retrospectively certify earlier
 APKs. [Build summary](build-summary.json) records its identity and manifest digest.
