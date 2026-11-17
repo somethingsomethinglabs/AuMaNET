@@ -1,0 +1,127 @@
+name: Promote accepted nightly bytes
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_run:
+        type: string
+        required: true
+        description: Successful firmware run whose exact binaries passed acceptance
+      evidence:
+        type: string
+        required: true
+        description: Committed dev/releases/acceptance/<id>.json reviewed record
+      evidence_pr:
+        type: string
+        required: true
+        description: Merged PR that contains the reviewed acceptance record
+      evidence_review:
+        type: string
+        required: true
+        description: Independent approval review ID on the exact evidence PR head
+permissions:
+  contents: read
+concurrency:
+  group: firmware-release-catalog
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/testing'
+    runs-on: ubuntu-24.04
+    environment: firmware-releases
+    permissions:
+      contents: write
+      actions: read
+      pull-requests: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: somethingsomethinglabs/AuMaNET
+      INITIALIZE_CATALOG: 'false'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.candidate_run }}
+          github-token: ${{ github.token }}
+          pattern: '*'
+          path: incoming
+      - name: Validate committed acceptance and exact downloaded bytes
+        env:
+          EVIDENCE: ${{ inputs.evidence }}
+          CANDIDATE_RUN: ${{ inputs.candidate_run }}
+          EVIDENCE_PR: ${{ inputs.evidence_pr }}
+          EVIDENCE_REVIEW: ${{ inputs.evidence_review }}
+        run: node dev/releases/acceptance.mjs "$EVIDENCE" incoming
+      - name: Preserve reviewed acceptance with release
+        env:
+          EVIDENCE: ${{ inputs.evidence }}
+        run: cp -- "$EVIDENCE" "$RUNNER_TEMP/acceptance.json"
+      # Signing tools always come from trusted main, never the selected build branch.
+      # Configure this environment to restrict deployment refs and require review
+      # before adding AUMANET_FIRMWARE_SIGNING_KEY_PEM as an environment secret.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          path: signer
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - run: npm run firmware:release:test
+        working-directory: signer
+      - id: previous
+        working-directory: signer
+        run: node dev/releases/fetch-catalog.mjs previous-catalog.json
+      - name: Verify build identity and sign packages/catalog
+        env:
+          SIGNING_KEY_PEM: ${{ secrets.AUMANET_FIRMWARE_SIGNING_KEY_PEM }}
+          PREVIOUS_PRESENT: ${{ steps.previous.outputs.present }}
+        working-directory: signer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SIGNING_KEY_PEM"
+          umask 077
+          signing_file="$RUNNER_TEMP/aumanet-firmware-signing.pem"
+          trap 'rm -f -- "$signing_file"' EXIT
+          printf '%s' "$SIGNING_KEY_PEM" > "$signing_file"
+          mkdir -p release-packages
+          for role in A B; do
+            node dev/releases/release.mjs package \
+              --image "../incoming/firmware-$role/aumanet_bench.bin" \
+              --expect-role "$role" --expect-channel "$RELEASE_CHANNEL" \
+              --expect-commit "$RELEASE_COMMIT" --expect-version "$RELEASE_VERSION" \
+              --expect-ref "$RELEASE_REF" --expect-build-id "$RELEASE_BUILD_ID" \
+              --image-base-url "https://github.com/$GH_REPO/releases/download/$RELEASE_TAG" \
+              --key-file "$signing_file" --out release-packages
+          done
+          catalog_args=()
+          if [ "$PREVIOUS_PRESENT" = true ]; then catalog_args+=(--previous previous-catalog.json); fi
+          for record in release-packages/release-*.json; do catalog_args+=(--release "$record"); done
+          node dev/releases/release.mjs catalog "${catalog_args[@]}" \
+            --key-file "$signing_file" --out catalog.json
+          node dev/releases/release.mjs verify --catalog catalog.json
+      - name: Publish firmware before advertising it in the catalog
+        working-directory: signer
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'Verified %s firmware build %s, commit %s.\n' "$RELEASE_CHANNEL" "$RELEASE_VERSION" "$RELEASE_COMMIT" > release-notes.txt
+          prerelease=()
+          if [ "$RELEASE_CHANNEL" != stable ]; then prerelease+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" --draft --target "$RELEASE_COMMIT" \
+            --title "Firmware $RELEASE_VERSION" --notes-file release-notes.txt "${prerelease[@]}"
+          gh release upload "$RELEASE_TAG" release-packages/*.bin release-packages/release-*.json "$RUNNER_TEMP/acceptance.json"
+          gh release edit "$RELEASE_TAG" --draft=false
+          if [ "$INITIALIZE_CATALOG" = true ] && [ ! -f previous-catalog.json ]; then
+            printf 'Signed firmware-channel catalog. Packages are verified by the app and node.\n' > catalog-notes.txt
+            gh release create firmware-catalog --target "$RELEASE_COMMIT" --prerelease \
+              --title 'Firmware channel catalog' --notes-file catalog-notes.txt
+          fi
+          gh release upload firmware-catalog catalog.json --clobber
