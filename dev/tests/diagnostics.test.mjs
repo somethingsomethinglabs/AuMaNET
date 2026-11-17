@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import ts from 'typescript';
 const source=await readFile(new URL('../app/src/lib/diagnostics.ts',import.meta.url),'utf8');
 const compiled=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022,strict:true}}).outputText;
-const {DiagnosticsClient,DiagnosticDownload,DIAGNOSTIC_LIMITS,safeDiagnosticVersion}=await import('data:text/javascript;base64,'+Buffer.from(compiled).toString('base64'));
+const {DiagnosticsClient,DiagnosticDownload,DIAGNOSTIC_LIMITS,safeDiagnosticVersion,saveDiagnosticCollection}=await import('data:text/javascript;base64,'+Buffer.from(compiled).toString('base64'));
 const secret='PRIVATE_SENTINEL_DO_NOT_EXPORT';
 const native=()=>({schema:'aumanet.diagnostics.native.v1',source:'device',app:{state:'available',version:'0.1.0',versionCode:1},androidApi:35,debuggable:true,volume:{state:'measured',availableBytes:0,totalBytes:1024}});
 const group=()=>({schema:'aumanet.group.v1',source:'device',status:'connected',voiceJoined:true,sharingLocation:true,members:[{id:secret,name:secret,connected:true,voiceJoined:true,fix:{latitude:-33.865,longitude:151.209}}],pending:[],signals:[],identity:{id:secret,name:secret},error:secret});
@@ -95,4 +95,30 @@ test('forged collections, nonlocal URLs and Blob provider faults cannot produce 
   let calls=0;const revoked=[];const downloads=new DiagnosticDownload({createObjectURL(){calls++;return 'https://private.example/'+secret;},revokeObjectURL(url){revoked.push(url);}});
   assert.throws(()=>downloads.prepare({json:secret,bytes:1,report:{}}));assert.equal(calls,0);const result=await new DiagnosticsClient(options()).collect();assert.throws(()=>downloads.prepare(result));assert.equal(revoked.length,1);
   const broken=new DiagnosticDownload({createObjectURL(){throw new Error(secret);},revokeObjectURL(){}});assert.throws(()=>broken.prepare(result));broken.dispose();
+});
+
+test('native export accepts only the exact immutable reviewed collection and checked receipt',async()=>{
+  const collection=await new DiagnosticsClient(options()).collect({});const calls=[];
+  const displayName='aumanet-diagnostics-12345678-1234-1234-1234-123456789abc.json';
+  const receipt={schema:'aumanet.diagnostics-save.v1',source:'device',saved:true,collection:'downloads',displayName,byteLength:collection.bytes};
+  assert.equal(await saveDiagnosticCollection({save:async input=>{calls.push(input);return {...receipt,uri:'PRIVATE_URI'};}},collection),displayName);
+  assert.deepEqual(calls,[{json:collection.json,acknowledgement:'save-diagnostics-to-downloads'}]);
+  await assert.rejects(saveDiagnosticCollection({save:async()=>{throw Error('must not run');}},{...collection}));
+  for(const patch of [{byteLength:0},{saved:false},{source:'web'},{schema:'other'},{collection:'pictures'},{displayName:'../private.json'}])await assert.rejects(saveDiagnosticCollection({save:async()=>({...receipt,...patch})},collection),/could not be confirmed/);
+});
+
+test('native export sanitizes failures, never retries and ignores late receipt after timeout',async()=>{
+  const collection=await new DiagnosticsClient(options()).collect({});let calls=0,finish;
+  await assert.rejects(saveDiagnosticCollection({save:async()=>{calls++;throw Error('PRIVATE_PROVIDER_PATH');}},collection),e=>!e.message.includes('PRIVATE_PROVIDER_PATH')&&e.message.includes('Check Downloads/AuMaNET'));
+  assert.equal(calls,1);
+  await assert.rejects(saveDiagnosticCollection({save:()=>{calls++;return new Promise(resolve=>finish=resolve);}},collection,5),/could not be confirmed/);
+  finish({saved:true});assert.equal(calls,2);
+});
+
+test('Android export filename and receipt contract match the frontend receipt parser',async()=>{
+  const plugin=await readFile(new URL('../mobile/android/app/src/main/java/au/aumanet/app/DiagnosticsExportPlugin.java',import.meta.url),'utf8');
+  assert.match(plugin,/String name="aumanet-diagnostics-"\+UUID\.randomUUID\(\)\+"\.json"/);
+  for(const pair of [['schema','aumanet.diagnostics-save.v1'],['source','device'],['collection','downloads']])assert.ok(plugin.includes(`result.put("${pair[0]}","${pair[1]}")`));
+  assert.ok(plugin.includes('Arrays.equals(bytes,check.toByteArray())'),'Success requires exact stored-byte readback');
+  assert.ok(plugin.includes('result.put("byteLength",bytes.length)'));
 });

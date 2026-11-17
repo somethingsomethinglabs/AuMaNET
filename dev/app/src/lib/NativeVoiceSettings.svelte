@@ -67,4 +67,5 @@
 
 <style>
   .voice-preferences{min-width:0}.preferences-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:17px}.preferences-actions button{max-width:100%}.saved-setting{font-size:12px;margin-top:18px}.preferences-error{color:#9f301f;background:#fff0e7;padding:12px;border-radius:10px;overflow-wrap:anywhere}.reload{margin-top:12px}
+  :global(.dark) .preferences-error{color:#ffc58e;background:#493325}
 </style>

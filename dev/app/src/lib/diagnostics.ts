@@ -156,3 +156,16 @@ export class DiagnosticDownload {
   clear(){if(this.current){const old=this.current;this.current='';try{this.host.revokeObjectURL(old);}catch{/* No source data is retained. */}}}
   dispose(){this.clear();this.disposed=true;}
 }
+export interface DiagnosticExportBridge {save(options:{json:string;acknowledgement:'save-diagnostics-to-downloads'}):Promise<unknown>;}
+/** Only a collected, immutable reviewed report can cross this explicit export boundary. Never retries. */
+export async function saveDiagnosticCollection(bridge:DiagnosticExportBridge,collection:DiagnosticCollection,timeoutMs=15_000):Promise<string>{
+  if(!approved.has(collection)||collection.bytes>DIAGNOSTIC_LIMITS.bytes||new TextEncoder().encode(collection.json).length!==collection.bytes)throw failure();
+  let timer:ReturnType<typeof setTimeout>|undefined;
+  try{
+    const raw=await Promise.race([bridge.save({json:collection.json,acknowledgement:'save-diagnostics-to-downloads'}),new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(Error()),timeoutMs);})]);
+    const result=object(raw);
+    if(result.schema!=='aumanet.diagnostics-save.v1'||result.source!=='device'||result.saved!==true||result.collection!=='downloads'||result.byteLength!==collection.bytes||typeof result.displayName!=='string'||!/^aumanet-diagnostics-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\.json$/.test(result.displayName))throw failure();
+    return result.displayName;
+  }catch{throw Error('File saving could not be confirmed. Check Downloads/AuMaNET before saving again, or copy the reviewed JSON.');}
+  finally{clearTimeout(timer);}
+}

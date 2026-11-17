@@ -21,6 +21,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(InternetSharingPlugin.class);
         registerPlugin(AppearancePlugin.class);
         registerPlugin(DiagnosticsPlugin.class);
+        registerPlugin(DiagnosticsExportPlugin.class);
         registerPlugin(NotificationsPlugin.class);
         registerPlugin(NodeConnectionPlugin.class);
         registerPlugin(TrustedConnectionPlugin.class);

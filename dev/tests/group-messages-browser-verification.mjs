@@ -15,8 +15,11 @@ try{
   await composer().waitFor();assert.equal(await send().isDisabled(),true);
   assert.ok((await page.evaluate(()=>window.__groupMessagesFixture.calls)).every(call=>call.method==='snapshot'),'Observation sent a message');
   await page.evaluate(()=>window.__groupMessagesFixture.setConnected(false));await saved('Offline draft');assert.equal(await send().isDisabled(),true);
+  await page.getByRole('form',{name:'Group message composer'}).getByText('Reconnect to send. You can keep editing your draft.',{exact:true}).waitFor();
+  await page.screenshot({path:`${output}/offline-draft.png`,fullPage:true});
   await page.evaluate(()=>window.__groupMessagesFixture.incoming('Peer update while drafting'));assert.equal(await composer().inputValue(),'Offline draft');
   await page.evaluate(()=>window.__groupMessagesFixture.setConnected(true));
+  assert.equal(await page.getByText('Reconnect to send. You can keep editing your draft.',{exact:true}).count(),0);
   await saved('😀'.repeat(512));assert.equal(await send().isEnabled(),true);
   await saved('😀'.repeat(513));assert.equal(await send().isDisabled(),true);await page.getByText(/This message is too long/).waitFor();assert.equal(await page.getByText(/UTF-8 bytes/).count(),0);
   await page.evaluate(()=>window.__groupMessagesFixture.failDraft(true));await composer().fill('Unsaved edit');await page.getByRole('button',{name:'Save draft again',exact:true}).waitFor();assert.equal(await composer().inputValue(),'Unsaved edit');assert.equal(await send().isDisabled(),true);
@@ -26,6 +29,7 @@ try{
   await page.screenshot({path:`${output}/unconfirmed-message.png`,fullPage:true});
   await page.evaluate(()=>window.__groupMessagesFixture.refresh());assert.equal((await page.evaluate(()=>window.__groupMessagesFixture.calls.filter(c=>c.method==='send'))).length,1);
   await page.evaluate(()=>window.__groupMessagesFixture.setAdmission(false));await saved('Draft while new-message storage is full');assert.equal(await send().isDisabled(),true);assert.equal(await page.getByRole('button',{name:'Retry message',exact:true}).count(),0);
+  await page.getByRole('form',{name:'Group message composer'}).getByText('Sending is unavailable. Your draft stays on this phone.',{exact:true}).waitFor();
   await page.evaluate(()=>window.__groupMessagesFixture.retryTick());await page.locator('.delivery-state[title*="Attempt 2 of 5"]').waitFor();assert.equal((await page.evaluate(()=>window.__groupMessagesFixture.calls.filter(c=>c.method==='retry'))).length,0);assert.equal((await page.evaluate(()=>window.__groupMessagesFixture.state.outbox[0].id)),emitted[0].id);
   await page.evaluate(()=>window.__groupMessagesFixture.setAdmission(true));
   await page.evaluate(()=>window.__groupMessagesFixture.deliver());await page.getByText('Delivered to phone',{exact:true}).waitFor();assert.equal(await page.getByText(/read by/).count(),0);

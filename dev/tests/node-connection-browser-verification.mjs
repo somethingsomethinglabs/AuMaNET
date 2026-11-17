@@ -9,7 +9,6 @@ try{
   await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5181/');
   await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
   assert.equal(await page.getByRole('button',{name:'Connect a node',exact:true}).count(),0);
-  await page.getByRole('button',{name:'Open settings',exact:true}).click();await page.getByRole('button',{name:'Developer options',exact:true}).click();await page.getByRole('button',{name:'Connect a node',exact:true}).waitFor();await page.getByRole('button',{name:'Close settings',exact:true}).click(); // Legacy BLE is intentionally development-only
   await page.evaluate(async()=>await import('/src/lib/__tests__/node-connection-fixture.ts'));
   await page.getByRole('button',{name:'Connection details',exact:true}).click();
   await page.getByRole('heading',{name:'Node Wi-Fi',exact:true}).waitFor();
@@ -33,9 +32,9 @@ try{
   await page.getByRole('button',{name:'Reconnect group',exact:true}).click();await page.waitForFunction(()=>window.__nodeConnectionFixture.calls.includes('group.resume'));
   await page.getByRole('button',{name:'Close settings',exact:true}).click();await page.getByRole('button',{name:'Connection details',exact:true}).click();await card.waitFor();await card.getByText('Group connected',{exact:true}).waitFor();await card.getByText('Unverified',{exact:true}).waitFor();
   for(const viewport of [{width:320,height:760},{width:915,height:412}]){await page.setViewportSize(viewport);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth),false);await page.getByRole('button',{name:'Open Wi-Fi settings',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:`${output}/native-${viewport.width}.png`});}
-  await page.getByRole('button',{name:'Close node connection',exact:true}).click();await page.getByRole('button',{name:'Open settings',exact:true}).click();await page.getByRole('button',{name:'Developer options',exact:true}).click();await page.getByRole('heading',{name:'Legacy Bluetooth node',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Close node connection',exact:true}).click();await page.getByRole('button',{name:'Open settings',exact:true}).click();await page.getByRole('button',{name:'Developer options',exact:true}).click();await page.getByRole('heading',{name:'Developer options',exact:true}).waitFor();assert.equal(await page.getByRole('heading',{name:'Legacy Bluetooth node',exact:true}).count(),0);
   calls=await page.evaluate(()=>window.__nodeConnectionFixture.calls);assert.equal(calls.filter(call=>call==='group.resume').length,1);assert.equal(calls.some(call=>call.startsWith('ble.')),false);assert.deepEqual(errors,[]);
   await page.evaluate(()=>window.__nodeConnectionFixture.destroy());
-  result.status='pass';result.checks=['Browser legacy BLE entry preserved only in Developer options','Native connection uses passive OS Wi-Fi facts','Node/radio remain unverified independently of group status','Wi-Fi settings action explicit once, no auto-connect/resume/BLE scan','Group reconnect remains separate explicit action','Local-no-internet Android guidance','Legacy BLE only in Developer options','Narrow and landscape layouts without horizontal overflow'];
+  result.status='pass';result.checks=['Removed legacy BLE entry stays absent in ordinary and developer screens','Native connection uses passive OS Wi-Fi facts','Node/radio remain unverified independently of group status','Wi-Fi settings action explicit once, no auto-connect/resume/BLE scan','Group reconnect remains separate explicit action','Local-no-internet Android guidance','Developer navigation never scans legacy BLE','Narrow and landscape layouts without horizontal overflow'];
   await writeFile(`${output}/result.json`,JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
 }finally{await browser.close();}

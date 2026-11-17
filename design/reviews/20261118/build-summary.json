@@ -1,0 +1,143 @@
+{
+  "schema": "aumanet.usability-build-summary.v1",
+  "startedAt": "2026-11-17T15:42:59.3893364Z",
+  "finishedAt": "2026-11-17T15:45:05.4617429Z",
+  "baseCommit": "18dcac3b179ffbd419d4d69b799a107cf27012d1",
+  "sourceScope": "Dirty application inputs, not a clean Git checkout or product acceptance",
+  "sourceStableDuringBuild": true,
+  "fullLocalManifestSha256": "4b2829203206a3dab86997b161562bd60596ba3bef0e4cf283ce220a79b07d3a",
+  "inputFileCount": 920,
+  "apkSha256": "ee1c8e9a26d546b1a912995c00a1f3d23430f85e0c2c890444096ca28824a357",
+  "nativeJvmTests": {
+    "failures": 0,
+    "tests": 229,
+    "errors": 0
+  },
+  "webTests": {
+    "pass": 545,
+    "fail": 0
+  },
+  "browserScripts": {
+    "runs": 30,
+    "uniqueScripts": 29,
+    "pass": 30,
+    "fail": 0
+  },
+  "hostGates": {
+    "nativeGroupImageHostTests": {
+      "status": "pass",
+      "testCount": 19,
+      "assertionCount": 404
+    },
+    "nativeMessageStoreHostTests": {
+      "status": "pass",
+      "testCount": 19,
+      "assertionCount": 262
+    },
+    "nativeAppearanceHostTests": {
+      "status": "pass"
+    },
+    "nativeGroupNameHostTests": {
+      "status": "pass",
+      "testCount": 14,
+      "assertionCount": 118
+    },
+    "nativeGroupRecoveryHostTests": {
+      "status": "pass",
+      "testCount": 24,
+      "assertionCount": 151
+    },
+    "nativeGatewayIssuerHostTests": {
+      "status": "pass",
+      "testCount": 76,
+      "assertionCount": 805
+    },
+    "nativeInternetSharingHostTests": {
+      "status": "pass",
+      "testCount": 14,
+      "assertionCount": 114
+    },
+    "nativeInternetLifecycleHostTests": {
+      "status": "pass",
+      "testCount": 6,
+      "assertionCount": 40
+    },
+    "nativeInternetStopHostTests": {
+      "status": "pass",
+      "testCount": 3,
+      "assertionCount": 44
+    },
+    "nativeTrustedConnectionHostTests": {
+      "status": "pass",
+      "testCount": 69,
+      "assertionCount": 325
+    },
+    "nativeTrustedVoiceJoinHostTests": {
+      "status": "pass",
+      "testCount": 5,
+      "assertionCount": 29
+    },
+    "nativeVoiceTelecomHostTests": {
+      "status": "pass",
+      "testCount": 9,
+      "assertionCount": 62
+    },
+    "nativeRadioSettingsHostTests": {
+      "status": "pass",
+      "testCount": 32,
+      "assertionCount": 199
+    },
+    "nativeNodeUpdateHostTests": {
+      "status": "pass",
+      "testCount": 32,
+      "assertionCount": 198
+    },
+    "firmwareReleaseHostTests": {
+      "status": "pass",
+      "testCount": 27
+    },
+    "nativeRadioMaintenanceHostTests": {
+      "status": "pass",
+      "testCount": 15,
+      "assertionCount": 87
+    },
+    "nativeLinkBenchmarkHostTests": {
+      "status": "pass",
+      "testCount": 10,
+      "assertionCount": 93
+    },
+    "nativeLinkBenchmarkVoiceHostTests": {
+      "status": "pass",
+      "testCount": 8,
+      "assertionCount": 29
+    },
+    "nativeTrustedLocationHostTests": {
+      "status": "pass",
+      "testCount": 9,
+      "assertionCount": 58
+    },
+    "nativeVoiceNetworkHostTests": {
+      "status": "pass",
+      "testCount": 2,
+      "assertionCount": 35
+    },
+    "nativeVoiceFixtureSnapshotHostTests": {
+      "status": "pass",
+      "testCount": 3,
+      "assertionCount": 17
+    },
+    "capacitorLifecycleHostTests": {
+      "status": "pass",
+      "testCount": 9,
+      "assertionCount": 56
+    },
+    "nativeNotificationHostTests": {
+      "status": "pass"
+    }
+  },
+  "diagnosticsExportValidation": "pass, separate pinned-dependency JVM harness",
+  "physical": {
+    "installedReadbackHashMatchedBoth": true,
+    "scope": "See physical-followup.md; earlier broad acceptance and final diagnostics/smoke have distinct APK identities"
+  }
+}

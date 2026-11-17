@@ -6,6 +6,7 @@
   import {previewProtocols} from './vector/protocol';
   import {outdoorStyle,downloadedStyle} from './vector/style';
   import {manifest} from './vector/archive';
+  import {offlineCoverageLabel} from './coverage';
   import {nativeVectorMaps,visibleRegions,regionSetRoot,downloadBounds,type VectorRegion,type MapBounds} from './vector/downloads';
   export let focusBounds:MapBounds|undefined=undefined;
   let regions:VectorRegion[]=[];
@@ -35,7 +36,7 @@
     const visible=visibleRegions(regions,bounds),region=visible[0],local=map.getZoom()>=11&&bounds[0]<=e&&bounds[2]>=w&&bounds[1]<=n&&bounds[3]>=s,root=region?regionSetRoot(regions):'',mode=region?'regions/'+root:local?'local':'online';
     if(vectorMode!==mode){vectorMode=mode;protocols?.close();protocols=region||local?previewProtocols(region?{regionRoot:root,terrainTemplate:root+'/terrain/{z}/{x}/{y}.webp'}:{}):undefined;vector.setStyle(region?downloadedStyle(regions):local?outdoorStyle(protocols!.basemap,protocols!.terrain):'https://tiles.openfreemap.org/styles/liberty',{diff:false});}
     vector.jumpTo({center:[center.lng,center.lat],zoom:map.getZoom()-1});
-    onbasemap(region?'Offline · '+(visible.length>1?visible.length+' saved areas':region.name):local?'Offline outdoor map':'Online map · Internet required');
+    onbasemap(region?offlineCoverageLabel(bounds,visible.map(area=>area.bounds),visible.length===1?region.name:undefined):local?offlineCoverageLabel(bounds,[manifest.bounds as MapBounds],'Outdoor map'):'Online map · Internet required');
   }
   import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup,Rectangle,Marker,DivIcon} from 'leaflet';
   import 'leaflet/styles.css';

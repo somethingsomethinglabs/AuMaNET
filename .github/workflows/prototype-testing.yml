@@ -40,6 +40,11 @@ jobs:
           node dev/tests/location-sharing-browser-verification.mjs
           node dev/tests/settings-shell-verification.mjs
           node dev/tests/ui-clarity-browser-verification.mjs
+          node dev/tests/group-messages-browser-verification.mjs
+          node dev/tests/map-connections-browser-verification.mjs
+          node dev/tests/map-storage-browser-verification.mjs
+          node dev/tests/diagnostics-browser-verification.mjs
+          node dev/tests/diagnostic-export-browser-verification.mjs
   app:
     runs-on: ubuntu-latest
     steps:
@@ -54,15 +59,21 @@ jobs:
           java-version: 21
       - run: npm ci --ignore-scripts
       - run: npm run web:build
+      - run: npm run web:test
       - run: npm run check -w @aumanet/app
       - run: node --test dev/tests/map-connections.test.mjs dev/tests/vector-map-contract.test.mjs dev/tests/vector-downloads.test.mjs
       - run: node dev/tests/native-vector-downloads.mjs
+      - name: Verify preserved message storage and trusted connection recovery
+        run: |
+          node dev/tests/native-group-messages-store.mjs --jdk "$JAVA_HOME" --output output/native-message-store
+          node dev/tests/native-trusted-connection.mjs --jdk "$JAVA_HOME" --output output/native-trusted-connection
+          node dev/tests/native-diagnostic-export.mjs --output output/native-diagnostic-export
       - run: npm run sync -w @aumanet/mobile
       - name: Install Android platform
         run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0"'
       - name: Build review APK
         working-directory: dev/mobile/android
-        run: bash gradlew --no-daemon assembleDebug
+        run: bash gradlew --no-daemon testDebugUnitTest assembleDebug
       - name: Record build identity
         env:
           REVIEW_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}

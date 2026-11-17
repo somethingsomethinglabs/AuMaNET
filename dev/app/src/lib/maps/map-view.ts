@@ -5,6 +5,12 @@ export function validPosition(p:Position|undefined):p is Position {
   return !!p&&Number.isFinite(p.latitude)&&Math.abs(p.latitude)<=85.05112878&&Number.isFinite(p.longitude)&&Math.abs(p.longitude)<=180&&Number.isFinite(p.accuracy)&&p.accuracy>=0&&p.accuracy<=100_000;
 }
 const fresh=(age:number)=>Number.isFinite(age)&&age>=0&&age<=FRESH_POSITION_MS;
+/** Describe the phone observation without presenting an old fix as live tracking. */
+export function mapLocationContext(fix:Position|undefined,ageMs:number,active:boolean,status:string,following=false):string {
+  if(!validPosition(fix))return status==='idle'||!status?'Location is off':status;
+  if(!active||!fresh(ageMs))return 'Your last-known position';
+  return following?'Following your position':'Your position is current';
+}
 /** View framing uses current participating observations; stale markers remain inspectable. */
 export function freshGroupPositions(fix:Position|undefined,ageMs:number,active:boolean,members:readonly MapMember[]):Position[] {
   const positions:Position[]=[];

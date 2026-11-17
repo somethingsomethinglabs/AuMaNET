@@ -30,6 +30,7 @@
   $: bytes=new TextEncoder().encode(draft).length;
   $: textLimit=state?.textByteLimit??GROUP_MESSAGE_TEXT_BYTES;
   $: sendReady=ready&&!!state?.canSend&&!pending&&!busy&&!imageSending&&!saving&&!dirty&&!!draft.trim()&&bytes<=textLimit;
+  $: sendingStatus=!ready||pending?'':!state?.connected?'Reconnect to send. You can keep editing your draft.':state.clockUncertain?'Correct this phone’s date and time before sending.':state.benchmarkPaused?'Sending paused for connection maintenance.':state.deliveryPaused?'Sending paused. Resume sending above when ready.':!state.canSend?'Sending is unavailable. Your draft stays on this phone.':'';
   async function save(value:string){
     const token=++edit,captured=scope;dirty=true;error='';saved='';
     try{
@@ -74,6 +75,7 @@
   <div><input aria-label="Message group" placeholder={!state?.scope?'Choose your group in Network':state.connected?'Message your group':'Draft saved until you reconnect'} value={draft}
     oninput={event=>changed(event.currentTarget.value)} maxlength={GROUP_MESSAGE_DRAFT_BYTES} disabled={!ready||busy}/>
     {#if bytes>textLimit}<small class="invalid" role="status">This message is too long for the connected group. Shorten it before sending.</small>{:else if saving||dirty}<small>{saving?'Saving draft…':'Draft not saved'}</small>{/if}
+    {#if sendingStatus}<small role="status">{sendingStatus}</small>{/if}
     {#if preparing}<small role="status">Preparing image…</small>{/if}
     {#if error||sourceError}<p class="draft-error" role="alert">{error||sourceError}</p>{/if}
     {#if dirty&&!saving&&!busy}<button class="text-button" type="button" disabled={!ready} onclick={()=>{lastWrite=save(draft);}}>Save draft again</button>{/if}
@@ -86,7 +88,8 @@
   {#if preview}<img class="image-preview" src={preview} alt="Ready to send"/>{/if}
   <p class="hint">A smaller copy will be sent with photo metadata removed. Your shared position is attached separately when location sharing is on.</p>
   {#if error}<p class="draft-error" role="alert">{error}</p>{/if}
-  <div class="image-actions"><button type="button" class="outline" disabled={imageSending} onclick={clearImage}>Cancel</button><button type="button" class="primary" disabled={!prepared||imageSending||!state?.canSendImage||!!pending} onclick={()=>void sendImage()}>{imageSending?'Sending…':'Send image'}</button></div>
+  {#if sendingStatus}<p role="status">{sendingStatus}</p>{/if}
+  <div class="image-actions"><button type="button" class="outline" disabled={imageSending} onclick={clearImage}>Cancel</button><button type="button" class="primary" disabled={!ready||!prepared||imageSending||!state?.canSendImage||!!pending} onclick={()=>void sendImage()}>{imageSending?'Sending…':'Send image'}</button></div>
 </dialog>
 
 <style>

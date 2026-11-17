@@ -62,6 +62,6 @@
   <p class="hint" id="location-sharing-hint" role="status">{sharingHint} No track is saved.</p>
 </section>
 <style>
-  .native-location h2{display:flex;align-items:center;gap:8px}.position-state{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.position-state span{font-size:12px}.location-actions{display:flex;flex-wrap:wrap;gap:8px}.location-actions button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}.location-error{color:#9f301f;background:#fff0e7;border-radius:8px;padding:10px}dl{margin:16px 0}dl div{display:flex;justify-content:space-between;gap:10px;padding:5px 0}dt{color:var(--muted)}dd{margin:0;text-align:right;overflow-wrap:anywhere}.hint{line-height:1.5}
+  .native-location h2{display:flex;align-items:center;gap:8px}.position-state{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.position-state span{font-size:12px}.location-actions{display:flex;flex-wrap:wrap;gap:8px}.location-actions button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}.location-error{color:var(--error-ink,#9f301f);background:var(--error-bg,#fff0e7);border-radius:8px;padding:10px}dl{margin:16px 0}dl div{display:flex;justify-content:space-between;gap:10px;padding:5px 0}dt{color:var(--muted)}dd{margin:0;text-align:right;overflow-wrap:anywhere}.hint{line-height:1.5}
   .sharing-row{margin-top:18px}
 </style>
