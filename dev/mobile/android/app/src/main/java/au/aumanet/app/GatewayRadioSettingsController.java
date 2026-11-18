@@ -20,7 +20,41 @@ final class GatewayRadioSettingsController {
  private boolean current(Operation o){return baseCurrent(o)&&(o.maintenance==null||o.maintenance.current());}
  private GatewayLeaseIssuer.RadioContext context(){GatewayLeaseIssuer.RadioContext c=issuer.radioContext();return c!=null&&issuer.radioCurrent(c)?c:null;}
  private void selected(JSONObject data,boolean exact)throws Exception{JSONObject e=data.getJSONObject("expectedScope");InternetSharingScope s=group.internetScope();if(s==null||!s.group.equals(GroupNameMetadata.string(e,"groupId"))||!s.self.equals(GroupNameMetadata.string(e,"selfId"))||s.epoch!=GroupNameMetadata.number(e,"epoch")||exact&&s.run!=GroupNameMetadata.number(e,"sourceRun"))throw new SecurityException();}
- JSObject refresh(JSONObject data)throws Exception{selected(data,false);if(active.get()!=null)return snapshot();GatewayLeaseIssuer.RadioContext c=context();if(c==null){debugEvent("refresh stage=CONTEXT reason=NO_VERIFIED_FIELD_CONTEXT");return snapshot();}worker.execute(()->{try{synchronized(exchangeLock){if(active.get()!=null)return;state="refreshing";sequence.incrementAndGet();Reading[] r=queryBoth(c,null);debugEvent("refresh stage=READBACK reason=SIGNED_PAIR_ACCEPTED");publish(c,r);debugEvent("refresh stage=PUBLISH reason=METADATA_ACCEPTED");reconcile(r);if(unresolved==null){state=lastOutcome.isEmpty()?"idle":lastOutcome;error="";}else{state="unknown";}}}catch(Exception failed){debugEvent("refresh stage=COMPLETE reason="+failureKind(failed));if(active.get()==null){state=unresolved==null?"unavailable":"unknown";error="RADIO_REPORTS_UNAVAILABLE";}}finally{sequence.incrementAndGet();}});return snapshot();}
+ JSObject refresh(JSONObject data)throws Exception{
+  selected(data,false);
+  if(active.get()!=null)return snapshot();
+  GatewayLeaseIssuer.RadioContext context=context();
+  if(context==null){debugEvent("refresh stage=CONTEXT reason=NO_VERIFIED_FIELD_CONTEXT");return snapshot();}
+  worker.execute(()->{
+   try{
+    synchronized(exchangeLock){
+     if(active.get()!=null)return;
+     state="refreshing";
+     sequence.incrementAndGet();
+     Reading[] reports=queryForRefresh(context);
+     debugEvent("refresh stage=READBACK reason=SIGNED_PAIR_ACCEPTED");
+     publish(context,reports);
+     debugEvent("refresh stage=PUBLISH reason=METADATA_ACCEPTED");
+     reconcile(reports);
+     if(unresolved==null){state=lastOutcome.isEmpty()?"idle":lastOutcome;error="";}
+     else state="unknown";
+    }
+   }catch(Exception failed){
+    debugEvent("refresh stage=COMPLETE reason="+failureKind(failed));
+    if(active.get()==null){state=unresolved==null?"unavailable":"unknown";error="RADIO_REPORTS_UNAVAILABLE";}
+   }finally{sequence.incrementAndGet();}
+  });
+  return snapshot();
+ }
+ private Reading[] queryForRefresh(GatewayLeaseIssuer.RadioContext context)throws Exception{
+  try{return queryBoth(context,null);}
+  catch(SocketTimeoutException|GatewayRadioQueryPolicy.FreshnessUnavailable transientFailure){
+   if(active.get()!=null||!issuer.radioCurrent(context))throw transientFailure;
+   // Use new challenges and publish only a complete pair from this attempt.
+   debugEvent("refresh stage=RETRY reason="+failureKind(transientFailure));
+   return queryBoth(context,null);
+  }
+ }
  /** Caller is outside the group monitor; bounded read-only capture, never commands. */
  JSObject prepareComparison(JSONObject data,BooleanSupplier foreground)throws Exception{
   selected(data,false);GatewayLeaseIssuer.RadioContext c=issuer.retainedRadioContext();InternetSharingScope s=group.internetScope();
