@@ -84,6 +84,7 @@ jobs:
       - name: Verify preserved message storage and trusted connection recovery
         run: |
           node dev/tests/native-group-messages-store.mjs --jdk "$JAVA_HOME" --output output/native-message-store
+          node dev/tests/native-group-recovery.mjs --jdk "$JAVA_HOME" --output output/native-group-recovery
           node dev/tests/native-trusted-connection.mjs --jdk "$JAVA_HOME" --output output/native-trusted-connection
           node dev/tests/native-diagnostic-export.mjs --output output/native-diagnostic-export
           node dev/tests/native-gateway-radio-settings.mjs --jdk "$JAVA_HOME" --output output/native-radio-settings
