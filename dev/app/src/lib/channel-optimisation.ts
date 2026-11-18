@@ -126,7 +126,12 @@ export class ChannelOptimisation {
    const measure=async(option:GatewayRadioOption)=>{
     if(this.stopped)throw Error('Optimisation stopped.');if(this.clock()+80000>deadline)throw Error('Time limit reached. Partial results are retained; no recommendation was made.');
     this.publish({phase:`Testing channel ${option.channel} · ${option.centerFrequencyHz/1e6} MHz…`});
-    await switchTo(option.id);
+    try{await switchTo(option.id);}
+    catch(error){
+     if(this.stopped)throw error;
+     const detail=error instanceof Error?` ${error.message}`:'';
+     throw Error(`Could not verify channel ${option.channel} on both nodes.${detail}`);
+    }
     const ready=await this.until(benchRead,s=>!runningTest(s.state)&&s.peers.some(p=>p.peerId===peerId&&p.armId===peerArm),20000);
     const seen=new Set([...ready.results, ...(ready.result?[ready.result]:[])].map(r=>r.id));
     testPossible=true;await this.benchmark.start(peerId,'channel-comparison');

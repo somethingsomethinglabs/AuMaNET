@@ -14,7 +14,7 @@ const loggers=phones.map(p=>{const logger=spawn(adb,['-s',p.id,'shell','logcat',
 try{
  for(const p of phones){shell(p,'shell','input','keyevent','KEYCODE_WAKEUP');shell(p,'shell','wm','dismiss-keyguard');shell(p,'shell','am','start','-W','-n','au.aumanet.app/.MainActivity');const pid=shell(p,'shell','pidof','au.aumanet.app');if(!/^\d+$/.test(pid))throw Error('Missing app process');shell(p,'forward',`tcp:${p.port}`,`localabstract:webview_devtools_remote_${pid}`);p.browser=await chromium.connectOverCDP(`http://127.0.0.1:${p.port}`,{noDefaults:true});p.page=p.browser.contexts().flatMap(c=>c.pages()).find(p=>p.url().startsWith('https://localhost'));if(!p.page)throw Error('Missing app WebView');p.before=await call(p,'AuMaNETGroupMessages');}
  const [owner,member]=phones,g=await call(owner,'AuMaNETGroup');if(g.role!=='owner'||!g.group)throw Error('Expected connected owner phone');
- const radioPanel=owner.page.getByRole('region',{name:'Radio settings',exact:true});
+ const radioPanel=owner.page.locator('.radio-settings');
  if(!await radioPanel.isVisible())await openTool(owner.page,'Radio settings');
  const initial=await call(owner,'AuMaNETRadioSettings');
  await call(owner,'AuMaNETRadioSettings','prepareComparison',{expectedScope:initial.scope,acknowledgement:'pause-traffic-and-verify-channels'});
