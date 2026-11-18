@@ -1,0 +1,1516 @@
+{
+  "schema": "aumanet.physical-controls-review.v1",
+  "date": "2026-11-18",
+  "conclusion": "PARTIAL_ACCEPTANCE",
+  "interpretation": "Real devices operated through their installed app UI over Android USB debugging, with native snapshots, peer receipts, file checksums and OS evidence where described. This is an exploratory two-phone campaign, not an exhaustive control inventory or a coverage percentage. Host and browser fixture results are separate from physical acceptance. Earlier failed attempts remain in private logs; this matrix shows latest attempts for named cases, with failures classified as observed defects or blocked acceptance.",
+  "devices": [
+    {
+      "id": "phone-1",
+      "model": "Samsung Galaxy Z Flip3"
+    },
+    {
+      "id": "phone-2",
+      "model": "Nothing Phone 3a Pro"
+    }
+  ],
+  "builds": {
+    "baselineApkSha256": "ee1c8e9a26d546b1a912995c00a1f3d23430f85e0c2c890444096ca28824a357",
+    "dhcpGateApkSha256": "bbd1739a3d187cacdd63d9cf0f9bd4459e9c2b87235b9ed9ae31f160497653e8",
+    "focusedRegressionApkSha256": "b204fdeb31fbd13c8f1a3db9286a8b53422b463e726b3ad61e2461fd1e7900c7",
+    "finalInstalledApkSha256": "cb565a60a48d7be8a41e20a8d1de7d11f0b6eab27933fccdbe21822e4c53091c",
+    "baseCommit": "54d4901125635a926bd5dadc42719708ba4dca80",
+    "changedSource": [
+      {
+        "path": "dev/app/src/lib/NativeVoicePanel.svelte",
+        "sha256": "9345bb21e3fba618892f5884947e50af041e4f03dca736dc780ee4a5994f1120"
+      },
+      {
+        "path": "dev/app/src/lib/__tests__/voice-panel-fixture.svelte.ts",
+        "sha256": "24221d65ff3e6e1eae22177e394bee16cfe2bcfca05ca9a996c58a59c915c308"
+      },
+      {
+        "path": "dev/tests/voice-panel-browser-verification.mjs",
+        "sha256": "7c116b90188c5c393626eb9f4ee0e4ba35fdbe8ebdad2db55b4c6b3312914f5f"
+      }
+    ],
+    "attribution": "Broad controls tested on baseline, with focused regressions after UI changes. Final build verified on both phones for saved connection, identity/group/draft preservation, muted verified voice, current peer location, maps and settings search. Do not interpret every matrix pass as a rerun on the final APK."
+  },
+  "firmware": {
+    "changed": false,
+    "version": "0.9.1-enrollment.1",
+    "imageSha256": "d9082d593370194f59a725bef908a20f576071c9935c5e725fc758e9a005ff49",
+    "physicalDhcp": {
+      "status": "PASS_BOTH_PAIRS",
+      "freshAppResumeReconnectsPerPair": 3,
+      "nodeRebootRecovery": true,
+      "stableAddressSeconds": 30,
+      "intendedAppSsidMacChecked": true,
+      "temporaryAssignmentsRestored": true,
+      "evidence": "Exact installed identity and private JSON retained locally; no device identities or credentials in this report."
+    }
+  },
+  "hostValidation": {
+    "webContracts": {
+      "passed": 545,
+      "failed": 0
+    },
+    "androidUnit": {
+      "tests": 229,
+      "suites": 41,
+      "failures": 0,
+      "errors": 0
+    },
+    "svelte": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "webBuild": "PASS",
+    "androidDebugBuild": "PASS",
+    "voiceBrowserRegression": "PASS: explicit held/interrupted stop then start, no automatic reconnect/unmute/PTT, Cancel fences delayed teardown. Synthetic snapshots are not physical hold acceptance."
+  },
+  "physicalHighlights": {
+    "location": "Both toggles enable native background sharing and peer receives fresh nonmock fix; Off stops both native and peer sharing. Background/own-location Start/Stop/cache clearing tested. Original reported stuck toggle not persistently reproduced after connection recovery.",
+    "messages": "Ten UI sends each way, unique delivery and signed acknowledgements; empty/whitespace/limit checks, draft persistence, detail/help and clear-history cancellation.",
+    "images": "Small images both directions and large image pause/resume in background; native received bytes verified against SHA-256. Viewer and Android save tested.",
+    "voice": "Native path/peer verified, actual PTT media bytes, release/mute/deafen/mode/leave/rejoin. Earpiece selected for final readiness; no human acoustic intelligibility assertion.",
+    "internet": "Actual bounded donation and separate app UID on consumer with mobile data off: uncached DNS, HTTP, HTTPS and UDP STUN over shared VPN. Negative no-donation control, stop donation and stop consuming passed; mobile data restored.",
+    "maps": "Actual offline region download/view/remove only generated region, existing maps preserved. Native Android screencaps used because WebGL CDP screenshot was unreliable.",
+    "other": "All five navigation tabs, ten settings categories, available help dialogs, appearance persistence, roster/profile restore, Android settings, runtime diagnostics and reviewed exports, real two-way benchmarks and stop/disarm."
+  },
+  "openFindings": [
+    {
+      "id": "channel-comparison",
+      "status": "FAIL",
+      "finding": "Full radio sweep stopped after three completed bidirectional measurements because the next channel change could not be confirmed.",
+      "recovery": "Both nodes verified restored to starting channel 36, 920 MHz, 1 MHz, 24 dBm. No complete recommendation accepted."
+    },
+    {
+      "id": "radio-maintenance",
+      "status": "INTERMITTENT",
+      "finding": "Fresh signed radio reports and owner firmware identities passed after node reboot, but later refresh had no permitted radio choices. Reproducibility remains unresolved."
+    },
+    {
+      "id": "phone-2-output",
+      "status": "FAIL",
+      "finding": "Speaker selection intermittently rejected and Bluetooth watch endpoint disappeared; final earpiece worked. Human listening/Bluetooth route acceptance incomplete."
+    },
+    {
+      "id": "voice-start",
+      "status": "INTERMITTENT",
+      "finding": "Cold voice negotiation failed in one update pass; explicit leave/join recovered. Held/interrupted recovery control and Cancel race regression added; held precondition did not recur during final physical smoke, so new recovery branches have browser fixture coverage only."
+    },
+    {
+      "id": "firmware-catalog",
+      "status": "BLOCKED",
+      "finding": "In the follow-up, the production verification tool validated the live signed catalog from the PC. The owner phone had only node Wi-Fi and no separate validated internet connection, so its catalog request remained unavailable. OTA package download, installation, rollback and post-update acceptance were not run."
+    }
+  ],
+  "notRun": [
+    "Destructive group disconnect/remove/reset/history deletion beyond confirmation cancellation, to preserve existing data.",
+    "Fresh third-member enrollment or recovery-code import, key rotation and multi-member topology.",
+    "Firmware upgrade/download/install/rollback with a valid signed release, and power-loss OTA recovery.",
+    "Complete channel sweep/recommendation and RF acceptance at every channel width/power.",
+    "Human voice intelligibility, acoustic feedback, real telephone interruptions and verified Bluetooth-watch playback.",
+    "Field range/movement, long endurance, low battery/storage, phone reboot and permission-denied/revocation permutations.",
+    "Every developer-only destructive capability, every Android system settings action, and all external export/share destinations."
+  ],
+  "privacy": "Raw bench data, screenshots, message fixtures, coordinates, credentials, IDs, MACs, USB serials, invite codes and private backups stay outside Git.",
+  "cases": [
+    {
+      "device": "phone-1",
+      "case": "Actual background notification receipt hides message and names",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Allow real connection tests",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Android notification settings opens and returns",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Android Wi-Fi settings opens and returns",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Appearance Dark persists",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Appearance Imperial persists",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Appearance Light persists",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Appearance Metric persists",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Audio Done closes dialog",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Audio options opens",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Audio route Earpiece",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Audio route Speaker",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Bandwidth estimator expands advanced fields and validates inputs",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Check internet status",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Check signed firmware catalog without installing",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Clear last known fix",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Collect real redacted diagnostics",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Connection history and planner navigation",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Connection test measures real upload and download",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Conversation privacy and clear-history cancellation",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Copy diagnostics",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Deafen and undeafen",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Developer options opens without starting a session",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Diagnostic details 0",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Diagnostic details 1",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Diagnostic details 2",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Diagnostic details 3",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Diagnostic details 4",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Disconnect confirmation cancels safely",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Draft survives tabs and background",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Empty message cannot send",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Final APK identity membership and draft preserved",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Final location sharing enabled and peer receives fresh fix",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Final verified voice with confirmed phone output stays muted",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Firmware channel Beta",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Firmware channel Nightly",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Firmware channel Stable",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Firmware node selector and fresh installed reports",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Fresh radio reports after app and node restart",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Group alerts Off",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Group alerts On",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Group member details and Manage group",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Group positions, phone details and Location settings shortcut",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog Bounded collection events",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog Display settings",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog How shared internet works",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog Keeping the group connected",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog Location & privacy",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog Notification privacy",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog Recovery steps",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog Registered native capabilities",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog Saved connection choices",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog Speech detection profiles",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog Web implementation contracts",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Help dialog Wi-Fi connection help",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Image preview Cancel sends nothing",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Independent app real DNS HTTP HTTPS UDP through donor",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Internet choice 1 GB",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Internet choice 1 hour",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Internet choice 100 MB",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Internet choice 2 hours",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Internet choice 250 MB",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Internet choice 30 min",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Internet choice 500 MB",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Internet negative control without donation",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Invitation and connection code generation",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Join channel begins muted",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Large real image pause resume background and exact checksum",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Leave channel stops capture and playback",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Map zoom, recenter, follow and pan",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Maps storage opens Messages",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Maps storage retry opens selection and cancels",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Message detail dialog",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Microphone unmute then PTT hold/release sends real media",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Navigation Group",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Navigation Map",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Navigation Messages",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Navigation Network",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Navigation Voice",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Network View other nodes",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Network View your node details",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Network View your phone details",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Offline area selection pin, radius, terrain, fit, centre and cancel",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Over limit message cannot send",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Peer receives fresh real position",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Profile name saves to peer and restores",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Propose each supported radio width without applying",
+      "status": "BLOCKED",
+      "note": "No signed permitted choices available on the later refresh."
+    },
+    {
+      "device": "phone-1",
+      "case": "Radio controls enforce owner role",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Radio node reports and help",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Radio refresh verifies both physical nodes",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Radio width proposal 1 MHz",
+      "status": "BLOCKED",
+      "note": "Permitted choices unavailable when checked; fresh signed reports had passed after reboot earlier."
+    },
+    {
+      "device": "phone-1",
+      "case": "Radio width proposal 2 MHz",
+      "status": "BLOCKED",
+      "note": "Permitted choices unavailable when checked; fresh signed reports had passed after reboot earlier."
+    },
+    {
+      "device": "phone-1",
+      "case": "Radio width proposal 4 MHz",
+      "status": "BLOCKED",
+      "note": "Permitted choices unavailable when checked; fresh signed reports had passed after reboot earlier."
+    },
+    {
+      "device": "phone-1",
+      "case": "Radio width proposal 8 MHz",
+      "status": "BLOCKED",
+      "note": "Permitted choices unavailable when checked; fresh signed reports had passed after reboot earlier."
+    },
+    {
+      "device": "phone-1",
+      "case": "Refresh and older message controls",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Refresh connection test status",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Refresh saved connection",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Refresh then clear diagnostics",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Refresh Wi-Fi status",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Rejoined voice reconnects verified",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Remove member confirmation cancels safely",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Roster search and connected-only filter",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Save diagnostics to Android Downloads",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Scenario JSON export saves exact reviewed content",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings Appearance",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings Diagnostics & about",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings Group & members",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings Internet sharing",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings Location & privacy",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings Maps & storage",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings Nodes",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings Notifications",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings overview",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings search, no results and clear",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings Tools & checks",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Settings Voice & audio",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Share my position enables native sharing",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Sharing survives app background",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Start and stop own location",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Stop accepting connection tests",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Stop an active connection test",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Stop consuming removes shared VPN",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Ten UI sends received exactly once and acknowledged",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Toggle off stops native and peer sharing",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "UI image send completes in peer background with matching hash",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Updated APK retains identity membership draft and history",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Updated app explicitly resumes saved node and group",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Use offered shared internet through Android VPN",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Voice has verified peer and radio path",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Voice input mode Always on stays muted",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Voice input mode Push to talk stays muted",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Voice sensitivity Balanced apply",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Voice sensitivity High apply",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Voice sensitivity Low apply",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Voice status dialog opens and closes",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Voice strip opens current call",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-1",
+      "case": "Whitespace message cannot send",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Actual background notification receipt hides message and names",
+      "status": "PASS",
+      "note": "An Android notification posted while the app was backgrounded. The record had generic text, secret lockscreen visibility and no message body or member names. The peer received the message exactly once. The earlier inspection buffer limit was resolved."
+    },
+    {
+      "device": "phone-2",
+      "case": "Allow real connection tests",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Android notification settings opens and returns",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Android Wi-Fi settings opens and returns",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Appearance Dark persists",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Appearance Imperial persists",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Appearance Light persists",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Appearance Metric persists",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Audio Done closes dialog",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Audio options opens",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Audio route Bluetooth watch",
+      "status": "FAIL",
+      "note": "Android speaker selection rejected intermittently; Bluetooth endpoint later disappeared. Final earpiece selection passed."
+    },
+    {
+      "device": "phone-2",
+      "case": "Audio route Earpiece",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Audio route Speaker",
+      "status": "FAIL",
+      "note": "Android speaker selection rejected intermittently; Bluetooth endpoint later disappeared. Final earpiece selection passed."
+    },
+    {
+      "device": "phone-2",
+      "case": "Bandwidth estimator expands advanced fields and validates inputs",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Bluetooth audio permission through Android prompt",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Check internet status",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Check signed firmware catalog without installing",
+      "status": "NOT_APPLICABLE",
+      "note": "This is the member phone. Firmware node selection, status and release checks belong to the owner. The installed app incorrectly suggested reconnecting instead of explaining the role restriction."
+    },
+    {
+      "device": "phone-2",
+      "case": "Clear last known fix",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Collect real redacted diagnostics",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Conversation privacy and clear-history cancellation",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Copy diagnostics",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Deafen and undeafen",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Developer options opens without starting a session",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Diagnostic details 0",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Diagnostic details 1",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Diagnostic details 2",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Diagnostic details 3",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Diagnostic details 4",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Disconnect confirmation cancels safely",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Draft survives tabs and background",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Empty message cannot send",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Final APK identity membership and draft preserved",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Final location sharing enabled and peer receives fresh fix",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Final verified voice with confirmed phone output stays muted",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Firmware channel Beta",
+      "status": "NOT_APPLICABLE",
+      "note": "This is the member phone. Firmware node selection, status and release checks belong to the owner. The installed app incorrectly suggested reconnecting instead of explaining the role restriction."
+    },
+    {
+      "device": "phone-2",
+      "case": "Firmware channel Nightly",
+      "status": "NOT_APPLICABLE",
+      "note": "This is the member phone. Firmware node selection, status and release checks belong to the owner. The installed app incorrectly suggested reconnecting instead of explaining the role restriction."
+    },
+    {
+      "device": "phone-2",
+      "case": "Firmware channel Stable",
+      "status": "NOT_APPLICABLE",
+      "note": "This is the member phone. Firmware node selection, status and release checks belong to the owner. The installed app incorrectly suggested reconnecting instead of explaining the role restriction."
+    },
+    {
+      "device": "phone-2",
+      "case": "Firmware node selector and fresh installed reports",
+      "status": "NOT_APPLICABLE",
+      "note": "This is the member phone. Firmware node selection, status and release checks belong to the owner. The installed app incorrectly suggested reconnecting instead of explaining the role restriction."
+    },
+    {
+      "device": "phone-2",
+      "case": "Fresh radio reports after app and node restart",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Group alerts Off",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Group alerts On",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Group member details and Manage group",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Group positions, phone details and Location settings shortcut",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog Bounded collection events",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog Display settings",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog How shared internet works",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog Keeping the group connected",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog Location & privacy",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog Notification privacy",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog Recovery steps",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog Registered native capabilities",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog Saved connection choices",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog Speech detection profiles",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog Web implementation contracts",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Help dialog Wi-Fi connection help",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Image preview Cancel sends nothing",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Internet choice 1 GB",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Internet choice 1 hour",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Internet choice 100 MB",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Internet choice 2 hours",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Internet choice 250 MB",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Internet choice 30 min",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Internet choice 500 MB",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Join channel begins muted",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Leave channel stops capture and playback",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Map zoom, recenter, follow and pan",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Maps storage opens Messages",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Maps storage retry opens selection and cancels",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Message detail dialog",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Microphone unmute then PTT hold/release sends real media",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Navigation Group",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Navigation Map",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Navigation Messages",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Navigation Network",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Navigation Voice",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Network View other nodes",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Network View your node details",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Network View your phone details",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Offline area selection pin, radius, terrain, fit, centre and cancel",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Over limit message cannot send",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Peer receives fresh real position",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Profile name saves to peer and restores",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Radio controls enforce owner role",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Radio node reports and help",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Radio refresh verifies both physical nodes",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Real small offline area downloads, displays and removes only test area",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Refresh and older message controls",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Refresh connection test status",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Refresh saved connection",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Refresh then clear diagnostics",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Refresh Wi-Fi status",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Rejoined voice reconnects verified",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Roster search and connected-only filter",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Save diagnostics to Android Downloads",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Scenario JSON export saves exact reviewed content",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings Appearance",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings Diagnostics & about",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings Group & members",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings Internet sharing",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings Location & privacy",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings Maps & storage",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings Nodes",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings Notifications",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings overview",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings search, no results and clear",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings Tools & checks",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Settings Voice & audio",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Share my position enables native sharing",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Sharing survives app background",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Start and stop own location",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Start bounded mobile data donation",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Stop accepting connection tests",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Stop donation ends shared internet",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Ten UI sends received exactly once and acknowledged",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Toggle off stops native and peer sharing",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "UI image send completes in peer background with matching hash",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Updated APK retains identity membership draft and history",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Updated app explicitly resumes saved node and group",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Voice has verified peer and radio path",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Voice input mode Always on stays muted",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Voice input mode Push to talk stays muted",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Voice sensitivity Balanced apply",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Voice sensitivity High apply",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Voice sensitivity Low apply",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Voice status dialog opens and closes",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Voice strip opens current call",
+      "status": "PASS"
+    },
+    {
+      "device": "phone-2",
+      "case": "Whitespace message cannot send",
+      "status": "PASS"
+    },
+    {
+      "device": "pair",
+      "case": "Five minutes real background voice and shared positions",
+      "status": "PASS",
+      "note": "PASS for observed samples and return after background; WebView froze between 61s and 309s. Not continuous monitoring."
+    },
+    {
+      "device": "phone-1",
+      "case": "Handoff retains saved data and verified muted connected sharing state",
+      "status": "PASS",
+      "evidence": {
+        "identityAndMembershipPreserved": true,
+        "draftPreserved": true,
+        "unexpiredBaselineHistoryRetained": 32,
+        "voiceVerifiedAndMuted": true,
+        "freshRealPeerLocation": true,
+        "benchmarkDisarmed": true,
+        "sharedInternetOff": true
+      }
+    },
+    {
+      "device": "phone-2",
+      "case": "Handoff retains saved data and verified muted connected sharing state",
+      "status": "PASS",
+      "evidence": {
+        "identityAndMembershipPreserved": true,
+        "draftPreserved": true,
+        "unexpiredBaselineHistoryRetained": 32,
+        "voiceVerifiedAndMuted": true,
+        "freshRealPeerLocation": true,
+        "benchmarkDisarmed": true,
+        "sharedInternetOff": true
+      }
+    }
+  ],
+  "backgroundReturn": {
+    "status": "PASS_WITH_SAMPLING_GAP",
+    "seconds": 309,
+    "samples": 3,
+    "sampleElapsedSeconds": [
+      30,
+      61,
+      309
+    ],
+    "limitation": "WebView USB debugging stopped responding while app was backgrounded after 61 seconds. OS service inspection confirmed voice/location/trusted connection services still present before return. Resuming after five minutes restored inspection; native voice connected/verified/muted and shared positions active. This does not prove uninterrupted media or position freshness throughout the gap."
+  },
+  "handoff": {
+    "connectedBothPhones": true,
+    "sharingLocationBothPhones": true,
+    "microphonesMuted": true,
+    "earpieceOutputConfirmed": true,
+    "existingIdentityMembershipDraftAndUnexpiredBaselineHistoryRetained": true,
+    "temporaryBenchNetworkAssignmentsRestored": true,
+    "benchBenchmarkDisarmed": true,
+    "sharedInternetOff": true,
+    "consumerMobileDataRestored": true,
+    "temporaryProbeAppRemoved": true
+  },
+  "caseCounts": {
+    "PASS": 255,
+    "BLOCKED": 5,
+    "FAIL": 2,
+    "NOT_APPLICABLE": 5
+  }
+}
