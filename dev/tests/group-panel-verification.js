@@ -81,6 +81,18 @@ async (page) => {
   await page.evaluate(()=>{const f=window.__groupPanelFixture,s=f.state;f.setState({...s,status:'connected',role:'member',group:{...s.group,ownerId:f.peer},members:[...s.members,{id:f.peer,name:'Owner',connected:true,voiceJoined:false,sharingLocation:false}]});});
   check(await page.getByLabel('Group name shown to members',{exact:true}).count()===0,'Member was offered group rename');
   await page.evaluate(()=>window.__groupPanelFixture.reset());
+  const inviteField=page.getByLabel('Group invitation',{exact:true});
+  await page.getByLabel('Your name in the group',{exact:true}).fill('');
+  check(await button('Inspect invitation').isDisabled(),'Inspect did not require a valid name');
+  check(await page.getByText('Enter a valid display name before inspecting an invitation.').isVisible(),'Name prerequisite was not explained');
+  await page.getByLabel('Your name in the group',{exact:true}).fill('Person');
+  await inviteField.fill('invalid invitation');await button('Inspect invitation').click();
+  const inviteError=page.locator('#invitation-error');
+  check(await inviteError.isVisible()&&await inviteError.getAttribute('role')==='alert','Invalid invitation feedback was not announced beside the field');
+  check(await inviteField.getAttribute('aria-describedby')==='invitation-error'&&await inviteField.getAttribute('aria-invalid')==='true','Invitation error was not associated with its field');
+  await inviteField.fill('edited invitation');
+  check(await inviteError.count()===0&&await inviteField.getAttribute('aria-invalid')==='false','Editing did not clear invitation feedback');
+  await page.evaluate(()=>window.__groupPanelFixture.reset());
   const oldInvitation=await page.evaluate(()=>{const value=window.__groupPanelFixture.invitation();const raw=JSON.parse(atob(value.inviteCode.slice('aumanet://join/'.length).replaceAll('-','+').replaceAll('_','/')));raw.schema='aumanet.invite.v1';return 'aumanet://join/'+btoa(JSON.stringify(raw)).replaceAll('+','-').replaceAll('/','_').replaceAll('=','');});
   await page.getByLabel('Your name in the group',{exact:true}).fill('Person');await page.getByLabel('Group invitation',{exact:true}).fill(oldInvitation);
   if(await button('Inspect invitation').isEnabled())await button('Inspect invitation').click();check(await button('Request to join').count()===0,'Old incompatible invite schema was accepted');
@@ -99,6 +111,7 @@ async (page) => {
   const expired=await page.evaluate(()=>window.__groupPanelFixture.invitation(-100));
   await page.getByLabel('Group invitation',{exact:true}).fill(expired.inviteCode);
   check(await page.getByLabel('Group invitation',{exact:true}).inputValue()==='','Expired pasted invitation remained in the form');
+  check(await page.locator('#invitation-error').isVisible()&&await page.getByLabel('Group invitation',{exact:true}).getAttribute('aria-describedby')==='invitation-error','Expired invitation feedback was not associated with the field');
   if(await button('Inspect invitation').isEnabled())await button('Inspect invitation').click();check(await button('Request to join').count()===0,'Expired invitation could be submitted');
   await page.evaluate(()=>window.__groupPanelFixture.reset('owner'));
   await page.evaluate(()=>window.__groupPanelFixture.expireInvitesAfter(900));await button('Create invitation').click();

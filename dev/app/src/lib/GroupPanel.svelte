@@ -19,7 +19,7 @@
   let ownNameDirty=false,seededIdentity='',shownGroup='',busy='',error='',notice='',copied=false;
   let profileEditorOpen=true;
   let renamedGroup='',renameDirty=false;
-  let invitationInspected=false;
+  let invitationInspected=false,invitationError='';
   let invitePendingIds:ReadonlySet<string>=new Set();
   let now=Date.now(),elapsed=typeof performance==='undefined'?0:performance.now(),alive=true,operation=0,leaving=false;
   let confirmation:Confirmation|undefined,confirmDialog:HTMLDialogElement|undefined;
@@ -53,7 +53,7 @@
 
   function validLabel(value:string,max:number){try{normalizeGroupName(value,max===48?'self':'group');return true;}catch{return false;}}
   function explain(value:unknown){return value instanceof Error?value.message.slice(0,240):'The group action could not be completed. Please try again.';}
-  function clearSecrets(){connectionInput='';ownerCode='';ownerCodeExpires=ownerCodeDeadline=0;codeCopied=false;incoming='';inviteCode='';inviteExpires=inviteDeadline=inputDeadline=0;invitePendingIds=new Set();copied=false;}
+  function clearSecrets(){invitationError='';invitationInspected=false;connectionInput='';ownerCode='';ownerCodeExpires=ownerCodeDeadline=0;codeCopied=false;incoming='';inviteCode='';inviteExpires=inviteDeadline=inputDeadline=0;invitePendingIds=new Set();copied=false;}
   function invitationUsed(){inviteCode='';inviteExpires=inviteDeadline=0;invitePendingIds=new Set();copied=false;notice='Invitation used. Review the phone’s request below.';}
   function memberPresent(id:string){return state?.members.some(member=>member.id===id);}
   function expireSecrets(){
@@ -61,7 +61,7 @@
     if(ownerCode&&(ownerCodeExpires<=wall||ownerCodeDeadline<=monotonic)){ownerCode='';ownerCodeExpires=ownerCodeDeadline=0;codeCopied=false;}
     if(inviteCode&&(inviteExpires<=wall||inviteDeadline<=monotonic)){inviteCode='';inviteExpires=inviteDeadline=0;copied=false;notice='Invitation expired. Create a new one when you are ready.';}
     if(incoming&&(inputDeadline>0&&inputDeadline<=monotonic||candidate&&candidate.expiresAt<=wall)){
-      incoming='';inputDeadline=0;notice='Invitation expired. Ask the group owner for a new one.';
+      incoming='';inputDeadline=0;invitationInspected=false;invitationError='Invitation expired. Ask the group owner for a new one.';
     }
   }
   function validConnectionCode(value:string){value=value.trim();return value.length<=4096&&value.startsWith('aumanet://reconnect/')&&/^[A-Za-z0-9_-]+$/.test(value.slice('aumanet://reconnect/'.length));}
@@ -79,7 +79,7 @@
       return {expiresAt:candidate.expiresAt,groupName:candidate.groupName,ownerId:candidate.pin};
     }catch{return;}
   }
-  function invitationInput(value:string){invitationInspected=false;incoming=value;if(value&&!inputDeadline)inputDeadline=performance.now()+300000;if(!value)inputDeadline=0;notice='';expireSecrets();}
+  function invitationInput(value:string){invitationError='';invitationInspected=false;incoming=value;if(value&&!inputDeadline)inputDeadline=performance.now()+300000;if(!value)inputDeadline=0;notice='';expireSecrets();}
   async function refresh(){try{await client.refresh();}catch(failure){if(alive)error=explain(failure);}}
   async function run(label:string,action:()=>Promise<unknown>){
     if(busy||leaving)return;const token=++operation;busy=label;error='';notice='';
@@ -198,10 +198,12 @@
     {#if flow!=='create'}<section class="card"><h3>Your private invitation</h3><p class="hint">Ask the owner for a private invitation. The owner will approve this phone before it can join.</p>
       <form onsubmit={event=>{event.preventDefault();if(invitationInspected)void joinGroup();}}>
         {#if flow!=='manage'}<label class="field">Your display name<input aria-label="Your name in the group" maxlength="96" bind:value={ownName} oninput={()=>ownNameDirty=true}/></label>{/if}
-        <label class="field">Invitation<textarea aria-label="Group invitation" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="4096" bind:value={incoming} oninput={event=>invitationInput(event.currentTarget.value)} placeholder="Paste the complete invitation"></textarea></label>
+        <label class="field">Invitation<textarea aria-label="Group invitation" aria-invalid={!!invitationError} aria-describedby={invitationError?'invitation-error':undefined} autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="4096" bind:value={incoming} oninput={event=>invitationInput(event.currentTarget.value)} placeholder="Paste the complete invitation"></textarea></label>
+        {#if invitationError}<p id="invitation-error" class="group-error" role="alert">{invitationError}</p>{/if}
+        {#if !nameValid}<p class="hint" id="invitation-name-help">Enter a valid display name before inspecting an invitation.</p>{/if}
         {#if incomingInfo&&invitationInspected}<p class="hint">Joining <strong>{incomingInfo.groupName}</strong> · Invitation expires in {duration(incomingRemaining)}</p>
           <div class="help-row"><span>Group owner’s identity</span><HelpButton title="Group owner’s identity"><output class="pin">{incomingInfo.ownerId}</output><p class="hint">Check this identity with the person who sent the invitation.</p></HelpButton></div>{/if}
-        {#if !invitationInspected}<button class="primary" type="button" disabled={!ready||!!busy||!nameValid} onclick={()=>{if(incomingInfo&&incomingRemaining>0){invitationInspected=true;error='';}else error='Enter a complete, current invitation from the group owner.';}}>Inspect invitation</button>{:else}<button class="primary" type="submit" disabled={!ready||!!busy||state?.namesAvailable===false||!nameValid||!incomingInfo||incomingRemaining<=0}><UserPlus size={19}/>Request to join</button>{/if}
+        {#if !invitationInspected}<button class="primary" type="button" disabled={!ready||!!busy||!nameValid} aria-describedby={!nameValid?'invitation-name-help':undefined} onclick={()=>{if(incomingInfo&&incomingRemaining>0){invitationInspected=true;invitationError='';}else invitationError='Enter a complete, current invitation from the group owner.';}}>Inspect invitation</button>{:else}<button class="primary" type="submit" disabled={!ready||!!busy||state?.namesAvailable===false||!nameValid||!incomingInfo||incomingRemaining<=0}><UserPlus size={19}/>Request to join</button>{/if}
       </form></section>{/if}
   {:else if pending}
     <section class="card"><h3>{recovering?'Reconnecting to your saved group':state?.status==='pending'?'Waiting for approval':'Connecting'}</h3><p>{recovering?'Open the group on the owner phone and keep both phones on the same local network. For radio nodes, each phone uses its own node’s Wi-Fi. Your saved membership is verified before reconnecting; voice and location sharing stay off.':'The group owner needs to approve your phone. Keep both phones on the same local network. For radio nodes, each phone uses its own node’s Wi-Fi.'}</p>
