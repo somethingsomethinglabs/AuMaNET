@@ -17,7 +17,7 @@
   export let channelAvailable=false;
   export let onjoin:(()=>Promise<unknown>)|undefined=undefined;
   export let onleave:(()=>Promise<unknown>)|undefined=undefined;
-  let busy=false,error='';
+  let busy=false,error='',rejoinRevision=0;
   let statusDialog:HTMLDialogElement|undefined;
   let audioDialog:HTMLDialogElement|undefined,compactCall=true;
   let rosterElement:HTMLDivElement|undefined,rosterOverflows=false;
@@ -55,7 +55,8 @@
     if(busy)return;busy=true;error='';
     try{await action();}catch(e){error=e instanceof Error?e.message:String(e);}finally{busy=false;void client.refresh().catch(e=>error=e instanceof Error?e.message:String(e));}
   }
-  async function leave(){error='';try{if(onleave)await onleave();else await client.stop();}catch(e){error=e instanceof Error?e.message:String(e);}}
+  async function leave(){++rejoinRevision;error='';try{if(onleave)await onleave();else await client.stop();}catch(e){error=e instanceof Error?e.message:String(e);}}
+  async function rejoinMuted(){const revision=++rejoinRevision;await run(async()=>{if(onleave)await onleave();else await client.stop();if(revision!==rejoinRevision)return;if(onjoin)await onjoin();else await client.start();});}
   async function control(action:()=>Promise<unknown>){try{await action();error='';}catch(e){error=e instanceof Error?e.message:String(e);}finally{void client.refresh().catch(e=>error=e instanceof Error?e.message:String(e));}}
 </script>
 
@@ -105,7 +106,8 @@
   <div class="call-tools">
     <div class="call-transmit">
       {#if !participating}<button class="primary join-call" disabled={busy||joining||!state||!!onjoin&&!channelAvailable} onclick={()=>void run(()=>onjoin?onjoin():client.start())}>{busy||joining?'Joining…':'Join channel · Muted'}</button>
-      {:else if telecom&&!telecomUsable}<button class="primary native-ptt" disabled aria-label="Hold native push to talk" title={statusText}>{state?.telecomState==='held'?'Call on hold':state?.telecomSystemMuted?'Android call muted':state?.telecomState==='pending'?'Preparing Android audio':'Android audio unavailable'}</button>
+      {:else if telecom&&state?.telecomState==='held'||state?.coordinatorStatus==='interrupted'}<button class="primary native-ptt" disabled={busy||joining||!!onjoin&&!channelAvailable} onclick={()=>void rejoinMuted()}>{state?.telecomState==='held'?'Rejoin held call · Muted':'Rejoin voice · Muted'}</button>
+      {:else if telecom&&!telecomUsable}<button class="primary native-ptt" disabled aria-label="Hold native push to talk" title={statusText}>{state?.telecomSystemMuted?'Android call muted':state?.telecomState==='pending'?'Preparing Android audio':'Android audio unavailable'}</button>
       {:else if selectedInput!=='always-on'}<NativePtt {client} {state} blocked={!!sourceError} onerror={message=>error=message}/>
       {:else}<div class="listening-state"><AudioLines size={24}/><strong>{micState}</strong></div>{/if}
     </div>

@@ -20,10 +20,11 @@ function fresh():VoiceLabSnapshot{return {schema:'aumanet.voice-lab.v1',source:'
   routes:[{id:1,type:2,label:'Speaker'}],effectiveRoute:1,stats:{}};}
 const view=$state<{state:VoiceLabSnapshot;peerNames:Record<string,string>;sourceError:string;channelMembers:GroupMember[];channelAvailable:boolean}>({state:fresh(),peerNames:{},sourceError:'',channelMembers:[],channelAvailable:false});
 const calls:{method:string;value?:unknown}[]=[];
+let deferNextStop=false,finishDeferredStop:(()=>void)|undefined;
 let component:ReturnType<typeof mount>|undefined;
 const client={supportsTelecomEndpoints:true,
   requestTelecomEndpoint:async(endpointId:string)=>{calls.push({method:'requestTelecomEndpoint',value:{sessionId:view.state.sessionId,endpointId}});view.state={...view.state,telecomEndpointId:endpointId,muted:true,transmitting:false};return view.state;},get state(){return view.state;},get synchronized(){return !view.sourceError;},refresh:async()=>{calls.push({method:'refresh'});return view.state;},
-  start:async()=>{calls.push({method:'start'});return view.state;},stop:async()=>{calls.push({method:'stop'});view.state={...view.state,joined:false,muted:true,transmitting:false};return view.state;},
+  start:async()=>{calls.push({method:'start'});return view.state;},stop:async()=>{calls.push({method:'stop'});if(deferNextStop){deferNextStop=false;await new Promise<void>(resolve=>finishDeferredStop=resolve);}view.state={...view.state,joined:false,muted:true,transmitting:false};return view.state;},
   mute:async(value:boolean)=>{calls.push({method:'mute',value});view.state={...view.state,muted:value};return view.state;},
   deafen:async(value:boolean)=>{calls.push({method:'deafen',value});view.state={...view.state,deafened:value,muted:true};return view.state;},mode:async(value:string)=>{calls.push({method:'mode',value});view.state={...view.state,inputMode:value as 'ptt'|'always-on',muted:true};return view.state;},
   route:async(value:number)=>{calls.push({method:'route',value});view.state={...view.state,effectiveRoute:value,routeReady:true,muted:true};return view.state;},probe:async(value:boolean)=>{calls.push({method:'probe',value});return view.state;},
@@ -49,6 +50,7 @@ async function reset(kind:'mesh'|'mixed'|'legacy'|'idle'|'route-unready'='mesh')
     channelJoined:kind!=='idle',channelName:'Fixture group voice',peerName:'Legacy fixture phone'}});await tick();
 }
 const fixture={reset,ids,names,get calls(){return [...calls];},get state(){return view.state;},
+  holdNextStop(){deferNextStop=true;},finishStop(){finishDeferredStop?.();finishDeferredStop=undefined;},
   async presence(members:GroupMember[],available=true){view.channelMembers=members;view.channelAvailable=available;await tick();},
   async patch(patch:Partial<VoiceLabSnapshot>){view.state={...view.state,...patch,sequence:view.state.sequence+1};await tick();},
   async setMuted(muted:boolean){view.state={...view.state,sequence:view.state.sequence+1,muted,gateEpoch:view.state.gateEpoch+1};await tick();},
