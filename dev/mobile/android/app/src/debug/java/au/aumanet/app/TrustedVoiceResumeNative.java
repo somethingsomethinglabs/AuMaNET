@@ -168,7 +168,7 @@ final class TrustedVoiceResumeNative {
     static boolean benchmarkEnter(Object ticket){
         BenchmarkHold hold=new BenchmarkHold(ticket);
         if(!LinkBenchmarkTraffic.owns(ticket)||!BENCHMARK.compareAndSet(null,hold)){android.util.Log.w("AuMaNETLinkQuiet","pause rejected: ticket-or-hold");return false;}
-        Request owned;VoiceLabEngine closing;
+        Request owned;VoiceLabEngine closing;VoiceLabService ordinary=null;
         synchronized(VoiceLabService.class){
             if(!LinkBenchmarkTraffic.owns(ticket)||BENCHMARK.get()!=hold)return false;
             owned=CURRENT.get();VoiceLabService service=VoiceLabService.active;
@@ -178,8 +178,22 @@ final class TrustedVoiceResumeNative {
             // Reuse only completed media + Android-call teardown, never another
             // service, replacement request, pending start or unconfirmed close.
             if(owned!=null&&service!=null&&owned.live()&&owned.service==service&&service.trustedResume==owned&&service.engine==owned.engine&&owned.engine!=null&&owned.interrupted.get()&&!owned.readyAllowed.get()&&owned.engine.maintenanceQuiet()&&(!VoiceLabService.startReservation.pending()||VoiceLabService.startReservation.matches(owned.session,owned.nativeGeneration))){hold.owner=owned;owned.maintenancePaused.set(true);return true;}
-            if(owned==null||service==null||!service.holdsTrustedMedia(owned)||!owned.live()){android.util.Log.w("AuMaNETLinkQuiet","pause rejected: owner live="+(owned!=null&&owned.live())+" service="+(service!=null)+" sameService="+(owned!=null&&owned.service==service)+" trusted="+(service!=null&&owned!=null&&service.holdsTrusted(owned))+" sameRequest="+(service!=null&&service.trustedResume==owned)+" sameEngine="+(service!=null&&owned!=null&&service.engine==owned.engine)+" interrupted="+(owned!=null&&owned.interrupted.get())+" readiness="+(owned!=null&&owned.readyAllowed.get())+" quiet="+(owned!=null&&owned.engine!=null&&owned.engine.maintenanceQuiet())+" pending="+VoiceLabService.startReservation.pending()+" pendingExact="+(owned!=null&&VoiceLabService.startReservation.matches(owned.session,owned.nativeGeneration)));return false;}
-            hold.owner=owned;owned.maintenancePaused.set(true);owned.readyAllowed.set(false);owned.interrupted.set(true);closing=owned.engine;
+            if(owned==null&&service!=null&&service.holdsOrdinaryGroupMedia(service.engine)){
+                ordinary=service;
+                closing=service.engine;
+            }else{
+                if(owned==null||service==null||!service.holdsTrustedMedia(owned)||!owned.live()){
+                    android.util.Log.w("AuMaNETLinkQuiet","pause rejected: no exact group voice owner");
+                    return false;
+                }
+                hold.owner=owned;owned.maintenancePaused.set(true);owned.readyAllowed.set(false);owned.interrupted.set(true);closing=owned.engine;
+            }
+        }
+        if(ordinary!=null){
+            java.util.concurrent.CountDownLatch quiet=new java.util.concurrent.CountDownLatch(1);
+            ordinary.pauseOrdinaryGroupMedia(closing,()->LinkBenchmarkTraffic.owns(ticket)&&BENCHMARK.get()==hold,quiet::countDown);
+            try{return quiet.await(8,java.util.concurrent.TimeUnit.SECONDS)&&closing.maintenanceQuiet();}
+            catch(InterruptedException stopped){Thread.currentThread().interrupt();return false;}
         }
         TrustedConnectionController.benchmarkMute(owned.runId,owned.runGeneration);
         MAIN.removeCallbacksAndMessages(owned);
