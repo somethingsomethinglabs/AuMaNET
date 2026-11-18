@@ -72,6 +72,11 @@ public final class GroupPlugin extends Plugin {
     private static long nameNumber(PluginCall call,String key){Object raw=call.getData().opt(key);if(!(raw instanceof Number))throw new IllegalArgumentException("Invalid name revision");double value=((Number)raw).doubleValue();long result=((Number)raw).longValue();if(!Double.isFinite(value)||value!=result||result<0||result>GroupNamePolicy.MAX_REVISION)throw new IllegalArgumentException("Invalid name revision");return result;}
     private void executeName(PluginCall call,boolean foreground,Action action){execute(call,foreground,session->{try{return action.run(session);}catch(GroupNameJournal.NotAccepted rejected){throw new GroupNameJournal.NotAccepted("Name was not saved; refresh and review the current name before trying again");}catch(Exception unknown){throw new GroupNameJournal.Uncertain(null);}});}
     @PluginMethod public void editName(PluginCall call){executeName(call,true,session->session.editName(text(call,"kind"),text(call,"name"),text(call,"operationId"),text(call,"expectedProcessId"),text(call,"expectedGroupId"),nameNumber(call,"expectedEpoch"),nameNumber(call,"expectedRevision"),call.getData().has("expectedNameGeneration")?nameNumber(call,"expectedNameGeneration"):null));}
+    @PluginMethod public void setProfilePhoto(PluginCall call) {
+        execute(call, true, session -> session.setProfilePhoto(
+            text(call, "photoBase64"), text(call, "expectedProcessId"),
+            text(call, "expectedSelfId"), text(call, "expectedGroupId")));
+    }
     @PluginMethod public void nameOperation(PluginCall call){executeName(call,false,session->session.nameOperation(text(call,"operationId"),text(call,"groupId"),text(call,"selfId")));}
     private GroupNameRepair.Scope repairScope(PluginCall call,GroupSession session)throws Exception{return session.nameRepairScope(text(call,"expectedProcessId"),text(call,"expectedSelfId"),text(call,"expectedGroupId"),nameNumber(call,"expectedEpoch"),nameNumber(call,"expectedSelfRevision"),nameNumber(call,"expectedGroupRevision"),nameNumber(call,"expectedNameGeneration"));}
     private void requireRepairForeground()throws GroupNameJournal.NotAccepted{if(!getActivity().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED))throw new GroupNameJournal.NotAccepted("Open group settings before confirming name repair");}

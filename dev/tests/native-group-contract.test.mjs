@@ -76,3 +76,30 @@ test('guarded voice ownership carries the exact consent revision without changin
   assert.equal(calls.length,2);await client.voice(true);assert.deepEqual(calls.at(-1),{joined:true});
   assert.throws(()=>parseGroupSnapshot({...state,voiceConsentRevision:0}));
 });
+
+test('profile photos are optional and photo edits are bound to the current phone and group', async () => {
+  const photoBase64 = '/9j/2Q==';
+  let current = {...state, profilePhotosAvailable:true, members:state.members.map(member=>({...member,photoBase64}))};
+  let saved;
+  const client = new NativeGroupClient({
+    snapshot:async()=>current,
+    setProfilePhoto:async options=>{
+      saved=options;
+      current={...current,sequence:current.sequence+1,identity:{...current.identity,photoBase64:options.photoBase64}};
+      return current;
+    }
+  });
+  await client.refresh();
+  assert.equal(client.state.members[1].photoBase64, photoBase64);
+  await client.setProfilePhoto(photoBase64);
+  assert.deepEqual(saved, {photoBase64,expectedProcessId:state.processId,expectedSelfId:self,expectedGroupId:groupId});
+  assert.equal(client.state.identity.photoBase64, photoBase64);
+  await client.setProfilePhoto('');
+  assert.equal(client.state.identity.photoBase64, undefined);
+  for (const invalid of ['https://example.com/photo', 'data:image/png;base64,AAAA', '/9j/'+'A'.repeat(8192)]) {
+    assert.equal(parseGroupSnapshot({...state,identity:{...state.identity,photoBase64:invalid}}).identity.photoBase64, undefined);
+  }
+  current={...state,processId:'12345678-1234-1234-1234-123456789abd'};
+  await client.refresh();
+  await assert.rejects(client.setProfilePhoto(photoBase64), /Refresh group settings/);
+});

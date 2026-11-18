@@ -23,6 +23,14 @@ const client={get state(){return view.state;},get synced(){return !view.sourceEr
   prepareNameRepair:async()=>{calls.push({method:'prepareNameRepair'});return{schema:'aumanet.group-name-repair.v1',source:'device',token:'b'.repeat(64),repairId:'c'.repeat(64),expiresInMs:30000,snapshot:view.state};},
   confirmNameRepair:async()=>{calls.push({method:'confirmNameRepair'});view.state={...view.state,namesAvailable:true,nameStorage:'ready',nameGeneration:(view.state.nameGeneration??0)+1,lastNameRepairId:'c'.repeat(64)};return view.state;},
   editName:async(kind:'self'|'group',name:string)=>{calls.push({method:'editName',kind,name});view.state=kind==='self'?{...view.state,identity:{...view.state.identity,name,nameRevision:(view.state.identity.nameRevision??0)+1},members:view.state.members.map(member=>member.id===self?{...member,name}:member)}:{...view.state,group:{...view.state.group!,name,nameRevision:(view.state.group?.nameRevision??0)+1}};return view.state;},
+  setProfilePhoto:async(photoBase64:string)=>{
+    calls.push({method:'setProfilePhoto',codeLength:photoBase64.length});
+    const photo = photoBase64 || undefined;
+    const id = view.state.identity.id;
+    view.state = {...view.state,identity:{...view.state.identity,photoBase64:photo},
+      members:view.state.members.map(member=>member.id===id?{...member,photoBase64:photo}:member)};
+    return view.state;
+  },
   identity:async(name:string)=>{calls.push({method:'identity'});view.state={...view.state,identity:{...view.state.identity,name}};return view.state;},
   create:async(name:string,groupName:string)=>{calls.push({method:'create'});view.state={...ownerState(),identity:{id:self,name,nameRevision:0},group:{id:group,name:groupName,epoch:1,ownerId:self,nameRevision:0}};approved=JSON.parse(JSON.stringify(view.state));return view.state;},
   join:async(code:string,name:string)=>{calls.push({method:'join',codeLength:code.length});view.state={...ownerState(),status:'pending',role:'member',identity:{id:peer,name},members:[...ownerState().members,{id:peer,name,connected:false,voiceJoined:false,sharingLocation:false}]};return view.state;},

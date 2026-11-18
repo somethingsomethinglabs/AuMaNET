@@ -61,12 +61,35 @@ async (page) => {
   await button('Save group name').click();await page.getByRole('heading',{name:'Renamed café group',exact:true}).waitFor();
   check(await page.evaluate(()=>window.__groupPanelFixture.calls.filter(call=>call.method==='editName'&&call.kind==='group').length)===1,'Rename did not execute exactly once');
   check(await page.evaluate(()=>window.__groupPanelFixture.state.group.epoch)===epochBefore,'Renaming changed membership epoch');
-  await page.getByText('Edit your name',{exact:true}).click();
+  await page.getByText('Edit your profile',{exact:true}).click();
   await page.getByLabel('Your name in the group',{exact:true}).fill('😀'.repeat(48));
   check((await page.getByLabel('Your name in the group',{exact:true}).inputValue())==='😀'.repeat(48)&&!(await button('Save name').isDisabled()),'HTML limits rejected48 valid Unicode scalars');
   await page.getByLabel('Your name in the group',{exact:true}).fill('Updated person');await button('Save name').click();
   await page.getByText('Your name is saved on this phone.',{exact:true}).waitFor();
   check(await page.evaluate(()=>window.__groupPanelFixture.state.identity.name)==='Updated person','Native profile readback was not rendered');
+  await page.evaluate(()=>{const f=window.__groupPanelFixture;f.setState({...f.state,profilePhotosAvailable:true});});
+  const image = await page.evaluate(()=>{
+    const canvas = document.createElement('canvas');
+    canvas.width = 240;
+    canvas.height = 120;
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#328a5f';
+    context.fillRect(0,0,240,120);
+    return canvas.toDataURL('image/png').split(',')[1];
+  });
+  const picker=page.getByLabel('Choose a profile photo',{exact:true});
+  await picker.setInputFiles({name:'profile.png',mimeType:'image/png',buffer:Buffer.from(image,'base64')});
+  await page.getByText('Profile photo saved.',{exact:true}).waitFor();
+  const preview=page.locator('.profile-photo-controls img');
+  check(await preview.evaluate(async img=>{await img.decode();return img.naturalWidth===96&&img.naturalHeight===96;}),'Profile photo was not decoded as a 96-pixel square');
+  check(await page.locator('.group-member img').count()===1,'The approved roster did not show the saved profile photo');
+  check(await page.evaluate(()=>window.__groupPanelFixture.calls.find(call=>call.method==='setProfilePhoto').codeLength<=8192),'Profile photo exceeded the native payload limit');
+  await picker.setInputFiles({name:'invalid.png',mimeType:'image/png',buffer:Buffer.from('invalid')});
+  await page.getByRole('alert').filter({hasText:'Choose a JPEG or PNG image.'}).waitFor();
+  check(await preview.count()===1,'An invalid replacement removed the saved photo');
+  await button('Remove photo').click();
+  await page.getByText('Profile photo removed.',{exact:true}).waitFor();
+  check(await preview.count()===0&&await page.locator('.group-member img').count()===0,'Removing the photo did not restore avatar fallbacks');
   const beforeRepair=await page.evaluate(()=>{const f=window.__groupPanelFixture;f.setState({...f.state,namesAvailable:false,nameStorage:'repairable',voiceJoined:true,sharingLocation:true});return{epoch:f.state.group.epoch,groupName:f.state.group.name,name:f.state.identity.name};});
   check(await page.evaluate(()=>window.__groupPanelFixture.calls.filter(call=>call.method==='prepareNameRepair').length)===0,'Repair was prepared from observation');
   await button('Repair name metadata').click();await page.getByRole('dialog',{name:'Repair name metadata?',exact:true}).waitFor();await button('Cancel').click();
@@ -114,5 +137,5 @@ async (page) => {
     check(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),'Group panel overflows narrow viewport');
   }
   await page.evaluate(()=>window.__groupPanelFixture.destroy());
-  return {status:'PASS',scope:'Browser fixtures only; clipboard writes mocked; no native enrollment/security acceptance',checks:['no auto join/resume','create/copy/transient invitation','complete approval identity and consumed-code clearing','remove cancel/confirm','Disconnect preserves approved membership and stops voice first','explicit reconnect','saved-member connection code reconnect leaves sharing off','v2 paste/join/cancel restores empty unapproved scope','owner group rename preserves membership epoch','native self-profile edit readback','explicit metadata repair cancel/confirm preserves names/group/consent','untrusted metadata disables repair and legacy edit','direction-control name rejected and member rename hidden','late invite ignored after disconnect/group change','expired incoming/output invitations cleared','voice-stop error retains Disconnect','320/360/412px layout']};
+  return {status:'PASS',scope:'Browser fixtures only; clipboard writes mocked; no native enrollment/security acceptance',checks:['no auto join/resume','create/copy/transient invitation','complete approval identity and consumed-code clearing','remove cancel/confirm','Disconnect preserves approved membership and stops voice first','explicit reconnect','saved-member connection code reconnect leaves sharing off','v2 paste/join/cancel restores empty unapproved scope','owner group rename preserves membership epoch','native self-profile edit readback','bounded photo upload, roster rendering and removal','explicit metadata repair cancel/confirm preserves names/group/consent','untrusted metadata disables repair and legacy edit','direction-control name rejected and member rename hidden','late invite ignored after disconnect/group change','expired incoming/output invitations cleared','voice-stop error retains Disconnect','320/360/412px layout']};
 }

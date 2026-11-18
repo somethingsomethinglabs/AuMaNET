@@ -3,14 +3,24 @@ import {parseRadioSignals,type RadioSignal} from './radio-signal.js';
 export interface GroupFix {
   readonly latitude:number;readonly longitude:number;readonly accuracy:number;readonly timestamp:number;readonly mock:boolean;readonly ageMs:number;
 }
+export const GROUP_PROFILE_PHOTO_EDGE = 96;
+export const GROUP_PROFILE_PHOTO_BYTES = 6144;
+
+function profilePhoto(value: unknown): string | undefined {
+  const maxLength = GROUP_PROFILE_PHOTO_BYTES / 3 * 4;
+  if (typeof value !== 'string' || value.length > maxLength || value.length % 4 !== 0) return undefined;
+  return /^\/9j\/[A-Za-z0-9+/]*={0,2}$/.test(value) ? value : undefined;
+}
+
 export interface GroupMember {
-  readonly id:string;readonly name:string;readonly connected:boolean;readonly voiceJoined:boolean;readonly sharingLocation:boolean;readonly fix?:GroupFix;
+  readonly id:string;readonly name:string;readonly photoBase64?:string;readonly connected:boolean;readonly voiceJoined:boolean;readonly sharingLocation:boolean;readonly fix?:GroupFix;
 }
 export interface GroupSignal {readonly id:string;readonly from:string;readonly to:string;readonly signal:VoiceLabSignal;readonly receivedElapsedMs:number;readonly voiceRevision?:number;}
 export interface GroupSnapshot {
   readonly schema:'aumanet.group.v1';readonly source:'device';readonly processId:string;readonly sequence:number;readonly observedElapsedMs:number;
   readonly status:'idle'|'hosting'|'connecting'|'pending'|'connected'|'interrupted'|'failed';readonly role:'none'|'owner'|'member';
-  readonly identity:{readonly id:string;readonly name:string;readonly nameRevision?:number};
+  readonly identity:{readonly id:string;readonly name:string;readonly nameRevision?:number;readonly photoBase64?:string};
+  readonly profilePhotosAvailable?:boolean;
   readonly group?:{readonly id:string;readonly name:string;readonly epoch:number;readonly ownerId:string;readonly nameRevision?:number};
   readonly namesAvailable?:boolean;
   readonly nameGeneration?:number;readonly nameStorage?:'ready'|'repairable'|'unavailable'|'uncertain';readonly lastNameRepairId?:string;
@@ -67,7 +77,8 @@ export function parseGroupSnapshot(raw:unknown):GroupSnapshot{
     if(m.fix!==undefined){const f=object(m.fix);if(typeof f.latitude!=='number'||!Number.isFinite(f.latitude)||Math.abs(f.latitude)>90||typeof f.longitude!=='number'||!Number.isFinite(f.longitude)||Math.abs(f.longitude)>180||
       typeof f.accuracy!=='number'||!Number.isFinite(f.accuracy)||f.accuracy<0||f.accuracy>40_100_000||!uint(f.timestamp)||!uint(f.ageMs)||typeof f.mock!=='boolean')throw new Error('Invalid shared fix');
       fix={latitude:f.latitude,longitude:f.longitude,accuracy:f.accuracy,timestamp:f.timestamp,ageMs:f.ageMs,mock:f.mock};}
-    return{id:m.id,name:m.name,connected:m.connected,voiceJoined:m.voiceJoined,sharingLocation:m.sharingLocation,...(fix?{fix}:{})};
+    const photoBase64=profilePhoto(m.photoBase64);
+    return{id:m.id,name:m.name,...(photoBase64?{photoBase64}:{}),connected:m.connected,voiceJoined:m.voiceJoined,sharingLocation:m.sharingLocation,...(fix?{fix}:{})};
   });
   const memberIds=new Set(members.map(m=>m.id));if(memberIds.size!==members.length)throw new Error('Duplicate group member identity');
   if(group&&(!memberIds.has(group.ownerId)||!memberIds.has(identity.id)||v.role==='owner'&&group.ownerId!==identity.id||v.role==='member'&&group.ownerId===identity.id))throw new Error('Inconsistent group authority');
@@ -81,5 +92,6 @@ export function parseGroupSnapshot(raw:unknown):GroupSnapshot{
   if((v.sharingLocation||v.voiceJoined)&&!['hosting','connected'].includes(String(v.status)))throw new Error('Inactive group reported active consent');
   const radioSignals=v.radioSignals===undefined?undefined:parseRadioSignals(v.radioSignals,observedElapsedMs);
   if(radioSignals?.length&&!group)throw new Error('Radio observation has no approved group scope');
-  return{schema:'aumanet.group.v1',source:'device',processId:v.processId,sequence:v.sequence,observedElapsedMs:v.observedElapsedMs,status:v.status as GroupSnapshot['status'],role:v.role as GroupSnapshot['role'],identity:{id:identity.id,name:identity.name,...(identity.nameRevision!==undefined?{nameRevision:identity.nameRevision as number}:{})},...(v.namesAvailable!==undefined?{namesAvailable:v.namesAvailable as boolean}:{}),...(v.nameGeneration!==undefined?{nameGeneration:v.nameGeneration as number}:{}),...(v.nameStorage!==undefined?{nameStorage:v.nameStorage as NonNullable<GroupSnapshot["nameStorage"]>}:{}),...(v.lastNameRepairId!==undefined?{lastNameRepairId:v.lastNameRepairId as string}:{}),...(group?{group}:{}),...(recovery?{recovery}:{}),...(radioSignals?{radioSignals}:{}),members,pending,sharingLocation:v.sharingLocation,voiceJoined:v.voiceJoined,signals,error:v.error,...(v.voiceRevision!==undefined?{voiceRevision:v.voiceRevision as number}:{}),...(v.voiceConsentRevision!==undefined?{voiceConsentRevision:v.voiceConsentRevision as number}:{})};
+  const photoBase64=profilePhoto(identity.photoBase64);
+  return{schema:'aumanet.group.v1',source:'device',processId:v.processId,sequence:v.sequence,observedElapsedMs:v.observedElapsedMs,status:v.status as GroupSnapshot['status'],role:v.role as GroupSnapshot['role'],identity:{id:identity.id,name:identity.name,...(photoBase64?{photoBase64}:{}),...(identity.nameRevision!==undefined?{nameRevision:identity.nameRevision as number}:{})},...(v.profilePhotosAvailable===true?{profilePhotosAvailable:true}:{}),...(v.namesAvailable!==undefined?{namesAvailable:v.namesAvailable as boolean}:{}),...(v.nameGeneration!==undefined?{nameGeneration:v.nameGeneration as number}:{}),...(v.nameStorage!==undefined?{nameStorage:v.nameStorage as NonNullable<GroupSnapshot["nameStorage"]>}:{}),...(v.lastNameRepairId!==undefined?{lastNameRepairId:v.lastNameRepairId as string}:{}),...(group?{group}:{}),...(recovery?{recovery}:{}),...(radioSignals?{radioSignals}:{}),members,pending,sharingLocation:v.sharingLocation,voiceJoined:v.voiceJoined,signals,error:v.error,...(v.voiceRevision!==undefined?{voiceRevision:v.voiceRevision as number}:{}),...(v.voiceConsentRevision!==undefined?{voiceConsentRevision:v.voiceConsentRevision as number}:{})};
 }
