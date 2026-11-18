@@ -11,8 +11,9 @@ and use Git for rollback. Developer tests belong in the test suite and CI.
 
 `testing` is the integration branch for experimental work. Run virtual-machine
 checks before promoting application changes through a PR to `nightly` for
-phone testing. Promote the exact tested nightly revision through a separate
-PR to `stable`. Use `.github/workflows/prototype-testing.yml` for app builds and
+phone testing. After operator approval, promote the exact tested nightly
+revision through a separate PR to `stable` with a merge tree identical to the
+tested tree. Use `.github/workflows/prototype-testing.yml` for app builds and
 checks. Leave PRs open for review. Do not push directly to `testing`, `nightly`,
 `stable` or `main`, merge a PR, publish a release, or install on devices unless
 the user has authorized that step. Push completed work before handing it off,

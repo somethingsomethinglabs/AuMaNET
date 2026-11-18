@@ -40,11 +40,11 @@ git push -u origin codex/my-change
 The **Prototype app review build** workflow runs on PRs targeting `testing`,
 `nightly`, or `stable`, on updates to `testing` or `nightly`, and on manual
 dispatch. It checks and builds the app, then uploads an
-`aumanet-prototype-<commit>` artifact containing a
-debug APK and a commit/hash manifest. Download it from the workflow run linked
-from the PR. It is a review artifact, not a production release or automatic
-phone installation. Builds use the PR merge result so integration problems
-can be found before merging. No nightly schedule or signing secrets are needed.
+`aumanet-prototype-<commit>` artifact with a CI debug APK and a commit/hash
+manifest. Builds use the PR merge result to detect integration problems.
+A green build records VM results. Physical phone acceptance is recorded
+separately. App builds run on repository events or manual dispatch, with no
+daily publication schedule.
 
 After review, merge the PR into `testing` (prefer a squash commit for ordinary
 changes).
@@ -53,14 +53,27 @@ changes).
 
 1. Open a `testing` → `nightly` PR for the candidate. Review the candidate's
    changes and wait for its virtual-machine checks to pass before merging.
-2. Use the APK artifact from the resulting `nightly` push run for authorized
-   phone testing. Record the exact commit and APK SHA-256 from the build
-   manifest with the phone results.
-3. Open a `nightly` → `stable` PR and link the build and phone results. Before
-   merging, confirm the PR head still matches the tested nightly commit. If
-   nightly has advanced, use a promotion branch pinned to the tested commit.
-   Use merge commits for promotions to preserve the tested commit in the
-   destination's history.
+2. Build the phone candidate from a clean checkout of the exact resulting
+   `nightly` commit with pinned dependencies and toolchain versions. Record
+   the source commit and tree, dependency and toolchain versions, application
+   ID, signing certificate SHA-256, and final APK SHA-256 in the build
+   manifest. For an in-place update, compare the candidate signing certificate
+   with the installed app's certificate on each intended phone and use a
+   compatible signer. CI debug signing can differ from the retained operator
+   certificate. Keep operator signing keys outside CI and the repository.
+3. Before an authorized in-place update, verify the backup and plan a
+   data-preserving recovery. Stop if the signer is incompatible or Android
+   requires an uninstall or data clear. Verify the installed APK hash and
+   confirm the app UID, Android Keystore access, identities, memberships,
+   message history, and offline maps survive the update. Link the manifest
+   and physical phone results in the promotion PR, without private bench data.
+4. When the operator selects a stable milestone, open a `nightly` →
+   `stable` PR for the accepted commit. If nightly has advanced, use a
+   promotion branch pinned to that commit. Check that the PR head still
+   matches the phone manifest and that the proposed merge tree equals the
+   exact tested tree. The stable PR CI checks this tree equality. Use a merge
+   commit to preserve the tested revision in history, then verify that the
+   resulting `stable` tree still matches the tested tree.
 
 ## Revert a regression
 
