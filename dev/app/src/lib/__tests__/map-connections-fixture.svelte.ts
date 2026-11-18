@@ -7,7 +7,7 @@ declare global {interface Window {__mapConnectionsFixture:ReturnType<typeof fixt
 function fixture(){
   const calls:string[]=[];let map:LeafletMap|undefined,vector:VectorMap|undefined;
   const originalJump=VectorMap.prototype.jumpTo;
-  VectorMap.prototype.jumpTo=function(...args:Parameters<typeof originalJump>){vector=this;return originalJump.apply(this,args);};
+  VectorMap.prototype.jumpTo=function(...args:Parameters<typeof originalJump>){if(!this.getContainer().classList.contains('online-basemap'))vector=this;return originalJump.apply(this,args);};
   const original=LeafletMap.prototype.setView;
   LeafletMap.prototype.setView=function(...args:Parameters<typeof original>){map=this;return original.apply(this,args);};
   const denied=async()=>{calls.push('unexpected-map-write');throw new Error('Fixture forbids writes');};

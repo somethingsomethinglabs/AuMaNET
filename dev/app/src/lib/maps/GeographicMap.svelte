@@ -15,7 +15,7 @@
   import {previewProtocols} from './vector/protocol';
   import {outdoorStyle,downloadedStyle,mapBackground} from './vector/style';
   import {manifest} from './vector/archive';
-  import {offlineCoverageLabel} from './coverage';
+  import {offlineCoverageLabel,viewportCovered} from './coverage';
   import {nativeVectorMaps,visibleRegions,regionSetRoot,downloadBounds,type VectorRegion,type MapBounds} from './vector/downloads';
   export let focusBounds:MapBounds|undefined=undefined;
   let regions:VectorRegion[]=[];
@@ -35,51 +35,108 @@
   }
 
   export let onbasemap:(label:string)=>void=()=>{};
-  let vectorContainer:HTMLDivElement,vector:VectorMap|undefined,protocols:ReturnType<typeof previewProtocols>|undefined;
-  let vectorMode='',protocolRoot:string|undefined,mapError='';
+  let vectorContainer:HTMLDivElement,onlineContainer:HTMLDivElement;
+  let vector:VectorMap|undefined,onlineVector:VectorMap|undefined;
+  let protocols:ReturnType<typeof previewProtocols>|undefined;
+  let vectorMode='',protocolRoot:string|undefined,offlineLabel='',offlineError=false;
+  let onlineTheme:boolean|undefined,onlineReady=false,onlineFailed=false,onlineWanted=false;
   let connectionDetail:MapConnection|undefined,detailDialog:HTMLDialogElement;
   function openConnection(id:string){connectionDetail=connections.find(item=>item.id===id);if(connectionDetail)detailDialog.showModal();}
+
+  function createVector(container:HTMLDivElement){
+    return new VectorMap({container,interactive:false,attributionControl:false,maxTileCacheSize:48});
+  }
+
+  function reportBasemap(){
+    if(onlineWanted&&onlineReady)onbasemap('Online map · Internet required');
+    else if(offlineLabel)onbasemap(offlineError?'Offline vector map unavailable':offlineLabel);
+    else if(onlineFailed)onbasemap('Online map unavailable · Check your internet connection');
+    else onbasemap('Loading online map…');
+  }
+
   function startVector(){
     try{
       setWorkerUrl(mapWorkerUrl);
-      vector=new VectorMap({
-        container:vectorContainer,
-        style:{version:8,sources:{},layers:[{id:'background',type:'background',paint:{
-          'background-color':$appearance.theme==='Dark'?mapBackground.dark:mapBackground.light,
-        }}]},
-        interactive:false,attributionControl:false,maxTileCacheSize:48,
-      });
+      vector=createVector(vectorContainer);
       vector.on('error',event=>{
-        // Hillshade and contours are optional. A terrain error must not hide basemap availability.
+        // Missing elevation leaves a gap in shading while the basemap stays usable.
         if('sourceId' in event&&(event.sourceId==='terrain'||event.sourceId==='contours'))return;
-        mapError=vectorMode.startsWith('online')?'Online map unavailable · Check your internet connection':'Offline vector map unavailable';
-        onbasemap(mapError);
+        offlineError=true;
+        reportBasemap();
       });
     }catch{
-      vector?.remove();vector=undefined;
       onbasemap('Vector map unavailable on this device');
     }
   }
 
   function syncCamera(){
-    if(!map||!vector)return;
+    if(!map)return;
     const center=map.getCenter();
-    vector.jumpTo({center:[center.lng,center.lat],zoom:map.getZoom()-1});
+    const camera={center:[center.lng,center.lat] as [number,number],zoom:map.getZoom()-1};
+    vector?.jumpTo(camera);
+    onlineVector?.jumpTo(camera);
+  }
+
+  function stopOnline(){
+    onlineReady=false;
+    onlineFailed=false;
+    onlineTheme=undefined;
+    onlineVector?.remove();
+    onlineVector=undefined;
+  }
+
+  function startOnline(dark:boolean){
+    stopOnline();
+    onlineTheme=dark;
+    if(!navigator.onLine){onlineFailed=true;return;}
+    try{
+      const candidate=createVector(onlineContainer);
+      onlineVector=candidate;
+      syncCamera();
+      candidate.on('error',()=>{
+        onlineReady=false;
+        onlineFailed=true;
+        reportBasemap();
+      });
+      // Wait for the style and its visible tiles before covering the saved map.
+      candidate.on('idle',()=>{
+        if(onlineFailed||onlineReady||!candidate.isStyleLoaded()||!candidate.areTilesLoaded())return;
+        onlineReady=true;
+        reportBasemap();
+      });
+      candidate.setStyle('https://tiles.openfreemap.org/styles/'+(dark?'dark':'liberty'),{diff:false,transformStyle:(_,style)=>{
+        if(dark)for(const layer of style.layers){
+          if(layer.type==='symbol'&&layer.layout?.['text-field']){
+            layer.paint={...layer.paint,'text-color':'#EDF3E8','text-halo-color':'#182A24','text-halo-width':1.6};
+          }
+          if(layer.type==='line'&&/road|highway|path|rail/i.test(layer.id)&&!/casing|case|tunnel/i.test(layer.id)){
+            layer.paint={...layer.paint,'line-color':'#C7D9AC'};
+          }
+        }
+        return style;
+      }});
+    }catch{
+      stopOnline();
+      onlineTheme=dark;
+      onlineFailed=true;
+    }
   }
 
   function syncVector(){
-    if(!map||!vector)return;const [w,s,e,n]=manifest.bounds;
+    if(!map||!vector)return;
+    const [w,s,e,n]=manifest.bounds;
     const viewport=map.getBounds(),bounds:MapBounds=[viewport.getWest(),viewport.getSouth(),viewport.getEast(),viewport.getNorth()];
     const visible=visibleRegions(regions,bounds),region=visible[0];
     const local=map.getZoom()-1>=manifest.minZoom&&bounds[0]<=e&&bounds[2]>=w&&bounds[1]<=n&&bounds[3]>=s;
-    const root=region?regionSetRoot(regions):'',dark=$appearance.theme==='Dark';
-    const mode=(region?'regions/'+root:local?'local':'online')+(dark?'/dark':'/light');
-    const label=region?offlineCoverageLabel(bounds,visible.map(area=>area.bounds),visible.length===1?region.name:undefined)
-      :local?offlineCoverageLabel(bounds,[manifest.bounds as MapBounds],'Outdoor map'):'Online map · Internet required';
-    if(vectorMode!==mode){
-      vectorMode=mode;
-      mapError='';
-      if(region||local){
+    const dark=$appearance.theme==='Dark';
+    const areas=region?visible.map(area=>area.bounds):local?[manifest.bounds as MapBounds]:[];
+    offlineLabel=areas.length?offlineCoverageLabel(bounds,areas,region?(visible.length===1?region.name:undefined):'Outdoor map'):'';
+    if(region||local){
+      const root=region?regionSetRoot(regions):'';
+      const mode=root+(dark?'/dark':'/light');
+      if(vectorMode!==mode){
+        vectorMode=mode;
+        offlineError=false;
         const sourceChanged=protocolRoot!==root;
         if(sourceChanged||!protocols){
           protocols?.close();
@@ -88,23 +145,12 @@
         }
         const style=region?downloadedStyle(regions):outdoorStyle(protocols.basemap);
         vector.setStyle(mapAppearance(style,dark),{diff:!sourceChanged});
-      }else{
-        // Diff mode loads the online style before replacing the current map.
-        // Keep its offline protocols alive while the request is in flight.
-        vector.setStyle('https://tiles.openfreemap.org/styles/'+(dark?'dark':'liberty'),{transformStyle:(_,style)=>{
-          if(dark)for(const layer of style.layers){
-            if(layer.type==='symbol'&&layer.layout?.['text-field']){
-              layer.paint={...layer.paint,'text-color':'#EDF3E8','text-halo-color':'#182A24','text-halo-width':1.6};
-            }
-            if(layer.type==='line'&&/road|highway|path|rail/i.test(layer.id)&&!/casing|case|tunnel/i.test(layer.id)){
-              layer.paint={...layer.paint,'line-color':'#C7D9AC'};
-            }
-          }
-          return style;
-        }});
       }
     }
-    onbasemap(mapError||label);
+    onlineWanted=!viewportCovered(bounds,areas);
+    if(!onlineWanted)stopOnline();
+    else if(onlineTheme!==dark)startOnline(dark);
+    reportBasemap();
   }
   import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup,Rectangle,Marker,DivIcon,type LatLng} from 'leaflet';
   import 'leaflet/styles.css';
@@ -288,28 +334,34 @@
     const first=freshGroupPositions(fix,ageMs,active,members)[0];
     map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);
     syncConnections();syncMarkers();syncArea();defaultView();
-    const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();reportCoverage();});
+    const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();onlineVector?.resize();reportCoverage();});
     observer.observe(container);
     container.addEventListener('pointerdown',interact);
     container.addEventListener('wheel',interact,{passive:true});
     container.addEventListener('keydown',interact);
-    const retryOnlineStyle=()=>{if(mapError&&vectorMode.startsWith('online')){vectorMode='';syncVector();}};
-    window.addEventListener('online',retryOnlineStyle);
+    const reconnect=()=>{if(onlineWanted)startOnline($appearance.theme==='Dark');reportBasemap();};
+    window.addEventListener('online',reconnect);
+    window.addEventListener('offline',reconnect);
     return()=>{
       stopped=true;clearInterval(poll);
       container.removeEventListener('pointerdown',interact);
       container.removeEventListener('wheel',interact);
       container.removeEventListener('keydown',interact);
-      window.removeEventListener('online',retryOnlineStyle);
+      window.removeEventListener('online',reconnect);
+      window.removeEventListener('offline',reconnect);
+      stopOnline();
       observer.disconnect();vector?.remove();vector=undefined;protocols?.close();
       map?.remove();map=undefined;markers.clear();connectionLines.clear();
     };
   });
 </script>
-<div class="vector-background" bind:this={vectorContainer} style:background-color={$appearance.theme==='Dark'?mapBackground.dark:mapBackground.light} aria-hidden="true"></div>
+<div class="vector-background" style:background-color={$appearance.theme==='Dark'?mapBackground.dark:mapBackground.light} aria-hidden="true">
+  <div class="vector-background" bind:this={vectorContainer}></div>
+  <div class="vector-background online-basemap" class:ready={onlineWanted&&onlineReady} bind:this={onlineContainer}></div>
+</div>
 <div class="geographic-map" bind:this={container} aria-label="Geographic map and group positions"></div>
 <dialog bind:this={detailDialog} aria-label="Connection signal" class="signal-detail"><button class="close-signal" onclick={()=>detailDialog.close()} aria-label="Close connection signal">Close</button>{#if connectionDetail}<h3>{connectionDetail.from.name} ↔ {connectionDetail.to.name}</h3><strong>{connectionDetail.strength}</strong><p>{connectionDetail.detail}</p>{/if}</dialog>
-<style>.vector-background,.geographic-map{position:absolute;inset:0;height:100%;min-height:0}.geographic-map{background:transparent!important}.signal-detail{max-width:420px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:22px;padding:22px;background:var(--card);color:var(--ink);box-shadow:0 12px 60px #0003}.signal-detail::backdrop{background:var(--scrim)}.signal-detail p{font-size:0.8125rem;line-height:1.6}.close-signal{float:right;border:0;background:transparent;color:inherit;min-height:44px;padding:8px}.signal-detail h3{font-size:1.125rem;clear:both}:global(.offline-area-pin){display:block;box-sizing:border-box;width:27px;height:27px;border:3px solid var(--raised);border-radius:50% 50% 50% 0;background:var(--accent);transform:rotate(-45deg);box-shadow:0 2px 7px #0004}
+<style>.vector-background,.geographic-map{position:absolute;inset:0;height:100%;min-height:0}.online-basemap{visibility:hidden}.online-basemap.ready{visibility:visible}.geographic-map{background:transparent!important}.signal-detail{max-width:420px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:22px;padding:22px;background:var(--card);color:var(--ink);box-shadow:0 12px 60px #0003}.signal-detail::backdrop{background:var(--scrim)}.signal-detail p{font-size:0.8125rem;line-height:1.6}.close-signal{float:right;border:0;background:transparent;color:inherit;min-height:44px;padding:8px}.signal-detail h3{font-size:1.125rem;clear:both}:global(.offline-area-pin){display:block;box-sizing:border-box;width:27px;height:27px;border:3px solid var(--raised);border-radius:50% 50% 50% 0;background:var(--accent);transform:rotate(-45deg);box-shadow:0 2px 7px #0004}
 :global(.map-pin-actions){display:grid;gap:5px;margin-top:5px}
 :global(.leaflet-popup-content .map-pin-action){display:grid;place-items:center;min-height:44px;border:1px solid var(--control-line);border-radius:8px;padding:6px 10px;background:var(--raised);color:var(--ink);font:inherit;font-weight:700;text-decoration:none}
 :global(.leaflet-popup-content .pin-save-area){background:var(--green);color:var(--on-action);border-color:transparent}

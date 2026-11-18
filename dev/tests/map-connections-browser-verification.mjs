@@ -10,6 +10,7 @@ try{
   page.on('pageerror',error=>errors.push(error.message));
   await page.route('**/api/hardware/**',route=>{sideEffects.push('hardware');return route.fulfill({status:404,body:'Fixture blocks hardware'});});
   await page.addInitScript(()=>{navigator.geolocation.getCurrentPosition=()=>{throw new Error('Unexpected GPS start');};navigator.geolocation.watchPosition=()=>{throw new Error('Unexpected GPS watch');};navigator.mediaDevices.getUserMedia=async()=>{throw new Error('Unexpected microphone start');};});
+  await page.route('https://tiles.openfreemap.org/styles/**',route=>route.abort());
   await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5181/');await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
   await page.evaluate(async()=>await import('/src/lib/__tests__/map-connections-fixture.svelte.ts'));
   await line().waitFor();assert.equal(await line().count(),1);assert.equal(await line().getAttribute('stroke-dasharray'),null);assert.equal(await line().getAttribute('stroke'),'#3c5c41');checks++;
@@ -32,7 +33,6 @@ try{
   });checks++;
   // Going beyond the bundled area's zoom range with the style server unavailable
   // must leave a live map underneath the overlay, including on subsequent zooms.
-  await page.route('https://tiles.openfreemap.org/styles/**',route=>route.abort());
   for(let zoom=18;zoom>2;zoom--)await zoomOut.click();
   await page.getByText('Online map unavailable · Check your internet connection',{exact:true}).waitFor();
   await page.waitForFunction(()=>{
