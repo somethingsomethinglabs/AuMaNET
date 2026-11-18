@@ -2,7 +2,11 @@ package au.aumanet.app;
 
 import android.Manifest;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 import au.aumanet.app.maps.VectorRegions;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.*;
@@ -12,6 +16,7 @@ import java.util.concurrent.*;
 
 @CapacitorPlugin(name="AuMaNETVectorMaps",permissions={@Permission(alias="mapNotifications",strings={Manifest.permission.POST_NOTIFICATIONS})})
 public final class VectorMapsPlugin extends Plugin {
+    private final Handler main=new Handler(Looper.getMainLooper());
     private final ExecutorService worker=Executors.newSingleThreadExecutor();
     private volatile boolean ready;
     @Override public void load(){worker.execute(()->{synchronized(VectorDownloadService.LOCK){try{VectorDownloadService.status(getContext());if(!VectorDownloadService.running())VectorRegions.cleanStaging(VectorDownloadService.root(getContext()));ready=true;}catch(Exception ignored){}}});}
@@ -23,7 +28,32 @@ public final class VectorMapsPlugin extends Plugin {
         if(!getActivity().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)){call.reject("Open the app to start a download");return;}
         if(Build.VERSION.SDK_INT>=33&&getPermissionState("mapNotifications")!=PermissionState.GRANTED){requestPermissionForAlias("mapNotifications",call,"notificationsReady");return;}start(call);
     }
-    @PermissionCallback private void notificationsReady(PluginCall call){if(Build.VERSION.SDK_INT>=33&&getPermissionState("mapNotifications")!=PermissionState.GRANTED){call.reject("Allow notifications for background progress and Cancel");return;}start(call);}
+    @PermissionCallback private void notificationsReady(PluginCall call){
+        main.post(()->{
+            if(Build.VERSION.SDK_INT>=33&&getPermissionState("mapNotifications")!=PermissionState.GRANTED){
+                call.reject("Allow notifications for background progress and Cancel");
+                return;
+            }
+            Lifecycle lifecycle=getActivity().getLifecycle();
+            if(lifecycle.getCurrentState().isAtLeast(Lifecycle.State.RESUMED)){
+                start(call);
+            }else if(lifecycle.getCurrentState()==Lifecycle.State.DESTROYED){
+                call.reject("Open Maps to download the area");
+            }else{
+                // Android can deliver the permission result before returning foreground to the app.
+                lifecycle.addObserver(new DefaultLifecycleObserver(){
+                    private final Runnable deadline=()->abort();
+
+                    @Override public void onCreate(LifecycleOwner owner){main.postDelayed(deadline,3000);}
+                    @Override public void onResume(LifecycleOwner owner){detach();start(call);}
+                    @Override public void onStop(LifecycleOwner owner){abort();}
+                    @Override public void onDestroy(LifecycleOwner owner){abort();}
+                    private void detach(){lifecycle.removeObserver(this);main.removeCallbacks(deadline);}
+                    private void abort(){detach();call.reject("Open Maps to download the area");}
+                });
+            }
+        });
+    }
     private void start(PluginCall call){try{
         if(!"download-this-vector-area".equals(call.getString("acknowledgement")))throw new IOException("Confirm this area before downloading");
         if(!getActivity().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED))throw new IOException("Open the app to start a download");

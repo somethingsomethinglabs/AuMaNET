@@ -4,6 +4,7 @@ import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import ts from 'typescript';
+import {vicmapTerrariumPixels} from '../app/src/lib/maps/vector/elevation-tile.ts';
 const output=resolve('dev/artifacts/vector-downloads-unit');await mkdir(output,{recursive:true});
 await writeFile(resolve(output,'downloads.mjs'),ts.transpileModule(await readFile('dev/app/src/lib/maps/vector/downloads.ts','utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText);
 const {downloadBounds,checkedVectorState,vectorMapsClient,regionAt,downloadTileCount,visibleRegions,orderedRegions}=await import(pathToFileURL(resolve(output,'downloads.mjs')));
@@ -22,4 +23,26 @@ test('saved coverage stays selected when only viewport edge intersects and spans
  assert.deepEqual(visibleRegions([region,adjacent,overlap],[145.9,-37.9,146.1,-37.1]).map(r=>r.id),[overlap.id,adjacent.id,region.id]);
  assert.equal(visibleRegions([region],[148,-38,149,-37]).length,0);
  assert.deepEqual(orderedRegions([adjacent,region]).map(r=>r.id),orderedRegions([region,adjacent]).map(r=>r.id));
+});
+
+test('a Vicmap grid becomes a lossless Terrarium tile and oversized blocks are rejected',async()=>{
+ const bytes=new ArrayBuffer(69),view=new DataView(bytes);
+ new Uint8Array(bytes).set(new TextEncoder().encode('CntZImage '));
+ for(const [offset,value] of [[10,11],[14,8],[18,257],[22,257],[50,1],[54,1],[58,3]])view.setInt32(offset,value,true);
+ view.setFloat64(26,.1,true);
+ view.setFloat32(46,1,true);
+ view.setFloat32(62,321,true);
+ view.setUint8(66,67);
+ view.setInt16(67,321,true);
+ const pixels=await vicmapTerrariumPixels(bytes);
+ assert.equal(pixels.length,512*512*4);
+ assert.deepEqual(Array.from(pixels.slice(-4)),[129,65,0,255]);
+ const oversized=new Uint8Array(73);
+ oversized.set(new Uint8Array(bytes).slice(0,66));
+ const header=new DataView(oversized.buffer);
+ header.setInt32(58,7,true);
+ header.setUint8(66,129);
+ header.setUint8(68,8);
+ header.setUint32(69,66050,true);
+ await assert.rejects(vicmapTerrariumPixels(oversized.buffer),/Oversized Victorian elevation block/);
 });
