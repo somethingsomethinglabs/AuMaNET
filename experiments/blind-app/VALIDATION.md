@@ -72,6 +72,14 @@ Browser checks confirmed conversation document/viewport equality at 390×844, 84
 
 The current 47 model/persistence tests, syntax checks and whitespace validation pass. The nine new captures are in `prototype/screenshots/ux-review/`. Earlier screenshot manifests remain tied to their historical captures. Viewport overrides were reset and the user’s live preview was restored to portrait Messages. Real mobile keyboards, screen readers and native hardware behavior were not validated.
 
+## Brand and experience handover
+
+The guide is based on independent renderer revision `83600e761ad7440bac5603987bedafd258159c42`. Twenty-seven fresh viewport captures cover the primary destinations, secondary tools, contextual sheets, muted voice, persistent session controls, first use, failed draft recovery and landscape. Capture sessions used isolated fictional state; the existing user session was retained. Each capture's route, dimensions and date is recorded in `prototype/handover/screenshots/manifest.json`.
+
+The 16-page PDF was rendered with Poppler and every page inspected for layout. The corrected failed-draft reference was rendered again after the transient toast disappeared, leaving the persistent Retry control visible. Brand geometry was exported from the independent prototype's existing mark; outlined SVG wordmarks and raster variants were visually inspected. The guide records measured colour-pair contrast and separates new accessibility and brand-packaging recommendations from the captured reference values.
+
+The HTML guide rendered without document-level horizontal overflow at desktop and phone widths. Its screenshot search returned two landscape views, showed the empty state for a non-match and restored all 27 entries when cleared. No browser errors or warnings were recorded. Local asset/link checks, guide JavaScript syntax, ZIP integrity and file hashes passed. The package has no remote assets, production code or private bench data. Its `.gitattributes` preserves exact file bytes so package hashes survive checkout on different platforms. The prototype renderer and model were unchanged; their existing 47-test result remains the prior revision's evidence.
+
 ## Limits
 
 This is a proof of concept with interactive core flows. `prototype/COVERAGE.md` marks partial and descriptive branches individually. Some native error permutations, full background-process recovery, real remote offers and advanced engineering operations are represented only partially or descriptively. The browser walkthrough is representative, not exhaustive execution of every requirement permutation or an accessibility certification.

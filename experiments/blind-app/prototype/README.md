@@ -2,6 +2,10 @@
 
 A local, buildless frontend experiment designed only from `../requirements-brief.md`. It uses no original application code, screenshots, styles, branding references or product websites. The wordmark, layouts, icons, maps and illustration were made independently for this experiment.
 
+## Design handover
+
+The approved mobile direction is documented in [the brand and experience guide](handover/index.html), with a [16-page PDF](handover/AuMaNET-design-handover.pdf), [complete ZIP pack](handover/AuMaNET-design-handover.zip), 27 fresh screenshots, logo SVG/PNG assets, 51 icons and design tokens. [The handover README](handover/README.md) records the clean-room source boundary and distinguishes captured values from adoption guidance. The guide is also served locally at `/handover/index.html`.
+
 ## Run locally
 
 Node 24 is sufficient. There are no packages to install and no build step.
