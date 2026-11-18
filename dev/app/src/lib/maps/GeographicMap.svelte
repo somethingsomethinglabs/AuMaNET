@@ -7,7 +7,7 @@
 
 <script lang="ts">
   import {appearance} from '../appearance';
-  import {mapAppearance,connectionAppearance} from './vector/appearance';
+  import {mapAppearance,onlineDarkAppearance,connectionAppearance} from './vector/appearance';
   import {onMount} from 'svelte';
   import {Map as VectorMap,setWorkerUrl} from 'maplibre-gl';
   import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
@@ -104,17 +104,9 @@
         onlineReady=true;
         reportBasemap();
       });
-      candidate.setStyle('https://tiles.openfreemap.org/styles/'+(dark?'dark':'liberty'),{diff:false,transformStyle:(_,style)=>{
-        if(dark)for(const layer of style.layers){
-          if(layer.type==='symbol'&&layer.layout?.['text-field']){
-            layer.paint={...layer.paint,'text-color':'#EDF3E8','text-halo-color':'#182A24','text-halo-width':1.6};
-          }
-          if(layer.type==='line'&&/road|highway|path|rail/i.test(layer.id)&&!/casing|case|tunnel/i.test(layer.id)){
-            layer.paint={...layer.paint,'line-color':'#C7D9AC'};
-          }
-        }
-        return style;
-      }});
+      candidate.setStyle('https://tiles.openfreemap.org/styles/'+(dark?'dark':'liberty'),{
+        diff:false,transformStyle:(_,style)=>dark?onlineDarkAppearance(style):style,
+      });
     }catch{
       stopOnline();
       onlineTheme=dark;

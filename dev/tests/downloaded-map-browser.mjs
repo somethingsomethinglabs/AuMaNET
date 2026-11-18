@@ -26,15 +26,13 @@ try{
     const contentType=file.endsWith('.lerc')?'image/lerc':file.endsWith('.webp')?'image/webp':'application/x-protobuf';
     return route.fulfill({body:await readFile(resolve(root,file)),contentType});
   });
-  let releaseTiles,reachedTiles;
+  let releaseTiles;
   const tileDelay=new Promise(resolve=>{releaseTiles=resolve;});
-  const tileRequested=new Promise(resolve=>{reachedTiles=resolve;});
   await page.route('https://tiles.openfreemap.org/styles/**',route=>route.fulfill({json:{
     version:8,sources:{online:{type:'geojson',data:'https://tiles.openfreemap.org/zoom-test.geojson'}},
     layers:[{id:'background',type:'background',paint:{'background-color':'#000'}},{id:'coverage',type:'fill',source:'online'}],
   },headers:{'access-control-allow-origin':'*'}}));
   await page.route('https://tiles.openfreemap.org/zoom-test.geojson',async route=>{
-    reachedTiles();
     await tileDelay;
     await route.fulfill({json:{type:'FeatureCollection',features:[]},headers:{'access-control-allow-origin':'*'}});
   });
@@ -42,6 +40,7 @@ try{
   await page.getByRole('status').filter({hasText:/Offline · Saved maps|Saved maps · Partial offline coverage/}).waitFor();await page.waitForFunction(()=>window.__downloadedMapFixture.state().loaded&&window.__downloadedMapFixture.state().features>0&&window.__downloadedMapFixture.state().contours>0,{timeout:45000});
   const initial=await page.evaluate(()=>window.__downloadedMapFixture.state());
   const mid=(manifest.bounds[0]+manifest.bounds[2])/2,lat=(manifest.bounds[1]+manifest.bounds[3])/2;
+  const tileRequested=page.waitForRequest('https://tiles.openfreemap.org/zoom-test.geojson');
   await page.evaluate(({mid,lat})=>window.__downloadedMapFixture.pan(mid,lat,2),{mid,lat});
   await tileRequested;
   const online=page.locator('.online-basemap');
