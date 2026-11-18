@@ -3,13 +3,12 @@ import {GATEWAY_RADIO_CAPABILITY_FRESH_MS,type GatewayRadioSettingsSnapshot} fro
 /** Presentation values projected from checked native capabilities/readbacks.
  * This layer never creates an option or treats a proposed value as applied. */
 export interface RadioSettingOption{readonly id:number;readonly channel:number;readonly operatingClass:number;readonly globalOperatingClass:number;readonly bandwidthMHz:number;readonly centerFrequencyHz:number;}
-export interface RadioNodeView{readonly id:string;readonly name:string;readonly channel?:number;readonly bandwidthMHz?:number;readonly centerFrequencyHz?:number;readonly fresh:boolean;readonly associated:boolean;readonly reportAgeMs?:number;readonly reportLabel:string;}
+export interface RadioNodeView{readonly id:string;readonly name:string;readonly channel?:number;readonly bandwidthMHz?:number;readonly centerFrequencyHz?:number;readonly fresh:boolean;readonly associated:boolean;readonly reportLabel:string;}
 export function radioSettingLabel(value:Pick<RadioSettingOption,'channel'|'bandwidthMHz'|'centerFrequencyHz'>){return`Channel ${value.channel} · ${value.bandwidthMHz} MHz · ${new Intl.NumberFormat(undefined,{maximumFractionDigits:3}).format(value.centerFrequencyHz/1e6)} MHz`;}
-export function matchingRadioNodes(nodes:readonly RadioNodeView[],requireFresh=true){if(nodes.length!==2||nodes.some(node=>requireFresh&&!node.fresh||!node.associated||node.channel===undefined||node.bandwidthMHz===undefined||node.centerFrequencyHz===undefined))return false;const[a,b]=nodes;return a.channel===b.channel&&a.bandwidthMHz===b.bandwidthMHz&&a.centerFrequencyHz===b.centerFrequencyHz;}
+export function matchingRadioNodes(nodes:readonly RadioNodeView[]){if(nodes.length!==2||nodes.some(node=>!node.fresh||!node.associated||node.channel===undefined||node.bandwidthMHz===undefined||node.centerFrequencyHz===undefined))return false;const[a,b]=nodes;return a.channel===b.channel&&a.bandwidthMHz===b.bandwidthMHz&&a.centerFrequencyHz===b.centerFrequencyHz;}
 
 export function radioChangeBlocker(snapshot:GatewayRadioSettingsSnapshot){
-  if(snapshot.errorCode==='RADIO_HOST_UNAVAILABLE')return 'Connect to the group host to refresh or change the channel.';
-  if(snapshot.canChange||!snapshot.owner&&!snapshot.delegated)return '';
+  if(snapshot.canChange||!snapshot.owner)return '';
   if(snapshot.state==='unknown')return 'Verify which channel is active before starting another trial.';
   if(snapshot.errorCode==='RADIO_OPERATION_STORAGE_UNAVAILABLE')return 'The app cannot open its radio operation record. Radio changes are unavailable.';
   if(snapshot.errorCode==='RADIO_REPORTS_UNAVAILABLE')return 'The app could not check both nodes. Keep both nodes powered and refresh radio status.';
