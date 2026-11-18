@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ProfilePhoto from './ProfilePhoto.svelte';
   import BrandIcon from './BrandIcon.svelte';
   import HelpButton from './HelpButton.svelte';
   import {onMount,tick} from 'svelte';
@@ -162,7 +163,7 @@
       {#each visibleRows as row,index(row.senderId+row.id)}
       {#if index===0&&messageDate(row.createdAt)!==messageDate(Date.now())||index>0&&messageDate(visibleRows[index-1].createdAt)!==messageDate(row.createdAt)}<p class="message-date">{messageDate(row.createdAt)}</p>{/if}
       <article class="message" class:own={row.senderId===state.scope.selfId}>
-        {#if row.senderId!==state.scope.selfId}<span class="message-avatar" aria-hidden="true">{name(row.senderId).trim().split(/\s+/).slice(0,2).map(part=>Array.from(part)[0]?.toUpperCase()).join('')}</span>{/if}
+        {#if row.senderId!==state.scope.selfId}<span class="message-avatar" aria-hidden="true"><ProfilePhoto photoBase64={group?.group?.id===state.scope.groupId&&group?.identity.id===state.scope.selfId?group.members.find(member=>member.id===row.senderId)?.photoBase64:undefined}>{name(row.senderId).trim().split(/\s+/).slice(0,2).map(part=>Array.from(part)[0]?.toUpperCase()).join('')}</ProfilePhoto></span>{/if}
         <div class="message-card">{#if row.senderId!==state.scope.selfId}<strong class="sender-name">{name(row.senderId)}</strong>{/if}
         {#if row.image}<div class="image-message" use:watchImage={row}>
           {#if imageUrls[rowKey(row)]}<button class="open-photo" aria-label={`Open photo from ${name(row.senderId)}`} onclick={()=>void openImage(row)}><img src={imageUrls[rowKey(row)]} alt="Shared in the group" loading="lazy" width={row.image.width} height={row.image.height}/><span>Open photo</span></button>

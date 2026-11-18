@@ -5,6 +5,7 @@ export type {GroupSnapshot,GroupMember,GroupFix,GroupSignal} from '@aumanet/prot
 export interface NativeGroupBridge {
   snapshot():Promise<unknown>;
   identity(options:{name:string}):Promise<unknown>;
+  setProfilePhoto?(options:{photoBase64:string;expectedProcessId:string;expectedSelfId:string;expectedGroupId:string}):Promise<unknown>;
   editName?(options:GroupNameEdit):Promise<unknown>;
   nameOperation?(options:{operationId:string;groupId:string;selfId:string}):Promise<unknown>;
   prepareNameRepair?(options:GroupNameRepairScope):Promise<unknown>;
@@ -55,6 +56,18 @@ export class NativeGroupClient {
   async refresh(){if(this.refreshing)return this.value;this.refreshing=true;const generation=this.generation;try{return this.accept(await this.bridge.snapshot(),generation);}catch(e){this.synchronized=false;throw e;}finally{this.refreshing=false;}}
   private async act(method:Exclude<keyof NativeGroupBridge,'snapshot'|'createInvite'|'sendSignal'>,options?:unknown){const generation=++this.generation;try{return this.accept(await (this.bridge[method] as (options?:unknown)=>Promise<unknown>)(options),generation);}catch(e){this.synchronized=false;throw e;}}
   identity(name:string){return this.act('identity',{name});}create(name:string,groupName:string){return this.act('create',{name,groupName});}
+  async setProfilePhoto(photoBase64: string) {
+    const current = this.value;
+    if (!current?.profilePhotosAvailable || !this.synced || !this.bridge.setProfilePhoto) {
+      throw new Error('Refresh group settings before editing your profile photo');
+    }
+    return this.act('setProfilePhoto', {
+      photoBase64,
+      expectedProcessId: current.processId,
+      expectedSelfId: current.identity.id,
+      expectedGroupId: current.group?.id ?? ''
+    });
+  }
   private receiptMatches(edit:GroupNameEdit,receipt:GroupNameReceipt,selfId:string){return receipt.operationId===edit.operationId&&receipt.kind===edit.kind&&receipt.name===edit.name&&receipt.processId===edit.expectedProcessId&&receipt.selfId===selfId&&receipt.groupId===edit.expectedGroupId&&receipt.epoch===edit.expectedEpoch&&receipt.expectedRevision===edit.expectedRevision&&receipt.revision===edit.expectedRevision+1&&(receipt.generation??0)===(edit.expectedNameGeneration??0);}
   async recoverNameEdit(){
     const scope=this.nameScope(),edit=this.nameEdits.get(scope),selfId=this.value?.identity.id,generation=this.generation;if(!edit||!selfId)return false;

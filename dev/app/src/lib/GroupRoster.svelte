@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ProfilePhoto from './ProfilePhoto.svelte';
   import {Users,Search,ChevronRight,Mic,MapPin} from '@lucide/svelte';
   import type {GroupSnapshot} from '@aumanet/protocol';
   export let state:GroupSnapshot|undefined=undefined;
@@ -25,7 +26,7 @@
     {#each visible as member(member.id)}
       {@const online=live&&member.connected}
       <button class="roster-member" onclick={()=>onmember(member.id)}>
-        <span class="avatar" aria-hidden="true">{Array.from(member.name.trim())[0]?.toUpperCase()||'?'}</span>
+        <span class="avatar" aria-hidden="true"><ProfilePhoto photoBase64={member.photoBase64}>{Array.from(member.name.trim())[0]?.toUpperCase()||'?'}</ProfilePhoto></span>
         <span class="roster-text"><strong>{member.name}{member.id===state?.identity.id?' · You':''}</strong><span class="presence" class:online><i aria-hidden="true"></i>{member.id===state?.group?.ownerId?'Owner · ':''}{online?'Connected':live?'Away':'Status unavailable'}{online&&member.voiceJoined?' · On voice':''}</span>
         </span><ChevronRight size={18}/>
       </button>

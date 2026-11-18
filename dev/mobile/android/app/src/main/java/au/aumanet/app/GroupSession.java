@@ -407,6 +407,7 @@ final class GroupSession {
     private final GroupVoiceCoordinatorLease<VoiceBinding> nativeVoiceCoordinator=new GroupVoiceCoordinatorLease<>(timer,(owner,binding)->nativeVoiceOwner.heldBy(owner,binding)&&voiceAuthorized(null,binding.group,binding.epoch,binding));
     private long coordinatorPublishedRevision;
     private String name = "", groupId = "", groupName = "", owner = "", role = "none", status = "idle", error = "";
+    private final GroupProfilePhotos profilePhotos;
     private GroupNameJournal nameJournal;private long selfNameRevision,groupNameRevision,nameGeneration;private boolean nameMetadataTrusted,nameAuthoritativeInvalid;
     private final GroupNameRepair nameRepair=new GroupNameRepair();private String lastNameRepairId="";
     private final String internetOwnerToken=GroupWire.random(16);
@@ -424,6 +425,7 @@ final class GroupSession {
     private ConnectivityManager.NetworkCallback networkCallback;
     private GroupSession(Context context) throws Exception {
         identity = new GroupIdentity(); saved = context.getSharedPreferences("aumanet-group-v1", Context.MODE_PRIVATE);
+        profilePhotos = new GroupProfilePhotos(context, identity.pin);
         debuggable=(context.getApplicationInfo().flags&ApplicationInfo.FLAG_DEBUGGABLE)!=0;
         networks = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);endpointDiscovery=new GroupEndpointDiscovery(context);
         String profile=savedNameString("profile"),membership=savedNameString("membership");
@@ -877,8 +879,53 @@ final class GroupSession {
         if (!role.equals("owner") || server == null || id.equals(identity.pin)) throw new IllegalStateException("Only the connected owner can remove another member");
         Member member = members.remove(id); if (member == null) throw new IllegalArgumentException("Unknown member");
         epoch++;TrustedLocationResumeBridge.authorityChanged(this);publishMediaAuthority(); invitation = null; clearReceivedSignals(); seenSignals.clear();consumedSignals.clear(); persist();
-        if (member.peer != null) member.peer.close(); broadcastRoster(); sequence++;
+        profilePhotos.select(groupId, members.keySet());
+        if (member.peer != null) member.peer.sendRemovalAndClose();
+        broadcastRoster(); sequence++;
     } }
+    JSObject setProfilePhoto(String image, String expectedProcess, String expectedSelf, String expectedGroup) throws Exception {
+        synchronized (lock) {
+            if (!process.equals(expectedProcess) || !identity.pin.equals(expectedSelf) || !groupId.equals(expectedGroup) ||
+                status.equals("connecting") || status.equals("pending")) {
+                throw new IllegalStateException("Group changed while editing the profile photo");
+            }
+            profilePhotos.setOwn(image);
+            sequence++;
+            return snapshot();
+        }
+    }
+    private boolean canSyncProfilePhotos(Peer peer) {
+        if (!textMembershipSaved || !controlConnected || !peer.authorized) return false;
+        if (role.equals("member")) return peer == ownerConnection && peer.pin.equals(owner);
+        Member member = members.get(peer.pin);
+        return role.equals("owner") && member != null && member.connected && member.peer == peer;
+    }
+    private void receiveProfilePhotos(Peer peer, JSONObject frame, long frameEpoch) throws Exception {
+        JSONObject seen = frame.optJSONObject("profilePhotosSeen");
+        if (seen == null || seen.length() > GroupWire.MAX_MEMBERS - 1 ||
+            frameEpoch != epoch || !canSyncProfilePhotos(peer)) return;
+        profilePhotos.select(groupId, members.keySet());
+        JSONObject fingerprints = new JSONObject();
+        for (String id : members.keySet()) {
+            Object digest = seen.opt(id);
+            if (digest instanceof String && GroupWire.pin((String) digest)) fingerprints.put(id, digest);
+        }
+        peer.profilePhotosSeen = fingerprints;
+        peer.profilePhotoEpoch = frameEpoch;
+        if (profilePhotos.receive(frame.optJSONObject("profilePhotos"), role.equals("owner"), peer.pin, members.keySet())) sequence++;
+    }
+    private JSONObject heartbeat(Peer peer) throws Exception {
+        JSONObject frame = new JSONObject().put("type", "heartbeat");
+        if (!canSyncProfilePhotos(peer)) return frame;
+        profilePhotos.select(groupId, members.keySet());
+        boolean hosting = role.equals("owner");
+        frame.put("profilePhotosSeen", profilePhotos.fingerprints(hosting, peer.pin));
+        if (peer.profilePhotosSeen != null && peer.profilePhotoEpoch == epoch && !LinkBenchmarkTraffic.active()) {
+            JSONObject changes = profilePhotos.changes(peer.profilePhotosSeen, hosting, peer.pin, members.keySet());
+            if (changes.length() > 0) frame.put("profilePhotos", changes);
+        }
+        return frame;
+    }
     private JSONObject roster(String type) throws Exception {
         refreshVoiceCohort();
         JSONArray list = new JSONArray(); for (Member member : members.values()) list.put(member.json(true));
@@ -891,10 +938,11 @@ final class GroupSession {
     }
     private void receive(Peer peer, JSONObject message) throws Exception { synchronized (lock) {
         if(peer.run!=generation||peer.closed.get())throw new IllegalArgumentException("Stale native group connection");
+        if (peer.removalQueued) return;
         String type = message.getString("type"); long frameEpoch = number(message,"epoch");
         if(type.equals("radio-maintenance")){receiveMaintenance(peer,message,radioMaintenance);return;}
         if(type.equals("firmware-maintenance")){receiveMaintenance(peer,message,firmwareMaintenance);return;}
-        if (type.equals("heartbeat")){receiveRadio(peer,message);receiveRadioConfigurations(peer,message);receiveInternet(peer,message);receiveLinkBenchmark(peer,message);return;}
+        if (type.equals("heartbeat")){receiveRadio(peer,message);receiveRadioConfigurations(peer,message);receiveInternet(peer,message);receiveLinkBenchmark(peer,message);receiveProfilePhotos(peer,message,frameEpoch);return;}
         if (role.equals("owner")) {
             if (!peer.authorized || !members.containsKey(peer.pin)) throw new IllegalArgumentException("Member is not approved");
             boolean closingPrivacy=type.equals("withdraw")||type.equals("presence")&&!message.optBoolean("joined",true);
@@ -910,7 +958,12 @@ final class GroupSession {
             else throw new IllegalArgumentException("Unsupported group command");
         } else {
             if (!peer.pin.equals(owner)) throw new IllegalArgumentException("Untrusted group authority");
-            if (type.equals("pending")) { status = "pending"; }
+            if (type.equals(GroupProfilePhotos.MEMBERSHIP_REMOVED)) {
+                if (peer == ownerConnection && peer.authorized && textMembershipSaved &&
+                    profilePhotos.confirmMembershipRemoval(message.optString("memberId"), epoch, frameEpoch)) {
+                    peer.close();
+                }
+            } else if (type.equals("pending")) { status = "pending"; }
             else if (type.equals("welcome") || type.equals("roster")) {
                 long nextVoiceRevision=number(message,"voiceRevision");
                 if(nextVoiceRevision<1||nextVoiceRevision>GroupVoiceCohort.MAX_REVISION||nextVoiceRevision<voiceRevision)throw new IllegalArgumentException("Stale voice authority revision");
@@ -923,10 +976,11 @@ final class GroupSession {
                 for (int i=0;i<list.length();i++) { JSONObject m=list.getJSONObject(i); String id=m.getString("id"); if(!GroupWire.pin(id)||next.containsKey(id))throw new IllegalArgumentException("Invalid member identity");
                     Member previous=members.get(id);Member entry=new Member(id,label(m.getString("name"),48));if(previous!=null){entry.fix=previous.fix;entry.receivedAt=previous.receivedAt;entry.fixGeneration=previous.fixGeneration;}String incomingName=label(m.getString("name"),48);long incomingRevision=m.has("nameRevision")?number(m,"nameRevision"):0;entry.name=id.equals(identity.pin)?name:incomingName;entry.nameRevision=id.equals(identity.pin)?selfNameRevision:incomingRevision; entry.connected=m.getBoolean("connected"); entry.voice=entry.connected&&m.getBoolean("voiceJoined"); entry.sharing=entry.connected&&m.getBoolean("sharingLocation");entry.textVersion=entry.connected?textCapability(m.opt("textVersion")):0;entry.messageVersion=entry.connected&&m.optInt("messageVersion")==2?2:0;entry.internetPeerToken=m.optString("internetPeerToken","");if(!entry.internetPeerToken.isEmpty()&&!entry.internetPeerToken.matches("[a-f0-9]{32}"))entry.internetPeerToken=""; if(m.has("fix"))entry.setFix(m.getJSONObject("fix")); next.put(id,entry); }
                 GroupRosterEpoch.require(epoch,frameEpoch,peer.authorized,members.keySet(),next.keySet());
-                if (!next.containsKey(identity.pin) || !next.containsKey(owner)) { textMembershipSaved=false;textAuthority.clear();disconnect(false); saved.edit().remove("membership").commit(); throw new IllegalStateException("Membership was removed"); }
+                if (!next.containsKey(identity.pin) || !next.containsKey(owner)) { textMembershipSaved=false;textAuthority.clear();profilePhotos.clearGroup();disconnect(false); saved.edit().remove("membership").commit(); throw new IllegalStateException("Membership was removed"); }
                 final String savedGroupName=groupName;final long savedGroupNameRevision=groupNameRevision,savedEpoch=epoch;final LinkedHashMap<String,Member> savedMembers=new LinkedHashMap<>(members);if (frameEpoch > epoch) { clearReceivedSignals(); seenSignals.clear();consumedSignals.clear(); } long incomingGroupRevision=message.has("groupNameRevision")?number(message,"groupNameRevision"):0;String incomingGroupName=label(message.getString("groupName"),64);if(incomingGroupRevision<groupNameRevision||incomingGroupRevision==groupNameRevision&&peer.authorized&&!groupName.equals(incomingGroupName))throw new IllegalArgumentException("Stale group name revision");epoch=frameEpoch;groupName=incomingGroupName;groupNameRevision=incomingGroupRevision; members.clear();members.putAll(next);
                 Member self=members.get(identity.pin);self.voice=voiceConsent.enabled();self.sharing=locationConsent.enabled();
                 String savedHost=host;int savedPort=port;if(peer.recoveryAttempt!=null){if(recovery!=peer.recoveryAttempt||!peer.recoveryAttempt.complete(SystemClock.elapsedRealtime()))throw new IllegalStateException("Reconnect was cancelled or expired");host=peer.recoveryHost;port=peer.recoveryPort;}try{persist();}catch(Exception failed){host=savedHost;port=savedPort;groupName=savedGroupName;groupNameRevision=savedGroupNameRevision;epoch=savedEpoch;members.clear();members.putAll(savedMembers);throw failed;}if(peer.recoveryAttempt!=null){if(recoveryTimeout!=null)recoveryTimeout.cancel(false);recoveryTimeout=null;endpointDiscovery.stop();recoveryState="connected";recoveryMessage="Saved membership verified on this Wi-Fi";peer.recoveryAttempt=null;}peer.authorized=true;peer.textVersion=next.get(owner).textVersion;peer.messageVersion=next.get(owner).messageVersion;peer.firmwareMaintenanceVersion=GroupFirmwareMaintenanceCapability.read(message.opt("firmwareMaintenanceVersion"));status="connected";controlConnected=true;publishMediaAuthority();
+                profilePhotos.select(groupId, members.keySet());
             } else {
                 if (!peer.authorized) throw new IllegalArgumentException("Group peer is not authorized");
                 GroupWire.requireEpoch(epoch,frameEpoch);
@@ -1012,7 +1066,7 @@ final class GroupSession {
         // asynchronous; server-side TLS close can still stall and retain its bounded FD lease.
         for(Peer peer:new ArrayList<>(sockets))if(peer.writeStartedAt>0&&now-peer.writeStartedAt>=5000&&!radioMaintenance.retainTransport(internetScope(),peer.pin))peer.closeTransport();
         if(locationConsent.enabled()){if(!LocationSharingService.validNativeOwner()){if(!TrustedLocationResumeBridge.interruptForGroup(this)&&locationConsent.enabled())denySharingNow();}else{JSONObject fix=LocationPlugin.sharingFix();if(fix!=null&&fix.getLong("timestamp")!=lastOwnFixElapsed)publishOwn(fix);}}
-        if(now-lastHeartbeat>=5000){lastHeartbeat=now;for(Peer peer:new ArrayList<>(sockets))if(peer.writer!=null)peer.sendBestEffort(role.equals("owner")?new JSONObject().put("type","heartbeat").put("radioSignals",radioSignals()):new JSONObject().put("type","heartbeat"));}
+        if(now-lastHeartbeat>=5000){lastHeartbeat=now;for(Peer peer:new ArrayList<>(sockets))if(peer.writer!=null&&!peer.removalQueued)peer.sendBestEffort(heartbeat(peer));}
     }}
     void leave(){disconnect(true);}
     private void disconnect(boolean restoreUnapproved){disconnect(restoreUnapproved,false);}
@@ -1026,7 +1080,11 @@ final class GroupSession {
     private void fail(String reason){fail(reason,false);}
     private void fail(String reason,boolean transport){controlConnected=false;denyVoiceNow();if(transport)denySharingForTransportNow();else denySharingNow();synchronized(lock){disconnect(true,transport);status="interrupted";recoveryState="failed";recoveryMessage=reason;error=reason;sequence++;}}
     private void failTransport(String reason){synchronized(lock){TrustedConnectionScope before=trustedConnectionScope();fail(reason,true);TrustedConnectionScope after=trustedConnectionScope();if(before!=null&&after!=null)TrustedConnectionController.transportInterrupted(before,after);}}
-    JSObject snapshot()throws Exception{synchronized(lock){JSONArray list=new JSONArray(),requests=new JSONArray(),events=new JSONArray();for(Member member:members.values())list.put(member.json(false));
+    JSObject snapshot()throws Exception{synchronized(lock){
+        if (textMembershipSaved) profilePhotos.select(groupId, members.keySet());
+        JSONArray list=new JSONArray(),requests=new JSONArray(),events=new JSONArray();for(Member member:members.values())list.put(member.json(false));
+        JSONObject profile = new JSONObject().put("id", identity.pin).put("name", name).put("nameRevision", selfNameRevision);
+        if (!profilePhotos.ownImage().isEmpty()) profile.put("photoBase64", profilePhotos.ownImage());
         GroupConsent.View voiceIntent=voiceConsent.view();
         long now=SystemClock.elapsedRealtime();for(Peer peer:pending.values())if(!peer.closed.get())requests.put(new JSONObject().put("id",peer.pin).put("name",peer.name).put("remainingMs",Math.max(0,peer.pendingUntil-now)));
         if(voiceConsent.enabled()&&!nativeVoiceCoordinator.held())for(JSONObject event:signals.values())events.put(event);
@@ -1034,7 +1092,7 @@ final class GroupSession {
         String reportedError=error.isEmpty()&&resourceState.equals("stalled")?"Local socket cleanup is stalled; new connections remain bounded until cleanup completes":error;
         JSONArray snapshotRadioSignals=radioSignals();long snapshotObservedElapsedMs=SystemClock.elapsedRealtime();
         JSObject result=new JSObject().put("schema","aumanet.group.v1").put("source","device").put("processId",process).put("sequence",sequence).put("observedElapsedMs",snapshotObservedElapsedMs)
-            .put("status",status).put("role",role).put("identity",new JSONObject().put("id",identity.pin).put("name",name).put("nameRevision",selfNameRevision)).put("namesAvailable",nameJournal.healthy()).put("nameStorage",nameStorageStatus()).put("nameGeneration",nameGeneration).put("members",list).put("pending",requests)
+            .put("status",status).put("role",role).put("identity",profile).put("profilePhotosAvailable",true).put("namesAvailable",nameJournal.healthy()).put("nameStorage",nameStorageStatus()).put("nameGeneration",nameGeneration).put("members",list).put("pending",requests)
             .put("recovery",new JSONObject().put("state",recoveryState).put("discoveryAvailable",endpointDiscovery.available()).put("message",recoveryMessage)).put("sharingLocation",locationConsent.enabled()).put("voiceJoined",voiceIntent.enabled).put("voiceConsentRevision",voiceIntent.revision).put("signals",events).put("error",reportedError).put("transportResources",resources).put("radioSignals",snapshotRadioSignals);
         if(voiceRevision>0)result.put("voiceRevision",voiceRevision);
         if(!lastNameRepairId.isEmpty()&&groupId.equals(saved.getString("nameRepairGroup","")))result.put("lastNameRepairId",lastNameRepairId);if(!groupId.isEmpty())result.put("group",new JSONObject().put("id",groupId).put("name",groupName).put("nameRevision",groupNameRevision).put("epoch",epoch).put("ownerId",owner));return result;
@@ -1071,6 +1129,10 @@ final class GroupSession {
         JSONObject json(boolean outgoing)throws Exception{boolean local=id.equals(identity.pin),voiceOn=local?voiceConsent.enabled():voice,locationOn=local?locationConsent.enabled():sharing;
             JSONObject result=new JSONObject().put("id",id).put("name",name).put("nameRevision",nameRevision).put("connected",connected).put("voiceJoined",connected&&voiceOn).put("sharingLocation",connected&&locationOn).put("textVersion",local?1:connected?(role.equals("owner")&&peer!=null?peer.textVersion:textVersion):0).put("messageVersion",local?2:connected?(role.equals("owner")&&peer!=null?peer.messageVersion:messageVersion):0);
             if(outgoing)result.put("internetPeerToken",connected?(local?internetOwnerToken:role.equals("owner")&&peer!=null?peer.authorityToken:internetPeerToken):"");
+            if (!outgoing && (local || textMembershipSaved)) {
+                String photo = profilePhotos.image(id);
+                if (!photo.isEmpty()) result.put("photoBase64", photo);
+            }
             // Do not disclose a stopped member's old position to newly enrolled peers.
             if(fix!=null){JSONObject observed=fixJson();if(!outgoing||connected&&locationOn&&observed.getLong("ageMs")<=120000)result.put("fix",observed);}return result;}
     }
@@ -1081,6 +1143,9 @@ final class GroupSession {
         final SSLSocket socket;final Socket raw;final GroupSocketBudget.Lease lease;final boolean inboundSocket;final long run;
         final AtomicBoolean closed=new AtomicBoolean();final String authorityToken=GroupWire.random(16);volatile boolean authorized;volatile long writeStartedAt;
         GroupRecoveryPolicy.Attempt recoveryAttempt;GroupRecoveryDiagnostics.Trace recoveryTrace;String recoveryHost;int recoveryPort;String pin="",name="",connection="";volatile int textVersion,messageVersion,firmwareMaintenanceVersion;long nameRevision,pendingUntil,sendSequence;GroupWire.Sequence inbound;
+        volatile boolean removalQueued;
+        JSONObject profilePhotosSeen;
+        long profilePhotoEpoch;
         DataInputStream input;DataOutputStream output;Thread writer;final ArrayDeque<Outbound> queue=new ArrayDeque<>(),textQueue=new ArrayDeque<>(),bulkQueue=new ArrayDeque<>();
         Peer(SSLSocket socket,Socket raw,GroupSocketBudget.Lease lease,boolean inbound,long run){this.socket=socket;this.raw=raw;this.lease=lease;this.inboundSocket=inbound;this.run=run;}
         void handshake()throws Exception{List<String> supported=Arrays.asList(socket.getSupportedProtocols());List<String> enabled=new ArrayList<>();for(String protocol:new String[]{"TLSv1.3","TLSv1.2"})if(supported.contains(protocol))enabled.add(protocol);if(enabled.isEmpty())throw new IllegalStateException("Modern TLS unavailable");socket.setEnabledProtocols(enabled.toArray(new String[0]));
@@ -1095,11 +1160,32 @@ final class GroupSession {
         void write(Outbound outgoing)throws Exception{if(!GroupFirmwareMaintenanceCapability.outbound(outgoing.body.optString("type"),firmwareMaintenanceVersion))return;if(closed.get())throw new IllegalStateException("Local peer disconnected");if(outgoing.textGrant!=null&&(LinkBenchmarkTraffic.active()||!messageGrantLive(outgoing.textGrant)||!outgoing.textLive.getAsBoolean()||textVersion!=1))return;if("signal".equals(outgoing.body.optString("type"))&&!GroupVoiceCohort.accepts(voiceRevision,outgoing.frameVoiceRevision))return;
             JSONObject export=radioExport(durableMessages.filterMessageFrame(outgoing.body));long nextSequence=sendSequence+1;JSONObject frame=new JSONObject(export.toString()).put("schema","aumanet.group.frame.v2").put("groupId",groupId).put("connectionId",connection).put("epoch",outgoing.frameEpoch).put("voiceRevision",outgoing.frameVoiceRevision).put("seq",nextSequence);
             // Preparation may be cancelled. Only an actual write attempt consumes a transport sequence.
-            String encoded=frame.toString();if(outgoing.textGrant!=null&&(LinkBenchmarkTraffic.active()||!messageGrantLive(outgoing.textGrant)||!outgoing.textLive.getAsBoolean()||textVersion!=1))return;JSONObject finalExport=radioExport(durableMessages.filterMessageFrame(outgoing.body));if(finalExport!=export){if(finalExport.optString("type").equals("heartbeat")){if(finalExport.has("radioSignals"))frame.put("radioSignals",finalExport.getJSONArray("radioSignals"));if(finalExport.has("radioConfigurations"))frame.put("radioConfigurations",finalExport.getJSONArray("radioConfigurations"));frame.put("internetSharing",finalExport.getJSONArray("internetSharing"));frame.put("linkBenchmarks",finalExport.getJSONArray("linkBenchmarks"));}else frame.put("payload",finalExport.getJSONObject("payload"));encoded=frame.toString();}if(!GroupFirmwareMaintenanceCapability.outbound(outgoing.body.optString("type"),firmwareMaintenanceVersion))return;writeStartedAt=SystemClock.elapsedRealtime();try{sendSequence=nextSequence;GroupWire.write(output,encoded);}finally{writeStartedAt=0;}}
+            String encoded=frame.toString();if(outgoing.textGrant!=null&&(LinkBenchmarkTraffic.active()||!messageGrantLive(outgoing.textGrant)||!outgoing.textLive.getAsBoolean()||textVersion!=1))return;JSONObject finalExport=radioExport(durableMessages.filterMessageFrame(outgoing.body));if(finalExport!=export){if(finalExport.optString("type").equals("heartbeat")){if(finalExport.has("radioSignals"))frame.put("radioSignals",finalExport.getJSONArray("radioSignals"));if(finalExport.has("radioConfigurations"))frame.put("radioConfigurations",finalExport.getJSONArray("radioConfigurations"));frame.put("internetSharing",finalExport.getJSONArray("internetSharing"));frame.put("linkBenchmarks",finalExport.getJSONArray("linkBenchmarks"));}else frame.put("payload",finalExport.getJSONObject("payload"));encoded=frame.toString();}if(!GroupFirmwareMaintenanceCapability.outbound(outgoing.body.optString("type"),firmwareMaintenanceVersion))return;
+            if (removalQueued && !GroupProfilePhotos.MEMBERSHIP_REMOVED.equals(outgoing.body.optString("type"))) return;
+            writeStartedAt=SystemClock.elapsedRealtime();try{sendSequence=nextSequence;GroupWire.write(output,encoded);}finally{writeStartedAt=0;}}
         void startWriter(){writer=new Thread(()->{try{while(!closed.get()){Outbound next;synchronized(queue){while(queue.isEmpty()&&textQueue.isEmpty()&&bulkQueue.isEmpty()&&!closed.get())queue.wait(15000);if(closed.get())return;next=!queue.isEmpty()?queue.poll():!textQueue.isEmpty()?textQueue.poll():bulkQueue.poll();}if(next==null)continue;
             if(!next.locationSource.isEmpty()){if(next.locationSource.equals(identity.pin)&&!locationConsent.enabled())continue;synchronized(lock){Member member=members.get(next.locationSource);if(member==null||!member.sharing||!member.connected||member.fixGeneration!=next.fixGeneration)continue;}}
-            write(next);
+            boolean removal = GroupProfilePhotos.MEMBERSHIP_REMOVED.equals(next.body.optString("type"));
+            if (removal) {
+                try { write(next); } finally { close(); }
+                return;
+            }
+            if (!removalQueued) write(next);
         }}catch(Exception failure){if(GroupRecoveryDiagnostics.transientTransport(failure))closeTransport();else close();}},"AuMaNET-group-writer");writer.setDaemon(true);writer.start();}
+        void sendRemovalAndClose() throws Exception {
+            // The owner has already revoked all group authority. Discard queued
+            // data and give the writer one chance to deliver the final notice.
+            synchronized (queue) {
+                if (closed.get()) return;
+                removalQueued = true;
+                queue.clear();
+                textQueue.clear();
+                bulkQueue.clear();
+                JSONObject notice = new JSONObject().put("type", GroupProfilePhotos.MEMBERSHIP_REMOVED).put("memberId", pin);
+                queue.add(new Outbound(notice, "", 0));
+                queue.notifyAll();
+            }
+        }
         void send(JSONObject body)throws Exception{enqueue(new Outbound(body,"",0));}
         void sendBestEffort(JSONObject body){sendBestEffort(body,this::closeTransport);}
         void sendBestEffort(JSONObject body,Runnable detach){GroupPeerDelivery.offer(closed::get,()->enqueue(new Outbound(body,"",0),false),detach);}
