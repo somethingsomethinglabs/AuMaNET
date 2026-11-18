@@ -1,13 +1,13 @@
 
 # Builds and tested scope
 
-The Android guides describe [testing revision 54d4901](https://github.com/somethingsomethinglabs/AuMaNET/commit/54d4901125635a926bd5dadc42719708ba4dca80). The revision is the integrated testing baseline at the time of review. The separate brand refresh is review work.
+The Android guides describe the five-destination interface from [the brand update](https://github.com/somethingsomethinglabs/AuMaNET/pull/19). Builds from [revision 54d4901](https://github.com/somethingsomethinglabs/AuMaNET/commit/54d4901125635a926bd5dadc42719708ba4dca80) use the earlier Group and Network tabs. Check the revision in your review build manifest.
 
 <span id="the-aumanet-app-now"></span>
 
 ## What we are building
 
-The committed app has **Map**, **Messages**, **Voice**, **Group** and **Network** tabs. It includes saved vector map areas, group text and photos, consented shared positions, native group voice and optional shared IPv4 internet. See [Android controls](android-app.md).
+The committed app has **Messages**, **Voice**, **Map**, **People** and **Tools** tabs. It includes saved vector map areas, group text and photos, consented shared positions, native group voice and optional shared IPv4 internet. See [Android controls](android-app.md).
 
 ## Where development stands
 

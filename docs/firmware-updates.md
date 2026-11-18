@@ -1,12 +1,12 @@
 # Firmware updates
 
-On Android, open **Network → Other nodes**, choose the exact named node, then **Firmware updates**. The same flow is available under **Settings → Nodes**. An unverified installed version is shown as **Unavailable**; the app must not infer it from the APK or a filename.
+On Android, open **Tools → Firmware** and choose the exact named node. The group owner’s phone can check releases and install firmware. An unverified installed version is shown as **Unavailable**; the app must not infer it from the APK or a filename.
 
 ## Before installing
 
 Use **Check node status** and inspect installed version/build, running slot, boot health and report age. Select a supported signed package for that exact role, board and layout. Download/verify before pausing the group. Switching release channels does not start an installation.
 
-Stop internet sharing and conflicting radio/connection-test operations. Install one selected node at a time. Fresh boot proofs, owner authorization and supported connected-phone readiness are required by the workflow.
+Stop internet sharing and conflicting radio/connection-test operations. Install one selected node at a time. Review the exact node and package and confirm reliable power before selecting **Install verified package**. Fresh boot proofs, owner authorization and supported connected-phone readiness are required by the workflow.
 
 ## What installation changes
 

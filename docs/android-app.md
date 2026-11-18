@@ -12,14 +12,14 @@ This guide describes the committed testing build. Check [builds and tested scope
 | Map | View saved maps, check positions and open map storage or location settings |
 | Messages | Send text and photos, check delivery and find local conversation history |
 | Voice | Join or leave a call, choose an audio output and manage your microphone |
-| Group | Review members and group controls |
-| Network | Check your phone, node and group connection. Find node, internet and test controls |
+| People | Review group members, nodes and group settings |
+| Tools | Open connection, node, radio, internet, test and app settings |
 
 <span id="the-four-tabs"></span>
 
 ## Start a saved session
 
-Open **Network → Connection details** and check the node, group and saved voice and location choices. Choose **Resume connection** when available. After Stop, expiry or an app-process restart, return here to resume. See [Connect a provisioned node](initial-configuration.md).
+Open **Tools → Connection** and check the node, group and saved voice and location choices. Choose **Resume connection** when available. After Stop, expiry or an app-process restart, return here to resume. See [Connect a provisioned node](initial-configuration.md).
 
 ## Messages and photos
 
@@ -32,7 +32,7 @@ Open a received photo to enlarge it or choose **Save photo**. Android stores sav
 | If you want to | Review |
 | --- | --- |
 | Speak in a voice session | Let Android grant microphone access when requested. Joining, unmuting and leaving are separate actions. |
-| Use your position | Grant the Android location access needed for the feature. Open **Location & privacy** to separately review group sharing. |
+| Use your position | Grant the Android location access needed for the feature. Open the location-status control on **Map** to separately review group sharing. |
 | See alerts | Use the app’s notification settings and grant Android notification permission where prompted. |
 | Use a donor phone’s internet | Choose a donor explicitly. Android may ask for permission to run the app’s VPN connection. |
 

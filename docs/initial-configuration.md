@@ -11,10 +11,10 @@ Power your assigned node and check the group and build details with the person w
 
 ## Open the app
 
-1. Open **Network → Groups & members** and verify the saved group.
-2. Open **Connection details**. Check the selected node and review your saved voice and location choices.
+1. Open **People** and verify the saved group.
+2. Open **Tools → Connection**. Check the selected node and review your saved voice and location choices.
 3. Choose **Resume connection** when available. Stay near the node while the app checks the connection. If the control is missing, check [Fix a connection](troubleshooting.md#wi-fi-is-connected-but-verification-is-waiting).
-4. Wait for group verification. Open **Group** to check the other member. If the app is still waiting, start with [Fix a connection](troubleshooting.md).
+4. Wait for group verification. Open **People** to check the other member. If the app is still waiting, start with [Fix a connection](troubleshooting.md).
 
 Resume may reconnect the group alone, rejoin voice muted, or make push to talk ready, depending on your saved choice. The app shows whether location sharing is enabled for the run. Review the choices before continuing.
 

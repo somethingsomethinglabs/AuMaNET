@@ -7,15 +7,15 @@ Save the area you plan to visit while you have an internet connection. Looking a
 
 ## Prepare coverage
 
-1. Open **Maps & storage** from Map or Settings. Select **Choose area on map**.
+1. Open **Offline maps** from Map or Tools. Select **Choose area on map**.
 2. Tap the map or drag the pin. Set the distance from the pin to the edge of the square and check the preview. A 5 km setting covers a 10 × 10 km square.
 3. Name the area, choose whether to include **Terrain & contours**, then select **Download area**.
-4. In **Maps & storage**, wait for **Available offline**. Downloads can continue in the background. Interrupted or failed downloads offer a retry.
+4. In **Offline maps**, wait for **Available offline**. Downloads can continue in the background. Interrupted or failed downloads offer a retry.
 5. Open the saved area and verify your route and zoom levels with internet off. Each download has a boundary, and the app holds up to four areas.
 
 ## Choose position sharing
 
-Open **Location & privacy** to review position access and consent to share with the group. Check your sharing state before resuming or leaving the app. Tap a member’s map marker for details and look at the reported age and accuracy.
+Open the location-status control on **Map** to review position access and consent to share with the group. Check your sharing state before resuming or leaving the app. Tap a member’s map marker for details and look at the reported age and accuracy.
 
 ## Interpret locations carefully
 

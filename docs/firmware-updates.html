@@ -24,10 +24,10 @@
 <div class="article-column"><main id="main" tabindex="-1">
 <p class="breadcrumb"><a href="handbook.html">Guides</a><span aria-hidden="true">/</span>Maintain or build a node</p>
 <article><h1 id="firmware-updates">Firmware updates</h1>
-<p>On Android, open <strong>Network → Other nodes</strong>, choose the exact named node, then <strong>Firmware updates</strong>. The same flow is available under <strong>Settings → Nodes</strong>. An unverified installed version is shown as <strong>Unavailable</strong>; the app must not infer it from the APK or a filename.</p>
+<p>On Android, open <strong>Tools → Firmware</strong> and choose the exact named node. The group owner’s phone can check releases and install firmware. An unverified installed version is shown as <strong>Unavailable</strong>; the app must not infer it from the APK or a filename.</p>
 <h2 id="section-1"><span id="before-installing">Before installing</span></h2>
 <p>Use <strong>Check node status</strong> and inspect installed version/build, running slot, boot health and report age. Select a supported signed package for that exact role, board and layout. Download/verify before pausing the group. Switching release channels does not start an installation.</p>
-<p>Stop internet sharing and conflicting radio/connection-test operations. Install one selected node at a time. Fresh boot proofs, owner authorization and supported connected-phone readiness are required by the workflow.</p>
+<p>Stop internet sharing and conflicting radio/connection-test operations. Install one selected node at a time. Review the exact node and package and confirm reliable power before selecting <strong>Install verified package</strong>. Fresh boot proofs, owner authorization and supported connected-phone readiness are required by the workflow.</p>
 <h2 id="section-2"><span id="what-installation-changes">What installation changes</span></h2>
 <p>Transfer uses the checked local node Wi-Fi path with authenticated encrypted upload. Only the inactive application slot is written. Application OTA preserves the bootloader, partition layout, retained configuration and credentials; it cannot perform the initial USB migration.</p>
 <p>Success requires fresh signed evidence of the expected running image and boot health. A lost response leads to status reconciliation, not activation replay. Unconfirmed firmware can roll back under the checked boot policy. USB remains necessary for broken bootloader/layout, lost credentials or hardware faults.</p>

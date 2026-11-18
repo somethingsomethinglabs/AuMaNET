@@ -7,7 +7,7 @@ Your group identifies who can exchange messages, voice and shared positions. The
 
 ## Current saved-group workflow
 
-Open **Network → Groups & members** or the **Group** tab to review the saved group. Check it with the person who prepared the setup. Open **Network → Connection details** and review the node and saved sharing choices. Choose **Resume connection** when available. Wait for verification before checking another member’s reachability.
+Open **People** to review the saved group. Check it with the person who prepared the setup. Open **Tools → Connection** and review the node and saved sharing choices. Choose **Resume connection** when available. Wait for verification before checking another member’s reachability.
 
 A node’s Wi-Fi password gets your phone onto the local network. Group access also needs trusted membership. A first-time member should use the enrollment procedure for the exact build supplied by the group’s owner.
 
