@@ -1,6 +1,6 @@
 # Test the connection
 
-Open **Network → Test connection** on both phones. Allow tests on each, select the peer and start from the phone you are carrying. Permission lasts 15 minutes. Arming alone does not pause traffic; Stop ends permission and the current test.
+Open **Tools → Connection tests** on both phones. Allow tests on each, select the peer and start from the phone you are carrying. Permission lasts 15 minutes. Arming alone does not pause traffic; Stop ends permission and the current test.
 
 ## What the test does
 

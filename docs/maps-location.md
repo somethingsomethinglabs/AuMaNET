@@ -1,23 +1,26 @@
-# Offline maps & location
 
-The Android prototype uses real offline map import/rendering and native location services. The older design demo uses illustrative terrain and sample positions. They are different data sources.
+# Offline maps and location
+
+Save the area you plan to visit while you have an internet connection. Looking at your position and sharing it with your group are separate choices.
+
+<span id="offline-maps-amp-location"></span>
 
 ## Prepare coverage
 
-Open **Map → Maps** to manage installed regions. Import the map data supported by the current build before leaving coverage, then verify the intended area with online access unavailable. The local integration notes identify Getlost map import, but the exact supported package formats, size limits, attribution and clean import/export steps still need a versioned user guide.
-
-A stored map does not guarantee that every zoom/region you need is present. Missing coverage must remain visible; it should not be confused with a missing GPS fix.
+1. Open **Offline maps** from Map or Tools. Select **Choose area on map**.
+2. Tap the map or drag the pin. Set the distance from the pin to the edge of the square and check the preview. A 5 km setting covers a 10 × 10 km square.
+3. Name the area, choose whether to include **Terrain & contours**, then select **Download area**.
+4. In **Offline maps**, wait for **Available offline**. Downloads can continue in the background. Interrupted or failed downloads offer a retry.
+5. Open the saved area and verify your route and zoom levels with internet off. Each download has a boundary, and the app holds up to four areas.
 
 ## Choose position sharing
 
-Use **Location & privacy** to choose whether to publish your position to the group. Device permission, obtaining a local fix and consenting to share it are separate. Review reported accuracy and freshness before relying on a marker.
-
-Tap a map marker for the person's summary; tap the visible name for the checked assigned node. If no checked assignment exists, the app shows person details instead. Nearby or coincident positions can make connection lines hard to see.
+Open the location-status control on **Map** to review position access and consent to share with the group. Check your sharing state before resuming or leaving the app. Tap a member’s map marker for details and look at the reported age and accuracy.
 
 ## Interpret locations carefully
 
-Phone coordinates are not an independent measurement of node location. A connection-test distance assumes the phone and node are carried together. Stale, inaccurate or mock fixes need their own context. Sharing an old marker does not prove a currently reachable peer.
+A pin can show a last-known position while the person is out of reach. A phone’s location describes the phone, and a connection test uses phone positions to estimate separation. Check freshness, accuracy and whether each person carried their node when interpreting that result.
 
 ## Remaining work
 
-Publish a reproducible map acquisition/import guide, tested storage limits, attribution/licence instructions, stale-position behavior and native-enforced precision options. Do not promise emergency navigation, live tracking guarantees or a location-precision control that has not shipped. See [diagnostic export privacy](diagnostics.md).
+Storage and performance across phones, map coverage on long trips and sustained field behaviour need wider testing. Keep offline navigation and emergency options appropriate for your trip.

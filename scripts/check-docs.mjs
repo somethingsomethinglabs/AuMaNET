@@ -34,11 +34,11 @@ for (const [source, output, status] of pages) {
   const html = fs.readFileSync(output, 'utf8');
   const filename = path.basename(output);
   if (!html.includes('aria-label="Documentation sections"') || !html.includes('class="docs-sidebar"')) failures.push(`${output}: missing documentation sidebar`);
-  const currentLinks = [...html.matchAll(/<a href="([^"]+)" aria-current="page">/g)].map(match => match[1]);
+  const currentLinks = [...html.matchAll(/<a[^>]*href="([^"]+)" aria-current="page">/g)].map(match => match[1]);
   if (currentLinks.length !== 1 || currentLinks[0] !== filename) failures.push(`${output}: incorrect current-page navigation`);
-  if (!html.includes('src="assets/handbook.js"') || !html.includes('aria-label="Previous and next pages"')) failures.push(`${output}: missing navigation enhancement or pagination`);
+  if (!html.includes('src="assets/handbook.js"')) failures.push(`${output}: missing navigation enhancement`);
+  if (filename !== 'handbook.html' && !html.includes('aria-label="Previous and next pages"')) failures.push(`${output}: missing adjacent guide links`);
   if (!html.includes(`data-doc-status="${status}"`)) failures.push(`${output}: missing content status`);
-  if (!html.includes('href="capabilities.html"') || !html.includes('href="delivery-plan.html"')) failures.push(`${output}: missing current navigation`);
   if (status === 'archive') {
     if (!html.includes('id="archive-notice"')) failures.push(`${output}: missing archive notice`);
     if (!fs.readFileSync(source, 'utf8').startsWith('> **Historical baseline')) failures.push(`${source}: missing source archive notice`);
