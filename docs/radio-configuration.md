@@ -1,20 +1,19 @@
 # Radio channel & width
 
-Use **Tools → Radio settings** on the current group owner's phone. A member may inspect reports but cannot change the group's radio. The field node follows the base node's HaLow channel. Both nodes need compatible firmware.
+Use **Tools → Radio settings** from any connected, approved group phone. The group host checks the nodes and coordinates the change over the authenticated group connection. The field node follows the base node’s HaLow channel. Both nodes need compatible firmware.
 
 ## Read before changing
 
-Refresh status and inspect the reported operating channel, frequency and width. These settings describe the node-to-node HaLow link, not phone Wi-Fi or a voice channel. Unavailable values remain unknown; a configured TX ceiling is not measured radiated output.
+Tap **Refresh radio status** for a fresh reading from both nodes. When reports age, the screen labels the channel as last verified and shows how old the reports are. These settings describe the node-to-node HaLow link. A configured transmit-power ceiling is different from measured radiated power.
 
 Catalog version 1 contains 23 permitted AU operating tuples: twelve at 1 MHz, six at 2 MHz, three at 4 MHz and two at 8 MHz. The available channel list depends on width. The control does not expose arbitrary frequencies, country changes or TX-power changes.
 
 ## Apply a change
 
 1. Stop shared internet and finish any connection test or maintenance operation.
-2. On the owner phone, choose a width, then a permitted channel.
-3. Review the proposed frequency and width, then select **Save proposal**.
-4. Select **Begin bounded trial**. Connected supported phones pause managed calls and transfers and acknowledge readiness.
-5. The base tries the tuple and the station follows. Choose **Commit verified setting** when fresh signed reports from both original node boots confirm the intended state.
+2. Choose a permitted channel and check its frequency and width.
+3. Tap **Apply selected channel**. Connected phones pause managed calls and transfers and acknowledge readiness.
+4. The base tries the setting and the field node follows. The host saves the setting after fresh signed reports from both nodes confirm the trial. The screen reports the outcome after checking both nodes again.
 
 Voice returns muted; interrupted image progress is retained. An uncommitted trial has a 30-second deadline. An unknown persistent-write outcome must be reconciled; rollback in RAM does not prove which persistent record a reboot will load.
 

@@ -6,6 +6,15 @@ function fixture(){let value=snapshot();const calls=[];const bridge={snapshot:as
 test('catalog is actual permitted AU tuple list, not independent width/channel choices',()=>{assert.equal(GATEWAY_RADIO_OPTIONS.length,23);assert.equal(GATEWAY_RADIO_OPTIONS[4].centerFrequencyHz,920000000);assert.deepEqual([...new Set(GATEWAY_RADIO_OPTIONS.map(o=>o.bandwidthMHz))],[1,2,4,8]);assert.throws(()=>parseGatewayRadioSettingsSnapshot(snapshot({options:[{...GATEWAY_RADIO_OPTIONS[4],bandwidthMHz:8}]})));});
 test('strict observations preserve unknown actual and reject invented authority/duplicate roles/unsafe numbers',()=>{assert.equal(parseRadioConfigurations([{...node(),actualOptionId:0}])[0].actualOptionId,0);for(const v of [{...node(),configuredTxPowerDbm:24.5},{...node(),nodeConfigGeneration:'1'},{...node(),verification:'unverified'},{...node(true),persistedOptionId:5}])assert.throws(()=>parseRadioConfigurations([v]));assert.throws(()=>parseRadioConfigurations([node(),{...node(),nodeId:'9'.repeat(32)}]));assert.throws(()=>parseGatewayRadioSettingsSnapshot(snapshot({owner:false,canChange:true})));});
 test('navigation and subscriber polling are cache-only; explicit refresh carries selected scope',async()=>{const f=fixture(),off=f.client.subscribe(()=>{});try{await f.client.snapshot();assert.equal(f.calls.length,0);await f.client.refresh();assert.deepEqual(f.calls,[['refresh',{expectedScope:scope}]]);}finally{off();f.client.setScope(undefined);}});
+test('delegated group radio authority requires a scoped native member view',async()=>{
+ const f=fixture();
+ f.value=snapshot({owner:false,delegated:true});
+ await f.client.apply(1);
+ assert.equal(f.calls[0][1].optionId,1);
+ assert.equal(f.calls[0][1].expectedScope.selfId,scope.selfId);
+ assert.throws(()=>parseGatewayRadioSettingsSnapshot(snapshot({delegated:true})));
+ assert.throws(()=>parseGatewayRadioSettingsSnapshot(snapshot({owner:false,delegated:true,scope:undefined})));
+});
 test('comparison preparation is a separate explicit scoped quiet action and never falls back to an ordinary refresh',async()=>{const f=fixture();await assert.rejects(f.client.prepareComparison());assert.deepEqual(f.calls,[]);f.bridge.prepareComparison=async options=>{f.calls.push(['prepare',options]);return structuredClone(f.value);};await f.client.prepareComparison();assert.deepEqual(f.calls,[['prepare',{expectedScope:scope,acknowledgement:'pause-traffic-and-verify-channels'}]]);});
 test('Apply uses one exact owner checkpoint and stable operation id, no power command',async()=>{const f=fixture();await f.client.apply(22);const o=f.calls[0][1];assert.equal(o.expectedProcessId,processId);assert.equal(o.expectedGatewayRevision,11);assert.equal(o.optionId,22);assert.equal(o.expectedScope.sourceRun,2);assert.match(o.operationId,/^[a-f0-9]{32}$/);assert.equal(o.acknowledgement,'change-halow-channel-and-width');assert.equal(o.power,undefined);await assert.rejects(f.client.apply(23));assert.equal(f.calls.filter(c=>c[0]==='apply').length,1);});
 

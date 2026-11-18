@@ -18,7 +18,7 @@ try{
  if(!await radioPanel.isVisible())await openTool(owner.page,'Radio settings');
  const initial=await call(owner,'AuMaNETRadioSettings');
  await call(owner,'AuMaNETRadioSettings','prepareComparison',{expectedScope:initial.scope,acknowledgement:'pause-traffic-and-verify-channels'});
- await radioPanel.getByText('Fresh associated reports agree',{exact:true}).waitFor({timeout:35000});
+ await radioPanel.getByText('Verified on both nodes.',{exact:true}).waitFor({timeout:35000});
  const before=await call(owner,'AuMaNETRadioSettings');report.before=before.nodes.map(n=>({nodeId:n.nodeId,sourceRun:n.sourceRun,actualOptionId:n.actualOptionId,power:n.configuredTxPowerDbm}));
  if(!before.canChange)throw Error('Native radio change capability unavailable');
  const memberTest=await call(member,'AuMaNETLinkBenchmark');if(!memberTest.armed)await call(member,'AuMaNETLinkBenchmark','arm',{acknowledgement:'arm-link-test-for-15-minutes'});

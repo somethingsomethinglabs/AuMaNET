@@ -239,6 +239,106 @@ final class GroupSession {
     static void publishGatewayRadio(GatewayOwnerAuthority.Scope scope,JSONArray values,java.util.function.BooleanSupplier live){GroupSession source=instance;if(source==null||scope==null||scope.source!=source)return;synchronized(source.lock){try{if(!gatewayOwnerCurrent(scope,true)||!live.getAsBoolean())return;long now=SystemClock.elapsedRealtime();source.radioValues=GroupRadioSignal.checked(values,now,"pinned-node");source.radioAt=now;source.radioGeneration=source.generation;source.radioLive=live;}catch(Exception invalid){source.radioValues=new JSONArray();}}}
     JSONArray radioSignals(){synchronized(lock){try{long now=SystemClock.elapsedRealtime();if(!controlConnected||radioGeneration!=generation||!radioLive.getAsBoolean())return new JSONArray();return GroupRadioSignal.age(radioValues,now-radioAt,now);}catch(Exception invalid){return new JSONArray();}}}
     private JSONArray configurationValues=new JSONArray();private long configurationAt,configurationGeneration=-1;private java.util.function.BooleanSupplier configurationLive=()->false;
+    private GroupRadioControl.Status delegatedRadioStatus;
+    private GroupRadioControl.Pending pendingRadioRequest;
+    private boolean handlingRadioRequest;
+
+    JSONObject delegatedRadioStatus(InternetSharingScope scope) {
+        synchronized(lock) {
+            Peer peer=ownerConnection;
+            return scope!=null&&!scope.self.equals(scope.owner)&&internetCurrent(scope)&&peer!=null&&peer.authorized
+                &&!peer.closed.get()&&delegatedRadioStatus!=null
+                &&delegatedRadioStatus.current(peer,epoch,SystemClock.elapsedRealtime())?delegatedRadioStatus.value:null;
+        }
+    }
+
+    CompletableFuture<String> requestRadio(InternetSharingScope scope,String action,String operationId,int optionId) throws Exception {
+        synchronized(lock) {
+            JSONObject checked=delegatedRadioStatus(scope);
+            if(checked==null||pendingRadioRequest!=null)throw new IllegalStateException("Radio host is unavailable");
+            Peer peer=ownerConnection;
+            GroupRadioControl.Pending pending=new GroupRadioControl.Pending(peer,epoch,GroupWire.random(16));
+            JSONObject request=new JSONObject().put("type",GroupRadioControl.REQUEST).put("requestId",pending.id)
+                .put("action",action).put("operationId",operationId).put("optionId",optionId)
+                .put("checkpoint",checked.getJSONObject("checkpoint"));
+            peer.enqueue(new Outbound(request,"",0),false);
+            pendingRadioRequest=pending;
+            timer.schedule(()->{
+                synchronized(lock) { if(pendingRadioRequest!=pending)return;pendingRadioRequest=null; }
+                pending.reply.complete("RADIO_HOST_NO_REPLY");
+            },GroupRadioControl.REQUEST_MS,TimeUnit.MILLISECONDS);
+            return pending.reply;
+        }
+    }
+
+    private void acceptRadioStatus(Peer peer,JSONObject frame,long frameEpoch) {
+        JSONObject value=frame.optJSONObject("radioControl");
+        if(value==null||value.optInt("version")!=1||frameEpoch!=epoch||peer!=ownerConnection||!peer.authorized||!peer.pin.equals(owner))return;
+        delegatedRadioStatus=new GroupRadioControl.Status(peer,epoch,SystemClock.elapsedRealtime(),value);
+    }
+
+    private void receiveRadioControl(Peer peer,JSONObject frame,String type,long frameEpoch) {
+        if(!peer.authorized||frameEpoch!=epoch||!members.containsKey(peer.pin))return;
+        if(type.equals(GroupRadioControl.REPLY)) {
+            if(peer!=ownerConnection||!peer.pin.equals(owner)||pendingRadioRequest==null||
+               !pendingRadioRequest.matches(peer,epoch,frame.optString("requestId")))return;
+            GroupRadioControl.Pending pending=pendingRadioRequest;
+            pendingRadioRequest=null;
+            acceptRadioStatus(peer,frame,frameEpoch);
+            timer.execute(()->pending.reply.complete(frame.optString("result","RADIO_HOST_NO_REPLY")));
+            return;
+        }
+        Member member=members.get(peer.pin);
+        String requestId=frame.optString("requestId");
+        if(!role.equals("owner")||member.peer!=peer||!member.connected||peer.removalQueued||!GroupWire.id(requestId))return;
+        InternetSharingScope scope=internetScope();
+        if(scope==null)return;
+        if(handlingRadioRequest) {
+            sendRadioReply(peer,requestId,"RADIO_HOST_BUSY",null);
+            return;
+        }
+        handlingRadioRequest=true;
+        timer.execute(()->{
+            String result="RADIO_CHANGE_NOT_ACCEPTED";
+            JSONObject status=null;
+            try {
+                GatewayRadioSettingsController control=GatewayRadioSettingsController.get(applicationContext);
+                result=control.delegatedRequest(scope,peer.pin,frame,()->radioRequesterCurrent(scope,peer));
+                status=control.relayStatus();
+            }catch(Exception ignored) {
+                // The controller distinguishes admission failures from uncertain outcomes.
+            }finally {
+                synchronized(lock) {
+                    handlingRadioRequest=false;
+                    if(radioRequesterCurrent(scope,peer))sendRadioReply(peer,requestId,result,status);
+                }
+            }
+        });
+    }
+
+    private boolean radioRequesterCurrent(InternetSharingScope scope,Peer peer) {
+        synchronized(lock) {
+            Member member=members.get(peer.pin);
+            return internetCurrent(scope)&&member!=null&&member.peer==peer&&member.connected
+                &&peer.authorized&&!peer.closed.get()&&!peer.removalQueued;
+        }
+    }
+
+    private void sendRadioReply(Peer peer,String requestId,String result,JSONObject status) {
+        try {
+            peer.enqueue(new Outbound(new JSONObject().put("type",GroupRadioControl.REPLY).put("requestId",requestId)
+                .put("result",result).put("radioControl",status),"",0),false);
+        }catch(Exception unavailable) { /* The requester will time out without replaying the request. */ }
+    }
+
+    void announceRadioStatus() {
+        synchronized(lock) {
+            if(!role.equals("owner"))return;
+            for(Peer peer:sockets)if(peer.authorized&&!peer.closed.get()&&!peer.removalQueued) {
+                try { peer.enqueue(new Outbound(heartbeat(peer),"",0),false); }catch(Exception ignored) {}
+            }
+        }
+    }
     static void publishRadioConfigurations(GatewayOwnerAuthority.Scope scope,JSONArray values,java.util.function.BooleanSupplier live){GroupSession source=instance;if(source==null||scope==null||scope.source!=source)return;synchronized(source.lock){try{if(!gatewayOwnerCurrent(scope,true)||!live.getAsBoolean())return;long now=SystemClock.elapsedRealtime();source.configurationValues=GroupRadioConfiguration.checked(values,now,"pinned-node");source.configurationAt=now;source.configurationGeneration=source.generation;source.configurationLive=live;}catch(Exception invalid){source.configurationValues=new JSONArray();}}}
     JSONArray radioConfigurations(){synchronized(lock){try{long now=SystemClock.elapsedRealtime();if(!controlConnected||configurationGeneration!=generation||!configurationLive.getAsBoolean())return new JSONArray();return GroupRadioConfiguration.age(configurationValues,now-configurationAt,now);}catch(Exception invalid){return new JSONArray();}}}
     private void receiveRadioConfigurations(Peer peer,JSONObject frame){if(!role.equals("member")||peer!=ownerConnection||!peer.authorized||peer.closed.get()||peer.run!=generation||!peer.pin.equals(owner)||!frame.has("radioConfigurations"))return;try{if(number(frame,"epoch")!=epoch)return;long now=SystemClock.elapsedRealtime();configurationValues=GroupRadioConfiguration.merge(configurationGeneration==generation?configurationValues:new JSONArray(),configurationGeneration==generation?now-configurationAt:0,frame.getJSONArray("radioConfigurations"),now);configurationAt=now;configurationGeneration=generation;configurationLive=()->ownerConnection==peer&&!peer.closed.get()&&peer.authorized&&peer.run==generation&&controlConnected;}catch(Exception invalid){configurationValues=new JSONArray();}}
@@ -372,6 +472,7 @@ final class GroupSession {
     }
     static void onLocationStopped() { TrustedConnectionController.disarmLocationCurrent("location-stopped");GroupSession current = instance; if (current != null) current.denySharingNow(); }
     private final Object lock = new Object();
+    private final Context applicationContext;
     private final GroupIdentity identity;
     private final String process = UUID.randomUUID().toString();
     private final SharedPreferences saved;
@@ -424,6 +525,7 @@ final class GroupSession {
     private int wifiPrefix;
     private ConnectivityManager.NetworkCallback networkCallback;
     private GroupSession(Context context) throws Exception {
+        applicationContext=context;
         identity = new GroupIdentity(); saved = context.getSharedPreferences("aumanet-group-v1", Context.MODE_PRIVATE);
         profilePhotos = new GroupProfilePhotos(context, identity.pin);
         debuggable=(context.getApplicationInfo().flags&ApplicationInfo.FLAG_DEBUGGABLE)!=0;
@@ -942,7 +1044,8 @@ final class GroupSession {
         String type = message.getString("type"); long frameEpoch = number(message,"epoch");
         if(type.equals("radio-maintenance")){receiveMaintenance(peer,message,radioMaintenance);return;}
         if(type.equals("firmware-maintenance")){receiveMaintenance(peer,message,firmwareMaintenance);return;}
-        if (type.equals("heartbeat")){receiveRadio(peer,message);receiveRadioConfigurations(peer,message);receiveInternet(peer,message);receiveLinkBenchmark(peer,message);receiveProfilePhotos(peer,message,frameEpoch);return;}
+        if (type.equals("heartbeat")){receiveRadio(peer,message);receiveRadioConfigurations(peer,message);acceptRadioStatus(peer,message,frameEpoch);receiveInternet(peer,message);receiveLinkBenchmark(peer,message);receiveProfilePhotos(peer,message,frameEpoch);return;}
+        if(type.equals(GroupRadioControl.REQUEST)||type.equals(GroupRadioControl.REPLY)){receiveRadioControl(peer,message,type,frameEpoch);return;}
         if (role.equals("owner")) {
             if (!peer.authorized || !members.containsKey(peer.pin)) throw new IllegalArgumentException("Member is not approved");
             boolean closingPrivacy=type.equals("withdraw")||type.equals("presence")&&!message.optBoolean("joined",true);
@@ -1159,6 +1262,10 @@ final class GroupSession {
         void write(JSONObject body)throws Exception{write(new Outbound(body,"",0));}
         void write(Outbound outgoing)throws Exception{if(!GroupFirmwareMaintenanceCapability.outbound(outgoing.body.optString("type"),firmwareMaintenanceVersion))return;if(closed.get())throw new IllegalStateException("Local peer disconnected");if(outgoing.textGrant!=null&&(LinkBenchmarkTraffic.active()||!messageGrantLive(outgoing.textGrant)||!outgoing.textLive.getAsBoolean()||textVersion!=1))return;if("signal".equals(outgoing.body.optString("type"))&&!GroupVoiceCohort.accepts(voiceRevision,outgoing.frameVoiceRevision))return;
             JSONObject export=radioExport(durableMessages.filterMessageFrame(outgoing.body));long nextSequence=sendSequence+1;JSONObject frame=new JSONObject(export.toString()).put("schema","aumanet.group.frame.v2").put("groupId",groupId).put("connectionId",connection).put("epoch",outgoing.frameEpoch).put("voiceRevision",outgoing.frameVoiceRevision).put("seq",nextSequence);
+            if(inboundSocket&&authorized&&"heartbeat".equals(outgoing.body.optString("type")))try {
+                JSONObject status=GatewayRadioSettingsController.get(applicationContext).relayStatus();
+                if(status!=null&&status.getLong("epoch")==outgoing.frameEpoch)frame.put("radioControl",status);
+            }catch(Exception unavailable) { /* A status read must never interrupt group transport. */ }
             // Preparation may be cancelled. Only an actual write attempt consumes a transport sequence.
             String encoded=frame.toString();if(outgoing.textGrant!=null&&(LinkBenchmarkTraffic.active()||!messageGrantLive(outgoing.textGrant)||!outgoing.textLive.getAsBoolean()||textVersion!=1))return;JSONObject finalExport=radioExport(durableMessages.filterMessageFrame(outgoing.body));if(finalExport!=export){if(finalExport.optString("type").equals("heartbeat")){if(finalExport.has("radioSignals"))frame.put("radioSignals",finalExport.getJSONArray("radioSignals"));if(finalExport.has("radioConfigurations"))frame.put("radioConfigurations",finalExport.getJSONArray("radioConfigurations"));frame.put("internetSharing",finalExport.getJSONArray("internetSharing"));frame.put("linkBenchmarks",finalExport.getJSONArray("linkBenchmarks"));}else frame.put("payload",finalExport.getJSONObject("payload"));encoded=frame.toString();}if(!GroupFirmwareMaintenanceCapability.outbound(outgoing.body.optString("type"),firmwareMaintenanceVersion))return;
             if (removalQueued && !GroupProfilePhotos.MEMBERSHIP_REMOVED.equals(outgoing.body.optString("type"))) return;
