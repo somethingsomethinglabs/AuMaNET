@@ -58,6 +58,7 @@ jobs:
             sleep 1
           done
           npm run web:test:ui
+          node dev/tests/offline-area-browser.mjs
           node dev/tests/bandwidth-scenario-browser-verification.mjs
   app:
     runs-on: ubuntu-latest

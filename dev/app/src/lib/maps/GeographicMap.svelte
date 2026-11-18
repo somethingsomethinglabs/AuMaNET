@@ -1,3 +1,10 @@
+<script module lang="ts">
+  import {Capacitor,registerPlugin} from '@capacitor/core';
+  import type {Position} from './format';
+
+  const navigation=registerPlugin<{openDestination(point:Pick<Position,'latitude'|'longitude'>):Promise<void>}>('AuMaNETMapNavigation');
+</script>
+
 <script lang="ts">
   import {appearance} from '../appearance';
   import {mapAppearance,connectionAppearance} from './vector/appearance';
@@ -40,9 +47,9 @@
     vector.jumpTo({center:[center.lng,center.lat],zoom:map.getZoom()-1});
     onbasemap(region?offlineCoverageLabel(bounds,visible.map(area=>area.bounds),visible.length===1?region.name:undefined):local?offlineCoverageLabel(bounds,[manifest.bounds as MapBounds],'Outdoor map'):'Online map · Internet required');
   }
-  import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup,Rectangle,Marker,DivIcon} from 'leaflet';
+  import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup,Rectangle,Marker,DivIcon,type LatLng} from 'leaflet';
   import 'leaflet/styles.css';
-  import type {Position,MapMember} from './format';
+  import type {MapMember} from './format';
   import {freshGroupPositions,validPosition,MapNavigationView} from './map-view';
   import type {MapConnection} from './connections';
   export let fix:Position|undefined=undefined;
@@ -119,9 +126,83 @@
   export function zoomOut(){interact();map?.zoomOut();}
   export function focusPosition(p:Position){interact();if(valid(p))map?.setView([p.latitude,p.longitude],Math.max(map?.getZoom()??0,14),{animate:false});}
   export function fitMembers(){interact();framePositions();}
-  onMount(()=>{let stopped=false,loading=false;const client=nativeVectorMaps();const refresh=async()=>{if(!client||loading)return;loading=true;try{const state=await client.snapshot();if(!stopped)regions=state.regions;}catch{}finally{loading=false;}};void refresh();const poll=setInterval(()=>void refresh(),5000);startVector();map=new LeafletMap(container,{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:18,scrollWheelZoom:true,zoomAnimation:false,fadeAnimation:false});map.createPane('connections').style.zIndex='350';map.createPane('offline-area').style.zIndex='390';map.on('click',event=>{if((event.originalEvent?.target as Element)?.closest('.leaflet-interactive,.leaflet-tooltip,.leaflet-marker-icon'))return;const point={latitude:event.latlng.lat,longitude:event.latlng.lng};if(areaSelection){if(!areaLocked)onareapin?.(point);return;}const text=document.createElement('div');text.textContent=`${event.latlng.lat.toFixed(6)}, ${event.latlng.lng.toFixed(6)}`;text.setAttribute('aria-label','Pinned coordinates');if(onofflinepick){const button=document.createElement('button');button.textContent='Save this area offline';button.className='pin-save-area';button.addEventListener('click',()=>{map?.closePopup();onofflinepick?.(point);});text.append(document.createElement('br'),button);}new Popup({autoPanPaddingTopLeft:[16,104],autoPanPaddingBottomRight:[72,104]}).setLatLng(event.latlng).setContent(text).openOn(map!);});map.on('dragstart',interact);map.on('move zoom',syncVector);map.on('moveend zoomend',reportCoverage);const first=freshGroupPositions(fix,ageMs,active,members)[0];map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);syncConnections();syncMarkers();syncArea();defaultView();const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();reportCoverage();});observer.observe(container);container.addEventListener('pointerdown',interact);container.addEventListener('wheel',interact,{passive:true});container.addEventListener('keydown',interact);return()=>{stopped=true;clearInterval(poll);container.removeEventListener('pointerdown',interact);container.removeEventListener('wheel',interact);container.removeEventListener('keydown',interact);observer.disconnect();vector?.remove();vector=undefined;protocols?.close();map?.remove();map=undefined;markers.clear();connectionLines.clear();};});
+  function openPin(event:{latlng:LatLng;originalEvent:Event}){
+    if(!map||(event.originalEvent?.target as Element)?.closest('.leaflet-interactive,.leaflet-tooltip,.leaflet-marker-icon'))return;
+    const {lat,lng}=map.wrapLatLng(event.latlng);
+    const point={latitude:lat,longitude:lng};
+    if(areaSelection){
+      if(!areaLocked)onareapin?.(point);
+      return;
+    }
+
+    const content=document.createElement('div');
+    const coordinates=document.createElement('div');
+    const latitude=lat.toFixed(6),longitude=lng.toFixed(6);
+    coordinates.textContent=`${latitude}, ${longitude}`;
+    coordinates.setAttribute('aria-label','Pinned coordinates');
+    const actions=document.createElement('div');
+    actions.className='map-pin-actions';
+    content.append(coordinates,actions);
+    const popup=new Popup({autoPanPaddingTopLeft:[16,104],autoPanPaddingBottomRight:[72,104]})
+      .setLatLng(event.latlng).setContent(content);
+
+    if(onofflinepick){
+      const save=document.createElement('button');
+      save.type='button';
+      save.textContent='Save this area offline';
+      save.className='map-pin-action pin-save-area';
+      save.addEventListener('click',()=>{
+        map?.closePopup();
+        onofflinepick?.(point);
+      });
+      actions.append(save);
+    }
+
+    if(Capacitor.getPlatform()==='android'){
+      const open=document.createElement('button');
+      open.type='button';
+      open.className='map-pin-action';
+      open.textContent='Open in navigation';
+      const status=document.createElement('div');
+      status.className='map-pin-status';
+      status.setAttribute('role','status');
+      open.addEventListener('click',async()=>{
+        open.disabled=true;
+        status.textContent='';
+        try{
+          await navigation.openDestination(point);
+        }catch(error){
+          status.textContent=(error as {code?:string})?.code==='NO_MAP_APP'
+            ?'No compatible map app is installed.'
+            :'Could not open a map app.';
+          popup.update();
+        }finally{
+          open.disabled=false;
+        }
+      });
+      actions.append(open);
+      content.append(status);
+    }else{
+      const open=document.createElement('a');
+      open.className='map-pin-action';
+      open.textContent='Open in navigation';
+      open.href='https://www.google.com/maps/dir/?'+new URLSearchParams({api:'1',destination:`${latitude},${longitude}`});
+      open.target='_blank';
+      open.rel='noreferrer';
+      actions.append(open);
+    }
+
+    popup.openOn(map);
+  }
+  onMount(()=>{let stopped=false,loading=false;const client=nativeVectorMaps();const refresh=async()=>{if(!client||loading)return;loading=true;try{const state=await client.snapshot();if(!stopped)regions=state.regions;}catch{}finally{loading=false;}};void refresh();const poll=setInterval(()=>void refresh(),5000);startVector();map=new LeafletMap(container,{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:18,scrollWheelZoom:true,zoomAnimation:false,fadeAnimation:false});map.createPane('connections').style.zIndex='350';map.createPane('offline-area').style.zIndex='390';map.on('click',openPin);map.on('dragstart',interact);map.on('move zoom',syncVector);map.on('moveend zoomend',reportCoverage);const first=freshGroupPositions(fix,ageMs,active,members)[0];map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);syncConnections();syncMarkers();syncArea();defaultView();const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();reportCoverage();});observer.observe(container);container.addEventListener('pointerdown',interact);container.addEventListener('wheel',interact,{passive:true});container.addEventListener('keydown',interact);return()=>{stopped=true;clearInterval(poll);container.removeEventListener('pointerdown',interact);container.removeEventListener('wheel',interact);container.removeEventListener('keydown',interact);observer.disconnect();vector?.remove();vector=undefined;protocols?.close();map?.remove();map=undefined;markers.clear();connectionLines.clear();};});
 </script>
 <div class="vector-background" bind:this={vectorContainer} aria-hidden="true"></div>
 <div class="geographic-map" bind:this={container} aria-label="Geographic map and group positions"></div>
 <dialog bind:this={detailDialog} aria-label="Connection signal" class="signal-detail"><button class="close-signal" onclick={()=>detailDialog.close()} aria-label="Close connection signal">Close</button>{#if connectionDetail}<h3>{connectionDetail.from.name} ↔ {connectionDetail.to.name}</h3><strong>{connectionDetail.strength}</strong><p>{connectionDetail.detail}</p>{/if}</dialog>
-<style>.vector-background,.geographic-map{position:absolute;inset:0;height:100%;min-height:0}.geographic-map{background:transparent!important}.signal-detail{max-width:420px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:22px;padding:22px;background:var(--card);color:var(--ink);box-shadow:0 12px 60px #0003}.signal-detail::backdrop{background:var(--scrim)}.signal-detail p{font-size:0.8125rem;line-height:1.6}.close-signal{float:right;border:0;background:transparent;color:inherit;min-height:44px;padding:8px}.signal-detail h3{font-size:1.125rem;clear:both}:global(.offline-area-pin){display:block;box-sizing:border-box;width:27px;height:27px;border:3px solid var(--raised);border-radius:50% 50% 50% 0;background:var(--accent);transform:rotate(-45deg);box-shadow:0 2px 7px #0004}:global(.pin-save-area){min-height:36px;margin-top:5px;border:0;border-radius:8px;padding:6px 10px;background:var(--green);color:var(--on-action);font:inherit;font-weight:700}:global(.leaflet-tooltip){font-family:inherit;border-radius:8px;color:var(--ink);background:var(--raised);border:1px solid var(--control-line);font-weight:700}:global(.leaflet-control-container){display:none}</style>
+<style>.vector-background,.geographic-map{position:absolute;inset:0;height:100%;min-height:0}.geographic-map{background:transparent!important}.signal-detail{max-width:420px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:22px;padding:22px;background:var(--card);color:var(--ink);box-shadow:0 12px 60px #0003}.signal-detail::backdrop{background:var(--scrim)}.signal-detail p{font-size:0.8125rem;line-height:1.6}.close-signal{float:right;border:0;background:transparent;color:inherit;min-height:44px;padding:8px}.signal-detail h3{font-size:1.125rem;clear:both}:global(.offline-area-pin){display:block;box-sizing:border-box;width:27px;height:27px;border:3px solid var(--raised);border-radius:50% 50% 50% 0;background:var(--accent);transform:rotate(-45deg);box-shadow:0 2px 7px #0004}
+:global(.map-pin-actions){display:grid;gap:5px;margin-top:5px}
+:global(.leaflet-popup-content .map-pin-action){display:grid;place-items:center;min-height:44px;border:1px solid var(--control-line);border-radius:8px;padding:6px 10px;background:var(--raised);color:var(--ink);font:inherit;font-weight:700;text-decoration:none}
+:global(.leaflet-popup-content .pin-save-area){background:var(--green);color:var(--on-action);border-color:transparent}
+:global(.map-pin-status){max-width:175px}
+:global(.map-pin-status:not(:empty)){margin-top:5px}
+:global(.leaflet-tooltip){font-family:inherit;border-radius:8px;color:var(--ink);background:var(--raised);border:1px solid var(--control-line);font-weight:700}:global(.leaflet-control-container){display:none}</style>
