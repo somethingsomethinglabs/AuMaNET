@@ -60,5 +60,22 @@ public final class GatewayRadioOperationTest {
   try{wrongBoot.refreshReports();}catch(GatewayRadioQueryPolicy.InvalidReadback expected){invalid=true;}
   check(invalid&&wrongBoot.queries==1);
  }
- public static void main(String[] args)throws Exception{success();peerTransportBarrier();rebootedRollbackReadback();preflightReadRetries();manualReadbackRetries();postCommitRetry();postCommitBoundaries();lostTrialAndCommit();wrongB();stop();unknownCommit();storageBeforeMutation();reassociationRetry();nonceAge();generationZeroRollback();bridgeOutcomeTruth();retainedFreshnessWait();recoveredProofDuringException();retainedWaitStops();lateFreshReadback();journal();System.out.println(new JSONObject().put("status","pass").put("testCount",count).put("assertionCount",assertions));}
+ static void explicitTrialConsent()throws Exception{
+  count++;
+  for(int mode=0;mode<5;mode++){
+   GatewayRadioOperationHarness h=setup();GatewayRadioOperationHarness.Operation operation=h.active.get();operation.manualCommit=true;
+   Thread worker=new Thread(h::run);worker.start();long until=System.nanoTime()+2000000000L;
+   while(System.nanoTime()<until&&!h.state.equals("awaiting-commit")){h.sequence.get();Thread.sleep(5);}
+   check(h.state.equals("awaiting-commit")&&h.trials==1&&h.commits==0);Thread.sleep(70);check(h.commits==0);
+   if(mode==1)SystemClock.now+=30000;
+   if(mode==2)operation.cancelled.set(true);
+   if(mode==3)h.allowed=false;
+   if(mode==4)h.wrongB=true;
+   if(mode==0||mode==3||mode==4)operation.commitAuthorized.set(true);
+   worker.join(2000);if(worker.isAlive()){operation.cancelled.set(true);worker.interrupt();worker.join();throw new AssertionError("Unbounded explicit radio trial");}
+   check(mode==0?h.state.equals("applied")&&h.commits==1&&h.queries==4:h.state.equals("unknown")&&h.commits==0&&h.unresolved!=null);
+   check(h.quietClosed==1&&h.active.get()==null);
+  }
+ }
+ public static void main(String[] args)throws Exception{explicitTrialConsent();success();peerTransportBarrier();rebootedRollbackReadback();preflightReadRetries();manualReadbackRetries();postCommitRetry();postCommitBoundaries();lostTrialAndCommit();wrongB();stop();unknownCommit();storageBeforeMutation();reassociationRetry();nonceAge();generationZeroRollback();bridgeOutcomeTruth();retainedFreshnessWait();recoveredProofDuringException();retainedWaitStops();lateFreshReadback();journal();System.out.println(new JSONObject().put("status","pass").put("testCount",count).put("assertionCount",assertions));}
 }

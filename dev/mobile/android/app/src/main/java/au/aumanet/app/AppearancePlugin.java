@@ -16,7 +16,16 @@ public final class AppearancePlugin extends Plugin {
     private String barTheme="Light",surfaceToken;
     private boolean surfaceDark;
     private long surfaceOperation=-1;
-    private void applyBars(AppearancePreferences.State state){android.app.Activity activity=getActivity();if(activity==null)return;activity.runOnUiThread(()->{if(destroyed)return;barTheme=state.theme;DisplayBars.apply(activity,surfaceToken==null?barTheme.equals("Dark"):surfaceDark);});}
+    private void applyBars(AppearancePreferences.State state){android.app.Activity activity=getActivity();if(activity==null)return;activity.runOnUiThread(()->{if(destroyed)return;barTheme=state.theme;DisplayBars.theme(activity,barTheme.equals("Dark"));DisplayBars.apply(activity,surfaceToken==null?barTheme.equals("Dark"):surfaceDark);});}
+    /** Bounded read of the display-only record before WebView creation. Never
+     * repairs or rewrites storage, and never opens identities or session data. */
+    static boolean bootDark(android.content.Context context){synchronized(FILE_LOCK){try{
+        AtomicFile file=new AtomicFile(new File(context.getNoBackupFilesDir(),"aumanet-appearance-v1.json"));
+        if(!file.getBaseFile().exists()&&!new File(file.getBaseFile().getPath()+".bak").exists())return false;
+        byte[] raw;try(InputStream in=file.openRead();ByteArrayOutputStream bytes=new ByteArrayOutputStream()){byte[] buffer=new byte[1024];int n;while((n=in.read(buffer))!=-1){if(bytes.size()+n>AppearancePreferences.MAX_BYTES)return false;bytes.write(buffer,0,n);}raw=bytes.toByteArray();}
+        final byte[] record=raw;AppearancePreferences checked=new AppearancePreferences(new AppearancePreferences.Storage(){public byte[] read(){return record;}public void write(byte[] value){throw new UnsupportedOperationException();}});
+        AppearancePreferences.State state=checked.load();return "saved".equals(state.storage)&&"Dark".equals(state.theme);
+    }catch(Exception unavailable){return false;}}}
     private interface Operation {AppearancePreferences.State run(AppearancePreferences store)throws Exception;}
     private AppearancePreferences store()throws Exception{
         if(preferences!=null)return preferences;

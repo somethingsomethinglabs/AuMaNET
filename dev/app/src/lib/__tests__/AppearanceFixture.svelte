@@ -21,3 +21,5 @@
   </main>
   <nav aria-label="Appearance fixture navigation">{#each tabs as name}<button class:active={tab===name} onclick={()=>tab=name}>{name}</button>{/each}</nav>
 </div>
+
+<style>header{padding:12px 16px;flex:none}header p{display:none}.brandline a{display:flex;align-items:center;gap:10px}.brand-logo{width:32px;height:32px}main:has(:global(.map-surface)){position:relative;display:flex;overflow:hidden}</style>

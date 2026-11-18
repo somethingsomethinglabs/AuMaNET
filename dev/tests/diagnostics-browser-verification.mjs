@@ -5,7 +5,7 @@ const browser=await chromium.launch({headless:true});
 const page=await browser.newPage({viewport:{width:360,height:800},acceptDownloads:true});
 const errors=[];page.on('pageerror',error=>errors.push(error.message));
 const preview=()=>page.getByRole('textbox',{name:/Reviewed JSON/});
-const collect=()=>page.getByRole('button',{name:'Collect report',exact:true});
+const collect=()=>page.getByRole('button',{name:'Collect snapshot',exact:true});
 const refresh=()=>page.getByRole('button',{name:'Refresh report',exact:true});
 let checks=0;
 try{
@@ -13,7 +13,7 @@ try{
   await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5181/');
   await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
   await page.evaluate(async()=>await import('/src/lib/__tests__/diagnostics-fixture.svelte.ts'));
-  await page.getByRole('heading',{name:'Diagnostics & about',exact:true}).waitFor();
+  await page.getByRole('heading',{name:'Exact report preview',exact:true}).waitFor();
   assert.deepEqual(await page.evaluate(()=>window.__diagnosticsFixture.calls),[]);checks++;
   await collect().click();await preview().waitFor();const initial=await preview().inputValue();
   assert.equal(JSON.parse(initial).evidence,'fixture');await page.getByText(/Fixture report — supplied test data/).waitFor();
@@ -33,7 +33,7 @@ try{
   const scaled=await page.evaluate(()=>({width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));assert.ok(scaled.scroll<=scaled.width+1,JSON.stringify(scaled));checks++;
   await page.getByRole('button',{name:'Clear report',exact:true}).click();assert.equal(await preview().count(),0);assert.equal(await page.evaluate(()=>window.__diagnosticsFixture.revoked.length),2);checks++;
   await collect().click();await preview().waitFor();assert.equal(await page.evaluate(()=>window.__diagnosticsFixture.created.length),3);
-  await page.getByRole('button',{name:'Unmount diagnostics fixture',exact:true}).click();await page.getByRole('heading',{name:'Diagnostics & about',exact:true}).waitFor({state:'detached'});assert.equal(await page.evaluate(()=>window.__diagnosticsFixture.revoked.length),3);checks++;
+  await page.getByRole('button',{name:'Unmount diagnostics fixture',exact:true}).click();await page.getByRole('heading',{name:'Exact report preview',exact:true}).waitFor({state:'detached'});assert.equal(await page.evaluate(()=>window.__diagnosticsFixture.revoked.length),3);checks++;
   assert.deepEqual(await page.evaluate(()=>window.__diagnosticsFixture.calls),['metadata.snapshot','metadata.snapshot','metadata.snapshot']);assert.deepEqual(errors,[]);checks++;
   console.log(`Diagnostics browser fixture PASS (${checks} checks; fixture data only, no device acceptance).`);
 }finally{await page.evaluate(async()=>{await window.__diagnosticsFixture?.destroy();}).catch(()=>{});await browser.close();}

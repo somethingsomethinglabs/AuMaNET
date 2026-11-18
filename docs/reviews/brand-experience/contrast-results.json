@@ -1,0 +1,377 @@
+{
+  "normative": [
+    {
+      "foreground": "text",
+      "background": "canvas",
+      "minimum": 4.5,
+      "ratio": 13.32,
+      "recomputed": 13.32
+    },
+    {
+      "foreground": "text",
+      "background": "surface",
+      "minimum": 4.5,
+      "ratio": 11.43,
+      "recomputed": 11.43
+    },
+    {
+      "foreground": "text",
+      "background": "raised",
+      "minimum": 4.5,
+      "ratio": 9.63,
+      "recomputed": 9.63
+    },
+    {
+      "foreground": "text",
+      "background": "field",
+      "minimum": 4.5,
+      "ratio": 13.82,
+      "recomputed": 13.82
+    },
+    {
+      "foreground": "text",
+      "background": "outbound",
+      "minimum": 4.5,
+      "ratio": 8.24,
+      "recomputed": 8.24
+    },
+    {
+      "foreground": "secondary",
+      "background": "canvas",
+      "minimum": 4.5,
+      "ratio": 8.66,
+      "recomputed": 8.66
+    },
+    {
+      "foreground": "secondary",
+      "background": "surface",
+      "minimum": 4.5,
+      "ratio": 7.43,
+      "recomputed": 7.43
+    },
+    {
+      "foreground": "secondary",
+      "background": "raised",
+      "minimum": 4.5,
+      "ratio": 6.26,
+      "recomputed": 6.26
+    },
+    {
+      "foreground": "secondary",
+      "background": "outbound",
+      "minimum": 4.5,
+      "ratio": 5.36,
+      "recomputed": 5.36
+    },
+    {
+      "foreground": "accent",
+      "background": "selection",
+      "minimum": 4.5,
+      "ratio": 7.49,
+      "recomputed": 7.49
+    },
+    {
+      "foreground": "onAction",
+      "background": "action",
+      "minimum": 4.5,
+      "ratio": 9.5,
+      "recomputed": 9.5
+    },
+    {
+      "foreground": "onAction",
+      "background": "pressed",
+      "minimum": 4.5,
+      "ratio": 7.95,
+      "recomputed": 7.95
+    },
+    {
+      "foreground": "outline",
+      "background": "surface",
+      "minimum": 3,
+      "ratio": 3.92,
+      "recomputed": 3.92
+    },
+    {
+      "foreground": "outline",
+      "background": "raised",
+      "minimum": 3,
+      "ratio": 3.3,
+      "recomputed": 3.3
+    },
+    {
+      "foreground": "outline",
+      "background": "field",
+      "minimum": 3,
+      "ratio": 4.74,
+      "recomputed": 4.74
+    },
+    {
+      "foreground": "focus",
+      "background": "surface",
+      "minimum": 3,
+      "ratio": 10.22,
+      "recomputed": 10.22
+    },
+    {
+      "foreground": "focus",
+      "background": "onAction",
+      "minimum": 3,
+      "ratio": 12.1,
+      "recomputed": 12.1
+    },
+    {
+      "foreground": "success",
+      "background": "successFill",
+      "minimum": 4.5,
+      "ratio": 6.44,
+      "recomputed": 6.44
+    },
+    {
+      "foreground": "pending",
+      "background": "pendingFill",
+      "minimum": 4.5,
+      "ratio": 7.64,
+      "recomputed": 7.64
+    },
+    {
+      "foreground": "error",
+      "background": "errorFill",
+      "minimum": 4.5,
+      "ratio": 7.44,
+      "recomputed": 7.44
+    },
+    {
+      "foreground": "unknown",
+      "background": "unknownFill",
+      "minimum": 4.5,
+      "ratio": 7.43,
+      "recomputed": 7.43
+    },
+    {
+      "foreground": "text",
+      "background": "session",
+      "minimum": 4.5,
+      "ratio": 13.95,
+      "recomputed": 13.95
+    },
+    {
+      "foreground": "blue",
+      "background": "blueFill",
+      "minimum": 4.5,
+      "ratio": 7.02,
+      "recomputed": 7.02
+    },
+    {
+      "foreground": "rust",
+      "background": "rustFill",
+      "minimum": 4.5,
+      "ratio": 6.39,
+      "recomputed": 6.39
+    },
+    {
+      "foreground": "sand",
+      "background": "sandFill",
+      "minimum": 4.5,
+      "ratio": 8.04,
+      "recomputed": 8.04
+    },
+    {
+      "foreground": "mapLabel",
+      "background": "mapLand",
+      "minimum": 4.5,
+      "ratio": 10.9,
+      "recomputed": 10.9
+    },
+    {
+      "foreground": "mapLabel",
+      "background": "mapForest",
+      "minimum": 4.5,
+      "ratio": 8.53,
+      "recomputed": 8.53
+    },
+    {
+      "foreground": "mapLabel",
+      "background": "mapWater",
+      "minimum": 4.5,
+      "ratio": 5.6,
+      "recomputed": 5.6
+    },
+    {
+      "foreground": "mapRoute",
+      "background": "mapLand",
+      "minimum": 3,
+      "ratio": 8.18,
+      "recomputed": 8.18
+    },
+    {
+      "foreground": "mapRoute",
+      "background": "mapForest",
+      "minimum": 3,
+      "ratio": 6.4,
+      "recomputed": 6.4
+    },
+    {
+      "foreground": "disabledText",
+      "background": "disabledFill",
+      "minimum": 4.5,
+      "ratio": 4.9,
+      "recomputed": 4.9
+    },
+    {
+      "foreground": "focus",
+      "background": "canvas",
+      "minimum": 3,
+      "ratio": 11.91,
+      "recomputed": 11.91
+    },
+    {
+      "foreground": "focus",
+      "background": "raised",
+      "minimum": 3,
+      "ratio": 8.61,
+      "recomputed": 8.61
+    },
+    {
+      "foreground": "focus",
+      "background": "selection",
+      "minimum": 3,
+      "ratio": 7.97,
+      "recomputed": 7.97
+    },
+    {
+      "foreground": "focus",
+      "background": "outbound",
+      "minimum": 3,
+      "ratio": 7.37,
+      "recomputed": 7.37
+    },
+    {
+      "foreground": "action",
+      "background": "raised",
+      "minimum": 3,
+      "ratio": 6.76,
+      "recomputed": 6.76
+    },
+    {
+      "foreground": "outline",
+      "background": "canvas",
+      "minimum": 3,
+      "ratio": 4.57,
+      "recomputed": 4.57
+    },
+    {
+      "foreground": "accent",
+      "background": "session",
+      "minimum": 4.5,
+      "ratio": 11.73,
+      "recomputed": 11.73
+    },
+    {
+      "foreground": "secondary",
+      "background": "session",
+      "minimum": 4.5,
+      "ratio": 9.07,
+      "recomputed": 9.07
+    },
+    {
+      "foreground": "mapRoute",
+      "background": "mapWater",
+      "minimum": 3,
+      "ratio": 4.2,
+      "recomputed": 4.2
+    },
+    {
+      "foreground": "onAction",
+      "background": "accent",
+      "minimum": 4.5,
+      "ratio": 11.38,
+      "recomputed": 11.38
+    }
+  ],
+  "results": [
+    {
+      "label": "Light Messages",
+      "count": 25,
+      "minimum": 4.62,
+      "failures": []
+    },
+    {
+      "label": "Light Voice",
+      "count": 21,
+      "minimum": 4.62,
+      "failures": []
+    },
+    {
+      "label": "Light Map",
+      "count": 19,
+      "minimum": 5.36,
+      "failures": []
+    },
+    {
+      "label": "Light People",
+      "count": 24,
+      "minimum": 4.62,
+      "failures": []
+    },
+    {
+      "label": "Light Tools",
+      "count": 23,
+      "minimum": 4.87,
+      "failures": []
+    },
+    {
+      "label": "Light Settings",
+      "count": 19,
+      "minimum": 4.87,
+      "failures": []
+    },
+    {
+      "label": "Light sheet",
+      "count": 11,
+      "minimum": 5.36,
+      "failures": []
+    },
+    {
+      "label": "Dark Messages",
+      "count": 25,
+      "minimum": 6.39,
+      "failures": []
+    },
+    {
+      "label": "Dark Voice",
+      "count": 21,
+      "minimum": 6.26,
+      "failures": []
+    },
+    {
+      "label": "Dark Map",
+      "count": 19,
+      "minimum": 6.26,
+      "failures": []
+    },
+    {
+      "label": "Dark People",
+      "count": 24,
+      "minimum": 6.26,
+      "failures": []
+    },
+    {
+      "label": "Dark Tools",
+      "count": 23,
+      "minimum": 7.43,
+      "failures": []
+    },
+    {
+      "label": "Dark Settings",
+      "count": 19,
+      "minimum": 7.43,
+      "failures": []
+    },
+    {
+      "label": "Dark sheet",
+      "count": 11,
+      "minimum": 6.26,
+      "failures": []
+    }
+  ]
+}

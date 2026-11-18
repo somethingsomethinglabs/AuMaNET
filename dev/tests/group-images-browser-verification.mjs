@@ -38,7 +38,7 @@ try{
   await page.waitForFunction(()=>document.querySelectorAll('.image-message img').length===2);
   await page.getByRole('button',{name:'Conversation settings',exact:true}).click();
   await page.screenshot({path:`${output}/conversation-settings.png`,fullPage:true});
-  await page.getByRole('checkbox',{name:'Share future messages with new members'}).check();
+  await page.getByRole('checkbox',{name:'Future new-member history'}).check();
   await page.waitForFunction(()=>window.__groupMessagesFixture.state.historySharing.shareWithNewMembers);
   await page.getByRole('button',{name:'Close',exact:true}).click();
   await page.evaluate(()=>window.__groupMessagesFixture.pauseDelivery());

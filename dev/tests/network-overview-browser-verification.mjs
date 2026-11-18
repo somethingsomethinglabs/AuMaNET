@@ -1,90 +1,16 @@
+// Actual shell and read-only native snapshots. No device or transport acceptance.
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
-const output=process.env.AUMANET_NETWORK_OUTPUT??'output/playwright/network-overview';await mkdir(output,{recursive:true});
-const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
-page.on('pageerror',error=>errors.push(error.message));
-const result={status:'running',scope:'Actual ConnectedApp with synthetic native readbacks; no physical network acceptance',checks:[]};
-const check=name=>result.checks.push(name);
-const fixture=fn=>page.evaluate(fn);
-const overview=page.locator('.network-overview');
-const headline=text=>overview.getByRole('heading',{name:text,exact:true}).waitFor();
-const details=page.getByRole('dialog',{name:'Connection details',exact:true});
-const openDetails=()=>overview.getByRole('button',{name:'Connection details',exact:true}).click();
-const closeDetails=()=>details.getByRole('button',{name:'Close node connection',exact:true}).click();
+import {openConnection,openTool,openSavedConnection} from './ui-navigation.mjs';
+const output='output/playwright/network-overview';await mkdir(output,{recursive:true});const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));const fixture=(fn,arg)=>page.evaluate(fn,arg),summary=()=>page.getByRole('region',{name:'Your connection',exact:true});
 try{
-  await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5181/');await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
-  await page.evaluate(()=>import('/src/lib/__tests__/network-overview-fixture.svelte.ts'));
-  await headline('Connected');await overview.getByText('2 members connected',{exact:true}).waitFor();
-  const localLink=overview.locator('.path-link').first(),remoteLink=overview.locator('.path-link').nth(1);
-  assert.equal(await localLink.getAttribute('data-phase'),'connected');
-  assert.equal(await localLink.evaluate(el=>getComputedStyle(el).animationName),'none');
-  assert.equal(await overview.getByRole('button',{name:'View other nodes',exact:true}).count(),0);
-  assert.equal(await overview.locator('.path-link').count(),1);
-  assert.equal(await overview.locator('.connection-summary p').count(),0);
-  assert.equal(await overview.locator('.radio-fact,.radio-settings-fact,.benchmark-fact,.connection-stages,.peer-node').count(),0);
-  assert.equal(await overview.locator('[role="status"]').count(),1);
-  assert.equal(await page.locator('main').getByRole('textbox').count(),0);
-  check('One summary, quiet connected diagram; radio controls and repeated checks live in details');
-  await page.screenshot({path:output+'/network-connected-390.png'});
-  await fixture(()=>window.__networkOverviewFixture.setVerifying());await headline('Checking your node…');
-  assert.equal(await localLink.getAttribute('data-phase'),'connected');
-  assert.match(await overview.locator('.progress-symbol').evaluate(el=>getComputedStyle(el).animationName),/spin/);
-  await page.emulateMedia({reducedMotion:'reduce'});
-  assert.equal(await overview.locator('.progress-symbol').evaluate(el=>getComputedStyle(el).animationName),'none');
-  await page.emulateMedia({reducedMotion:'no-preference'});
-  await openDetails();await details.locator('.connection-stages').getByText('Waiting for group',{exact:true}).waitFor();await closeDetails();
-  await fixture(()=>window.__networkOverviewFixture.setWaitingForGroup());await headline('Waiting for group');await overview.getByText('Waiting for connection',{exact:true}).waitFor();
-  assert.equal(await localLink.getAttribute('data-phase'),'connected');
-  await page.screenshot({path:output+'/network-waiting-for-group.png'});
-  await fixture(()=>window.__networkOverviewFixture.setStage('reconnecting'));await headline('Reconnecting…');
-  await page.screenshot({path:output+'/network-reconnecting.png'});
-  await fixture(()=>window.__networkOverviewFixture.setStage('off'));await headline('Not connected');
-  assert.equal(await overview.locator('.connection-summary').getAttribute('data-phase'),'disconnected');
-  assert.equal(await overview.locator('.connection-summary .summary-symbol').evaluate(el=>getComputedStyle(el).animationName),'none');
-  await page.screenshot({path:output+'/network-disconnected.png'});
-  await fixture(()=>window.__networkOverviewFixture.setStage('attention'));await headline('Connection needs attention');
-  assert.equal(await overview.locator('.progress-symbol').count(),0);await overview.getByRole('button',{name:'Try again',exact:true}).waitFor();
-  await page.screenshot({path:output+'/network-attention.png'});
-  check('Only pending work animates; intentional disconnection is neutral, failure has an explanation and action; reduced motion is respected');
-  await fixture(()=>window.__networkOverviewFixture.setStage('connected'));await headline('Connected');
-  await fixture(()=>window.__networkOverviewFixture.setRadio('direct'));await overview.getByRole('button',{name:'View other nodes',exact:true}).waitFor();assert.equal(await remoteLink.getAttribute('data-phase'),'unknown');await overview.getByText('1 other node',{exact:true}).waitFor();await openDetails();
-  assert.equal(await details.locator('.peer-node').count(),0);
-  await details.getByRole('button',{name:'Open nodes and phones',exact:true}).click();
-  const devices=page.getByRole('dialog',{name:'Nodes in your group',exact:true});await devices.waitFor();
-  await devices.getByText('Connected to group',{exact:true}).first().waitFor();
-  await fixture(()=>window.__networkOverviewFixture.setPeerConnected(false));await devices.getByText('Not connected to group',{exact:true}).waitFor();
-  await devices.getByRole('button',{name:'Close device details',exact:true}).click();await openDetails();
-  assert.equal(await remoteLink.getAttribute('data-phase'),'unknown');
-  await page.screenshot({path:output+'/network-details-390.png'});
-  await details.getByRole('button',{name:'Open radio signal details',exact:true}).click();await page.getByRole('dialog',{name:'Radio signal',exact:true}).waitFor();assert.equal(await details.isVisible(),false);await page.getByRole('button',{name:'Close radio signal details',exact:true}).click();
-  assert.ok((await fixture(()=>window.__networkOverviewFixture.calls)).every(call=>call.endsWith('.snapshot')));
-  check('Technical details distinguish last-known radio reports from phone sessions; opening and closing tools performs no connection mutations');
-  await fixture(()=>window.__networkOverviewFixture.render('connected'));await headline('Connected');
-  await overview.getByRole('button',{name:'Groups & members',exact:true}).click();await page.getByRole('heading',{name:'Group',exact:true}).waitFor();await page.getByRole('button',{name:'Manage group',exact:true}).click();await page.getByRole('heading',{name:'Group & members',exact:true}).waitFor();await page.getByRole('button',{name:'Close settings',exact:true}).click();await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:'Network',exact:true}).click();
-  await overview.getByRole('button',{name:/Internet sharing/}).click();await page.getByRole('heading',{name:'Shared internet unavailable',exact:true}).waitFor();await page.getByRole('button',{name:'Close settings',exact:true}).click();await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:'Network',exact:true}).click();
-  // Publish the changed synthetic snapshot explicitly after remounting the singleton client.
-  await fixture(async()=>{window.__networkOverviewFixture.setTransfers('paused');const {nativeGroupMessages}=await import('/src/lib/native-group-messages.ts');await nativeGroupMessages()?.refresh();});await overview.getByText('Transfers paused',{exact:true}).waitFor();
-  await fixture(()=>window.__networkOverviewFixture.failMessageReads(true));await overview.getByText('Transfer status unavailable',{exact:true}).waitFor();
-  await fixture(()=>window.__networkOverviewFixture.failMessageReads(false));await overview.getByText('Transfers paused',{exact:true}).waitFor();
-  await fixture(()=>window.__networkOverviewFixture.setTransfers('syncing'));await overview.getByRole('button',{name:/Messages syncing/}).click();await page.getByRole('heading',{name:'Messages',exact:true}).waitFor();await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:'Network',exact:true}).click();
-  check('Group, internet and message destinations remain accessible; paused and unavailable transfer states override cached readiness');
-  await openDetails();await details.getByRole('button',{name:'Stop connection',exact:true}).click();await page.waitForFunction(()=>window.__networkOverviewFixture.calls.includes('trusted.disconnect'));assert.equal((await fixture(()=>window.__networkOverviewFixture.calls)).filter(call=>call==='trusted.disconnect').length,1);await closeDetails();
-  await fixture(()=>window.__networkOverviewFixture.render('first-use'));await openDetails();await details.getByRole('button',{name:'Connect',exact:true}).click();await page.getByRole('button',{name:'Remember & connect',exact:true}).waitFor();assert.equal(await page.getByRole('checkbox',{name:/Share my position/}).isChecked(),false);await page.getByRole('button',{name:'Cancel',exact:true}).click();await closeDetails();
-  check('Stop remains explicit and exact; first-use native consent and private defaults remain intact');
-  await fixture(()=>window.__networkOverviewFixture.render('connected'));await headline('Connected');await fixture(()=>window.__networkOverviewFixture.setName('河'.repeat(64)));
-  await page.waitForFunction(async()=>{const {appearance}=await import('/src/lib/appearance.ts');return appearance.state.loaded&&!appearance.state.busy;});
-  for(const theme of ['Light','Dark']){
-    await page.evaluate(theme=>window.__networkOverviewFixture.theme(theme),theme);
-    for(const viewport of [{width:320,height:760},{width:390,height:844},{width:915,height:412}]){
-      await page.setViewportSize(viewport);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.equal(await page.locator('main').evaluate(el=>el.scrollWidth>el.clientWidth),false);
-      await page.screenshot({path:output+'/network-'+theme.toLowerCase()+'-'+viewport.width+'.png'});
-      await openDetails();assert.equal(await details.evaluate(el=>el.scrollWidth>el.clientWidth),false);await details.getByRole('button',{name:'Refresh saved connection',exact:true}).scrollIntoViewIfNeeded();await closeDetails();
-    }
-  }
-  check('Long names, light/dark, narrow screens and landscape remain usable; connection controls remain reachable');
-  await fixture(()=>window.__networkOverviewFixture.setName('AuMaNET group'));await page.setViewportSize({width:390,height:844});
-  await page.evaluate(()=>window.__networkOverviewFixture.theme('Light'));await page.screenshot({path:output+'/network-final-390.png'});
-  assert.deepEqual(errors,[]);await fixture(()=>window.__networkOverviewFixture.destroy());result.status='pass';
-}catch(error){result.status='fail';result.error=error.message;throw error;}
-finally{await writeFile(output+'/result.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));await browser.close();}
+ await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5181/');await page.getByRole('navigation').waitFor();await page.evaluate(()=>import('/src/lib/__tests__/network-overview-fixture.svelte.ts'));await openConnection(page);await summary().getByRole('status').filter({hasText:'Connected'}).waitFor();assert.equal(await page.locator('.connection-fact').count(),6);assert.deepEqual(await page.locator('.connection-fact strong').allTextContents(),['Wi-Fi','Verified node','Group membership','Radio link','Message transfers','Internet']);assert((await fixture(()=>window.__networkOverviewFixture.calls)).every(c=>c.endsWith('.snapshot')));
+ await fixture(()=>window.__networkOverviewFixture.setVerifying());await summary().getByRole('status').filter({hasText:'Checking your node'}).waitFor();await fixture(()=>window.__networkOverviewFixture.setWaitingForGroup());await summary().getByRole('status').filter({hasText:'Waiting for group'}).waitFor();
+ for(const [state,text]of [['reconnecting','Reconnecting'],['off','Not connected'],['attention','Connection needs attention'],['connected','Connected']]){await fixture(state=>window.__networkOverviewFixture.setStage(state),state);await summary().getByRole('status').filter({hasText:text}).waitFor();}
+ await fixture(async()=>{window.__networkOverviewFixture.setTransfers('paused');const{nativeGroupMessages}=await import('/src/lib/native-group-messages.ts');await nativeGroupMessages().refresh();});await page.getByText('Transfers paused',{exact:true}).waitFor();await fixture(()=>window.__networkOverviewFixture.failMessageReads(true));await page.getByText('Transfer status unavailable',{exact:true}).waitFor();await fixture(()=>window.__networkOverviewFixture.failMessageReads(false));await page.getByText('Transfers paused',{exact:true}).waitFor();
+ await fixture(()=>window.__networkOverviewFixture.setRadio('direct'));await openTool(page,'Nodes');await page.locator('.known-node').first().waitFor();assert.equal(await page.locator('.known-node').count(),2);await page.locator('.node-summary').filter({has:page.getByText('Your node',{exact:true})}).click();await page.getByRole('dialog',{name:'Your node',exact:true}).getByText('Phones assigned to this node',{exact:true}).waitFor();await page.keyboard.press('Escape');await openConnection(page);
+ for(const theme of ['Light','Dark']){await page.evaluate(t=>window.__networkOverviewFixture.theme(t),theme);for(const size of [{width:320,height:760},{width:390,height:844},{width:915,height:412}]){await page.setViewportSize(size);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:`${output}/${theme.toLowerCase()}-${size.width}.png`});await page.getByRole('button',{name:'Saved connection',exact:true}).click();const sheet=page.getByRole('dialog',{name:'Saved connection',exact:true});assert.equal(await sheet.evaluate(d=>d.scrollWidth>d.clientWidth),false);await sheet.getByRole('button',{name:'Refresh saved connection',exact:true}).scrollIntoViewIfNeeded();await page.keyboard.press('Escape');}}
+ assert((await fixture(()=>window.__networkOverviewFixture.calls)).every(c=>c.endsWith('.snapshot')));await summary().getByRole('button',{name:'Disconnect',exact:true}).click();await page.waitForFunction(()=>window.__networkOverviewFixture.calls.includes('trusted.disconnect'));assert.equal((await fixture(()=>window.__networkOverviewFixture.calls)).filter(c=>c==='trusted.disconnect').length,1);
+ await fixture(()=>window.__networkOverviewFixture.render('first-use'));await openSavedConnection(page);await page.getByRole('button',{name:'Connect',exact:true}).click();assert.equal(await page.getByRole('checkbox',{name:/Share my position/}).isChecked(),false);await page.getByRole('button',{name:'Cancel',exact:true}).click();assert((await fixture(()=>window.__networkOverviewFixture.calls)).every(c=>c.endsWith('.snapshot')));assert.deepEqual(errors,[]);await writeFile(output+'/result.json',JSON.stringify({status:'pass',physical:false,checks:['Six distinct observed connection facts','Pending, disconnected, attention and connected summaries','Paused/unavailable transfer readback','Node-to-phone assignment inspection','Light/dark portrait/landscape sheets','Read-only inspection; explicit Disconnect once','Private default first consent and cancellation']},null,2));console.log('Connection overview PASS');
+}finally{await fixture(()=>window.__networkOverviewFixture?.destroy()).catch(()=>{});await browser.close();}
