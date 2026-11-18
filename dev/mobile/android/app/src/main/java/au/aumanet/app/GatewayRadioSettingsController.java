@@ -11,10 +11,10 @@ final class GatewayRadioSettingsController {
  private final GroupSession group;private final GatewayLeaseIssuer issuer;private final boolean debug;private final String process=UUID.randomUUID().toString();private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,0,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2),r->{Thread t=new Thread(r,"AuMaNET-radio-settings");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
  private final Object lock=new Object(),exchangeLock=new Object();private final AtomicLong sequence=new AtomicLong();private final AtomicReference<Operation> active=new AtomicReference<>();private final Set<String> used=new HashSet<>();private final AtomicFile journal;private volatile boolean storageFailed;private volatile JSONObject unresolved;private volatile String state="unavailable",error="",operationId="",lastOutcome="";private static final class Cache{final JSONArray values;final long at;final GatewayLeaseIssuer.RadioContext scope;Cache(JSONArray values,long at,GatewayLeaseIssuer.RadioContext scope){this.values=values;this.at=at;this.scope=scope;}}private volatile Cache cache;
  private static final class Reading {final GatewayRadioConfigCodec.Message message;final long received,created;Reading(GatewayRadioConfigCodec.Message m,long now,long created){message=m;received=now;this.created=created;}boolean fresh(){long d=SystemClock.elapsedRealtime()-created;return d>=0&&d<GatewayRadioConfigCodec.FRESH_MS;}}
- private static final class Operation {final String id;final GatewayLeaseIssuer.RadioContext context;final InternetSharingScope group;final int option;final AtomicBoolean cancelled=new AtomicBoolean();final AtomicReference<DatagramSocket> socket=new AtomicReference<>();volatile GroupRadioMaintenance.Ticket maintenance;volatile long commitBefore,confirmBefore;volatile boolean trialSent,commitSent,manualCommit;final AtomicBoolean commitAuthorized=new AtomicBoolean();Operation(String id,GatewayLeaseIssuer.RadioContext context,InternetSharingScope group,int option){this.id=id;this.context=context;this.group=group;this.option=option;}}
+ private static final class Operation {final String id,requester;final BooleanSupplier requesterLive;final GatewayLeaseIssuer.RadioContext context;final InternetSharingScope group;final int option;final AtomicBoolean cancelled=new AtomicBoolean();final AtomicReference<DatagramSocket> socket=new AtomicReference<>();volatile GroupRadioMaintenance.Ticket maintenance;volatile long commitBefore,confirmBefore;volatile boolean trialSent,commitSent,manualCommit;final AtomicBoolean commitAuthorized=new AtomicBoolean();Operation(String id,GatewayLeaseIssuer.RadioContext context,InternetSharingScope group,int option){this(id,context,group,option,"",()->true);}Operation(String id,GatewayLeaseIssuer.RadioContext context,InternetSharingScope group,int option,String requester,BooleanSupplier requesterLive){this.id=id;this.context=context;this.group=group;this.option=option;this.requester=requester;this.requesterLive=requesterLive;}}
  private GatewayRadioSettingsController(Context c)throws Exception{debug=(c.getApplicationInfo().flags&android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE)!=0;group=GroupSession.get(c);issuer=GatewayLeaseIssuer.get(c);journal=new AtomicFile(new File(c.getNoBackupFilesDir(),"gateway-radio-operation-v1.json"));try{if(journal.getBaseFile().exists()){byte[] b;try(FileInputStream in=journal.openRead()){b=readBounded(in,4096);}JSONObject saved=GatewayRadioJournal.checked(GroupNameJson.object(new String(b,StandardCharsets.UTF_8),4096));unresolved=saved;operationId=saved.getString("operationId");state="unknown";error="RADIO_PREVIOUS_OUTCOME_UNKNOWN";}}catch(Exception bad){storageFailed=true;state="unavailable";error="RADIO_OPERATION_STORAGE_UNAVAILABLE";}}
  static boolean internetActive(){InternetSharingController c=InternetSharingController.peek();return c!=null&&c.active();}
- private boolean retainedCurrent(Operation o){InternetSharingScope actual=group.internetScope();return active.get()==o&&!o.cancelled.get()&&issuer.radioSessionCurrent(o.context)&&o.group.exact(actual)&&actual.online.equals(o.group.online)&&!internetActive();}
+ private boolean retainedCurrent(Operation o){InternetSharingScope actual=group.internetScope();return active.get()==o&&!o.cancelled.get()&&o.requesterLive.getAsBoolean()&&issuer.radioSessionCurrent(o.context)&&o.group.exact(actual)&&actual.online.equals(o.group.online)&&!internetActive();}
  private boolean baseCurrent(Operation o){return retainedCurrent(o)&&issuer.radioCurrent(o.context);}
  private boolean retainedAndQuiet(Operation o){return retainedCurrent(o)&&o.maintenance!=null&&o.maintenance.current();}
  private boolean current(Operation o){return baseCurrent(o)&&(o.maintenance==null||o.maintenance.current());}
@@ -22,18 +22,26 @@ final class GatewayRadioSettingsController {
  private void selected(JSONObject data,boolean exact)throws Exception{JSONObject e=data.getJSONObject("expectedScope");InternetSharingScope s=group.internetScope();if(s==null||!s.group.equals(GroupNameMetadata.string(e,"groupId"))||!s.self.equals(GroupNameMetadata.string(e,"selfId"))||s.epoch!=GroupNameMetadata.number(e,"epoch")||exact&&s.run!=GroupNameMetadata.number(e,"sourceRun"))throw new SecurityException();}
  JSObject refresh(JSONObject data)throws Exception{
   selected(data,false);
-  if(active.get()!=null)return snapshot();
-  GatewayLeaseIssuer.RadioContext context=context();
-  if(context==null){debugEvent("refresh stage=CONTEXT reason=NO_VERIFIED_FIELD_CONTEXT");return snapshot();}
-  worker.execute(()->{
+  InternetSharingScope scope=group.internetScope();
+  if(scope==null||!scope.self.equals(scope.owner))throw new SecurityException();
+  synchronized(lock){
+   if(active.get()!=null||state.equals("refreshing"))return snapshot();
+   state="refreshing";error="";sequence.incrementAndGet();
+  }
+  try{worker.execute(()->{
    try{
     synchronized(exchangeLock){
-     if(active.get()!=null)return;
-     state="refreshing";
-     sequence.incrementAndGet();
-     Reading[] reports=queryForRefresh(context);
+     GatewayLeaseIssuer.RadioContext ready=null;
+     long deadline=SystemClock.elapsedRealtime()+10000;
+     while(group.internetCurrent(scope)&&SystemClock.elapsedRealtime()<deadline){
+      ready=context();if(ready!=null)break;
+      Thread.sleep(125);
+     }
+     if(ready==null||!group.internetCurrent(scope))throw new SecurityException();
+     Reading[] reports=queryForRefresh(ready);
+     if(!group.internetCurrent(scope))throw new SecurityException();
      debugEvent("refresh stage=READBACK reason=SIGNED_PAIR_ACCEPTED");
-     publish(context,reports);
+     publish(ready,reports);
      debugEvent("refresh stage=PUBLISH reason=METADATA_ACCEPTED");
      reconcile(reports);
      if(unresolved==null){state=lastOutcome.isEmpty()?"idle":lastOutcome;error="";}
@@ -42,9 +50,96 @@ final class GatewayRadioSettingsController {
    }catch(Exception failed){
     debugEvent("refresh stage=COMPLETE reason="+failureKind(failed));
     if(active.get()==null){state=unresolved==null?"unavailable":"unknown";error="RADIO_REPORTS_UNAVAILABLE";}
-   }finally{sequence.incrementAndGet();}
-  });
+   }finally{sequence.incrementAndGet();group.announceRadioStatus();}
+  });}catch(RejectedExecutionException unavailable){state=unresolved==null?"unavailable":"unknown";error="RADIO_REPORTS_UNAVAILABLE";sequence.incrementAndGet();throw unavailable;}
   return snapshot();
+ }
+
+ private static JSONObject selectedScope(InternetSharingScope scope)throws Exception {
+  return new JSONObject().put("groupId",scope.group).put("selfId",scope.self).put("epoch",scope.epoch).put("sourceRun",scope.run);
+ }
+
+ JSONObject relayStatus()throws Exception {
+  JSObject current=snapshot();
+  if(!current.getBoolean("owner"))return null;
+  JSONObject scope=current.getJSONObject("scope");
+  JSONObject checkpoint=new JSONObject().put("processId",process).put("issuedAt",SystemClock.elapsedRealtime())
+      .put("gatewayRevision",current.getLong("gatewayRevision")).put("fieldSessionId",current.getString("fieldSessionId"))
+      .put("fieldGeneration",current.getLong("fieldGeneration")).put("operationId",current.getString("operationId"));
+  return new JSONObject().put("version",GroupRadioControl.VERSION).put("epoch",scope.getLong("epoch")).put("checkpoint",checkpoint)
+      .put("canChange",current.getBoolean("canChange")).put("state",current.getString("state"))
+      .put("errorCode",current.getString("errorCode"));
+ }
+
+ JSObject viewSnapshot()throws Exception {
+  JSObject current=snapshot();
+  InternetSharingScope scope=group.internetScope();
+  if(scope==null||scope.self.equals(scope.owner))return current;
+  JSONObject remote=group.delegatedRadioStatus(scope);
+  current.put("sequence",sequence.incrementAndGet()).put("scope",selectedScope(scope));
+  if(remote==null)return current.put("errorCode","RADIO_HOST_UNAVAILABLE");
+  JSONObject checkpoint=remote.getJSONObject("checkpoint");
+  JSONArray nodes=current.getJSONArray("nodes");
+  boolean ready=remote.getBoolean("canChange")&&nodes.length()==2;
+  for(int index=0;index<nodes.length();index++){
+   ready&=nodes.getJSONObject(index).getLong("reportAgeMs")<GatewayRadioQueryPolicy.CAPABILITY_MS;
+  }
+  return current.put("delegated",true).put("canChange",ready)
+      .put("state",remote.getString("state")).put("errorCode",remote.getString("errorCode"))
+      .put("operationId",checkpoint.getString("operationId")).put("gatewayRevision",checkpoint.getLong("gatewayRevision"))
+      .put("fieldSessionId",checkpoint.getString("fieldSessionId")).put("fieldGeneration",checkpoint.getLong("fieldGeneration"));
+ }
+
+ CompletableFuture<String> requestAsMember(JSONObject data,String action,BooleanSupplier foreground)throws Exception {
+  boolean changing=action.equals("apply")||action.equals("cancel");
+  InternetSharingScope scope=group.internetScope();
+  if(scope==null||scope.self.equals(scope.owner))return null;
+  if(!foreground.getAsBoolean())throw new SecurityException();
+  String id=changing?GroupNameMetadata.string(data,"operationId"):"";
+  if(changing&&(!GroupWire.id(id)||!process.equals(GroupNameMetadata.string(data,"expectedProcessId"))))throw new SecurityException();
+  if(!action.equals("cancel"))selected(data,action.equals("apply"));
+  int option=0;
+  if(action.equals("apply")){
+   long requested=GroupNameMetadata.number(data,"optionId");
+   if(requested<1||requested>23||!"change-halow-channel-and-width".equals(data.optString("acknowledgement"))
+      ||!"automatic".equals(data.optString("commitPolicy","automatic")))throw new SecurityException();
+   JSObject view=viewSnapshot();
+   if(!view.getBoolean("canChange")||view.getLong("gatewayRevision")!=GroupNameMetadata.number(data,"expectedGatewayRevision")
+       ||!view.getString("fieldSessionId").equals(GroupNameMetadata.string(data,"expectedFieldSessionId"))
+       ||view.getLong("fieldGeneration")!=GroupNameMetadata.number(data,"expectedFieldGeneration"))throw new SecurityException();
+   option=(int)requested;
+  }else if(action.equals("verify")&&!"pause-traffic-and-verify-channels".equals(data.optString("acknowledgement")))throw new SecurityException();
+  return group.requestRadio(scope,action,id,option);
+ }
+
+ String delegatedRequest(InternetSharingScope scope,String sender,JSONObject data,BooleanSupplier live)throws Exception {
+  if(!live.getAsBoolean()||!scope.self.equals(scope.owner)||!scope.approved.contains(sender))throw new SecurityException();
+  JSONObject checkpoint=data.getJSONObject("checkpoint");
+  long age=SystemClock.elapsedRealtime()-GroupNameMetadata.number(checkpoint,"issuedAt");
+  if(age<0||age>=GroupRadioControl.STATUS_MS||!process.equals(GroupNameMetadata.string(checkpoint,"processId")))throw new SecurityException();
+  String action=GroupNameMetadata.string(data,"action");
+  JSONObject selected=new JSONObject().put("expectedScope",selectedScope(scope));
+  if(action.equals("refresh"))refresh(selected);
+  else if(action.equals("verify"))prepareComparison(selected.put("acknowledgement","pause-traffic-and-verify-channels"),live);
+  else if(action.equals("cancel")){
+   String id=GroupNameMetadata.string(data,"operationId");
+   Operation pending=active.get();
+   if(!GroupWire.id(id)||pending==null||!id.equals(pending.id)||!pending.requester.equals(sender)
+      ||!pending.requesterLive.getAsBoolean()||!live.getAsBoolean())throw new SecurityException();
+   cancel(selected.put("expectedProcessId",process).put("operationId",id));
+  }else if(action.equals("apply")){
+   JSObject current=snapshot();
+   if(!current.getBoolean("canChange")||!current.getString("operationId").equals(checkpoint.getString("operationId")))throw new SecurityException();
+   selected.put("expectedProcessId",process).put("operationId",GroupNameMetadata.string(data,"operationId"))
+       .put("optionId",GroupNameMetadata.number(data,"optionId"))
+       .put("expectedGatewayRevision",GroupNameMetadata.number(checkpoint,"gatewayRevision"))
+       .put("expectedFieldSessionId",GroupNameMetadata.string(checkpoint,"fieldSessionId"))
+       .put("expectedFieldGeneration",GroupNameMetadata.number(checkpoint,"fieldGeneration"))
+       .put("acknowledgement","change-halow-channel-and-width");
+   try{applyLocal(selected,live,sender,live);}catch(NotAccepted refused){return "RADIO_CHANGE_NOT_ACCEPTED";}
+   catch(Exception uncertain){return "RADIO_CHANGE_OUTCOME_UNKNOWN";}
+  }else throw new SecurityException();
+  return "";
  }
  private Reading[] queryForRefresh(GatewayLeaseIssuer.RadioContext context)throws Exception{
   try{return queryBoth(context,null);}
@@ -85,16 +180,19 @@ final class GatewayRadioSettingsController {
  static void refreshForBenchmark(InternetSharingScope expected){GatewayRadioSettingsController c=instance;if(c==null||!c.group.internetCurrent(expected)||c.active.get()!=null)return;try{synchronized(c.exchangeLock){GatewayLeaseIssuer.RadioContext scope=c.context();if(scope!=null&&c.group.internetCurrent(expected)){Reading[] r=c.queryBoth(scope,null);if(c.group.internetCurrent(expected))c.publish(scope,r);}}}catch(Exception unavailable){/* Missing observations remain missing/stale, never assumed current. */}}
  static final class NotAccepted extends Exception{NotAccepted(){super("Radio change not accepted");}}
  JSObject apply(JSONObject data,BooleanSupplier foreground)throws Exception{
+  return applyLocal(data,foreground,"",()->true);
+ }
+ private JSObject applyLocal(JSONObject data,BooleanSupplier foreground,String requester,BooleanSupplier requesterLive)throws Exception{
   boolean admitted=false;
   try{
    selected(data,true);if(!foreground.getAsBoolean()||!process.equals(GroupNameMetadata.string(data,"expectedProcessId"))||!"change-halow-channel-and-width".equals(GroupNameMetadata.string(data,"acknowledgement")))throw new SecurityException();
    String id=GroupNameMetadata.string(data,"operationId");long raw=GroupNameMetadata.number(data,"optionId");if(!GroupWire.id(id)||raw<1||raw>23)throw new IllegalArgumentException();
    GatewayLeaseIssuer.RadioContext c=context();InternetSharingScope s=group.internetScope();
    if(c==null||s==null||!s.self.equals(s.owner)||c.revision!=GroupNameMetadata.number(data,"expectedGatewayRevision")||!c.job.session.id.equals(GroupNameMetadata.string(data,"expectedFieldSessionId"))||c.job.session.generation!=GroupNameMetadata.number(data,"expectedFieldGeneration")||storageFailed)throw new IllegalStateException();
-   Operation o=new Operation(id,c,s,(int)raw);String policy=data.optString("commitPolicy","automatic");if(!policy.equals("automatic")&&!policy.equals("explicit"))throw new IllegalArgumentException();o.manualCommit=policy.equals("explicit");
+   Operation o=new Operation(id,c,s,(int)raw,requester,requesterLive);String policy=data.optString("commitPolicy","automatic");if(!policy.equals("automatic")&&!policy.equals("explicit"))throw new IllegalArgumentException();o.manualCommit=policy.equals("explicit");
    synchronized(lock){
     if(used.contains(id)){if(operationId.equals(id))admitted=true;else throw new IllegalStateException();}
-    else{if(unresolved!=null||LinkBenchmarkTraffic.active()||internetActive()||used.size()>=64||!active.compareAndSet(null,o))throw new IllegalStateException();used.add(id);operationId=id;lastOutcome="";state="verifying";error="";}
+    else{if(state.equals("refreshing")||unresolved!=null||LinkBenchmarkTraffic.active()||internetActive()||used.size()>=64||!active.compareAndSet(null,o))throw new IllegalStateException();used.add(id);operationId=id;lastOutcome="";state="verifying";error="";}
    }
    if(!admitted){try{worker.execute(()->perform(o));}catch(RuntimeException failed){active.compareAndSet(o,null);throw failed;}admitted=true;sequence.incrementAndGet();}
    // After executor admission, a failed readback is uncertain, never NOT_ACCEPTED.
@@ -142,7 +240,7 @@ final class GatewayRadioSettingsController {
    }
    if(!confirmed)throw new IOException();clear();unresolved=null;lastOutcome=state="applied";error="";
   }}catch(Exception failed){debugEvent("change stage="+state+" reason="+failureKind(failed)+" trial="+o.trialSent+" commit="+o.commitSent);if(!o.trialSent){try{clear();unresolved=null;}catch(Exception storage){storageFailed=true;}lastOutcome=state=o.cancelled.get()?"cancelled":"failed";error=o.cancelled.get()?"":"RADIO_CHANGE_NOT_STARTED";}else{state="unknown";error=o.commitSent?"RADIO_COMMIT_OUTCOME_UNKNOWN":"RADIO_TRIAL_OUTCOME_UNKNOWN";}}
-  finally{DatagramSocket socket=o.socket.getAndSet(null);if(socket!=null)socket.close();if(quiet!=null)try{quiet.close();}catch(Exception ignored){}active.compareAndSet(o,null);sequence.incrementAndGet();}
+  finally{DatagramSocket socket=o.socket.getAndSet(null);if(socket!=null)socket.close();if(quiet!=null)try{quiet.close();}catch(Exception ignored){}active.compareAndSet(o,null);sequence.incrementAndGet();group.announceRadioStatus();}
  }
  private boolean fresh(Reading[] r){return r.length==2&&r[0].fresh()&&r[1].fresh();}
  private Reading[] queryBoth(GatewayLeaseIssuer.RadioContext c,Operation o)throws Exception{Reading[] result=new Reading[2];List<String> nodeIds=new ArrayList<>();for(GatewayBindingConfig.Node node:c.config.nodes)nodeIds.add(node.id);for(String id:GatewayRadioQueryPolicy.stationFirst(nodeIds,c.base)){GatewayBindingConfig.Node n=null;for(GatewayBindingConfig.Node candidate:c.config.nodes)if(candidate.id.equals(id))n=candidate;if(n==null)throw new SecurityException();GatewayRadioConfigCodec.Message q=GatewayRadioConfigCodec.query(n.id,c.scope.group,c.scope.epoch,c.owner,c.relay,GroupWire.random(32).toUpperCase(Locale.ROOT));Reading r=exchange(c,o,n,q,null);int index=n.id.equals(c.base)?0:1;result[index]=r;if(!r.message.run.equals(c.runs.get(n.id))||r.message.station==(index==0)){debugEvent(index==0?"readback role=AP reason=BOOT_OR_ROLE_MISMATCH":"readback role=STATION reason=BOOT_OR_ROLE_MISMATCH");throw new GatewayRadioQueryPolicy.InvalidReadback();}}return result;}
@@ -208,6 +306,6 @@ final class GatewayRadioSettingsController {
  private void save(JSONObject record)throws Exception{byte[] b=GatewayRadioJournal.checked(record).toString().getBytes(StandardCharsets.UTF_8);if(b.length>4096)throw new IOException();FileOutputStream out=null;try{out=journal.startWrite();out.write(b);journal.finishWrite(out);out=null;try(FileInputStream in=journal.openRead()){if(!Arrays.equals(b,readBounded(in,4096)))throw new IOException();}}catch(Exception failed){if(out!=null)journal.failWrite(out);storageFailed=true;throw new IOException("Radio operation storage is unavailable");}}
  private void clear()throws Exception{journal.delete();if(journal.getBaseFile().exists()){storageFailed=true;throw new IOException();}}
  private static byte[] readBounded(InputStream in,int max)throws IOException{ByteArrayOutputStream b=new ByteArrayOutputStream();byte[] part=new byte[512];for(int count;(count=in.read(part))!=-1;){if(b.size()+count>max)throw new IOException();b.write(part,0,count);}return b.toByteArray();}
- JSObject snapshot()throws Exception{Operation pending=active.get();InternetSharingScope s=group.internetScope();GatewayLeaseIssuer.RadioContext c=context(),retained=issuer.retainedRadioContext();boolean owner=s!=null&&s.self.equals(s.owner);Cache snapshotCache=cache;JSONArray nodes=owner&&snapshotCache!=null&&issuer.radioSessionCurrent(snapshotCache.scope)?GroupRadioConfiguration.age(snapshotCache.values,SystemClock.elapsedRealtime()-snapshotCache.at,SystemClock.elapsedRealtime()):group.radioConfigurations();boolean ready=c!=null&&nodes.length()==2&&!storageFailed&&unresolved==null&&active.get()==null&&!LinkBenchmarkTraffic.active()&&!internetActive();if(ready)for(int i=0;i<nodes.length();i++){JSONObject n=nodes.getJSONObject(i);ready&=n.getLong("reportAgeMs")<GatewayRadioQueryPolicy.CAPABILITY_MS&&n.getInt("actualOptionId")>0&&n.getString("status").equals("idle")&&(!n.getString("role").equals("ap")||n.optBoolean("canChangeAP",false));}JSObject result=new JSObject().put("schema","aumanet.radio-settings.v1").put("source","device").put("processId",process).put("sequence",sequence.get()).put("owner",owner).put("available",nodes.length()>0).put("canChange",ready&&owner).put("state",state).put("operationId",operationId).put("gatewayRevision",retained==null?0:retained.revision).put("fieldSessionId",retained==null?"":retained.job.session.id).put("fieldGeneration",retained==null?0:retained.job.session.generation).put("trialRemainingMs",pending!=null&&pending.manualCommit?Math.max(0,pending.commitBefore-SystemClock.elapsedRealtime()):0).put("options",nodes.length()>0?GatewayRadioConfigCodec.options():new JSONArray()).put("nodes",nodes).put("errorCode",error);if(s!=null)result.put("scope",new JSONObject().put("groupId",s.group).put("selfId",s.self).put("epoch",s.epoch).put("sourceRun",s.run));return result;}
+ JSObject snapshot()throws Exception{Operation pending=active.get();InternetSharingScope s=group.internetScope();GatewayLeaseIssuer.RadioContext c=context(),retained=issuer.retainedRadioContext();boolean owner=s!=null&&s.self.equals(s.owner);Cache snapshotCache=cache;JSONArray nodes=owner&&snapshotCache!=null&&issuer.radioSessionCurrent(snapshotCache.scope)?GroupRadioConfiguration.age(snapshotCache.values,SystemClock.elapsedRealtime()-snapshotCache.at,SystemClock.elapsedRealtime()):group.radioConfigurations();boolean ready=c!=null&&!state.equals("refreshing")&&nodes.length()==2&&!storageFailed&&unresolved==null&&active.get()==null&&!LinkBenchmarkTraffic.active()&&!internetActive();if(ready)for(int i=0;i<nodes.length();i++){JSONObject n=nodes.getJSONObject(i);ready&=n.getLong("reportAgeMs")<GatewayRadioQueryPolicy.CAPABILITY_MS&&n.getInt("actualOptionId")>0&&n.getString("status").equals("idle")&&(!n.getString("role").equals("ap")||n.optBoolean("canChangeAP",false));}JSObject result=new JSObject().put("schema","aumanet.radio-settings.v1").put("source","device").put("processId",process).put("sequence",sequence.get()).put("owner",owner).put("available",nodes.length()>0).put("canChange",ready&&owner).put("state",state).put("operationId",operationId).put("gatewayRevision",retained==null?0:retained.revision).put("fieldSessionId",retained==null?"":retained.job.session.id).put("fieldGeneration",retained==null?0:retained.job.session.generation).put("trialRemainingMs",pending!=null&&pending.manualCommit?Math.max(0,pending.commitBefore-SystemClock.elapsedRealtime()):0).put("options",nodes.length()>0?GatewayRadioConfigCodec.options():new JSONArray()).put("nodes",nodes).put("errorCode",error);if(s!=null)result.put("scope",new JSONObject().put("groupId",s.group).put("selfId",s.self).put("epoch",s.epoch).put("sourceRun",s.run));return result;}
 }
 

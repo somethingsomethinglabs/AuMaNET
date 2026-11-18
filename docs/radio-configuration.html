@@ -24,18 +24,18 @@
 <div class="article-column"><main id="main" tabindex="-1">
 <p class="breadcrumb"><a href="handbook.html">Guides</a><span aria-hidden="true">/</span>Maintain or build a node</p>
 <article><h1 id="radio-channel-amp-width">Radio channel &amp; width</h1>
-<p>Use <strong>Tools → Radio settings</strong> on the current group owner&#39;s phone. A member may inspect reports but cannot change the group&#39;s radio. The field node follows the base node&#39;s HaLow channel. Both nodes need compatible firmware.</p>
+<p>Use <strong>Tools → Radio settings</strong> from any connected, approved group phone. The group host checks the nodes and coordinates the change over the authenticated group connection. The field node follows the base node’s HaLow channel. Both nodes need compatible firmware.</p>
 <h2 id="section-1"><span id="read-before-changing">Read before changing</span></h2>
-<p>Refresh status and inspect the reported operating channel, frequency and width. These settings describe the node-to-node HaLow link, not phone Wi-Fi or a voice channel. Unavailable values remain unknown; a configured TX ceiling is not measured radiated output.</p>
+<p>Tap <strong>Refresh radio status</strong> for a fresh reading from both nodes. When reports age, the screen labels the channel as last verified and shows how old the reports are. These settings describe the node-to-node HaLow link. A configured transmit-power ceiling is different from measured radiated power.</p>
 <p>Catalog version 1 contains 23 permitted AU operating tuples: twelve at 1 MHz, six at 2 MHz, three at 4 MHz and two at 8 MHz. The available channel list depends on width. The control does not expose arbitrary frequencies, country changes or TX-power changes.</p>
 <h2 id="section-2"><span id="apply-a-change">Apply a change</span></h2>
 <ol>
 <li>Stop shared internet and finish any connection test or maintenance operation.</li>
-<li>On the owner phone, choose a width, then a permitted channel.</li>
-<li>Review the proposed frequency and width, then select <strong>Save proposal</strong>.</li>
-<li>Select <strong>Begin bounded trial</strong>. Connected supported phones pause managed calls and transfers and acknowledge readiness.</li>
-<li>The base tries the tuple and the station follows. Choose <strong>Commit verified setting</strong> when fresh signed reports from both original node boots confirm the intended state.</li>
+<li>Choose a permitted channel and check its frequency and width.</li>
+<li>On the host phone, tap <strong>Save proposal</strong>, then <strong>Begin bounded trial</strong>. Tap <strong>Commit verified setting</strong> once both nodes verify the trial.</li>
+<li>On an approved member phone, <strong>Apply selected channel</strong> requests a trial and authorizes the host to save the channel after both nodes verify it.</li>
 </ol>
+<p>Connected phones pause managed calls and transfers for the trial. The base tries the setting and the field node follows. The screen reports the outcome after checking both nodes again.</p>
 <p>Voice returns muted; interrupted image progress is retained. An uncommitted trial has a 30-second deadline. An unknown persistent-write outcome must be reconciled; rollback in RAM does not prove which persistent record a reboot will load.</p>
 <h2 id="section-3"><span id="baseline-and-checked-scope">Baseline and checked scope</span></h2>
 <p>Local radio notes record the original baseline as AU channel 36, 920 MHz, 1 MHz width, configured ceiling 24 dBm. Owner-side app changes at 1/2/4/8 MHz and persistence/rollback checks were recorded, but not every tuple or field path was tested. The second phone was away for the final increment, so complete two-phone coordination/throughput acceptance remains open. These values document a prototype configuration, not regulatory approval or a recommended universal setting.</p>

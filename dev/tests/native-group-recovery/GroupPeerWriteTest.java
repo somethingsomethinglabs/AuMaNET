@@ -82,6 +82,20 @@ public final class GroupPeerWriteTest {
         check(notice.getString("memberId").equals(removal.pin));
         accept(new GroupWire.Sequence(removal.groupId, removal.connection), notice);
         check(frames.read() == -1 && removal.sendSequence == 1 && removal.closeCount.get() == 1);
+        tests++;
+        ByteArrayOutputStream radioBytes = new ByteArrayOutputStream();
+        GroupPeerWriteHarness radio = new GroupPeerWriteHarness(new DataOutputStream(radioBytes));
+        radio.inboundSocket = true;
+        radio.authorized = true;
+        radio.applicationContext.status = new JSONObject().put("epoch",1).put("checkpointToken","a".repeat(32));
+        radio.write(new GroupPeerWriteHarness.Outbound(heartbeat(),null,()->true));
+        JSONObject radioFrame = new JSONObject(GroupWire.read(new DataInputStream(new ByteArrayInputStream(radioBytes.toByteArray()))));
+        check(radioFrame.getJSONObject("radioControl").getString("checkpointToken").equals("a".repeat(32)));
+        radioBytes.reset();
+        radio.applicationContext.failStatus = true;
+        radio.write(new GroupPeerWriteHarness.Outbound(heartbeat(),null,()->true));
+        JSONObject fallback = new JSONObject(GroupWire.read(new DataInputStream(new ByteArrayInputStream(radioBytes.toByteArray()))));
+        check(!fallback.has("radioControl")&&fallback.getLong("seq")==2&&!radio.closed.get());
         System.out.println(new JSONObject().put("status","passed").put("testCount",tests).put("assertionCount",checks));
     }
 }

@@ -30,7 +30,21 @@ export class NativeGatewayRadioSettingsClient{
    else if(kind==='cancel'){const pending=this.unresolved.get(this.key(scope));const id=pending?.id||state.operationId;if(!id)return state;expectedProcess=pending?.process||state.processId;issued=true;result=await this.rpc(this.bridge.cancel({expectedProcessId:expectedProcess,operationId:id}));}
    else{if(this.unresolved.has(this.key(scope)))throw Error('Refresh or cancel the previous radio operation before another change');if(this.unresolved.size>=8)throw Error('Resolve previous radio operations before changing another group');if(!state.canChange||!state.scope||optionId===undefined||!state.options.some(o=>o.id===optionId))throw Error('The group owner and both checked nodes must be ready before changing the radio');const id=crypto.randomUUID().replaceAll('-','');expectedProcess=state.processId;issuedId=id;this.unresolved.set(this.key(scope),{process:state.processId,id});issued=true;result=await this.rpc(this.bridge.apply({expectedProcessId:state.processId,expectedScope:{...scope,sourceRun:state.scope.sourceRun},expectedGatewayRevision:state.gatewayRevision,expectedFieldSessionId:state.fieldSessionId,expectedFieldGeneration:state.fieldGeneration,operationId:id,optionId,...(manual?{commitPolicy:'explicit' as const}:{}),acknowledgement:'change-halow-channel-and-width'}));}
    this.current(scope,generation);if(operation!==this.request)throw Error('Radio request was superseded');const parsed=parseGatewayRadioSettingsSnapshot(result);if(expectedProcess&&parsed.processId!==expectedProcess||issuedId&&parsed.operationId!==issuedId)throw Error('The native radio operation changed; refresh its outcome');return this.accept(parsed,scope,generation);
-  }catch(error){if(kind==='apply'&&issued&&(error as {code?:unknown})?.code==='RADIO_CHANGE_NOT_ACCEPTED'&&issuedId&&this.unresolved.get(this.key(scope))?.id===issuedId)this.unresolved.delete(this.key(scope));if(this.generation===generation&&operation===this.request)this.publish({...this.stateValue,error:kind==='apply'&&issued?'The change outcome is not confirmed. Refresh to check the nodes; no change was automatically repeated.':kind==='cancel'?'The selected radio operation could not be cancelled. Refresh its outcome.':'Radio settings could not be verified. Refresh the current owner and node reports.',notice:issued&&kind==='apply'?'A started trial rolls back automatically unless its verified commit was accepted.':''});throw error;
+  }catch(error){
+   const code=(error as {code?:unknown})?.code;
+   const refused=code==='RADIO_CHANGE_NOT_ACCEPTED';
+   const wasApply=kind==='apply';
+   if(wasApply&&issued&&refused&&issuedId&&this.unresolved.get(this.key(scope))?.id===issuedId)this.unresolved.delete(this.key(scope));
+   if(this.generation===generation&&operation===this.request){
+    let notice='Radio status could not be checked. Check the group connection and refresh radio status.';
+    if(wasApply)notice=issued&&!refused?'The change outcome is unconfirmed. Refresh radio status before starting another change.':'The channel change could not start. Refresh radio status and try again.';
+    else if(kind==='cancel')notice='The radio change could not be cancelled. Refresh radio status to check its outcome.';
+    else if(kind==='commit')notice='The commit was unconfirmed. Refresh radio status before starting another change.';
+    if(code==='RADIO_HOST_UNAVAILABLE')notice='Connect to the group host before requesting radio status.';
+    if(code==='RADIO_HOST_NO_REPLY'&&!wasApply)notice='No reply from the group host. Check the group connection and try again.';
+    this.publish({...this.stateValue,notice});
+   }
+   throw error;
   }finally{if(this.generation===generation&&operation===this.request)this.publish({...this.stateValue,busy:false});}}
  refresh(){return this.action('refresh');}prepareComparison(){return this.action('prepare');}apply(optionId:number){return this.action('apply',optionId);}beginTrial(optionId:number){return this.action('apply',optionId,true);}commitTrial(){return this.action('commit');}cancel(){return this.action('cancel');}
 }

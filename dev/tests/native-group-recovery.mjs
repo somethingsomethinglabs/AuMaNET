@@ -33,7 +33,17 @@ final class GroupPeerWriteHarness {
  interface Probe{void run()throws Exception;}
  final AtomicBoolean closed=new AtomicBoolean(),grantLive=new AtomicBoolean(true);final AtomicInteger grantChecks=new AtomicInteger(),closeCount=new AtomicInteger(),transportCloseCount=new AtomicInteger();
  Probe secondGrantCheck,finalFilter;int textVersion=1,firmwareMaintenanceVersion;long sendSequence,writeStartedAt,voiceRevision=1;
+ boolean inboundSocket,authorized;
  volatile boolean removalQueued;
+ final GatewayRadioSettingsController applicationContext=new GatewayRadioSettingsController();
+ static final class GatewayRadioSettingsController{
+   JSONObject status; boolean failStatus;
+   static GatewayRadioSettingsController get(GatewayRadioSettingsController context){return context;}
+   JSONObject relayStatus()throws IOException{if(failStatus)throw new IOException("fixture radio status unavailable");return status;}
+ }
+ JSONObject advertiseRadioStatus(GroupPeerWriteHarness peer,JSONObject status,long frameEpoch){
+   return peer==this&&status!=null&&status.optLong("epoch")==frameEpoch?status:null;
+ }
  final String groupId="a".repeat(32),connection="b".repeat(32),pin="BB".repeat(32);final Object lock=new Object();
  final Map<String,Member> members=new HashMap<>();final Identity identity=new Identity();final Consent locationConsent=new Consent();
  static final class Identity{final String pin="AA".repeat(32);}static final class Consent{boolean enabled(){return true;}}static final class Member{boolean sharing,connected;long fixGeneration;}
