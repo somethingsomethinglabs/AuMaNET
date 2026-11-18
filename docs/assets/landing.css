@@ -113,30 +113,82 @@
 .screen-image > span { display: block; margin-top: .5rem; }
 .app-screen figcaption { margin-top: 1.25rem; }
 .app-screen p { margin-top: .5rem; }
-.comparison-list {
+.comparison-scroll {
+  overflow-x: auto;
+  margin-top: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.comparison-matrix {
+  width: 100%;
+  min-width: 42rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  text-align: left;
+  font-size: .9375rem;
+  line-height: 1.45;
+}
+.comparison-matrix th, .comparison-matrix td {
+  padding: .8rem clamp(.7rem, 1.5vw, 1.15rem);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.comparison-matrix thead { color: var(--forest-ink); background: var(--forest); }
+.comparison-matrix :is(th, td):last-child { background: var(--panel); color: var(--ink); }
+.comparison-matrix thead th:last-child { background: var(--sage); color: var(--on-sage); }
+.comparison-matrix tr > :first-child {
+  position: sticky;
+  left: 0;
+  width: clamp(7rem, 15vw, 10rem);
+  border-right: 1px solid var(--line);
+  background: var(--surface);
+}
+.comparison-matrix thead th:first-child { background: var(--forest); border-color: #577161; }
+.comparison-matrix tbody tr:last-child > * { border-bottom: 0; }
+.comparison-matrix td { color: var(--muted); }
+.comparison-sources { display: flex; flex-wrap: wrap; gap: 0 1.2rem; font-size: .875rem; margin-top: .45rem; }
+.comparison-sources a { display: inline-flex; align-items: center; min-height: 44px; }
+.matrix-scroll-hint { display: none; }
+.coverage-section { margin-top: clamp(2rem, 5vw, 4rem); }
+.coverage-section h3 { font-size: clamp(1.6rem, 3vw, 2.25rem); }
+.coverage-note { margin-top: .65rem; color: var(--muted); font-size: .9rem; max-width: 75ch; }
+.coverage-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  padding: 0;
-  margin: 1.75rem 0 0;
-  list-style: none;
+  gap: clamp(1rem, 2.3vw, 1.65rem);
+  margin-top: 1.5rem;
 }
-.comparison-list > li {
-  padding: clamp(1rem, 2.5vw, 1.85rem);
+.coverage-card {
+  margin: 0;
+  padding: clamp(.8rem, 1.8vw, 1.25rem);
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
 }
-.comparison-list > li:last-child { background: var(--panel); border-color: var(--outline); }
-.signal-path { display: flex; flex-wrap: wrap; gap: .3rem .4rem; align-items: center; margin-top: .9rem; font-size: .875rem; font-weight: 700; }
-.signal-hop { display: inline-flex; align-items: center; gap: .4rem; color: var(--link); }
-.signal-label { padding: .15rem .5rem; border: 1px solid var(--outline); border-radius: .4rem; color: var(--ink); }
-.comparison-list dl { display: grid; gap: .55rem; margin: 1rem 0 .75rem; }
-.comparison-list dl > div { display: grid; grid-template-columns: 4.5rem 1fr; gap: .5rem; }
-.comparison-list dt { font-weight: 700; }
-.comparison-list dd { margin: 0; color: var(--muted); }
-.comparison-list a { display: inline-flex; align-items: center; min-height: 44px; font-size: .9rem; }
-.comparison-note { margin-top: 1.25rem; color: var(--muted); }
+.coverage-card:last-child { background: var(--panel); border-color: var(--outline); }
+.coverage-card h4 { font-size: 1.15rem; margin: 0 0 .75rem; }
+.coverage-card figcaption { margin-top: .75rem; color: var(--muted); font-size: .95rem; }
+.coverage-map { position: relative; overflow: hidden; border-radius: 9px; background: var(--forest); }
+.coverage-map img { width: 100%; filter: brightness(.66) saturate(.85); }
+.coverage-map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.coverage-area { fill: #dceca944; stroke: var(--lime); stroke-width: 1.75; stroke-dasharray: 6 5; }
+.coverage-route {
+  fill: none;
+  stroke: var(--lime);
+  stroke-width: 4;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 2px #17291f);
+}
+.vehicle-marker circle { fill: #20362c; stroke: #fffef8; stroke-width: 1.6; stroke-dasharray: 3 2; }
+.vehicle-marker text, .station-marker text { fill: #fffef8; text-anchor: middle; font-weight: 700; font-size: 16px; }
+.vehicle-marker.reachable circle { fill: #fffef8; stroke: #20362c; stroke-width: 2; stroke-dasharray: none; }
+.vehicle-marker.reachable text { fill: #17291f; }
+.station-marker path { fill: var(--lime); stroke: #17291f; stroke-width: 2; }
+.station-marker text { paint-order: stroke; stroke: #17291f; stroke-width: 4; stroke-linejoin: round; }
+.comparison-takeaway { margin-top: 1.65rem; padding: 1.15rem 1.35rem; background: var(--panel); border-left: 3px solid var(--link); }
+.comparison-takeaway p { margin-top: .5rem; max-width: 78ch; color: var(--muted); }
 .path-section { background: var(--panel); padding-block: clamp(2.5rem, 5vw, 4.5rem); }
 .path-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(1.5rem, 5vw, 5rem); align-items: center; }
 .path-layout p, .path-links small, .status-band p { color: var(--muted); }
@@ -154,9 +206,14 @@
   .link-figure { max-width: 35rem; }
 }
 @media (max-width: 43rem) {
-  .screen-grid, .comparison-list { grid-template-columns: 1fr; }
+  .screen-grid, .coverage-grid { grid-template-columns: 1fr; }
   .app-screen { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: center; gap: 1rem; }
   .app-screen figcaption { margin-top: 0; }
+  .station-marker text { font-size: 20px; }
+}
+@media (max-width: 47rem) {
+  .matrix-scroll-hint { display: block; margin-top: .9rem; color: var(--muted); font-size: .875rem; }
+  .comparison-scroll { margin-top: .5rem; }
 }
 @media (max-width: 23rem) {
   .app-screen { grid-template-columns: 1fr; }
