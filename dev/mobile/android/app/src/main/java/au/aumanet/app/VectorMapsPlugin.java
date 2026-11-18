@@ -2,7 +2,11 @@ package au.aumanet.app;
 
 import android.Manifest;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 import au.aumanet.app.maps.VectorRegions;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.*;
