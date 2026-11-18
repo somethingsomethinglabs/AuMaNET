@@ -98,7 +98,14 @@
   $: mapNodeMemberIds=deviceNodes.flatMap(node=>node.phones.map(phone=>phone.id===groupState?.identity.id?'self':phone.id)).filter(id=>mapNameSelection(deviceNodes,groupState?.identity.id??'',id).kind==='node');
   function showMapName(id:string){if(groupState)selectedDevice=mapNameSelection(deviceNodes,groupState.identity.id,id);}
   let groupVoice:LocalGroupVoiceCoordinator|undefined, groupVoiceState:LocalGroupVoiceState|undefined;
-  async function joinVoice(){await joinGroupVoiceExplicit(()=>groupError?undefined:groupClient?.state??groupState,trustedConnectionClient,async()=>{if(!groupVoice)throw new Error('Voice is unavailable.');await groupVoice.join();});}
+  const currentVoiceGroup=()=>groupError?undefined:groupClient?.state??groupState;
+  $: voiceGroupScope=JSON.stringify([groupState?.processId,groupState?.identity.id,groupState?.group?.id,groupState?.group?.epoch]);
+  async function joinVoice(isCurrent?:()=>boolean){
+    await joinGroupVoiceExplicit(()=>isCurrent&&!isCurrent()?undefined:currentVoiceGroup(),trustedConnectionClient,async()=>{
+      if(!groupVoice)throw new Error('Voice is unavailable.');
+      await groupVoice.join(isCurrent);
+    });
+  }
   let groupReceivedAt=0;
   $: mapMembers=groupMapMembers(groupState,Math.max(0,locationClock-groupReceivedAt),!!groupError);
   $: voicePeerNames=Object.fromEntries((groupState?.members??[]).map(member=>[member.id,member.name]));
@@ -253,13 +260,13 @@
         locationStatus={locationError||'Location is off'} navigationToken={mapNavigation} downloadIntent={mapDownloadIntent} focusBounds={mapFocusBounds} onprivacysettings={()=>openSettings('Location & privacy')} onmanage={openMapManagement}/>
       {/if}
     {:else if tab==='Voice'}
-      {#if voiceClient}<NativeVoicePanel client={voiceClient} state={voiceState} sourceError={voiceError||groupVoiceState?.error||''}
+      {#if voiceClient}{#key voiceGroupScope}<NativeVoicePanel client={voiceClient} state={voiceState} sourceError={voiceError||groupVoiceState?.error||''}
         channelJoined={groupState?.voiceJoined??false} joining={groupVoiceState?.working??false}
         channelName={groupState?.group?.name??'Group voice'} peerName={groupState?.members.find(member=>member.id===voiceState?.groupPeerId)?.name??'Connected phone'}
         peerNames={voicePeerNames}
         channelMembers={groupState?.members??[]} selfId={groupState?.identity.id??''}
         channelAvailable={!!groupState?.group&&!groupError&&['hosting','connected'].includes(groupState.status)}
-        onjoin={groupVoice?joinVoice:undefined} onleave={groupVoice?()=>groupVoice!.leave():undefined}/>
+        getGroup={currentVoiceGroup} onjoin={groupVoice?joinVoice:undefined} onleave={groupVoice?()=>groupVoice!.leave():undefined}/>{/key}
       {:else}<section class="card"><h2>Group voice</h2><p>Group voice is available in the Android app.</p></section>{/if}
     {/if}
   </main>

@@ -4,7 +4,7 @@ import NativeVoicePanel from '../NativeVoicePanel.svelte';
 import NativeVoiceStrip from '../NativeVoiceStrip.svelte';
 import '../../styles.css';
 import type {NativeVoiceLabClient,VoiceLabSnapshot} from '@aumanet/core';
-import type {VoiceLabPeerSnapshot,GroupMember} from '@aumanet/protocol';
+import type {VoiceLabPeerSnapshot,GroupMember,GroupSnapshot} from '@aumanet/protocol';
 
 const ids=['AA','BB','CC','DD','EE'].map(value=>value.repeat(32));
 const names=['Fixture Rowan','Fixture Alex','Fixture Sam','Fixture Casey'];
@@ -19,6 +19,12 @@ function fresh():VoiceLabSnapshot{return {schema:'aumanet.voice-lab.v1',source:'
   groupId:'b'.repeat(32),groupEpoch:1,groupPeerId:'',groupMode:true,peers:[0,1,2,3].map(peer),capturePostAvailable:true,capturePostFrames:100,
   routes:[{id:1,type:2,label:'Speaker'}],effectiveRoute:1,stats:{}};}
 const view=$state<{state:VoiceLabSnapshot;peerNames:Record<string,string>;sourceError:string;channelMembers:GroupMember[];channelAvailable:boolean}>({state:fresh(),peerNames:{},sourceError:'',channelMembers:[],channelAvailable:false});
+function freshGroup():GroupSnapshot{
+  return {schema:'aumanet.group.v1',source:'device',processId:fresh().processId,sequence:1,observedElapsedMs:100,
+    status:'connected',role:'owner',identity:{id:ids[0]!,name:'Self'},group:{id:'b'.repeat(32),epoch:1,name:'Fixture',ownerId:ids[0]!},
+    members:[],pending:[],sharingLocation:false,voiceJoined:true,signals:[],error:''};
+}
+let group=freshGroup();
 const calls:{method:string;value?:unknown}[]=[];
 let deferNextStop=false,finishDeferredStop:(()=>void)|undefined;
 let component:ReturnType<typeof mount>|undefined;
@@ -34,8 +40,8 @@ const client={supportsTelecomEndpoints:true,
   },
   beginPtt:async()=>{calls.push({method:'beginPtt'});},endPtt:async()=>{calls.push({method:'endPtt'});}
 } as unknown as NativeVoiceLabClient;
-async function reset(kind:'mesh'|'mixed'|'legacy'|'idle'|'route-unready'='mesh'){
-  if(component)await unmount(component);calls.length=0;view.state=fresh();view.sourceError='';view.channelMembers=[];view.channelAvailable=false;
+async function reset(kind:'mesh'|'mixed'|'legacy'|'idle'|'route-unready'='mesh',scoped=false){
+  if(component)await unmount(component);calls.length=0;view.state=fresh();view.sourceError='';view.channelMembers=[];view.channelAvailable=scoped;group=freshGroup();
   view.peerNames=Object.fromEntries(names.map((name,index)=>[ids[index+1]!,name]));
   // A name map can contain an enrolled member who has no media link. It must not create a row/count.
   view.peerNames['FF'.repeat(32)]='Fixture offline member';
@@ -47,10 +53,17 @@ async function reset(kind:'mesh'|'mixed'|'legacy'|'idle'|'route-unready'='mesh')
   document.body.innerHTML='<style>.voice-fixture-shell{max-width:1100px}.voice-fixture-shell header{padding:16px 18px;border-bottom:1px solid var(--line)}.voice-fixture-shell .brandline{margin-bottom:8px}.voice-fixture-shell .brandline strong{font-size:24px}.voice-fixture-shell .brandline .pill{margin-left:auto}.voice-fixture-shell .fixture-status{font-size:12px;color:var(--muted);margin:8px 0 0}.voice-fixture-shell main{display:flex;overflow:hidden;min-height:0;padding:20px 18px}.voice-fixture-shell nav button{flex:1;min-height:64px}@media(max-height:450px){.voice-fixture-shell{height:100dvh;margin:0;border-radius:0;border:0}.voice-fixture-shell header{padding:6px 12px}.voice-fixture-shell .brandline{margin:0}.voice-fixture-shell .brandline strong{font-size:20px}.voice-fixture-shell .fixture-status{display:none}.voice-fixture-shell main{padding:8px 12px}.voice-fixture-shell nav{padding:2px 8px}.voice-fixture-shell nav button{min-height:40px}}</style><div class="app-shell voice-fixture-shell"><header><div class="brandline"><strong>AuMaNET</strong><span class="pill">Connected</span><button class="square" aria-label="Open settings">⚙</button></div><p class="fixture-status">Saved node Wi-Fi connected · Push to talk ready</p><p class="fixture-status">Fixture group · 5 connected · Internet not measured</p></header><main id="voice-panel-check"></main><nav aria-label="Primary navigation"><button>Network</button><button>Messages</button><button>Map</button><button class="active">Voice</button></nav></div>';
   component=mount(NativeVoicePanel,{target:document.getElementById('voice-panel-check')!,props:{client,
     get state(){return view.state;},get peerNames(){return view.peerNames;},get sourceError(){return view.sourceError;},get channelMembers(){return view.channelMembers;},get channelAvailable(){return view.channelAvailable;},selfId:ids[0],
-    channelJoined:kind!=='idle',channelName:'Fixture group voice',peerName:'Legacy fixture phone'}});await tick();
+    channelJoined:kind!=='idle',channelName:'Fixture group voice',peerName:'Legacy fixture phone',
+    ...(scoped?{getGroup:()=>group,onleave:()=>client.stop(),onjoin:()=>client.start()}: {})}});await tick();
 }
 const fixture={reset,ids,names,get calls(){return [...calls];},get state(){return view.state;},
   holdNextStop(){deferNextStop=true;},finishStop(){finishDeferredStop?.();finishDeferredStop=undefined;},
+  changeGroup(change:'group'|'epoch'|'member'|'process'){
+    if(change==='group')group={...group,group:{...group.group!,id:'c'.repeat(32)}};
+    if(change==='epoch')group={...group,group:{...group.group!,epoch:2}};
+    if(change==='member')group={...group,identity:{...group.identity,id:ids[1]!}};
+    if(change==='process')group={...group,processId:'22345678-1234-1234-1234-123456789abc'};
+  },
   async presence(members:GroupMember[],available=true){view.channelMembers=members;view.channelAvailable=available;await tick();},
   async patch(patch:Partial<VoiceLabSnapshot>){view.state={...view.state,...patch,sequence:view.state.sequence+1};await tick();},
   async setMuted(muted:boolean){view.state={...view.state,sequence:view.state.sequence+1,muted,gateEpoch:view.state.gateEpoch+1};await tick();},

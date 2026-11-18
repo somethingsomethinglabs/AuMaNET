@@ -194,13 +194,33 @@ try{
   assert.equal((await page.evaluate(()=>window.__voicePanelFixture.calls)).slice(beforeCancel).some(call=>call.method==='start'),false,'Cancel during old-call teardown must retire the queued rejoin');
   await page.evaluate(()=>window.__voicePanelFixture.patch({joined:true,telecomState:'active',telecomSystemMuted:true,coordinatorStatus:'connected',coordinatorError:''}));await page.getByRole('region',{name:'Group voice call',exact:true}).getByText('Android has muted call audio.',{exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'Hold native push to talk',exact:true}).isDisabled(),true);
   await page.screenshot({path:output+'/telecom-watch-muted.png'});await page.evaluate(()=>window.__voicePanelFixture.setSourceError('Voice status unavailable'));await page.getByRole('button',{name:'Audio options',exact:true}).click();assert.equal(await telecomOutput.isDisabled(),true);
+  for(const change of ['unchanged','group','epoch','member','process','voice-process','unmount']){
+    await page.evaluate(async()=>{
+      const f=window.__voicePanelFixture;
+      await f.reset('mesh',true);
+      await f.patch({routeOwner:'telecom',telecomState:'held'});
+      f.holdNextStop();
+    });
+    await page.getByRole('button',{name:'Rejoin held call · Muted',exact:true}).click();
+    await page.waitForFunction(()=>window.__voicePanelFixture.calls.some(call=>call.method==='stop'));
+    await page.evaluate(async change=>{
+      const f=window.__voicePanelFixture;
+      if(change==='unmount')await f.destroy();
+      else if(change==='voice-process')await f.patch({processId:'32345678-1234-1234-1234-123456789abc'});
+      else if(change!=='unchanged')f.changeGroup(change);
+      f.finishStop();
+    },change);
+    await page.waitForFunction(()=>window.__voicePanelFixture.calls.some(call=>call.method==='refresh'));
+    const actions=(await page.evaluate(()=>window.__voicePanelFixture.calls)).filter(call=>['stop','start','mute','beginPtt'].includes(call.method)).map(call=>call.method);
+    assert.deepEqual(actions,change==='unchanged'?['stop','start']:['stop'],`Delayed rejoin after ${change}`);
+  }
   assert.deepEqual(errors,[],'Browser fixture produced runtime errors');
   const result={status:'pass',scope:'Browser fixture presentation only; synthetic snapshots, no Android devices, native media, microphone, or physical 3–5 participant acceptance',checks:[
     'Five truthful participant names/count from four actual snapshot peers','Pending/failed/unverified rows excluded from connected count',
     'Unknown-name fallback and no row from a name-only offline member','Participant changes preserve mute/PTT disabled and send no audio/session commands',
     'Unavailable source cannot claim connected peers','Legacy single-peer display retained','Normal panel excludes pairing/diagnostics',
     'Fixed call controls fit 320/360/412px and landscape, including 200% text; participant overflow is explicit','Compact audio options restore focus and preserve explicit route rearm/mute','Long errors keep control position; complete detail remains accessible','Only verified per-peer RTP energy shows Speaking; hostile names stay literal text','Explicit Leave calls stop once',
-    'Idle mode/output preferences use guarded storage without starting capture','Unready active route can be explicitly selected again','Held/interrupted recovery stops before starting, never unmutes, and explicit Cancel retires a pending rejoin',
+    'Idle mode/output preferences use guarded storage without starting capture','Unready active route can be explicitly selected again','Held/interrupted recovery stops before starting, never unmutes, and explicit Cancel retires a pending rejoin','A delayed rejoin stays in the original group, epoch, member and process; unmount retires it',
     'A real mouse press on muted/disabled PTT never invokes a hold','One pointer/key owns a hold; duplicate inputs cannot add or release it',
     'Focus loss and mute close the owned hold once','Mini call bar stays bounded at 320px/200% text, reports unavailable state and opens Voice without native commands','Actual ConnectedApp chrome preserves fixed Voice layout in both orientations at 100% and 200% text with read-only navigation','Pre-join roster uses connected authenticated voice presence, updates/removes names and never starts capture','Unavailable presence is distinguished from an empty channel; hostile names remain literal','Initial route preparation stays visible and PTT disabled without a native command','Solo initial waiting says Waiting for members while genuine route failure retains explicit recovery notice','Telecom owner exposes only exact Android endpoint UUIDs; no numeric or preference fallback','Streaming endpoint is visible but unselectable; explicit watch selection stays muted','Android hold/system mute and unavailable state disable transmission without starting media']};
   await writeFile(`${output}/result.json`,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));

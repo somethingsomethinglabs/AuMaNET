@@ -34,6 +34,23 @@ test('read-only observation cannot start a microphone or join a channel',async()
   const f=fixture();f.peerJoin();await f.settle();assert.deepEqual(f.calls,[]);assert.equal(f.coordinator.state.status,'idle');f.dispose();
 });
 
+test('a scoped rejoin that expires during group refresh cannot withdraw or grant voice consent',async()=>{
+  const f=fixture();
+  try{
+    let release;
+    f.group.refresh=()=>new Promise(resolve=>{release=resolve;});
+    const originalGroup=f.group.state.group;
+    const pending=f.coordinator.join(()=>f.group.state.group===originalGroup);
+    assert.ok(release);
+    f.updateGroup({group:{...originalGroup,epoch:2}});
+    release(f.group.state);
+    await pending;
+    await f.settle();
+    assert.deepEqual(f.calls,[]);
+    assert.match(f.coordinator.state.error,/rejoin expired/);
+  }finally{f.dispose();}
+});
+
 test('remembered native voice remains observation-only across group loss and fresh master recovery',async()=>{
   const f=fixture();try{
     f.updateGroup({voiceJoined:true,voiceConsentRevision:3});

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import {afterUpdate,onMount} from 'svelte';
+  import {afterUpdate,onDestroy,onMount} from 'svelte';
   import type {NativeVoiceLabClient,VoiceLabSnapshot} from '@aumanet/core';
-  import type {VoiceOutputPreference,GroupMember} from '@aumanet/protocol';
+  import type {VoiceOutputPreference,GroupMember,GroupSnapshot} from '@aumanet/protocol';
   import {AudioLines,Users,Mic,MicOff,Headphones,Volume2,PhoneOff,Info,SlidersHorizontal} from '@lucide/svelte';
   import NativePtt from './NativePtt.svelte';
   export let client:NativeVoiceLabClient;
@@ -15,7 +15,8 @@
   export let channelMembers:readonly GroupMember[]=[];
   export let selfId='';
   export let channelAvailable=false;
-  export let onjoin:(()=>Promise<unknown>)|undefined=undefined;
+  export let getGroup:(()=>GroupSnapshot|undefined)|undefined=undefined;
+  export let onjoin:((isCurrent?:()=>boolean)=>Promise<unknown>)|undefined=undefined;
   export let onleave:(()=>Promise<unknown>)|undefined=undefined;
   let busy=false,error='',rejoinRevision=0;
   let statusDialog:HTMLDialogElement|undefined;
@@ -23,6 +24,7 @@
   let rosterElement:HTMLDivElement|undefined,rosterOverflows=false;
   function measureRoster(){if(rosterElement)rosterOverflows=rosterElement.scrollHeight>rosterElement.clientHeight+1;}
   afterUpdate(measureRoster);
+  onDestroy(()=>{rejoinRevision++;});
   onMount(()=>{const observer=new ResizeObserver(measureRoster);if(rosterElement)observer.observe(rosterElement);const media=matchMedia('(orientation:landscape) and (max-height:560px)');const update=()=>{audioDialog?.close();compactCall=true;};update();media.addEventListener('change',update);return()=>{observer.disconnect();media.removeEventListener('change',update);};});
   $: joined=!!state?.joined;
   $: connected=!sourceError&&state?.connection==='connected'&&state.peerVerified;
@@ -56,7 +58,28 @@
     try{await action();}catch(e){error=e instanceof Error?e.message:String(e);}finally{busy=false;void client.refresh().catch(e=>error=e instanceof Error?e.message:String(e));}
   }
   async function leave(){++rejoinRevision;error='';try{if(onleave)await onleave();else await client.stop();}catch(e){error=e instanceof Error?e.message:String(e);}}
-  async function rejoinMuted(){const revision=++rejoinRevision;await run(async()=>{if(onleave)await onleave();else await client.stop();if(revision!==rejoinRevision)return;if(onjoin)await onjoin();else await client.start();});}
+  async function rejoinMuted(){
+    if(busy)return;
+    const originalClient=client,voice=originalClient.state,group=getGroup?.(),join=onjoin;
+    if(!voice||voice.processId!==state?.processId||voice.sessionId!==state.sessionId)return;
+    if(join&&(!group?.group||group.error||!['hosting','connected'].includes(group.status)))return;
+    if(voice.groupMode&&group?.group&&(voice.groupId!==group.group.id||voice.groupEpoch!==group.group.epoch))return;
+    const revision=++rejoinRevision;
+    const isCurrent=()=>{
+      if(revision!==rejoinRevision||client!==originalClient||client.state?.processId!==voice.processId)return false;
+      if(!join)return true;
+      if(!group?.group)return false;
+      const current=getGroup?.();
+      return !!current?.group&&!current.error&&['hosting','connected'].includes(current.status)&&
+        current.processId===group.processId&&current.identity.id===group.identity.id&&
+        current.group.id===group.group.id&&current.group.epoch===group.group.epoch;
+    };
+    await run(async()=>{
+      if(onleave)await onleave();else await originalClient.stop(voice.sessionId);
+      if(!isCurrent()||originalClient.state?.joined)return;
+      if(join)await join(isCurrent);else await originalClient.start(undefined,true);
+    });
+  }
   async function control(action:()=>Promise<unknown>){try{await action();error='';}catch(e){error=e instanceof Error?e.message:String(e);}finally{void client.refresh().catch(e=>error=e instanceof Error?e.message:String(e));}}
 </script>
 
