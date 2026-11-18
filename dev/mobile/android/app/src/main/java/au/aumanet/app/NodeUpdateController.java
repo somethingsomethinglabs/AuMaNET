@@ -31,7 +31,52 @@ final class NodeUpdateController {
  private void enqueue(Runnable task)throws Exception{try{worker.execute(task);}catch(RuntimeException busy){throw new NotAccepted();}}
  JSObject debugFixture(JSONObject options,BooleanSupplier foreground)throws Exception{if(!foreground.getAsBoolean()||!"use-usb-loopback-release-fixture".equals(GroupNameMetadata.string(options,"acknowledgement"))||current.get()!=null)throw new NotAccepted();long port=GroupNameMetadata.number(options,"port");if(port>65535)throw new NotAccepted();internet.fixture((int)port,GroupNameMetadata.string(options,"expectedCatalogSha256"));index=null;feedStatus="not-checked";feedSource=port==0?"https":"usb-fixture";error="";sequence.incrementAndGet();return snapshot();}
  JSObject refreshNode(JSONObject options)throws Exception{selected(options,true);String target=GroupNameMetadata.string(options,"nodeId");if(current.get()!=null)throw new NotAccepted();GatewayLeaseIssuer.RadioContext field=issuer.radioContext();GatewayConfigStore.Record record=config();GatewayBindingConfig.Node node=find(record.config,target);if(field==null||field.config!=record.config||!issuer.radioCurrent(field))throw new NotAccepted();enqueue(()->{try(NodeUpdateTransport transport=readTransport(field,node,()->issuer.radioCurrent(field)&&current.get()==null)){NodeUpdateTransport.Reading reading=transport.query(field.runs.get(target));observe(reading.message,record);error=(reading.message.flags&1)!=0?"":"NODE_UPDATE_UNSUPPORTED";reconcile(reading.message);}catch(Exception unavailable){error="NODE_UPDATE_NODE_UNAVAILABLE";}finally{sequence.incrementAndGet();}});return snapshot();}
- JSObject checkReleases(JSONObject options)throws Exception{TrustedConnectionScope expected=selected(options,false);String selected=GroupNameMetadata.string(options,"channel"),branch=options.has("ref")?GroupNameMetadata.string(options,"ref"):"";if(!List.of("stable","beta","nightly","branch").contains(selected)||selected.equals("branch")&&!NodeReleaseManifest.safeRef(branch)||current.get()!=null||catalogStorageFailed)throw new NotAccepted();enqueue(()->{AtomicReference<Closeable> resource=new AtomicReference<>();try{TrustedConnectionScope saved=expected;BooleanSupplier live=()->current.get()==null&&saved.sameAuthority(group.trustedConnectionScope());String source=internet.source();Network excluded=null;InternetSharingScope active=group.internetScope();if(active!=null)excluded=active.network;Network network=internet.selected(excluded);byte[] bytes=internet.catalog(network,live,resource);if(!source.equals(internet.source()))throw new IOException();NodeReleaseIndex checked=NodeReleaseIndex.checked(bytes,System.currentTimeMillis()/1000,source.equals("usb-fixture")?0:feedFloor,source.equals("usb-fixture")?"":feedDigest);if(!source.equals("usb-fixture"))saveFloor(checked);if(!live.getAsBoolean())throw new IOException();index=checked;feedStatus="available";feedSource=source;channel=selected;ref=branch;error="";}catch(SecurityException invalid){feedStatus="invalid";index=null;error="NODE_UPDATE_CATALOG_INVALID";}catch(Exception unavailable){feedStatus="unavailable";index=null;error="NODE_UPDATE_CATALOG_UNAVAILABLE";}finally{checkedAt=System.currentTimeMillis()/1000;sequence.incrementAndGet();}});return snapshot();}
+ JSObject checkReleases(JSONObject options)throws Exception{
+  TrustedConnectionScope expected=selected(options,false);
+  String selectedChannel=GroupNameMetadata.string(options,"channel");
+  String branch=options.has("ref")?GroupNameMetadata.string(options,"ref"):"";
+  if(!List.of("stable","beta","nightly","branch").contains(selectedChannel)
+    ||selectedChannel.equals("branch")&&!NodeReleaseManifest.safeRef(branch)
+    ||current.get()!=null||catalogStorageFailed)throw new NotAccepted();
+  enqueue(()->{
+   AtomicReference<Closeable> resource=new AtomicReference<>();
+   try{
+    BooleanSupplier live=()->current.get()==null&&expected.sameAuthority(group.trustedConnectionScope());
+    String source=internet.source();
+    InternetSharingScope active=group.internetScope();
+    Network network=internet.selected(active==null?null:active.network);
+    byte[] bytes=internet.catalog(network,live,resource);
+    if(!source.equals(internet.source()))throw new IOException();
+    boolean fixture=source.equals("usb-fixture");
+    NodeReleaseIndex checked=NodeReleaseIndex.checked(bytes,System.currentTimeMillis()/1000,
+      fixture?0:feedFloor,fixture?"":feedDigest);
+    if(!fixture)saveFloor(checked);
+    if(!live.getAsBoolean())throw new IOException();
+    index=checked;
+    feedStatus="available";
+    feedSource=source;
+    channel=selectedChannel;
+    ref=branch;
+    error="";
+   }catch(NodeUpdateInternet.NoValidatedInternet unavailable){
+    feedStatus="unavailable";
+    index=null;
+    error="NODE_UPDATE_INTERNET_UNAVAILABLE";
+   }catch(SecurityException invalid){
+    feedStatus="invalid";
+    index=null;
+    error="NODE_UPDATE_CATALOG_INVALID";
+   }catch(Exception unavailable){
+    feedStatus="unavailable";
+    index=null;
+    error="NODE_UPDATE_CATALOG_UNAVAILABLE";
+   }finally{
+    checkedAt=System.currentTimeMillis()/1000;
+    sequence.incrementAndGet();
+   }
+  });
+  return snapshot();
+ }
  JSObject download(JSONObject options,BooleanSupplier foreground,long capturedIntent)throws Exception{boolean queued=false;try{TrustedConnectionScope saved=selected(options,true);if(!foreground.getAsBoolean()||capturedIntent!=TrustedConnectionController.intentEpoch()||!process.equals(GroupNameMetadata.string(options,"expectedProcessId"))||catalogStorageFailed||!cache.healthy())throw new NotAccepted();String id=GroupNameMetadata.string(options,"operationId"),releaseId=GroupNameMetadata.string(options,"releaseDigest");if(!GroupWire.id(id))throw new NotAccepted();NodeReleaseIndex catalog=index;NodeReleaseIndex.Release release=null;if(catalog!=null&&feedStatus.equals("available")&&System.currentTimeMillis()/1000<catalog.expires)for(NodeReleaseIndex.Release r:catalog.releases)if(r.manifest.id.equals(releaseId))release=r;if(release==null)throw new NotAccepted();GatewayConfigStore.Record record=config();Operation o=new Operation(id,"",generations.incrementAndGet(),release,null,record,null,saved,capturedIntent);if(!foreground.getAsBoolean()||!operationEntryCurrent(o))throw new NotAccepted();admit(o);try{enqueue(()->download(o));}catch(Exception failed){o.phase="failed";current.compareAndSet(o,null);throw failed;}queued=true;return snapshot();}catch(Exception failure){if(!queued)throw new NotAccepted();throw failure;}}
  private void download(Operation o){File staged=cache.staging(o.id);try{Network excluded=null;InternetSharingScope scope=group.internetScope();if(scope!=null)excluded=scope.network;Network network=internet.selected(excluded);internet.download(network,o.release,staged,()->operationLive(o),bytes->{o.bytes=bytes;sequence.incrementAndGet();},o.resource);require(o);o.phase="verifying-cache";cache.commit(o.release,staged);require(o);o.phase="complete";error="";}catch(Exception failed){o.phase=o.cancelled.get()?"cancelled":"failed";error="NODE_UPDATE_CACHE_UNAVAILABLE";}finally{if(staged.exists())staged.delete();current.compareAndSet(o,null);sequence.incrementAndGet();}}
  JSObject install(JSONObject options,BooleanSupplier foreground,long capturedIntent)throws Exception{boolean queued=false;try{TrustedConnectionScope saved=selected(options,true);if(!foreground.getAsBoolean()||capturedIntent!=TrustedConnectionController.intentEpoch()||!process.equals(GroupNameMetadata.string(options,"expectedProcessId"))||!"install-signed-firmware-on-this-node".equals(GroupNameMetadata.string(options,"acknowledgement"))||storageFailed||!journal.healthy()||journal.current()!=null)throw new NotAccepted();GatewayLeaseIssuer.RadioContext field=issuer.radioContext();GatewayConfigStore.Record record=config();InternetSharingScope scope=group.internetScope();if(field==null||scope==null||field.config!=record.config||field.revision!=GroupNameMetadata.number(options,"expectedGatewayRevision")||!field.job.session.id.equals(GroupNameMetadata.string(options,"expectedFieldSessionId"))||field.job.session.generation!=GroupNameMetadata.number(options,"expectedFieldGeneration")||scope.run!=GroupNameMetadata.number(options.getJSONObject("expectedScope"),"sourceRun")||!updateOwnerReady(field))throw new NotAccepted();String target=GroupNameMetadata.string(options,"nodeId"),id=GroupNameMetadata.string(options,"operationId");if(!GroupWire.id(id)||!Objects.equals(field.runs.get(target),GroupNameMetadata.string(options,"expectedNodeRun")))throw new NotAccepted();GatewayBindingConfig.Node node=find(record.config,target);NodeUpdateCache.Package prepared=cache.get(GroupNameMetadata.string(options,"packageId"));if(prepared.release.manifest.role!=3&&prepared.release.manifest.role!=(target.equals(field.base)?1:2))throw new NotAccepted();Observation checkedObservation=observations.get(target);if(prepared.release.manifest.role==3&&(checkedObservation==null||checkedObservation.config!=record||checkedObservation.message.imageRole!=3))throw new NotAccepted();Operation o=new Operation(id,target,generations.incrementAndGet(),prepared.release,field,record,scope,saved,capturedIntent);if(!foreground.getAsBoolean()||!operationEntryCurrent(o)||!updateOwnerReady(field)||!group.internetCurrent(scope)||!group.firmwareMaintenanceSupported(scope))throw new NotAccepted();o.originalRun=field.runs.get(node.id);admit(o);try{NodeUpdateService.start(context,o);enqueue(()->perform(o,prepared));}catch(Exception failed){retire(o);o.phase="failed";current.compareAndSet(o,null);NodeUpdateService.release(o);throw new NotAccepted();}queued=true;return snapshot();}catch(Exception failure){if(!queued)throw new NotAccepted();throw failure;}}
