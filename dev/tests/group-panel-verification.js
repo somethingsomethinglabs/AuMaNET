@@ -48,8 +48,7 @@ async (page) => {
   await page.getByLabel('Your name in the group',{exact:true}).fill('Fixture joiner');
   const invitation=await page.evaluate(()=>window.__groupPanelFixture.invitation());
   await page.getByLabel('Group invitation',{exact:true}).fill(invitation.inviteCode);
-  await page.waitForFunction(()=>Array.from(document.querySelectorAll('button')).some(button=>button.textContent?.trim()==='Join group'&&!button.disabled),{},{timeout:3000});
-  await button('Join group').click();await button('Cancel connection').waitFor();
+  await button('Inspect invitation').click();await button('Request to join').click();await button('Cancel connection').waitFor();
   check(await page.evaluate(()=>window.__groupPanelFixture.calls.find(call=>call.method==='join')?.codeLength)>0,'Invitation was cleared before native Join');
   await button('Cancel connection').click();await page.getByRole('heading',{name:'Your group',exact:true}).waitFor();
 
@@ -84,7 +83,7 @@ async (page) => {
   await page.evaluate(()=>window.__groupPanelFixture.reset());
   const oldInvitation=await page.evaluate(()=>{const value=window.__groupPanelFixture.invitation();const raw=JSON.parse(atob(value.inviteCode.slice('aumanet://join/'.length).replaceAll('-','+').replaceAll('_','/')));raw.schema='aumanet.invite.v1';return 'aumanet://join/'+btoa(JSON.stringify(raw)).replaceAll('+','-').replaceAll('/','_').replaceAll('=','');});
   await page.getByLabel('Your name in the group',{exact:true}).fill('Person');await page.getByLabel('Group invitation',{exact:true}).fill(oldInvitation);
-  check(await button('Join group').isDisabled(),'Old incompatible invite schema was accepted');
+  if(await button('Inspect invitation').isEnabled())await button('Inspect invitation').click();check(await button('Request to join').count()===0,'Old incompatible invite schema was accepted');
   await page.evaluate(()=>window.__groupPanelFixture.reset('owner'));
   await page.evaluate(()=>window.__groupPanelFixture.deferInvite());await button('Create invitation').click();
   await button('Disconnect group').click();await page.getByRole('dialog').getByRole('button',{name:'Disconnect group',exact:true}).click();
@@ -100,7 +99,7 @@ async (page) => {
   const expired=await page.evaluate(()=>window.__groupPanelFixture.invitation(-100));
   await page.getByLabel('Group invitation',{exact:true}).fill(expired.inviteCode);
   check(await page.getByLabel('Group invitation',{exact:true}).inputValue()==='','Expired pasted invitation remained in the form');
-  check(await button('Join group').isDisabled(),'Expired invitation could be submitted');
+  if(await button('Inspect invitation').isEnabled())await button('Inspect invitation').click();check(await button('Request to join').count()===0,'Expired invitation could be submitted');
   await page.evaluate(()=>window.__groupPanelFixture.reset('owner'));
   await page.evaluate(()=>window.__groupPanelFixture.expireInvitesAfter(900));await button('Create invitation').click();
   await page.getByLabel('Private group invitation',{exact:true}).waitFor();

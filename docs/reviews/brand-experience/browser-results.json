@@ -1,0 +1,13 @@
+{
+  "status": "pass",
+  "checks": [
+    "Failed draft survives navigation and theme change; send stays blocked.",
+    "One send after retry; history position survives new content and navigation.",
+    "Sheet retains state across appearance changes, contains focus, and returns focus.",
+    "Voice joins muted; fresh hold transmits, release stops; persistent Mute works.",
+    "Map inspection never acquires; private acquisition never publishes.",
+    "All secondary destinations render within the shell.",
+    "Small phone, landscape, long international names, large text, offline."
+  ],
+  "evidence": "Synthetic bridge boundary; real application shell/components/client. No device or physical service acceptance."
+}

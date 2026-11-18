@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item><shape><solid android:color="#F4F3EC"/></shape></item><item android:width="80dp" android:height="60dp" android:gravity="center"><bitmap android:src="@drawable/launch_mark_light" android:gravity="fill"/></item></layer-list>

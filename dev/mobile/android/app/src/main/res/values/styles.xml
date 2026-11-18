@@ -2,14 +2,17 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:colorBackground">@color/aumanet_canvas</item>
+        <item name="android:textColorPrimary">@color/aumanet_text</item>
+        <item name="android:textColorSecondary">@color/aumanet_secondary</item>
     </style>
 
-    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
@@ -19,9 +22,18 @@
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
-        <item name="android:background">@drawable/splash</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
-        <item name="windowSplashScreenBackground">#FBF8EF</item>
+        <item name="android:background">@drawable/launch_light</item>
+        <item name="android:windowBackground">@drawable/launch_light</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/launch_mark_light</item>
+        <item name="windowSplashScreenBackground">#F4F3EC</item>
         <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
+    </style>
+    <style name="AppTheme.NoActionBarLaunch.Dark" parent="AppTheme.NoActionBarLaunch">
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:background">@drawable/launch_dark</item>
+        <item name="android:windowBackground">@drawable/launch_dark</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/launch_mark_dark</item>
+        <item name="windowSplashScreenBackground">#182A24</item>
     </style>
 </resources>

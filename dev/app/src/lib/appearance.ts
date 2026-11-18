@@ -12,4 +12,6 @@ function storage(){
   return bridge=new BrowserAppearanceBridge(()=>window.localStorage);
 }
 /** Importing/subscribing does not start native sessions or request permissions. Parent calls load on mount. */
-export const appearance=new AppearanceClient(storage,Capacitor.getPlatform()==='android'?'device':'browser');
+declare global {interface Window {__aumanetBootAppearance?:'Light'|'Dark';}}
+const device=Capacitor.getPlatform()==='android';
+export const appearance=new AppearanceClient(storage,device?'device':'browser',device&&typeof window!=='undefined'&&window.__aumanetBootAppearance==='Dark'?'Dark':'Light');

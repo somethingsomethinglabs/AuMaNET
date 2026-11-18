@@ -11,7 +11,7 @@ try{
   await page.evaluate(async()=>await import('/src/lib/__tests__/location-sharing-fixture.svelte.ts'));
   await toggle().waitFor();
   const geometry=await toggle().evaluate(e=>{const s=getComputedStyle(e),thumb=getComputedStyle(e,'::before');return{width:e.offsetWidth,height:e.offsetHeight,thumb:parseFloat(thumb.width),left:parseFloat(thumb.left),appearance:s.appearance};});
-  assert.equal(geometry.width,43);assert.equal(geometry.height,26);assert.ok(geometry.left+geometry.thumb<geometry.width);
+  assert.equal(geometry.width,44);assert.equal(geometry.height,28);assert.ok(geometry.left+geometry.thumb<geometry.width);
   assert.equal(await page.getByRole('checkbox',{name:'Consent choice'}).evaluate(e=>getComputedStyle(e).appearance),'auto');
   await page.getByLabel('Command outcome').selectOption('failure');await toggle().click();
   await page.getByRole('alert').filter({hasText:'Location permission was denied'}).waitFor();
@@ -54,5 +54,5 @@ try{
   for(const width of [320,360,412]){await page.setViewportSize({width,height:800});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);}
   await page.emulateMedia({forcedColors:'active'});assert.equal(await toggle().evaluate(e=>getComputedStyle(e).appearance),'auto');
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({status:'pass',scope:'Synthetic location UI only',checks:['43×26 switch track contains thumb','Native consent checkbox','Rejected permission restores confirmed state and shows local alert','Keyboard activation and pending lock','Confirmed sharing state','Stop succeeds after group loss, readback loss or both','Failed Stop restores confirmed On and permits retry','Unavailable prerequisites explain disabled state','Pending rejection','Dark and 320/360/412px layouts','Forced colours uses native control','No runtime errors']},null,2));
+  console.log(JSON.stringify({status:'pass',scope:'Synthetic location UI only',checks:['44×28 switch track contains thumb','Native consent checkbox','Rejected permission restores confirmed state and shows local alert','Keyboard activation and pending lock','Confirmed sharing state','Stop succeeds after group loss, readback loss or both','Failed Stop restores confirmed On and permits retry','Unavailable prerequisites explain disabled state','Pending rejection','Dark and 320/360/412px layouts','Forced colours uses native control','No runtime errors']},null,2));
 }finally{await browser.close();}

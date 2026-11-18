@@ -1,19 +1,20 @@
+import {openTool,leaveSecondary} from './ui-navigation.mjs';
 // Synthetic native bridge evidence only; never authorizes hardware acceptance.
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:360,height:800}}),errors=[];page.on('pageerror',error=>errors.push(error.message));
 const heading=()=>page.getByRole('heading',{name:'Field node connection',exact:true}),start=()=>page.getByRole('button',{name:'Start configured field session',exact:true}),stop=()=>page.getByRole('button',{name:'Stop field session',exact:true}),refresh=()=>page.getByRole('button',{name:'Refresh field status',exact:true});
 const commands=()=>page.evaluate(()=>window.__gatewayDeveloperFixture.calls.filter(value=>value.method!=='group.snapshot'));
-async function open(){await page.getByRole('button',{name:'Open settings',exact:true}).click();await page.getByRole('button',{name:'Developer options',exact:true}).click();await heading().waitFor();await refresh().waitFor({state:'visible'});}
-async function close(){await page.getByRole('button',{name:'Back to settings',exact:true}).click();await page.getByRole('button',{name:'Close settings',exact:true}).click();}
+async function open(){await openTool(page,'Advanced tools');await heading().waitFor();await refresh().waitFor({state:'visible'});}
+async function close(){await leaveSecondary(page);}
 let checks=0;
 try{
   await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5181/');await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
-  await page.getByRole('button',{name:'Open settings',exact:true}).click();await page.getByRole('button',{name:'Developer options',exact:true}).click();assert.equal(await heading().count(),0);checks++;
+  await openTool(page,'Advanced tools');assert.equal(await heading().count(),0);checks++;
   await page.evaluate(async()=>await import('/src/lib/__tests__/gateway-developer-fixture.ts'));await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
-  for(const tab of ['Map','Messages','Voice','Network']){await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:tab,exact:true}).click();assert.equal(await heading().count(),0);}assert.deepEqual(await commands(),[]);checks++;
-  await page.getByRole('button',{name:'Open settings',exact:true}).click();await page.locator('[data-settings-category="Diagnostics & about"]').click();assert.equal(await heading().count(),0);assert.deepEqual(await commands(),[]);await page.getByRole('button',{name:'Back to settings',exact:true}).click();
-  await page.getByRole('button',{name:'Developer options',exact:true}).click();await heading().waitFor();await start().waitFor();await page.waitForFunction(()=>!document.querySelector('.gateway-developer button')?.disabled);assert.deepEqual((await commands()).map(value=>value.method),['gateway.snapshot']);checks++;
+  for(const tab of ['Messages','Voice','Map','People','Tools']){await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:tab,exact:true}).click();assert.equal(await heading().count(),0);}assert.deepEqual(await commands(),[]);checks++;
+  await openTool(page,'Diagnostics');assert.equal(await heading().count(),0);assert.deepEqual(await commands(),[]);await leaveSecondary(page);
+  await openTool(page,'Advanced tools');await heading().waitFor();await start().waitFor();await page.waitForFunction(()=>!document.querySelector('.gateway-developer button')?.disabled);assert.deepEqual((await commands()).map(value=>value.method),['gateway.snapshot']);checks++;
   await refresh().click();await page.waitForFunction(()=>window.__gatewayDeveloperFixture.calls.filter(value=>value.method==='gateway.snapshot').length===2);assert.deepEqual((await commands()).map(value=>value.method),['gateway.snapshot','gateway.snapshot']);checks++;
   await start().click();await stop().waitFor();const began=(await commands()).find(value=>value.method==='gateway.startConfigured');assert.equal(began.options.expectedConfigRevision,4);assert.equal(began.options.acknowledgement,'start-configured-gateway-field-session');assert.deepEqual(Object.keys(began.options.scope).sort(),['epoch','groupId','ownerPin','processId']);await page.getByText('Renewing leases · Node acceptance unverified',{exact:true}).waitFor();checks++;
   await close();const before=await commands();await open();await stop().waitFor();assert.equal((await commands()).filter(value=>value.method==='gateway.startConfigured').length,1);assert.equal((await commands()).filter(value=>value.method==='gateway.stop').length,0);assert.equal((await commands()).length,before.length+1);checks++;

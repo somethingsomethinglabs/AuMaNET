@@ -33,5 +33,22 @@ public final class GatewayRadioOperationTest {
  static void journal()throws Exception{count++;GatewayRadioOperationHarness h=setup();h.run();JSONObject marker=h.lastSaved;check(GatewayRadioJournal.checked(marker).getInt("target")==22);for(String key:new String[]{"epoch","target","power","beforeGeneration"}){JSONObject bad=new JSONObject(marker.toString()).put(key,"1");boolean denied=false;try{GatewayRadioJournal.checked(bad);}catch(Exception expected){denied=true;}check(denied);}boolean denied=false;try{GatewayRadioJournal.checked(new JSONObject(marker.toString()).put("unreviewed",true));}catch(Exception expected){denied=true;}check(denied);denied=false;try{GroupNameJson.object(marker.toString()+" junk",4096);}catch(Exception expected){denied=true;}check(denied);}
  static void postCommitRetry()throws Exception{count++;GatewayRadioOperationHarness h=setup();h.loseCommit=true;h.postCommitTimeouts=2;h.run();check(h.state.equals("applied"));check(h.trials==1&&h.commits==1&&h.queries==5);check(h.unresolved==null&&h.quietClosed==1);}
  static void postCommitBoundaries()throws Exception{count++;for(int mode=0;mode<4;mode++){GatewayRadioOperationHarness h=setup();h.loseCommit=true;if(mode==0)h.postCommitTimeouts=99;if(mode==1)h.postCommitWrongBoot=true;if(mode==2)h.cancelAfterCommit=true;if(mode==3)h.lateConfirmation=true;h.run();check(h.state.equals("unknown"));check(h.trials==1&&h.commits==1);check(h.unresolved!=null&&h.quietClosed==1&&h.active.get()==null);if(mode==1||mode==3)check(h.queries==3);if(mode==2)check(h.queries==2);check(h.queries<=14);}}
- public static void main(String[] args)throws Exception{success();peerTransportBarrier();rebootedRollbackReadback();preflightReadRetries();postCommitRetry();postCommitBoundaries();lostTrialAndCommit();wrongB();stop();unknownCommit();storageBeforeMutation();reassociationRetry();nonceAge();generationZeroRollback();bridgeOutcomeTruth();retainedFreshnessWait();recoveredProofDuringException();retainedWaitStops();lateFreshReadback();journal();System.out.println(new JSONObject().put("status","pass").put("testCount",count).put("assertionCount",assertions));}
+ static void explicitTrialConsent()throws Exception{
+  count++;
+  for(int mode=0;mode<5;mode++){
+   GatewayRadioOperationHarness h=setup();GatewayRadioOperationHarness.Operation operation=h.active.get();operation.manualCommit=true;
+   Thread worker=new Thread(h::run);worker.start();long until=System.nanoTime()+2000000000L;
+   while(System.nanoTime()<until&&!h.state.equals("awaiting-commit")){h.sequence.get();Thread.sleep(5);}
+   check(h.state.equals("awaiting-commit")&&h.trials==1&&h.commits==0);Thread.sleep(70);check(h.commits==0);
+   if(mode==1)SystemClock.now+=30000;
+   if(mode==2)operation.cancelled.set(true);
+   if(mode==3)h.allowed=false;
+   if(mode==4)h.wrongB=true;
+   if(mode==0||mode==3||mode==4)operation.commitAuthorized.set(true);
+   worker.join(2000);if(worker.isAlive()){operation.cancelled.set(true);worker.interrupt();worker.join();throw new AssertionError("Unbounded explicit radio trial");}
+   check(mode==0?h.state.equals("applied")&&h.commits==1&&h.queries==4:h.state.equals("unknown")&&h.commits==0&&h.unresolved!=null);
+   check(h.quietClosed==1&&h.active.get()==null);
+  }
+ }
+ public static void main(String[] args)throws Exception{explicitTrialConsent();success();peerTransportBarrier();rebootedRollbackReadback();preflightReadRetries();postCommitRetry();postCommitBoundaries();lostTrialAndCommit();wrongB();stop();unknownCommit();storageBeforeMutation();reassociationRetry();nonceAge();generationZeroRollback();bridgeOutcomeTruth();retainedFreshnessWait();recoveredProofDuringException();retainedWaitStops();lateFreshReadback();journal();System.out.println(new JSONObject().put("status","pass").put("testCount",count).put("assertionCount",assertions));}
 }

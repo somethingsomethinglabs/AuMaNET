@@ -1,3 +1,4 @@
+import {openTool,openSavedConnection,openConnection,leaveSecondary} from './ui-navigation.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
@@ -8,18 +9,18 @@ const result={status:'running',scope:'Browser native-bridge fixtures only; no An
 try{
   await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5181/');await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
   await page.evaluate(async()=>await import('/src/lib/__tests__/trusted-connection-fixture.svelte.ts'));
-  await page.locator('.your-connection').getByRole('status').waitFor();
+  await page.getByRole('navigation').waitFor();
   assert.equal(await page.getByRole('heading',{name:'Node Wi-Fi',exact:true}).count(),0);
   assert.equal(await page.getByText('Node identity / radio unverified',{exact:true}).count(),0);
   assert.equal(await page.getByRole('button',{name:'Connect a node',exact:true}).count(),0);
   assert.ok((await page.evaluate(()=>window.__trustedConnectionFixture.calls)).every(call=>call.method==='snapshot'));
-  await page.getByRole('button',{name:'Connection details',exact:true}).click();await page.getByRole('button',{name:'Connect',exact:true}).click();await page.getByRole('button',{name:'Remember & connect',exact:true}).waitFor();
+  await openSavedConnection(page);await page.getByRole('button',{name:'Connect',exact:true}).click();await page.getByRole('button',{name:'Remember & connect',exact:true}).waitFor();
   await page.getByRole('button',{name:'Cancel',exact:true}).click();assert.ok((await page.evaluate(()=>window.__trustedConnectionFixture.calls)).every(call=>call.method==='snapshot'));
   await page.getByRole('button',{name:'Connect',exact:true}).click();await page.getByRole('button',{name:'Remember & connect',exact:true}).click();
   await page.getByText('Connecting node Wi-Fi…',{exact:true}).waitFor();
   let calls=await page.evaluate(()=>window.__trustedConnectionFixture.calls);assert.equal(calls.filter(call=>call.method==='remember').length,1);assert.equal(calls.filter(call=>call.method==='connect').length,1);
-  await page.getByRole('button',{name:'Close node connection',exact:true}).click();await page.evaluate(()=>window.__trustedConnectionFixture.complete());await page.locator('.network-overview').getByRole('heading',{name:'Connected',exact:true}).waitFor();
-  await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:'Map',exact:true}).click();await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:'Network',exact:true}).click();
+  await page.keyboard.press('Escape');await page.evaluate(()=>window.__trustedConnectionFixture.complete());await page.getByRole('region',{name:'Your connection',exact:true}).getByRole('status').filter({hasText:'Connected'}).waitFor();
+  await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:'Map',exact:true}).click();await openConnection(page);
   calls=await page.evaluate(()=>window.__trustedConnectionFixture.calls);assert.equal(calls.filter(call=>call.method==='connect').length,1);
   await page.evaluate(()=>window.__trustedConnectionFixture.render('panel'));await page.getByRole('button',{name:'Connect',exact:true}).waitFor();await page.getByRole('button',{name:'Connect',exact:true}).click();
   await page.getByRole('radio',{name:/Join voice muted/}).waitFor();assert.equal(await page.getByRole('radio',{name:/Join voice muted/}).isChecked(),true);await page.getByText('Requires Unmute before talking.',{exact:true}).waitFor();

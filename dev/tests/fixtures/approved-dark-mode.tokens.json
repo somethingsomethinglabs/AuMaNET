@@ -1,0 +1,297 @@
+{
+  "version": "1.0",
+  "status": "Proposed dark extension to Brand & Experience Guide v1.0",
+  "sourceCommit": "83600e761ad7440bac5603987bedafd258159c42",
+  "color": {
+    "canvas": "#182A24",
+    "surface": "#20362C",
+    "raised": "#294238",
+    "field": "#162720",
+    "text": "#EDF3E8",
+    "secondary": "#B8C9B8",
+    "quiet": "#3A5042",
+    "outline": "#799482",
+    "action": "#B9D4A8",
+    "onAction": "#17291F",
+    "pressed": "#A5C493",
+    "selection": "#314736",
+    "accent": "#D3E6A4",
+    "focus": "#DCECA9",
+    "outbound": "#304D3D",
+    "session": "#10271F",
+    "disabledFill": "#34483F",
+    "disabledText": "#A9BCAF",
+    "successFill": "#294637",
+    "success": "#B9D4A8",
+    "pendingFill": "#463B26",
+    "pending": "#F1D49A",
+    "errorFill": "#482F2C",
+    "error": "#FFB9AB",
+    "unknownFill": "#34443C",
+    "unknown": "#D2DED4",
+    "blueFill": "#2B4650",
+    "blue": "#BADEE8",
+    "rustFill": "#503D32",
+    "rust": "#F1C3A9",
+    "sandFill": "#423D2A",
+    "sand": "#EDDDAD",
+    "mapLand": "#25392F",
+    "mapForest": "#344A36",
+    "mapWater": "#416478",
+    "mapRoute": "#C7D9AC",
+    "mapLabel": "#EDF3E8",
+    "mapMinor": "#799482"
+  },
+  "sheetScrim": {
+    "color": "#000000",
+    "opacity": 0.56
+  },
+  "contrastPairs": [
+    {
+      "foreground": "text",
+      "background": "canvas",
+      "minimum": 4.5,
+      "ratio": 13.32
+    },
+    {
+      "foreground": "text",
+      "background": "surface",
+      "minimum": 4.5,
+      "ratio": 11.43
+    },
+    {
+      "foreground": "text",
+      "background": "raised",
+      "minimum": 4.5,
+      "ratio": 9.63
+    },
+    {
+      "foreground": "text",
+      "background": "field",
+      "minimum": 4.5,
+      "ratio": 13.82
+    },
+    {
+      "foreground": "text",
+      "background": "outbound",
+      "minimum": 4.5,
+      "ratio": 8.24
+    },
+    {
+      "foreground": "secondary",
+      "background": "canvas",
+      "minimum": 4.5,
+      "ratio": 8.66
+    },
+    {
+      "foreground": "secondary",
+      "background": "surface",
+      "minimum": 4.5,
+      "ratio": 7.43
+    },
+    {
+      "foreground": "secondary",
+      "background": "raised",
+      "minimum": 4.5,
+      "ratio": 6.26
+    },
+    {
+      "foreground": "secondary",
+      "background": "outbound",
+      "minimum": 4.5,
+      "ratio": 5.36
+    },
+    {
+      "foreground": "accent",
+      "background": "selection",
+      "minimum": 4.5,
+      "ratio": 7.49
+    },
+    {
+      "foreground": "onAction",
+      "background": "action",
+      "minimum": 4.5,
+      "ratio": 9.5
+    },
+    {
+      "foreground": "onAction",
+      "background": "pressed",
+      "minimum": 4.5,
+      "ratio": 7.95
+    },
+    {
+      "foreground": "outline",
+      "background": "surface",
+      "minimum": 3,
+      "ratio": 3.92
+    },
+    {
+      "foreground": "outline",
+      "background": "raised",
+      "minimum": 3,
+      "ratio": 3.3
+    },
+    {
+      "foreground": "outline",
+      "background": "field",
+      "minimum": 3,
+      "ratio": 4.74
+    },
+    {
+      "foreground": "focus",
+      "background": "surface",
+      "minimum": 3,
+      "ratio": 10.22
+    },
+    {
+      "foreground": "focus",
+      "background": "onAction",
+      "minimum": 3,
+      "ratio": 12.1
+    },
+    {
+      "foreground": "success",
+      "background": "successFill",
+      "minimum": 4.5,
+      "ratio": 6.44
+    },
+    {
+      "foreground": "pending",
+      "background": "pendingFill",
+      "minimum": 4.5,
+      "ratio": 7.64
+    },
+    {
+      "foreground": "error",
+      "background": "errorFill",
+      "minimum": 4.5,
+      "ratio": 7.44
+    },
+    {
+      "foreground": "unknown",
+      "background": "unknownFill",
+      "minimum": 4.5,
+      "ratio": 7.43
+    },
+    {
+      "foreground": "text",
+      "background": "session",
+      "minimum": 4.5,
+      "ratio": 13.95
+    },
+    {
+      "foreground": "blue",
+      "background": "blueFill",
+      "minimum": 4.5,
+      "ratio": 7.02
+    },
+    {
+      "foreground": "rust",
+      "background": "rustFill",
+      "minimum": 4.5,
+      "ratio": 6.39
+    },
+    {
+      "foreground": "sand",
+      "background": "sandFill",
+      "minimum": 4.5,
+      "ratio": 8.04
+    },
+    {
+      "foreground": "mapLabel",
+      "background": "mapLand",
+      "minimum": 4.5,
+      "ratio": 10.9
+    },
+    {
+      "foreground": "mapLabel",
+      "background": "mapForest",
+      "minimum": 4.5,
+      "ratio": 8.53
+    },
+    {
+      "foreground": "mapLabel",
+      "background": "mapWater",
+      "minimum": 4.5,
+      "ratio": 5.6
+    },
+    {
+      "foreground": "mapRoute",
+      "background": "mapLand",
+      "minimum": 3,
+      "ratio": 8.18
+    },
+    {
+      "foreground": "mapRoute",
+      "background": "mapForest",
+      "minimum": 3,
+      "ratio": 6.4
+    },
+    {
+      "foreground": "disabledText",
+      "background": "disabledFill",
+      "minimum": 4.5,
+      "ratio": 4.9
+    },
+    {
+      "foreground": "focus",
+      "background": "canvas",
+      "minimum": 3,
+      "ratio": 11.91
+    },
+    {
+      "foreground": "focus",
+      "background": "raised",
+      "minimum": 3,
+      "ratio": 8.61
+    },
+    {
+      "foreground": "focus",
+      "background": "selection",
+      "minimum": 3,
+      "ratio": 7.97
+    },
+    {
+      "foreground": "focus",
+      "background": "outbound",
+      "minimum": 3,
+      "ratio": 7.37
+    },
+    {
+      "foreground": "action",
+      "background": "raised",
+      "minimum": 3,
+      "ratio": 6.76
+    },
+    {
+      "foreground": "outline",
+      "background": "canvas",
+      "minimum": 3,
+      "ratio": 4.57
+    },
+    {
+      "foreground": "accent",
+      "background": "session",
+      "minimum": 4.5,
+      "ratio": 11.73
+    },
+    {
+      "foreground": "secondary",
+      "background": "session",
+      "minimum": 4.5,
+      "ratio": 9.07
+    },
+    {
+      "foreground": "mapRoute",
+      "background": "mapWater",
+      "minimum": 3,
+      "ratio": 4.2
+    },
+    {
+      "foreground": "onAction",
+      "background": "accent",
+      "minimum": 4.5,
+      "ratio": 11.38
+    }
+  ]
+}

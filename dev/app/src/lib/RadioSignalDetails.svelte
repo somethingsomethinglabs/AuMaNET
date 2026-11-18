@@ -20,5 +20,5 @@
 {/if}
 
 <style>
-  .radio-reading{padding:12px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.radio-reading:last-child{border-bottom:0}.radio-value{display:flex;align-items:baseline;flex-wrap:wrap;gap:7px 11px}.radio-value strong{font-size:18px;color:inherit;font-variant-numeric:tabular-nums}.radio-value>span{font-size:12px;color:var(--muted)}.radio-value .radio-stale{color:var(--warning-ink,#8b5a1f)}.radio-reading p{font-size:12px;line-height:1.5;margin:5px 0;color:var(--muted)}.radio-reading small,.radio-empty{font-size:11px;line-height:1.6;color:var(--muted)}:global(.dark) .radio-value .radio-stale{color:#f1d39c}
+  .radio-reading{padding:12px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.radio-reading:last-child{border-bottom:0}.radio-value{display:flex;align-items:baseline;flex-wrap:wrap;gap:7px 11px}.radio-value strong{font-size:1.125rem;color:inherit;font-variant-numeric:tabular-nums}.radio-value>span{font-size:0.75rem;color:var(--muted)}.radio-value .radio-stale{color:var(--warning-ink)}.radio-reading p{font-size:0.75rem;line-height:1.5;margin:5px 0;color:var(--muted)}.radio-reading small,.radio-empty{font-size:0.6875rem;line-height:1.6;color:var(--muted)}:global(.dark) .radio-value .radio-stale{color:var(--warning-ink)}
 </style>

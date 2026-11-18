@@ -19,7 +19,7 @@ try{
   assert.equal((await page.evaluate(()=>window.__notificationFixture.calls)).filter(call=>call==='requestPermission').length,2,'Read-only revocation observation requested permission again');
   await page.evaluate(()=>window.__notificationFixture.failSave(true));await toggle().uncheck();await settle();assert.equal(await toggle().isChecked(),false);await page.getByRole('button',{name:'Save Group alerts Off',exact:true}).waitFor();await page.getByText(/may resume after restarting/).waitFor();assert.ok(!(await page.locator('[role=alert]').innerText()).includes('PRIVATE'));
   await page.screenshot({path:`${output}/off-save-failure.png`});
-  await page.evaluate(()=>window.__notificationFixture.failSave(false));await page.getByRole('button',{name:'Save Group alerts Off',exact:true}).click();await settle();await page.getByText(/Group alerts are off\. Missed or earlier messages are not replayed/).waitFor();
+  await page.evaluate(()=>window.__notificationFixture.failSave(false));await page.getByRole('button',{name:'Save Group alerts Off',exact:true}).click();await settle();await page.getByText(/New-message alerts are off/).waitFor();
   await page.evaluate(()=>window.__notificationFixture.set({storage:'unsupported',writable:false,token:'c'.repeat(64),error:'Saved Group alerts use another version and were preserved.'}));await page.getByRole('button',{name:'Reset Group alerts to Off',exact:true}).click();await settle();assert.equal(await toggle().isChecked(),false);
   for(const dark of [false,true]){
     await page.evaluate(dark=>document.querySelector('.app-shell').classList.toggle('dark',dark),dark);

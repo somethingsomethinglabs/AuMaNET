@@ -1,28 +1,20 @@
 <script lang="ts">
-  import PanelHeading from './PanelHeading.svelte';
+  import {onMount} from 'svelte';
+  import {appearance,type AppearanceClient,type Theme,type Units} from './appearance';
+  export let client:AppearanceClient=appearance;
   export let page=false;
   export let onback:()=>void=()=>{};
-  import {onMount} from 'svelte';
-  import HelpButton from './HelpButton.svelte';
-  import {Palette} from '@lucide/svelte';
-  import {appearance, type AppearanceClient,type Theme,type Units} from './appearance';
-  export let client:AppearanceClient=appearance;
+  let theme:Theme='Light',units:Units='Metric',editing=false;
+  $: if(!editing){theme=$client.theme;units=$client.units;}
   onMount(()=>{if(!client.state.loaded)void client.load();});
-  async function change(field:'theme'|'units',value:Theme|Units){
-    try{await client.set(field==='theme'?{theme:value as Theme}:{units:value as Units});}
-    catch{/* Keep the last confirmed preference visible. */}
-  }
+  async function save(){try{await client.set({theme,units});}catch{/* The client exposes its storage error below. */}finally{theme=client.state.theme;units=client.state.units;editing=false;}}
 </script>
-
-<section class="card appearance-settings" aria-labelledby={page?'live-settings-title':'appearance-title'}>
-  <PanelHeading title="Appearance" id="appearance-title" icon={Palette} {page} {onback}><HelpButton title="Display settings"><p>Theme and units are saved on this device.</p><p>Metric uses metres and kilometres; Imperial uses feet and miles. Map artwork keeps its original colours and printed labels.</p></HelpButton></PanelHeading>
-  <fieldset class="choice-field" disabled={!$client.loaded||!$client.writable||$client.busy}><legend>Theme</legend><div class="choice-control">{#each ['Light','Dark'] as value}<button type="button" aria-pressed={$client.theme===value} onclick={()=>void change('theme',value as Theme)}>{value}</button>{/each}</div></fieldset>
-  <fieldset class="choice-field" disabled={!$client.loaded||!$client.writable||$client.busy}><legend>Units</legend><div class="choice-control">{#each ['Metric','Imperial'] as value}<button type="button" aria-pressed={$client.units===value} onclick={()=>void change('units',value as Units)}>{value}</button>{/each}</div></fieldset>
+<section class="card appearance-settings" aria-labelledby="appearance-title"><h2 id="appearance-title">Display</h2>
+  <label class="field">Appearance<select aria-label="Appearance" bind:value={theme} onchange={()=>editing=true} disabled={!$client.loaded||!$client.writable||$client.busy}><option value="Light">Light</option><option value="Dark">Dark</option></select></label>
+  <label class="field">Distance units<select aria-label="Distance units" bind:value={units} onchange={()=>editing=true} disabled={!$client.loaded||!$client.writable||$client.busy}><option value="Metric">Metric</option><option value="Imperial">Imperial</option></select></label>
+  <button class="primary" disabled={!$client.loaded||!$client.writable||$client.busy} onclick={()=>void save()}>Save settings</button>
   {#if $client.error}<p class="appearance-error" role="alert">{$client.error}</p>{/if}
-  {#if !$client.loaded||$client.busy}<p class="hint" role="status">{$client.busy?'Saving or loading display settings…':'Loading display settings…'}</p>
-  {:else if ['invalid','unsupported'].includes($client.storage)}<button class="outline" onclick={()=>void client.reset()}>Reset appearance settings</button><p class="hint">Resets only Theme and Units to Light and Metric on this device.</p>
-  {:else if $client.storage==='unavailable'}<button class="outline" onclick={()=>void client.load()}>Reload appearance settings</button>
-  {/if}
+  {#if !$client.loaded||$client.busy}<p class="hint" role="status">{$client.busy?'Saving or loading display settings…':'Loading display settings…'}</p>{:else if ['invalid','unsupported'].includes($client.storage)}<button class="outline" onclick={()=>void client.reset()}>Reset appearance settings</button><p class="hint">Resets only appearance and units to Light and Metric.</p>{:else if $client.storage==='unavailable'}<button class="outline" onclick={()=>void client.load()}>Reload appearance settings</button>{/if}
+  {#if page}<button class="text-button" onclick={onback}>Back to settings</button>{/if}
 </section>
-<style>.appearance-error{color:var(--error-ink,#9f301f);background:var(--error-bg,#fff0e7);padding:12px;border-radius:10px;overflow-wrap:anywhere}.appearance-settings button{max-width:100%;white-space:normal}
-</style>
+<style>.appearance-error{color:var(--error-ink);background:var(--error-bg);padding:12px;border-radius:11px;font-size:0.75rem;margin-top:12px}</style>

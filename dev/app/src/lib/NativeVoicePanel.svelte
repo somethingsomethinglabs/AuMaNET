@@ -1,14 +1,19 @@
 <script lang="ts">
+  import BrandIcon from './BrandIcon.svelte';
   import {afterUpdate,onMount} from 'svelte';
   import type {NativeVoiceLabClient,VoiceLabSnapshot} from '@aumanet/core';
   import type {VoiceOutputPreference,GroupMember} from '@aumanet/protocol';
   import {AudioLines,Users,Mic,MicOff,Headphones,Volume2,PhoneOff,Info,SlidersHorizontal} from '@lucide/svelte';
   import NativePtt from './NativePtt.svelte';
+  import {voicePttReadiness} from '@aumanet/core';
   export let client:NativeVoiceLabClient;
   export let state:VoiceLabSnapshot|undefined;
   export let sourceError='';
   export let channelJoined=false;
   export let joining=false;
+  export let onsettings:()=>void=()=>{};
+  function shortName(name:string){const first=name.trim().split(/\s+/)[0]||name;const names=new Set([...Object.values(peerNames),...channelMembers.map(member=>member.name),peerName]);return [...names].filter(value=>value.trim().split(/\s+/)[0]===first).length>1?name:first;}
+  const initials=(name:string)=>name.trim().split(/\s+/).slice(0,2).map(part=>Array.from(part)[0]?.toUpperCase()??'').join('');
   export let channelName='Group voice';
   export let peerName='Connected phone';
   export let peerNames:Readonly<Record<string,string>>={};
@@ -22,8 +27,7 @@
   let audioDialog:HTMLDialogElement|undefined,compactCall=true;
   let rosterElement:HTMLDivElement|undefined,rosterOverflows=false;
   function measureRoster(){if(rosterElement)rosterOverflows=rosterElement.scrollHeight>rosterElement.clientHeight+1;}
-  afterUpdate(measureRoster);
-  onMount(()=>{const observer=new ResizeObserver(measureRoster);if(rosterElement)observer.observe(rosterElement);const media=matchMedia('(orientation:landscape) and (max-height:560px)');const update=()=>{audioDialog?.close();compactCall=true;};update();media.addEventListener('change',update);return()=>{observer.disconnect();media.removeEventListener('change',update);};});
+
   $: joined=!!state?.joined;
   $: connected=!sourceError&&state?.connection==='connected'&&state.peerVerified;
   $: participating=joined||channelJoined;
@@ -45,6 +49,7 @@
   const peerStatus=(peer:Peer,unavailable:string)=>unavailable?'Connection status unavailable':peer.error||['failed','closed','disconnected'].includes(peer.connection)?'Connection interrupted · Leave and rejoin to retry':peerConnected(peer)?peerSpeaking(peer)?'Speaking':'Connected':'Connecting…';
   $: connectedPeers=sourceError?0:state?.groupMode?(state.peers??[]).filter(peerConnected).length:connected?1:0;
   $: participants=participating?1+connectedPeers:0;
+  $: pttReady=voicePttReadiness(state,client.synchronized);
   $: presentMembers=channelAvailable?channelMembers.filter(member=>member.id!==selfId&&member.connected&&member.voiceJoined):[];
   $: micState=!joined?channelJoined?'Waiting for other members':'Not joined':telecom&&state?.telecomSystemMuted?'Muted by Android':state?.muted?'Mic muted':state?.transmitting?'Transmitting':state?.inputMode==='always-on'?'Listening':'PTT armed · Hold to talk';
   $: peerInterrupted=(state?.peers??[]).some(peer=>!!peer.error||['failed','closed','disconnected'].includes(peer.connection));
@@ -59,75 +64,30 @@
   async function control(action:()=>Promise<unknown>){try{await action();error='';}catch(e){error=e instanceof Error?e.message:String(e);}finally{void client.refresh().catch(e=>error=e instanceof Error?e.message:String(e));}}
 </script>
 
-{#snippet audioControls()}
-  <div class="call-preferences">
-    <div class="segments" role="group" aria-label="Input mode"><button class:active={selectedInput!=='always-on'} aria-pressed={selectedInput!=='always-on'} disabled={busy||!!sourceError||!joined&&!idlePreferences} onclick={()=>void selectMode('ptt')}>Push to talk</button><button class:active={selectedInput==='always-on'} aria-pressed={selectedInput==='always-on'} disabled={busy||!!sourceError||!joined&&!idlePreferences||joined&&!state?.detectorAvailable} title={joined&&!state?.detectorAvailable?'Speech detection is unavailable for this session':undefined} onclick={()=>void selectMode('always-on')}>Always on</button></div>
-    <label class="call-output"><Volume2 size={18}/><span class="visually-hidden">Audio output</span><select aria-label="Native audio output" disabled={busy||!!sourceError||outputUnavailable} value={outputValue} onchange={event=>void selectOutput(event.currentTarget.value)}>
-      {#if joined&&telecom}
-        {#if !state?.routeReady||!state.telecomEndpoints?.some(endpoint=>endpoint.id===state?.telecomEndpointId)}<option value="" disabled>Choose Android call output</option>{/if}
-        {#each state?.telecomEndpoints??[] as endpoint(endpoint.id)}<option value={endpoint.id} disabled={['streaming','unknown'].includes(endpoint.type)}>{endpoint.label}{['streaming','unknown'].includes(endpoint.type)?' · unavailable':''}</option>{/each}
-      {:else if joined&&audioManager}
-        {#if !state?.routeReady||!state.routes.some(route=>route.id===state?.effectiveRoute)}<option value="-1" disabled>Choose output</option>{/if}
-        {#each state?.routes??[] as route(route.id)}<option value={String(route.id)}>{route.label}</option>{/each}
-      {:else if !joined&&audioManager}
-        <option value="default">Default</option>{#each idleOutputs as route(route.preference)}<option value={route.preference}>{route.label}</option>{/each}
-        {#if state?.voicePreferences&&state.voicePreferences.outputRoute!=='default'&&!idleOutputs.some(route=>route.preference===state!.voicePreferences!.outputRoute)}<option value={state.voicePreferences.outputRoute} disabled>Saved {outputNames[state.voicePreferences.outputRoute]} · unavailable</option>{/if}
-      {:else}<option value="" disabled>Audio output unavailable</option>{/if}
-    </select></label>
-    {#if telecom}<p class="hint">Android manages these call outputs. Choosing an output keeps the microphone muted.</p>{/if}
-    {#if client.supportsBluetoothAudio}
-      {#if state?.bluetoothPermission==='prompt'}<button class="text-button" disabled={busy} onclick={()=>void run(()=>client.requestBluetooth())}>Enable Bluetooth audio</button>
-      {:else if telecom?!state?.telecomEndpoints?.some(endpoint=>endpoint.type==='bluetooth'):!(state?.routes??[]).some(route=>[7,26,23].includes(route.type))}<button class="text-button" disabled={busy} onclick={()=>void run(()=>client.bluetoothSettings())}>Connect Bluetooth audio</button>{/if}
-    {/if}
+<section class="voice-call" aria-label={channelName+' voice call'}>
+  <div class="voice-information"><section class="call-roster" aria-label="Voice participants"><ul class="participant-list">
+    {#each presentMembers as member(member.id)}{@const peer=state?.peers?.find(peer=>peer.peerId===member.id)}<li class="voice-person"><span class="avatar" class:speaking={peer&&peerSpeaking(peer,sourceError)}>{initials(member.name)}</span><strong title={member.name} aria-label={member.name}>{shortName(member.name)}</strong><small>{!participating?'In channel':peer?peerStatus(peer,sourceError):'Connecting…'}</small></li>{/each}
+    {#if state?.groupMode}{#each (state.peers??[]).filter(peer=>!presentMembers.some(member=>member.id===peer.peerId)) as peer(peer.peerId)}<li class="voice-person"><span class="avatar" class:speaking={peerSpeaking(peer,sourceError)}>{initials(peerNames[peer.peerId]??'Group member')}</span><strong title={peerNames[peer.peerId]??'Group member'}>{shortName(peerNames[peer.peerId]??'Group member')}</strong><small>{peerStatus(peer,sourceError)}</small></li>{/each}
+    {:else if participating&&state?.peerVerified&&!presentMembers.length}<li class="voice-person"><span class="avatar">{initials(peerName)}</span><strong title={peerName}>{shortName(peerName)}</strong><small>{connected?'Listening':'Connecting…'}</small></li>{/if}
+    <li class="voice-person self"><span class="avatar" class:speaking={!sourceError&&state?.transmitting}>{initials(channelMembers.find(member=>member.id===selfId)?.name??'You')}</span><strong>You</strong><small>{participating?state?.muted?'Muted':micState:'Not joined'}</small></li>
+  </ul><p class="roster-summary">{participating?`${participants} connected ${participants===1?'participant':'participants'}`:channelAvailable?`${presentMembers.length} in channel`:'Channel presence unavailable'}</p></section>
+  <div class="voice-state" role="status" aria-live="polite"><span class="state-symbol"><BrandIcon name={!joined||state?.muted||state?.deafened?'muted':'mic'} size={40}/></span><h2>{!participating?'Voice is off':statusProblem?'Voice needs attention':state?.transmitting?'Transmitting':state?.muted||!joined?'Microphone muted':selectedInput==='always-on'?'Listening for speech':pttReady.ready?'Ready to talk':'Microphone not ready'}</h2><p>{statusProblem?statusText:!participating?'Join with your microphone muted.':!joined?'Waiting for other members':state?.muted?'Enable your microphone to speak':selectedInput!=='always-on'&&!pttReady.ready?pttReady.message:statusText}</p>{#if statusDetail}<button class="text-button" onclick={()=>statusDialog?.showModal()}>Voice needs attention · details</button>{/if}</div>
+  </div><div class="voice-controls">
+    {#if participating}<div class="call-tools">
+      <button aria-label={state?.muted?'Unmute native microphone':'Mute native microphone'} aria-pressed={!(state?.muted??true)} disabled={!joined||!!state?.muted&&(!connected||!state.audioFocus||!state.routeReady||telecom&&!telecomUsable||busy||!!sourceError)} onclick={()=>void control(()=>client.mute(!state?.muted))}><BrandIcon name={state?.muted?'muted':'mic'} size={24}/><span>{state?.muted?'Enable mic':'Mute'}</span></button>
+      <button aria-label={state?.deafened?'Undeafen native audio':'Deafen native audio'} aria-pressed={!(state?.deafened??false)} disabled={!joined||!!state?.deafened&&(busy||!!sourceError)} onclick={()=>void control(()=>client.deafen(!state?.deafened))}><BrandIcon name={state?.deafened?'volumeOff':'volume'} size={24}/><span>{state?.deafened?'Sound off':'Sound on'}</span></button>
+      <button class="leave" aria-label={busy||joining?'Cancel joining voice':'Leave channel'} onclick={()=>void leave()}><BrandIcon name="close" size={24}/><span>{busy||joining?'Cancel':'Leave'}</span></button>
+    </div>{/if}
+    {#if !participating}<button class="primary join-call" disabled={busy||joining||!state||!!onjoin&&!channelAvailable} onclick={()=>void run(()=>onjoin?onjoin():client.start())}><BrandIcon name="headphones"/>{busy||joining?'Joining…':'Join voice, muted'}</button>
+    {:else if telecom&&!telecomUsable}<button class="primary native-ptt" disabled aria-label="Hold native push to talk" title={statusText}>{state?.telecomState==='held'?'Call on hold':state?.telecomSystemMuted?'Android call muted':state?.telecomState==='pending'?'Preparing Android audio':'Android audio unavailable'}</button>
+    {:else if selectedInput!=='always-on'}<NativePtt {client} {state} blocked={!!sourceError} onerror={message=>error=message}/>
+    {:else}<div class="listening-state"><BrandIcon name="mic"/><strong>{micState}</strong></div>{/if}
+    <button class="audio-summary" aria-label="Audio options" onclick={onsettings}>{selectedInput==='always-on'?'Hands-free':'Press and hold'} · {state?.routes?.find(route=>route.id===state?.effectiveRoute)?.label||outputNames[state?.voicePreferences?.outputRoute??'default']}<BrandIcon name="chevron" size={16}/></button>
   </div>
-{/snippet}
-
-<section class="voice-call" aria-label="Group voice call">
-<div class="call-heading"><Users size={25}/><div><h1 title={channelName}>{channelName}</h1><small>Group voice</small></div><span class="pill">{participating?'Joined':'Not joined'}</span></div>
-<div class:problem={statusProblem} class="call-status" role="status" aria-live="polite"><span>{statusText}</span>{#if statusDetail}<button class="status-details" aria-label="Show voice status details" onclick={()=>statusDialog?.showModal()}><Info size={18}/></button>{/if}</div>
-<section class="participants call-roster" aria-label="Call participants">
-  <div class="roster-heading"><h2>{#if participating}{participants} connected {participants===1?'participant':'participants'}{:else if channelAvailable}{presentMembers.length} in channel{:else}Channel presence unavailable{/if}</h2>{#if rosterOverflows}<small class="overflow-notice">More participants · scroll</small>{/if}</div>
-  <!-- svelte-ignore a11y_no_noninteractive_tabindex (Scrollable participant region must be reachable for keyboard scrolling.) -->
-  <div bind:this={rosterElement} class="roster-scroll" role="region" aria-label="Voice participants" tabindex="0"><ul class="participant-list">
-    {#if !participating}
-      {#each presentMembers as member(member.id)}<li class="member-row"><span class="avatar"><Users size={21}/></span><div><strong title={member.name}>{member.name}</strong><small>In channel</small></div></li>{/each}
-      {#if channelAvailable&&!presentMembers.length}<li class="channel-empty">No one is in the voice channel yet.</li>{/if}
-    {:else}
-    <li class="member-row" class:speaking={!sourceError&&state?.transmitting}><span class="avatar" class:speaking={!sourceError&&state?.transmitting}><Mic size={21}/></span><div><strong>You</strong><small>{micState}</small></div></li>
-    {#if state?.groupMode}
-      {#each state.peers??[] as peer(peer.peerId)}<li class="member-row" class:speaking={peerSpeaking(peer,sourceError)}><span class="avatar" class:speaking={peerSpeaking(peer,sourceError)}>{#if peerSpeaking(peer,sourceError)}<AudioLines size={21}/>{:else}<Users size={21}/>{/if}</span><div><strong title={peerNames[peer.peerId]??'Group member'}>{peerNames[peer.peerId]??'Group member'}</strong><small title={peerStatus(peer,sourceError)}>{peerStatus(peer,sourceError)}</small></div></li>{/each}
-    {:else if state?.peerVerified}<li class="member-row" class:speaking={connected&&(state?.playbackLevel??0)>0.01}><span class="avatar"><Users size={21}/></span><div><strong title={peerName}>{peerName}</strong><small>{!connected?'Connecting…':(state.playbackLevel??0)>0.01?'Speaking':'Listening / quiet'}</small></div></li>{/if}
-    {/if}
-  </ul></div>
 </section>
-<div class="call-deck voice-controls" aria-label="Call controls">
-  {#if !compactCall}{@render audioControls()}{/if}
-  <div class="call-tools">
-    <div class="call-transmit">
-      {#if !participating}<button class="primary join-call" disabled={busy||joining||!state||!!onjoin&&!channelAvailable} onclick={()=>void run(()=>onjoin?onjoin():client.start())}>{busy||joining?'Joining…':'Join channel · Muted'}</button>
-      {:else if telecom&&!telecomUsable}<button class="primary native-ptt" disabled aria-label="Hold native push to talk" title={statusText}>{state?.telecomState==='held'?'Call on hold':state?.telecomSystemMuted?'Android call muted':state?.telecomState==='pending'?'Preparing Android audio':'Android audio unavailable'}</button>
-      {:else if selectedInput!=='always-on'}<NativePtt {client} {state} blocked={!!sourceError} onerror={message=>error=message}/>
-      {:else}<div class="listening-state"><AudioLines size={24}/><strong>{micState}</strong></div>{/if}
-    </div>
-  <button class="outline" aria-label={state?.muted?'Unmute native microphone':'Mute native microphone'} aria-pressed={state?.muted??true}
-    disabled={!joined||!!state?.muted&&(!connected||!state.audioFocus||!state.routeReady||telecom&&!telecomUsable||busy||!!sourceError)} onclick={()=>void control(()=>client.mute(!state?.muted))}>
-    {#if state?.muted}<MicOff size={20}/><span class="tool-label">Unmute</span>{:else}<Mic size={20}/><span class="tool-label">Mute</span>{/if}</button>
-  <button class="outline" aria-label={state?.deafened?'Undeafen native audio':'Deafen native audio'} aria-pressed={state?.deafened??false}
-    disabled={!joined||!!state?.deafened&&(busy||!!sourceError)} onclick={()=>void control(()=>client.deafen(!state?.deafened))}><Headphones size={20}/><span class="tool-label">{state?.deafened?'Sound on':'Sound off'}</span></button>
-  {#if compactCall}<button class="outline audio-options" aria-label="Audio options" title="Audio options" aria-haspopup="dialog" onclick={()=>audioDialog?.showModal()}><SlidersHorizontal size={20}/><span class="tool-label">Audio</span></button>{/if}
-  <button class="danger" aria-label={busy||joining?'Cancel joining voice':'Leave channel'} disabled={!participating&&!busy&&!joining} onclick={()=>void leave()}><PhoneOff size={20}/><span class="tool-label">{busy||joining?'Cancel':'Leave'}</span></button>
-  </div>
-</div>
-</section>
-{#if compactCall}<dialog bind:this={audioDialog} class="voice-status-dialog audio-dialog" aria-labelledby="voice-audio-title"><h2 id="voice-audio-title">Audio options</h2>{@render audioControls()}<p>Changing input mode or output keeps transmission muted. Unmute explicitly when ready.</p><form method="dialog"><button class="outline">Done</button></form></dialog>{/if}
-<dialog bind:this={statusDialog} class="voice-status-dialog" aria-labelledby="voice-status-title"><h2 id="voice-status-title">Voice status</h2><p>{statusDetail||statusText}</p><p>Join starts microphone access with transmission muted. After an interruption, choose an output and unmute explicitly. Leave ends this voice session.</p><form method="dialog"><button class="outline">Close</button></form></dialog>
-
+<dialog bind:this={statusDialog} aria-labelledby="voice-status-title"><h2 id="voice-status-title">Voice status</h2><p>{statusDetail||statusText}</p><p>Join starts microphone access with transmission muted. After an interruption, choose an output and enable your microphone explicitly. Leave ends this voice session.</p><form method="dialog"><button class="outline">Close</button></form></dialog>
 <style>
-.call-tools{grid-template-columns:repeat(4,minmax(0,1fr))}.call-tools>.outline,.call-tools>.danger,.status-details,.audio-dialog button,.audio-dialog select{min-height:48px}.call-tools .tool-label{font-size:12px}.status-details{min-width:48px}.call-preferences .segments button{min-height:48px!important}
-
-.voice-call{font-size:.875rem;width:100%;display:flex;flex-direction:column;min-height:0;height:100%;gap:8px;color:inherit}.call-heading{display:flex;align-items:center;gap:10px;background:var(--green,#164b32);color:var(--bg,#fffdf6);padding:12px;border-radius:16px;flex:none;min-width:0}.call-heading>div{min-width:0;flex:1}.call-heading h1{font-size:1.15em;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}.call-heading small{display:block;color:inherit;opacity:.85;font-size:.78em}.call-heading .pill{background:var(--bg,#fffdf6);color:var(--green,#164b32);font-size:.72em}.call-status{display:flex;align-items:center;gap:6px;min-height:32px;flex:none;padding:0 3px;font-size:.85em;color:var(--muted);min-width:0}.call-status>span{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.call-status.problem{color:#923e20}.status-details{display:grid;place-items:center;min-width:36px;min-height:32px;padding:4px;background:transparent;border:0;border-radius:8px;color:inherit}.call-roster{padding:4px 2px;display:flex;flex-direction:column;flex:1;min-height:0;min-width:0}.roster-heading{display:flex;justify-content:space-between;gap:6px;align-items:start;flex:none}.overflow-notice{font-size:.72em;color:var(--muted);white-space:nowrap}.call-roster h2{font-size:.85em;line-height:1.25;margin:0 0 10px;color:var(--muted);flex:none}.channel-empty{grid-column:1/-1;color:var(--muted);padding:10px 0;font-size:.9em;list-style:none}.roster-scroll:focus-visible{outline:3px solid #bd751f;outline-offset:1px}.roster-scroll{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}.participant-list{list-style:none;margin:0;padding:3px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;overflow:auto;overscroll-behavior:contain;align-content:start;min-height:0;scrollbar-width:thin}.member-row{border:1px solid var(--line);border-radius:12px;display:flex;gap:9px;min-width:0;padding:6px 8px;background:var(--card);align-items:center}.member-row:last-of-type{border:1px solid var(--line)}.member-row.speaking{border-color:#649347;background:var(--sage)}.member-row .avatar{width:32px;height:32px;flex:none}.member-row>div{min-width:0;flex:1}.member-row strong{font-size:.88em;line-height:1.25;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.member-row small{font-size:.75em;line-height:1.4;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px}.call-deck{flex:none;border-top:1px solid var(--line);padding-top:12px;display:grid;gap:10px;min-width:0;background:var(--bg)}.call-preferences{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px;min-width:0}.call-preferences .segments{min-width:0;padding:3px;gap:2px}.call-preferences .segments button{font-size:.8em;min-height:44px;padding:6px 3px;line-height:1.2}.call-output{display:flex;align-items:center;gap:5px;min-width:0}.call-output :global(svg){flex:none}.call-output select{font-size:.85em;min-height:46px;width:100%;max-width:none;padding:8px 6px}.call-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-width:0}.call-transmit{grid-column:1/-1;min-width:0}.call-transmit :global(.native-ptt),.join-call,.listening-state{width:100%;min-height:62px;font-size:1.05em;white-space:normal;line-height:1.2;padding:12px}.call-tools>.outline,.call-tools>.danger{min-width:0;min-height:46px;padding:10px 5px;gap:6px;font-size:.85em}.listening-state{display:flex;justify-content:center;align-items:center;gap:10px;border-radius:13px;background:var(--sage)}.voice-status-dialog{width:calc(100% - 32px);max-width:440px;max-height:85dvh;overflow:auto;border:1px solid var(--line);border-radius:16px;background:var(--card,#fffdf6);color:inherit;padding:20px}.voice-status-dialog::backdrop{background:#10291e88}.voice-status-dialog p{font-size:14px;overflow-wrap:anywhere}.voice-status-dialog h2{font-size:20px;margin-bottom:12px}.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-@media(orientation:landscape) and (max-height:560px){.voice-call{gap:4px}.call-heading{padding:7px 10px;border-radius:12px}.call-heading>div>small{display:none}.call-heading h1{font-size:1em}.call-status{min-height:25px}.status-details{min-height:25px}.call-roster{padding:1px 2px}.call-roster h2{margin-bottom:5px;font-size:.78em}.participant-list{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}.member-row{flex-direction:column;text-align:center;gap:5px;padding:6px 3px}.member-row .avatar{display:none}.member-row>div{width:100%}.member-row strong{font-size:.85em}.member-row small{font-size:.75em;margin-top:1px}.call-deck{gap:6px;padding-top:6px}.call-tools{grid-template-columns:minmax(115px,1fr) repeat(4,48px);gap:6px}.call-transmit{grid-column:auto}.call-transmit :global(.native-ptt),.join-call,.listening-state{min-height:48px;padding:8px;font-size:.9em}.call-tools .tool-label{display:none}.call-preferences{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}.call-preferences .segments button{min-height:36px}.call-output select{min-height:44px}}
-.audio-dialog .call-preferences{grid-template-columns:1fr}.audio-dialog .call-preferences .segments button{min-height:44px}.audio-dialog form{margin-top:16px}:global(.app-shell.dark) .call-status.problem{color:#ffc58e}
-.call-status>span{white-space:normal;overflow:visible;overflow-wrap:anywhere;line-height:1.4}
-@media(prefers-reduced-motion:reduce){.voice-call *{transition:none}}
+.roster-summary{text-align:center;font-size:.75rem;color:var(--muted);margin:12px 0 0}.voice-call{width:100%;min-width:0;display:grid;grid-template-rows:minmax(0,1fr) auto;min-height:0;height:100%;gap:16px}.participant-list{display:flex;justify-content:center;gap:14px;list-style:none;padding:4px 0;margin:0;flex-wrap:wrap}.voice-person{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0;width:66px;text-align:center}.voice-person strong{font-size:0.875rem;font-weight:400;overflow-wrap:anywhere;max-width:100%}.voice-person small{font-size:0.75rem;overflow-wrap:anywhere}.voice-person.self{width:76px}.voice-person .avatar{width:56px;height:56px;font-size:1rem}.voice-person:nth-child(3n+1):not(.self) .avatar{background:var(--rust-bg);color:var(--rust-ink)}.voice-person:nth-child(3n+2):not(.self) .avatar{background:var(--blue-bg);color:var(--blue-ink)}.voice-person .speaking{outline:3px solid var(--green);outline-offset:3px}.voice-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;text-align:center;gap:16px}.voice-state h2{font-size:1.438rem;font-weight:600;line-height:1.3;letter-spacing:-.5px;margin:0}.voice-state p{font-size:0.75rem;color:var(--muted);margin:0;max-width:40ch}.state-symbol{display:grid;place-items:center;border-radius:50%;background:var(--sage);color:var(--accent);width:96px;height:96px;margin-bottom:4px}.voice-controls{display:grid;gap:12px}.call-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.call-tools button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:0;background:transparent;min-height:66px;font-size:0.75rem;color:var(--green)}.call-tools button.leave{color:var(--error-ink)}.call-tools button:disabled{color:var(--disabled-ink)}.join-call{width:100%;min-height:56px}.voice-controls :global(.native-ptt){width:100%;min-height:66px;border-radius:18px;font-size:0.9375rem}.listening-state{display:flex;justify-content:center;align-items:center;gap:8px;min-height:66px;border-radius:18px;background:var(--sage);font-size:0.9375rem}.audio-summary{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;font-size:0.75rem;color:var(--muted);border:0;background:transparent}.voice-information{display:flex;flex-direction:column;min-height:0;overflow:auto;overscroll-behavior:contain}.call-roster{flex:none}.voice-state{flex:1;min-height:180px;padding:16px 0}.call-roster:has(.participant-list:only-child){scrollbar-width:thin}
+@media(min-width:600px) and (max-height:500px){.voice-call{grid-template-columns:1fr 1fr;grid-template-rows:minmax(0,1fr);gap:12px 24px}.voice-controls{grid-column:2;grid-row:1;align-self:center;gap:8px}.voice-state{gap:8px;min-height:96px;padding:8px 0}.voice-information{grid-column:1;grid-row:1}.voice-state h2{font-size:1.25rem}.state-symbol{display:none}.voice-person .avatar{width:44px;height:44px}.call-roster{flex:none}.participant-list{gap:12px}.voice-controls :global(.native-ptt){min-height:58px}.voice-person{gap:4px}.call-tools button{min-height:60px}}
+@media(max-height:650px) and (orientation:portrait){.voice-call{gap:10px}.state-symbol{width:68px;height:68px}.voice-state{gap:10px}.voice-person .avatar{width:44px;height:44px}}
 </style>

@@ -51,5 +51,5 @@
  {/if}
 </section>
 <style>
- h2{font-size:20px;margin:0 0 12px}p{font-size:13px;line-height:1.6}.hint{font-size:12px;color:var(--muted)}select,button{min-height:44px;width:100%}label{margin:14px 0}.results{overflow-x:auto}table{width:100%;font-size:12px;border-collapse:collapse}caption{text-align:left;margin:12px 0;line-height:1.5}th,td{text-align:left;padding:10px 5px;border-bottom:1px solid var(--line)}[role=alert]{color:var(--error-ink,#9f301f)}
+ h2{font-size:1.25rem;margin:0 0 12px}p{font-size:0.8125rem;line-height:1.6}.hint{font-size:0.75rem;color:var(--muted)}select,button{min-height:44px;width:100%}label{margin:14px 0}.results{overflow-x:auto}table{width:100%;font-size:0.75rem;border-collapse:collapse}caption{text-align:left;margin:12px 0;line-height:1.5}th,td{text-align:left;padding:10px 5px;border-bottom:1px solid var(--line)}[role=alert]{color:var(--error-ink)}
 </style>
