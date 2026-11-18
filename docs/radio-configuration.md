@@ -1,6 +1,6 @@
 # Radio channel & width
 
-Use **Network → Radio settings** on the current group owner's phone. A member may inspect reports but cannot change the group's radio. The field node follows the base node's HaLow channel. Both nodes need compatible firmware.
+Use **Tools → Radio settings** on the current group owner's phone. A member may inspect reports but cannot change the group's radio. The field node follows the base node's HaLow channel. Both nodes need compatible firmware.
 
 ## Read before changing
 
@@ -12,9 +12,9 @@ Catalog version 1 contains 23 permitted AU operating tuples: twelve at 1 MHz, si
 
 1. Stop shared internet and finish any connection test or maintenance operation.
 2. On the owner phone, choose a width, then a permitted channel.
-3. Review the proposed frequency/width and select **Apply to the radio link**.
-4. Connected supported phones pause managed calls/transfers and acknowledge readiness.
-5. The base tries the tuple; the station follows. Commit requires fresh signed readbacks from both original node boots confirming the intended actual state.
+3. Review the proposed frequency and width, then select **Save proposal**.
+4. Select **Begin bounded trial**. Connected supported phones pause managed calls and transfers and acknowledge readiness.
+5. The base tries the tuple and the station follows. Choose **Commit verified setting** when fresh signed reports from both original node boots confirm the intended state.
 
 Voice returns muted; interrupted image progress is retained. An uncommitted trial has a 30-second deadline. An unknown persistent-write outcome must be reconciled; rollback in RAM does not prove which persistent record a reboot will load.
 

@@ -1,22 +1,23 @@
-# Enclosures & printing
 
-CAD references, enclosure studies and printable files exist. They are prototype material; physical board fit, retention, battery packaging, sealing and field durability remain acceptance work.
+# CAD and print files
+
+Use the prototype files to inspect geometry or prepare a test print. Fit, retention, battery packaging, sealing and outdoor durability still need physical checks.
+
+<span id="enclosures-amp-printing"></span>
 
 ## Available references
 
-- [Board measurements](../hardware/reference/seeed-xiao-esp32s3-halow/README.md): manufacturer models and the uncertainty in assembled headers/connectors.
-- [Enclosure feasibility](../hardware/reference/enclosure-feasibility/README.md): source geometry and packaging study.
-- [CAD source guide](../hardware/cad/README.md) and [mounting references](../hardware/cad/screw-mounts.md): provenance and edit boundaries.
-- [Print workshop](../hardware/print/README.md), [profiles](../hardware/print/profiles/README.md) and [verification](../hardware/print/validation/VERIFICATION.md): geometry and slicer evidence.
-
-An optional Pi Zero tray is a packaging reference, not a supported network assembly. A successful slice is not a water-resistance or mechanical-fit test.
+- [Inspect the 3D assembly and download original STLs](equipment-3d.html).
+- [Read the CAD source and licensing notes](../hardware/cad/README.md).
+- [Check the board measurements](../hardware/reference/seeed-xiao-esp32s3-halow/README.md) and [enclosure study](../hardware/reference/enclosure-feasibility/README.md).
+- [Review mounting references](../hardware/cad/screw-mounts.md).
 
 ## Canonical print bundle
 
-The repository's canonical inputs are `docs/assets/models/ties1887-v2/*.STL` and its selection manifest. Entries marked `hardware: false` enter the generated bundle. Manually arranged slicer projects are separate.
+[Download AuMaNET-parts.3mf](../hardware/print/AuMaNET-parts.3mf). Read the [print workshop](../hardware/print/README.md) for the part selection, [profiles](../hardware/print/profiles/README.md) for slicer settings and [verification notes](../hardware/print/validation/VERIFICATION.md) for the recorded checks.
 
-When geometry, exports, part selection or print-bundle tools change, follow `AGENTS.md` and the `aumanet-print-bundle` skill. Export modified CAD to the canonical STLs before the one-shot bundle rebuild. That workflow does not export CAD automatically. Documentation-only edits do not require rebuilding the print bundle.
+The original ties1887 meshes retain their upstream terms. See the [asset licence](assets/models/ties1887-v2/LICENSE.txt) before sharing prints or adaptations.
 
 ## What a future assembly guide needs
 
-An approved revisioned print set, orientation/material/fastener instructions, actual board/cable/battery fit photographs, retention/drop/thermal checks and a weather-resistance test method. Until those pass, do not claim a finished outdoor enclosure or IP rating.
+An accepted fit check against the actual board, wiring and power assembly, with verified orientation, retention and weather protection.
