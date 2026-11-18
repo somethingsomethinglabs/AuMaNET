@@ -103,11 +103,6 @@
       "id": "firmware-catalog",
       "status": "BLOCKED",
       "finding": "No usable signed firmware release catalog; no OTA download, install, rollback or post-OTA acceptance performed."
-    },
-    {
-      "id": "phone-2-notification",
-      "status": "BLOCKED",
-      "finding": "Alert On/Off persistence and message receipt passed. Actual private notification content verified only on phone-1; phone-2 OS inspection incomplete."
     }
   ],
   "notRun": [
@@ -814,8 +809,8 @@
     {
       "device": "phone-2",
       "case": "Actual background notification receipt hides message and names",
-      "status": "BLOCKED",
-      "note": "Incoming message received, but OS record inspection exceeded adb output limit; subsequent read after restoring alerts Off found no record. Privacy not verified on this phone."
+      "status": "PASS",
+      "note": "An Android notification posted while the app was backgrounded. The record had generic text, secret lockscreen visibility and no message body or member names. The peer received the message exactly once. The earlier inspection buffer limit was resolved."
     },
     {
       "device": "phone-2",
@@ -1216,12 +1211,6 @@
     },
     {
       "device": "phone-2",
-      "case": "OS evidence of actual private incoming notification",
-      "status": "BLOCKED",
-      "note": "Incoming message received, but OS record inspection exceeded adb output limit; subsequent read after restoring alerts Off found no record. Privacy not verified on this phone."
-    },
-    {
-      "device": "phone-2",
       "case": "Over limit message cannot send",
       "status": "PASS"
     },
@@ -1519,8 +1508,8 @@
     "temporaryProbeAppRemoved": true
   },
   "caseCounts": {
-    "PASS": 254,
-    "BLOCKED": 12,
+    "PASS": 255,
+    "BLOCKED": 10,
     "FAIL": 2
   }
 }
