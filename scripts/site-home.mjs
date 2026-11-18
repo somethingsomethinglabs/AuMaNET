@@ -1,5 +1,6 @@
 
 import { icon, layout } from './site-layout.mjs';
+import { comparison } from './site-comparison.mjs';
 
 const pathSide = (name, place) => `<div class="path-side">
   <div class="path-device">${icon('node')}<strong>Node ${name}</strong></div>
@@ -12,40 +13,6 @@ export function home() {
     ['01-messages', 'Messages', 'A group conversation with a text check-in and a photo', 'Send a check-in or a photo of the turnoff. Delivery feedback tells you when another phone received it.'],
     ['02-voice', 'Group voice', 'A voice channel showing who is listening and a button to join muted', 'Join the group voice channel and hold to talk when a decision is easier to say out loud.'],
     ['03-map', 'Offline map', 'A saved map with position markers for group members', 'Save the map before leaving. See positions from members who choose to share while the group has a link.']
-  ];
-  const options = [
-    {
-      name: 'Mobile network',
-      path: ['Phone', 'Cell tower', 'Carrier network'],
-      use: 'Everyday calls, texts and internet, including reaching people far outside your group.',
-      needs: 'A working carrier network and coverage where you’re using it.',
-      href: 'https://www.acma.gov.au/mobile-network-coverage-maps-standard',
-      source: 'ACMA mobile coverage guide'
-    },
-    {
-      name: 'UHF CB radio',
-      path: ['UHF radio', 'UHF radio'],
-      use: 'Quick spoken calls between vehicles or handhelds on a shared channel.',
-      needs: 'UHF CB radios in range of each other, or access to a compatible repeater.',
-      href: 'https://www.acma.gov.au/licences/citizen-band-radio-stations-class-licence',
-      source: 'ACMA guide to Australian UHF CB'
-    },
-    {
-      name: 'Meshtastic',
-      path: ['LoRa radio', 'Optional relay', 'LoRa radio'],
-      use: 'Short texts and position updates over a low-power LoRa mesh. Radios can pass messages for one another.',
-      needs: 'Compatible LoRa radios and a usable path through the mesh.',
-      href: 'https://meshtastic.org/docs/introduction/',
-      source: 'Meshtastic documentation'
-    },
-    {
-      name: 'AuMaNET',
-      path: ['Android', 'HaLow node pair', 'Android'],
-      use: 'Group voice, text, photos and shared positions in one Android app beyond mobile coverage.',
-      needs: 'An Android phone and a powered HaLow node at each end, with a usable radio link between the nodes.',
-      href: 'current-app.html',
-      source: 'AuMaNET prototype test scope'
-    }
   ];
   return layout({
     title: 'Keep the group together',
@@ -131,26 +98,7 @@ export function home() {
     </div>
   </section>
 
-  <section class="wrap panel-section" id="compare" aria-labelledby="compare-title">
-    <div class="section-copy">
-      <h2 id="compare-title">Which connection fits the trip?</h2>
-      <p>Think about who you need to reach, what you need to send and what equipment you can bring.</p>
-    </div>
-    <ul class="comparison-list">
-      ${options.map(({ name, path, use, needs, href, source }) => `<li>
-        <h3>${name}</h3>
-        <p class="signal-path"><span class="sr-only">Connection path</span>${path.map((label, index) => `<span class="signal-hop">
-          ${index ? '<span aria-hidden="true">↔</span><span class="sr-only"> connects to </span>' : ''}<span class="signal-label">${label}</span>
-        </span>`).join('')}</p>
-        <dl>
-          <div><dt>Good for</dt><dd>${use}</dd></div>
-          <div><dt>Needs</dt><dd>${needs}</dd></div>
-        </dl>
-        <a href="${href}">${source}</a>
-      </li>`).join('\n')}
-    </ul>
-    <p class="comparison-note">AuMaNET’s group link works without internet. Optional <a href="internet-sharing.html">internet sharing</a> still needs a group member with an active mobile data connection.</p>
-  </section>
+  ${comparison()}
 
   <section class="wrap status-band" id="progress" aria-labelledby="progress-title">
     <div><h2 id="progress-title">What’s been tested?</h2><p id="field-check-title">Development tests cover two specific Android phones and two directly linked nodes. Range, battery life, larger groups and forwarding through a third node still need field validation. Carry independent emergency communications.</p></div>
