@@ -2,9 +2,9 @@ name: Prototype app review build
 
 on:
   pull_request:
-    branches: [testing]
+    branches: [testing, nightly, stable]
   push:
-    branches: [testing]
+    branches: [testing, nightly]
   workflow_dispatch:
 
 permissions:

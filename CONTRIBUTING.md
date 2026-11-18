@@ -1,9 +1,15 @@
-# Prototype development
+# Application development and promotion
 
 Use a pull request for every change, including documentation and reversions.
-`testing` holds the integrated prototype. `main` is updated only through a
-separate promotion PR after review. Existing firmware nightly publication is
-independent of the application review-build workflow.
+
+- `testing` integrates experimental and AI-assisted work. Run automated checks
+  on GitHub Actions virtual machines and use an Android emulator when a change
+  needs Android UI or lifecycle verification before phone testing.
+- `nightly` holds the application candidate for physical phone testing.
+- `stable` holds the application revision accepted on the phones.
+- `main` remains the default branch and has its own reviewed promotion process.
+
+Firmware releases have a separate workflow and acceptance process.
 
 ## Make a change
 
@@ -32,17 +38,29 @@ git push -u origin codex/my-change
 ## Review builds
 
 The **Prototype app review build** workflow runs on PRs targeting `testing`,
-on updates merged into `testing`, and on manual dispatch. It checks and builds
-the app, then uploads an `aumanet-prototype-<commit>` artifact containing a
+`nightly`, or `stable`, on updates to `testing` or `nightly`, and on manual
+dispatch. It checks and builds the app, then uploads an
+`aumanet-prototype-<commit>` artifact containing a
 debug APK and a commit/hash manifest. Download it from the workflow run linked
 from the PR. It is a review artifact, not a production release or automatic
 phone installation. Builds use the PR merge result so integration problems
 can be found before merging. No nightly schedule or signing secrets are needed.
 
 After review, merge the PR into `testing` (prefer a squash commit for ordinary
-changes). Promote a reviewed collection of changes with a separate
-`testing` → `main` PR. GitHub Pages and firmware release workflows retain
-their existing publication controls.
+changes).
+
+## Promote the application
+
+1. Open a `testing` → `nightly` PR for the candidate. Review the candidate's
+   changes and wait for its virtual-machine checks to pass before merging.
+2. Use the APK artifact from the resulting `nightly` push run for authorized
+   phone testing. Record the exact commit and APK SHA-256 from the build
+   manifest with the phone results.
+3. Open a `nightly` → `stable` PR and link the build and phone results. Before
+   merging, confirm the PR head still matches the tested nightly commit. If
+   nightly has advanced, use a promotion branch pinned to the tested commit.
+   Use merge commits for promotions to preserve the tested commit in the
+   destination's history.
 
 ## Revert a regression
 
