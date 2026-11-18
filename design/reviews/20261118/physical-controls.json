@@ -1459,6 +1459,68 @@
       "device": "phone-2",
       "case": "Whitespace message cannot send",
       "status": "PASS"
+    },
+    {
+      "device": "pair",
+      "case": "Five minutes real background voice and shared positions",
+      "status": "PASS",
+      "note": "PASS for observed samples and return after background; WebView froze between 61s and 309s. Not continuous monitoring."
+    },
+    {
+      "device": "phone-1",
+      "case": "Handoff retains saved data and verified muted connected sharing state",
+      "status": "PASS",
+      "evidence": {
+        "identityAndMembershipPreserved": true,
+        "draftPreserved": true,
+        "unexpiredBaselineHistoryRetained": 32,
+        "voiceVerifiedAndMuted": true,
+        "freshRealPeerLocation": true,
+        "benchmarkDisarmed": true,
+        "sharedInternetOff": true
+      }
+    },
+    {
+      "device": "phone-2",
+      "case": "Handoff retains saved data and verified muted connected sharing state",
+      "status": "PASS",
+      "evidence": {
+        "identityAndMembershipPreserved": true,
+        "draftPreserved": true,
+        "unexpiredBaselineHistoryRetained": 32,
+        "voiceVerifiedAndMuted": true,
+        "freshRealPeerLocation": true,
+        "benchmarkDisarmed": true,
+        "sharedInternetOff": true
+      }
     }
-  ]
+  ],
+  "backgroundReturn": {
+    "status": "PASS_WITH_SAMPLING_GAP",
+    "seconds": 309,
+    "samples": 3,
+    "sampleElapsedSeconds": [
+      30,
+      61,
+      309
+    ],
+    "limitation": "WebView USB debugging stopped responding while app was backgrounded after 61 seconds. OS service inspection confirmed voice/location/trusted connection services still present before return. Resuming after five minutes restored inspection; native voice connected/verified/muted and shared positions active. This does not prove uninterrupted media or position freshness throughout the gap."
+  },
+  "handoff": {
+    "connectedBothPhones": true,
+    "sharingLocationBothPhones": true,
+    "microphonesMuted": true,
+    "earpieceOutputConfirmed": true,
+    "existingIdentityMembershipDraftAndUnexpiredBaselineHistoryRetained": true,
+    "temporaryBenchNetworkAssignmentsRestored": true,
+    "benchBenchmarkDisarmed": true,
+    "sharedInternetOff": true,
+    "consumerMobileDataRestored": true,
+    "temporaryProbeAppRemoved": true
+  },
+  "caseCounts": {
+    "PASS": 254,
+    "BLOCKED": 12,
+    "FAIL": 2
+  }
 }
