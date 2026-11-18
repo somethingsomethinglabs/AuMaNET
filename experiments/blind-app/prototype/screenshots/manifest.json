@@ -1,0 +1,99 @@
+{
+  "date": "2026-11-18",
+  "viewportRequested": {
+    "width": 390,
+    "height": 844
+  },
+  "source": "Actual locally rendered prototype; isolated fictional showcase state",
+  "captures": [
+    {
+      "route": "field",
+      "heading": "Out here.Still together.",
+      "scrollWidth": 375,
+      "width": 375,
+      "file": "field-mobile.jpg"
+    },
+    {
+      "route": "chat",
+      "heading": "A thread to stay close.",
+      "scrollWidth": 375,
+      "width": 375,
+      "file": "chat-mobile.jpg"
+    },
+    {
+      "route": "voice",
+      "heading": "Some things are better said.",
+      "scrollWidth": 375,
+      "width": 375,
+      "file": "voice-mobile.jpg"
+    },
+    {
+      "route": "map",
+      "heading": "Everyone has a place.",
+      "scrollWidth": 375,
+      "width": 375,
+      "file": "map-mobile.jpg"
+    },
+    {
+      "route": "people",
+      "heading": "Your small, trusted circle.",
+      "scrollWidth": 375,
+      "width": 375,
+      "file": "people-mobile.jpg"
+    },
+    {
+      "route": "kit",
+      "heading": "A little preparation.A better day out.",
+      "scrollWidth": 375,
+      "width": 375,
+      "file": "kit-mobile.jpg"
+    },
+    {
+      "route": "offline",
+      "heading": "Take a little of the world.",
+      "scrollWidth": 375,
+      "width": 375,
+      "file": "offline-mobile.jpg"
+    },
+    {
+      "route": "firmware",
+      "heading": "Keep your node in good shape.",
+      "scrollWidth": 375,
+      "width": 375,
+      "file": "firmware-mobile.jpg"
+    },
+    {
+      "route": "connection",
+      "heading": "A connection you can trust.",
+      "scrollWidth": 375,
+      "width": 375,
+      "file": "connection-mobile.jpg"
+    },
+    {
+      "route": "planner",
+      "heading": "Room for the whole group.",
+      "scrollWidth": 375,
+      "width": 375,
+      "file": "planner-mobile.jpg"
+    },
+    {
+      "route": "onboarding",
+      "heading": "Go a little further.Stay a little closer.",
+      "scrollWidth": 375,
+      "width": 375,
+      "file": "onboarding-mobile.jpg"
+    }
+  ],
+  "additionalCaptures": [
+    "field-desktop.jpg",
+    "showcase-everyday.jpg",
+    "showcase-explore.jpg",
+    "showcase-tools.jpg"
+  ],
+  "sourceHashes": {
+    "app.mjs": "25cb41733d2ccdd565c4ff27f31e70c9dd4fcc396818b88d190e444c0afb65bf",
+    "model.mjs": "3bcdae3ed3aaabbe3f6330cae5df5879af45a6776c5107326ff68373951f7871",
+    "styles.css": "dee331d129485d18f3f2968818d2e292edc60f1af604a15a7d17823974abe8af",
+    "art.mjs": "2edab469b4d7e78a1d7476ad230815fff6d8c2e7274ac1fe4144e3818a2e1d0d"
+  }
+}

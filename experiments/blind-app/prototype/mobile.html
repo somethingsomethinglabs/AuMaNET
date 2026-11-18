@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#e6e9df">
+  <title>AuMaNET · Mobile preview</title>
+  <link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+  <main class="preview" aria-label="Interactive mobile app preview">
+    <div class="device-space">
+      <div class="device">
+        <iframe id="app-preview" title="AuMaNET mobile app"></iframe>
+      </div>
+    </div>
+  </main>
+  <button id="rotate" type="button" aria-label="Rotate preview to landscape" title="Rotate to landscape">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="3" width="8" height="16" rx="2"/><path d="M4 10a8 8 0 0 1 2-5M3 5h3v3M20 14a8 8 0 0 1-2 5m3 0h-3v-3"/></svg>
+  </button>
+  <script type="module" src="mobile.mjs"></script>
+</body>
+</html>
