@@ -23,6 +23,27 @@ try{
   await page.locator('.coverage-label').getByText('Outdoor map · Partial offline coverage',{exact:true}).waitFor();
   await call('viewAt',{latitude:-37.6535,longitude:145.5159,zoom:15});
   await page.locator('.coverage-label').getByText('Offline outdoor map',{exact:true}).waitFor();checks++;
+  const zoomIn=page.getByRole('button',{name:'Zoom in',exact:true});
+  const zoomOut=page.getByRole('button',{name:'Zoom out',exact:true});
+  for(let zoom=15;zoom<18;zoom++)await zoomIn.click();
+  await page.waitForFunction(()=>{
+    const map=window.__mapConnectionsFixture.vectorState();
+    return map.zoom===17&&map.features>0&&!map.hillshade;
+  });checks++;
+  // Going beyond the bundled area's zoom range with the style server unavailable
+  // must leave a live map underneath the overlay, including on subsequent zooms.
+  await page.route('https://tiles.openfreemap.org/styles/**',route=>route.abort());
+  for(let zoom=18;zoom>2;zoom--)await zoomOut.click();
+  await page.getByText('Online map unavailable · Check your internet connection',{exact:true}).waitFor();
+  await page.waitForFunction(()=>{
+    const map=window.__mapConnectionsFixture.vectorState();
+    return map.zoom===1&&map.style==='AuMaNET Outdoor'&&!map.hillshade;
+  });checks++;
+  await call('viewAt',{latitude:-37.6535,longitude:145.5159,zoom:15});
+  await page.waitForFunction(()=>{
+    const map=window.__mapConnectionsFixture.vectorState();
+    return map.zoom===14&&map.hillshade&&map.features>0;
+  });checks++;
   await page.locator('.geographic-map').click({position:{x:70,y:130}});await page.getByLabel('Pinned coordinates',{exact:true}).waitFor();assert.match(await page.getByLabel('Pinned coordinates',{exact:true}).innerText(),/-37\.\d{6}, 145\.\d{6}/);await page.locator('.leaflet-popup-close-button').click();checks++;
   await mkdir('output/playwright/map-connections',{recursive:true});await page.screenshot({path:'output/playwright/map-connections/default-vector.png',fullPage:true});
   await line().focus();await page.keyboard.press('Enter');await page.getByRole('dialog',{name:'Connection signal',exact:true}).waitFor();assert.match(await page.getByRole('dialog',{name:'Connection signal',exact:true}).innerText(),/[−-]45 dBm/);await page.screenshot({path:'output/playwright/map-connections/signal-detail.png',fullPage:true});await page.getByRole('button',{name:'Close connection signal',exact:true}).click();checks++;

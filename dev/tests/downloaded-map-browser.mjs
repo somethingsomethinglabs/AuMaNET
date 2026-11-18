@@ -8,11 +8,36 @@ const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshade
 page.on('pageerror',e=>errors.push(e.message));
 try{
   await page.route('**/__vector_fixture_manifest',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(manifest)}));
-  await page.route('**/_aumanet_maps/**',async route=>{const url=new URL(route.request().url());if(url.pathname.includes('/archive/')){const name=url.pathname.split('/').at(-1),bytes=await readFile('dev/app/static/maps/outdoor-preview/'+name),offset=Number(url.searchParams.get('offset')),length=Number(url.searchParams.get('length'));return route.fulfill({body:bytes.subarray(offset,offset+length),headers:{'content-length':String(length),'x-aumanet-content-range':`bytes ${offset}-${offset+length-1}/${bytes.length}`}});}const prefix=`/_aumanet_maps/vector-set/${"c".repeat(32)}_${"d".repeat(32)}_${manifest.id}/`;if(!url.pathname.startsWith(prefix))return route.abort();let file=url.pathname.slice(prefix.length);if(file.startsWith('glyphs/'))file='glyphs/'+file.split('/').at(-1);if(!manifest.files[file])return route.fulfill({status:204,body:''});requests.push(file);return route.fulfill({body:await readFile(resolve(root,file)),contentType:file.endsWith('.webp')?'image/webp':'application/x-protobuf'});});
+  await page.route('**/_aumanet_maps/**',async route=>{
+    const url=new URL(route.request().url());
+    if(url.pathname.includes('/archive/')){
+      const name=url.pathname.split('/').at(-1),bytes=await readFile('dev/app/static/maps/outdoor-preview/'+name);
+      const offset=Number(url.searchParams.get('offset')),length=Number(url.searchParams.get('length'));
+      return route.fulfill({body:bytes.subarray(offset,offset+length),headers:{'content-length':String(length),'x-aumanet-content-range':`bytes ${offset}-${offset+length-1}/${bytes.length}`}});
+    }
+    const prefix=`/_aumanet_maps/vector-set/${'c'.repeat(32)}_${'d'.repeat(32)}_${manifest.id}/`;
+    if(!url.pathname.startsWith(prefix))return route.abort();
+    let file=url.pathname.slice(prefix.length);
+    if(file.startsWith('glyphs/'))file='glyphs/'+file.split('/').at(-1);
+    const lerc=file.replace(/\.webp$/,'.lerc');
+    if(lerc!==file&&manifest.files[lerc])file=lerc;
+    if(!manifest.files[file])return route.fulfill({status:204,body:''});
+    requests.push(file);
+    const contentType=file.endsWith('.lerc')?'image/lerc':file.endsWith('.webp')?'image/webp':'application/x-protobuf';
+    return route.fulfill({body:await readFile(resolve(root,file)),contentType});
+  });
   await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5198/');await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();await page.evaluate(()=>import('/src/lib/__tests__/downloaded-map-fixture.ts'));
   await page.getByRole('status').filter({hasText:/Offline · Saved maps|Saved maps · Partial offline coverage/}).waitFor();await page.waitForFunction(()=>window.__downloadedMapFixture.state().loaded&&window.__downloadedMapFixture.state().features>0&&window.__downloadedMapFixture.state().contours>0,{timeout:45000});
   const initial=await page.evaluate(()=>window.__downloadedMapFixture.state());
   const mid=(manifest.bounds[0]+manifest.bounds[2])/2,lat=(manifest.bounds[1]+manifest.bounds[3])/2;
+  for(const zoom of [18,2,15]){
+    await page.evaluate(({mid,lat,zoom})=>window.__downloadedMapFixture.pan(mid,lat,zoom),{mid,lat,zoom});
+    await page.waitForFunction(zoom=>{
+      const state=window.__downloadedMapFixture.state();
+      return state.zoom===zoom-1&&state.loaded&&state.style==='AuMaNET Offline'
+        &&state.features>0&&(zoom===2||state.contours>0);
+    },zoom,{timeout:15000});
+  }
   for(const longitude of [manifest.bounds[0]-.001,mid,manifest.bounds[2]+.001]){
     await page.evaluate(({longitude,lat})=>window.__downloadedMapFixture.pan(longitude,lat),{longitude,lat});
     await page.waitForTimeout(1000);await page.waitForFunction(()=>window.__downloadedMapFixture.state().loaded&&window.__downloadedMapFixture.state().features>0,undefined,{timeout:45000});

@@ -13,7 +13,7 @@
   import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
   import 'maplibre-gl/dist/maplibre-gl.css';
   import {previewProtocols} from './vector/protocol';
-  import {outdoorStyle,downloadedStyle} from './vector/style';
+  import {outdoorStyle,downloadedStyle,mapBackground} from './vector/style';
   import {manifest} from './vector/archive';
   import {offlineCoverageLabel} from './coverage';
   import {nativeVectorMaps,visibleRegions,regionSetRoot,downloadBounds,type VectorRegion,type MapBounds} from './vector/downloads';
@@ -36,16 +36,75 @@
 
   export let onbasemap:(label:string)=>void=()=>{};
   let vectorContainer:HTMLDivElement,vector:VectorMap|undefined,protocols:ReturnType<typeof previewProtocols>|undefined;
-  let vectorMode='',connectionDetail:MapConnection|undefined,detailDialog:HTMLDialogElement;
+  let vectorMode='',protocolRoot:string|undefined,mapError='';
+  let connectionDetail:MapConnection|undefined,detailDialog:HTMLDialogElement;
   function openConnection(id:string){connectionDetail=connections.find(item=>item.id===id);if(connectionDetail)detailDialog.showModal();}
-  function startVector(){try{setWorkerUrl(mapWorkerUrl);vector=new VectorMap({container:vectorContainer,style:{version:8,sources:{},layers:[]},interactive:false,attributionControl:false,maxTileCacheSize:48});vector.on('style.load',()=>{if(!vector||!vectorMode.startsWith('online')||!vectorMode.endsWith('/dark'))return;for(const layer of vector.getStyle().layers){if(layer.type==='symbol'&&layer.layout?.['text-field']){vector.setPaintProperty(layer.id,'text-color','#EDF3E8');vector.setPaintProperty(layer.id,'text-halo-color','#182A24');vector.setPaintProperty(layer.id,'text-halo-width',1.6);}if(layer.type==='line'&&/road|highway|path|rail/i.test(layer.id)&&!/casing|case|tunnel/i.test(layer.id))vector.setPaintProperty(layer.id,'line-color','#C7D9AC');}});vector.on('error',(event)=>{if(String(event.error?.message).includes('Offline elevation coverage is unavailable'))return;onbasemap(vectorMode.startsWith('online')?'Online map unavailable · Check your internet connection':'Offline vector map unavailable');});}catch{vector?.remove();vector=undefined;protocols?.close();protocols=undefined;onbasemap('Vector map unavailable on this device');}}
-  function syncVector(){
-    if(!map||!vector)return;const center=map.getCenter(),[w,s,e,n]=manifest.bounds;
-    const viewport=map.getBounds(),bounds:MapBounds=[viewport.getWest(),viewport.getSouth(),viewport.getEast(),viewport.getNorth()];
-    const visible=visibleRegions(regions,bounds),region=visible[0],local=map.getZoom()>=11&&bounds[0]<=e&&bounds[2]>=w&&bounds[1]<=n&&bounds[3]>=s,root=region?regionSetRoot(regions):'',mode=(region?'regions/'+root:local?'local':'online')+($appearance.theme==='Dark'?'/dark':'/light');
-    if(vectorMode!==mode){vectorMode=mode;protocols?.close();protocols=region||local?previewProtocols(region?{regionRoot:root,terrainTemplate:root+'/terrain/{z}/{x}/{y}.webp'}:{}):undefined;vector.setStyle(region?mapAppearance(downloadedStyle(regions),$appearance.theme==='Dark'):local?mapAppearance(outdoorStyle(protocols!.basemap,protocols!.terrain),$appearance.theme==='Dark'):$appearance.theme==='Dark'?'https://tiles.openfreemap.org/styles/dark':'https://tiles.openfreemap.org/styles/liberty',{diff:false});}
+  function startVector(){
+    try{
+      setWorkerUrl(mapWorkerUrl);
+      vector=new VectorMap({
+        container:vectorContainer,
+        style:{version:8,sources:{},layers:[{id:'background',type:'background',paint:{
+          'background-color':$appearance.theme==='Dark'?mapBackground.dark:mapBackground.light,
+        }}]},
+        interactive:false,attributionControl:false,maxTileCacheSize:48,
+      });
+      vector.on('error',event=>{
+        // Hillshade and contours are optional. A terrain error must not hide basemap availability.
+        if('sourceId' in event&&(event.sourceId==='terrain'||event.sourceId==='contours'))return;
+        mapError=vectorMode.startsWith('online')?'Online map unavailable · Check your internet connection':'Offline vector map unavailable';
+        onbasemap(mapError);
+      });
+    }catch{
+      vector?.remove();vector=undefined;
+      onbasemap('Vector map unavailable on this device');
+    }
+  }
+
+  function syncCamera(){
+    if(!map||!vector)return;
+    const center=map.getCenter();
     vector.jumpTo({center:[center.lng,center.lat],zoom:map.getZoom()-1});
-    onbasemap(region?offlineCoverageLabel(bounds,visible.map(area=>area.bounds),visible.length===1?region.name:undefined):local?offlineCoverageLabel(bounds,[manifest.bounds as MapBounds],'Outdoor map'):'Online map · Internet required');
+  }
+
+  function syncVector(){
+    if(!map||!vector)return;const [w,s,e,n]=manifest.bounds;
+    const viewport=map.getBounds(),bounds:MapBounds=[viewport.getWest(),viewport.getSouth(),viewport.getEast(),viewport.getNorth()];
+    const visible=visibleRegions(regions,bounds),region=visible[0];
+    const local=map.getZoom()-1>=manifest.minZoom&&bounds[0]<=e&&bounds[2]>=w&&bounds[1]<=n&&bounds[3]>=s;
+    const root=region?regionSetRoot(regions):'',dark=$appearance.theme==='Dark';
+    const mode=(region?'regions/'+root:local?'local':'online')+(dark?'/dark':'/light');
+    const label=region?offlineCoverageLabel(bounds,visible.map(area=>area.bounds),visible.length===1?region.name:undefined)
+      :local?offlineCoverageLabel(bounds,[manifest.bounds as MapBounds],'Outdoor map'):'Online map · Internet required';
+    if(vectorMode!==mode){
+      vectorMode=mode;
+      mapError='';
+      if(region||local){
+        const sourceChanged=protocolRoot!==root;
+        if(sourceChanged||!protocols){
+          protocols?.close();
+          protocols=previewProtocols(root?{regionRoot:root,terrainTemplate:root+'/terrain/{z}/{x}/{y}.webp'}:{});
+          protocolRoot=root;
+        }
+        const style=region?downloadedStyle(regions):outdoorStyle(protocols.basemap);
+        vector.setStyle(mapAppearance(style,dark),{diff:!sourceChanged});
+      }else{
+        // Diff mode loads the online style before replacing the current map.
+        // Keep its offline protocols alive while the request is in flight.
+        vector.setStyle('https://tiles.openfreemap.org/styles/'+(dark?'dark':'liberty'),{transformStyle:(_,style)=>{
+          if(dark)for(const layer of style.layers){
+            if(layer.type==='symbol'&&layer.layout?.['text-field']){
+              layer.paint={...layer.paint,'text-color':'#EDF3E8','text-halo-color':'#182A24','text-halo-width':1.6};
+            }
+            if(layer.type==='line'&&/road|highway|path|rail/i.test(layer.id)&&!/casing|case|tunnel/i.test(layer.id)){
+              layer.paint={...layer.paint,'line-color':'#C7D9AC'};
+            }
+          }
+          return style;
+        }});
+      }
+    }
+    onbasemap(mapError||label);
   }
   import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup,Rectangle,Marker,DivIcon,type LatLng} from 'leaflet';
   import 'leaflet/styles.css';
@@ -77,7 +136,7 @@
     if(focusBounds){if(viewport.next(false,true)==='coverage'){viewport.interact();const[w,s,e,n]=focusBounds;map.fitBounds(new LatLngBounds([s,w],[n,e]),{animate:false,padding:[18,18],maxZoom:16});}return;}
     if(viewport.next(freshGroupPositions(fix,ageMs,active,members).length>0,false)==='group')framePositions();
   }
-  function reportCoverage(){syncVector();}
+  function reportCoverage(){syncCamera();syncVector();}
   function activateMember(id:string,details=false){if(areaSelection){const p=markers.get(id)?.point.getLatLng();if(p&&!areaLocked)onareapin?.({latitude:p.lat,longitude:p.lng});}else (details?(onnameselect??onselect):onselect)(id);}
   function syncMarkers(){
     if(!map)return;const entries:Array<{id:string;name:string;fix:Position;fresh:boolean}>=[];
@@ -208,9 +267,46 @@
     popup.on('remove',()=>pinMap.off('resize',fitPopup));
     popup.openOn(pinMap);
   }
-  onMount(()=>{let stopped=false,loading=false;const client=nativeVectorMaps();const refresh=async()=>{if(!client||loading)return;loading=true;try{const state=await client.snapshot();if(!stopped)regions=state.regions;}catch{}finally{loading=false;}};void refresh();const poll=setInterval(()=>void refresh(),5000);startVector();map=new LeafletMap(container,{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:18,scrollWheelZoom:true,zoomAnimation:false,fadeAnimation:false});map.createPane('connections').style.zIndex='350';map.createPane('offline-area').style.zIndex='390';map.on('click',openPin);map.on('dragstart',interact);map.on('move zoom',syncVector);map.on('moveend zoomend',reportCoverage);const first=freshGroupPositions(fix,ageMs,active,members)[0];map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);syncConnections();syncMarkers();syncArea();defaultView();const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();reportCoverage();});observer.observe(container);container.addEventListener('pointerdown',interact);container.addEventListener('wheel',interact,{passive:true});container.addEventListener('keydown',interact);return()=>{stopped=true;clearInterval(poll);container.removeEventListener('pointerdown',interact);container.removeEventListener('wheel',interact);container.removeEventListener('keydown',interact);observer.disconnect();vector?.remove();vector=undefined;protocols?.close();map?.remove();map=undefined;markers.clear();connectionLines.clear();};});
+  onMount(()=>{
+    let stopped=false,loading=false;
+    const client=nativeVectorMaps();
+    const refresh=async()=>{
+      if(!client||loading)return;
+      loading=true;
+      try{const state=await client.snapshot();if(!stopped)regions=state.regions;}catch{}finally{loading=false;}
+    };
+    void refresh();
+    const poll=setInterval(()=>void refresh(),5000);
+    startVector();
+    map=new LeafletMap(container,{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:18,scrollWheelZoom:true,zoomAnimation:false,fadeAnimation:false});
+    map.createPane('connections').style.zIndex='350';
+    map.createPane('offline-area').style.zIndex='390';
+    map.on('click',openPin);
+    map.on('dragstart',interact);
+    map.on('move zoom',syncCamera);
+    map.on('moveend zoomend',reportCoverage);
+    const first=freshGroupPositions(fix,ageMs,active,members)[0];
+    map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);
+    syncConnections();syncMarkers();syncArea();defaultView();
+    const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();reportCoverage();});
+    observer.observe(container);
+    container.addEventListener('pointerdown',interact);
+    container.addEventListener('wheel',interact,{passive:true});
+    container.addEventListener('keydown',interact);
+    const retryOnlineStyle=()=>{if(mapError&&vectorMode.startsWith('online')){vectorMode='';syncVector();}};
+    window.addEventListener('online',retryOnlineStyle);
+    return()=>{
+      stopped=true;clearInterval(poll);
+      container.removeEventListener('pointerdown',interact);
+      container.removeEventListener('wheel',interact);
+      container.removeEventListener('keydown',interact);
+      window.removeEventListener('online',retryOnlineStyle);
+      observer.disconnect();vector?.remove();vector=undefined;protocols?.close();
+      map?.remove();map=undefined;markers.clear();connectionLines.clear();
+    };
+  });
 </script>
-<div class="vector-background" bind:this={vectorContainer} aria-hidden="true"></div>
+<div class="vector-background" bind:this={vectorContainer} style:background-color={$appearance.theme==='Dark'?mapBackground.dark:mapBackground.light} aria-hidden="true"></div>
 <div class="geographic-map" bind:this={container} aria-label="Geographic map and group positions"></div>
 <dialog bind:this={detailDialog} aria-label="Connection signal" class="signal-detail"><button class="close-signal" onclick={()=>detailDialog.close()} aria-label="Close connection signal">Close</button>{#if connectionDetail}<h3>{connectionDetail.from.name} ↔ {connectionDetail.to.name}</h3><strong>{connectionDetail.strength}</strong><p>{connectionDetail.detail}</p>{/if}</dialog>
 <style>.vector-background,.geographic-map{position:absolute;inset:0;height:100%;min-height:0}.geographic-map{background:transparent!important}.signal-detail{max-width:420px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:22px;padding:22px;background:var(--card);color:var(--ink);box-shadow:0 12px 60px #0003}.signal-detail::backdrop{background:var(--scrim)}.signal-detail p{font-size:0.8125rem;line-height:1.6}.close-signal{float:right;border:0;background:transparent;color:inherit;min-height:44px;padding:8px}.signal-detail h3{font-size:1.125rem;clear:both}:global(.offline-area-pin){display:block;box-sizing:border-box;width:27px;height:27px;border:3px solid var(--raised);border-radius:50% 50% 50% 0;background:var(--accent);transform:rotate(-45deg);box-shadow:0 2px 7px #0004}
