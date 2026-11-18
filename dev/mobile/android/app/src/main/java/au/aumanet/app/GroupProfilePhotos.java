@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 /** Small, optional thumbnails. Access is serialized by the group session lock. */
 final class GroupProfilePhotos {
+    static final String MEMBERSHIP_REMOVED = "profile-photo-membership-removed";
     static final int EDGE = 96;
     static final int MAX_BYTES = 6144;
     private static final int MAX_BASE64 = MAX_BYTES / 3 * 4;
@@ -56,6 +57,12 @@ final class GroupProfilePhotos {
         peers.clear();
         scope = null;
         cacheFile.delete();
+    }
+
+    boolean confirmMembershipRemoval(String memberId, long currentEpoch, long noticeEpoch) {
+        if (!self.equals(memberId) || noticeEpoch <= currentEpoch) return false;
+        clearGroup();
+        return true;
     }
 
     String ownImage() {
@@ -139,9 +146,13 @@ final class GroupProfilePhotos {
     private void saveCache() throws JSONException {
         JSONObject result = new JSONObject();
         for (Map.Entry<String, Photo> entry : peers.entrySet()) result.put(entry.getKey(), entry.getValue().image);
-        try { write(cacheFile, scope + "\n" + result); }
-        catch (IOException ignored) {
-            // Keep the in-memory copy. Peers can refill it after a restart.
+        try {
+            String data = scope + "\n" + result;
+            write(cacheFile, data);
+            if (!data.equals(stored(cacheFile, MAX_CACHE))) cacheFile.delete();
+        } catch (IOException ignored) {
+            // Drop any older copy on disk. Peers can refill it after a restart.
+            cacheFile.delete();
         }
     }
 

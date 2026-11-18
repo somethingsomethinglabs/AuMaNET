@@ -70,6 +70,32 @@ public class GroupProfilePhotosTest {
         assertEquals("", newcomer.image(ownerId));
     }
 
+    @Test public void offlineCacheSurvivesRestartUntilVerifiedRemoval() throws Exception {
+        String ownerId = "AA".repeat(32), memberId = "BB".repeat(32);
+        Set<String> roster = Set.of(ownerId, memberId);
+        Context device = device();
+        String ownerPhoto = photo(Color.RED), localPhoto = photo(Color.BLUE);
+        GroupProfilePhotos member = new GroupProfilePhotos(device, memberId);
+        member.setOwn(localPhoto);
+        member.select("group", roster);
+        assertTrue(member.receive(new JSONObject().put(ownerId, ownerPhoto), false, ownerId, roster));
+
+        GroupProfilePhotos offline = new GroupProfilePhotos(device, memberId);
+        offline.select("group", roster);
+        assertEquals(ownerPhoto, offline.image(ownerId));
+        assertFalse(offline.confirmMembershipRemoval(ownerId, 5, 6));
+        assertFalse(offline.confirmMembershipRemoval(memberId, 5, 5));
+        assertFalse(offline.confirmMembershipRemoval(memberId, 5, 4));
+        assertEquals(ownerPhoto, offline.image(ownerId));
+
+        assertTrue(offline.confirmMembershipRemoval(memberId, 5, 6));
+        assertEquals("", offline.image(ownerId));
+        GroupProfilePhotos restarted = new GroupProfilePhotos(device, memberId);
+        restarted.select("group", roster);
+        assertEquals("", restarted.image(ownerId));
+        assertEquals(localPhoto, restarted.ownImage());
+    }
+
     private Context device() throws Exception {
         Context target = InstrumentationRegistry.getInstrumentation().getTargetContext();
         File path = Files.createTempDirectory(directory.getRoot().toPath(), "device").toFile();

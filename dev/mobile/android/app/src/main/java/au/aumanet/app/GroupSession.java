@@ -866,9 +866,10 @@ final class GroupSession {
     void revoke(String id) throws Exception { synchronized (lock) {
         if (!role.equals("owner") || server == null || id.equals(identity.pin)) throw new IllegalStateException("Only the connected owner can remove another member");
         Member member = members.remove(id); if (member == null) throw new IllegalArgumentException("Unknown member");
-        profilePhotos.select(groupId, members.keySet());
         epoch++;TrustedLocationResumeBridge.authorityChanged(this);publishMediaAuthority(); invitation = null; clearReceivedSignals(); seenSignals.clear();consumedSignals.clear(); persist();
-        if (member.peer != null) member.peer.close(); broadcastRoster(); sequence++;
+        profilePhotos.select(groupId, members.keySet());
+        if (member.peer != null) member.peer.sendRemovalAndClose();
+        broadcastRoster(); sequence++;
     } }
     JSObject setProfilePhoto(String image, String expectedProcess, String expectedSelf, String expectedGroup) throws Exception {
         synchronized (lock) {
@@ -925,6 +926,7 @@ final class GroupSession {
     }
     private void receive(Peer peer, JSONObject message) throws Exception { synchronized (lock) {
         if(peer.run!=generation||peer.closed.get())throw new IllegalArgumentException("Stale native group connection");
+        if (peer.removalQueued) return;
         String type = message.getString("type"); long frameEpoch = number(message,"epoch");
         if(type.equals("radio-maintenance")){receiveMaintenance(peer,message,radioMaintenance);return;}
         if(type.equals("firmware-maintenance")){receiveMaintenance(peer,message,firmwareMaintenance);return;}
@@ -944,7 +946,12 @@ final class GroupSession {
             else throw new IllegalArgumentException("Unsupported group command");
         } else {
             if (!peer.pin.equals(owner)) throw new IllegalArgumentException("Untrusted group authority");
-            if (type.equals("pending")) { status = "pending"; }
+            if (type.equals(GroupProfilePhotos.MEMBERSHIP_REMOVED)) {
+                if (peer == ownerConnection && peer.authorized && textMembershipSaved &&
+                    profilePhotos.confirmMembershipRemoval(message.optString("memberId"), epoch, frameEpoch)) {
+                    peer.close();
+                }
+            } else if (type.equals("pending")) { status = "pending"; }
             else if (type.equals("welcome") || type.equals("roster")) {
                 long nextVoiceRevision=number(message,"voiceRevision");
                 if(nextVoiceRevision<1||nextVoiceRevision>GroupVoiceCohort.MAX_REVISION||nextVoiceRevision<voiceRevision)throw new IllegalArgumentException("Stale voice authority revision");
@@ -961,6 +968,7 @@ final class GroupSession {
                 final String savedGroupName=groupName;final long savedGroupNameRevision=groupNameRevision,savedEpoch=epoch;final LinkedHashMap<String,Member> savedMembers=new LinkedHashMap<>(members);if (frameEpoch > epoch) { clearReceivedSignals(); seenSignals.clear();consumedSignals.clear(); } long incomingGroupRevision=message.has("groupNameRevision")?number(message,"groupNameRevision"):0;String incomingGroupName=label(message.getString("groupName"),64);if(incomingGroupRevision<groupNameRevision||incomingGroupRevision==groupNameRevision&&peer.authorized&&!groupName.equals(incomingGroupName))throw new IllegalArgumentException("Stale group name revision");epoch=frameEpoch;groupName=incomingGroupName;groupNameRevision=incomingGroupRevision; members.clear();members.putAll(next);
                 Member self=members.get(identity.pin);self.voice=voiceConsent.enabled();self.sharing=locationConsent.enabled();
                 String savedHost=host;int savedPort=port;if(peer.recoveryAttempt!=null){if(recovery!=peer.recoveryAttempt||!peer.recoveryAttempt.complete(SystemClock.elapsedRealtime()))throw new IllegalStateException("Reconnect was cancelled or expired");host=peer.recoveryHost;port=peer.recoveryPort;}try{persist();}catch(Exception failed){host=savedHost;port=savedPort;groupName=savedGroupName;groupNameRevision=savedGroupNameRevision;epoch=savedEpoch;members.clear();members.putAll(savedMembers);throw failed;}if(peer.recoveryAttempt!=null){if(recoveryTimeout!=null)recoveryTimeout.cancel(false);recoveryTimeout=null;endpointDiscovery.stop();recoveryState="connected";recoveryMessage="Saved membership verified on this Wi-Fi";peer.recoveryAttempt=null;}peer.authorized=true;peer.textVersion=next.get(owner).textVersion;peer.messageVersion=next.get(owner).messageVersion;peer.firmwareMaintenanceVersion=GroupFirmwareMaintenanceCapability.read(message.opt("firmwareMaintenanceVersion"));status="connected";controlConnected=true;publishMediaAuthority();
+                profilePhotos.select(groupId, members.keySet());
             } else {
                 if (!peer.authorized) throw new IllegalArgumentException("Group peer is not authorized");
                 GroupWire.requireEpoch(epoch,frameEpoch);
@@ -1046,7 +1054,7 @@ final class GroupSession {
         // asynchronous; server-side TLS close can still stall and retain its bounded FD lease.
         for(Peer peer:new ArrayList<>(sockets))if(peer.writeStartedAt>0&&now-peer.writeStartedAt>=5000&&!radioMaintenance.retainTransport(internetScope(),peer.pin))peer.closeTransport();
         if(locationConsent.enabled()){if(!LocationSharingService.validNativeOwner()){if(!TrustedLocationResumeBridge.interruptForGroup(this)&&locationConsent.enabled())denySharingNow();}else{JSONObject fix=LocationPlugin.sharingFix();if(fix!=null&&fix.getLong("timestamp")!=lastOwnFixElapsed)publishOwn(fix);}}
-        if(now-lastHeartbeat>=5000){lastHeartbeat=now;for(Peer peer:new ArrayList<>(sockets))if(peer.writer!=null)peer.sendBestEffort(heartbeat(peer));}
+        if(now-lastHeartbeat>=5000){lastHeartbeat=now;for(Peer peer:new ArrayList<>(sockets))if(peer.writer!=null&&!peer.removalQueued)peer.sendBestEffort(heartbeat(peer));}
     }}
     void leave(){disconnect(true);}
     private void disconnect(boolean restoreUnapproved){disconnect(restoreUnapproved,false);}
@@ -1123,6 +1131,7 @@ final class GroupSession {
         final SSLSocket socket;final Socket raw;final GroupSocketBudget.Lease lease;final boolean inboundSocket;final long run;
         final AtomicBoolean closed=new AtomicBoolean();final String authorityToken=GroupWire.random(16);volatile boolean authorized;volatile long writeStartedAt;
         GroupRecoveryPolicy.Attempt recoveryAttempt;GroupRecoveryDiagnostics.Trace recoveryTrace;String recoveryHost;int recoveryPort;String pin="",name="",connection="";volatile int textVersion,messageVersion,firmwareMaintenanceVersion;long nameRevision,pendingUntil,sendSequence;GroupWire.Sequence inbound;
+        volatile boolean removalQueued;
         JSONObject profilePhotosSeen;
         long profilePhotoEpoch;
         DataInputStream input;DataOutputStream output;Thread writer;final ArrayDeque<Outbound> queue=new ArrayDeque<>(),textQueue=new ArrayDeque<>(),bulkQueue=new ArrayDeque<>();
@@ -1139,11 +1148,32 @@ final class GroupSession {
         void write(Outbound outgoing)throws Exception{if(!GroupFirmwareMaintenanceCapability.outbound(outgoing.body.optString("type"),firmwareMaintenanceVersion))return;if(closed.get())throw new IllegalStateException("Local peer disconnected");if(outgoing.textGrant!=null&&(LinkBenchmarkTraffic.active()||!messageGrantLive(outgoing.textGrant)||!outgoing.textLive.getAsBoolean()||textVersion!=1))return;if("signal".equals(outgoing.body.optString("type"))&&!GroupVoiceCohort.accepts(voiceRevision,outgoing.frameVoiceRevision))return;
             JSONObject export=radioExport(durableMessages.filterMessageFrame(outgoing.body));long nextSequence=sendSequence+1;JSONObject frame=new JSONObject(export.toString()).put("schema","aumanet.group.frame.v2").put("groupId",groupId).put("connectionId",connection).put("epoch",outgoing.frameEpoch).put("voiceRevision",outgoing.frameVoiceRevision).put("seq",nextSequence);
             // Preparation may be cancelled. Only an actual write attempt consumes a transport sequence.
-            String encoded=frame.toString();if(outgoing.textGrant!=null&&(LinkBenchmarkTraffic.active()||!messageGrantLive(outgoing.textGrant)||!outgoing.textLive.getAsBoolean()||textVersion!=1))return;JSONObject finalExport=radioExport(durableMessages.filterMessageFrame(outgoing.body));if(finalExport!=export){if(finalExport.optString("type").equals("heartbeat")){if(finalExport.has("radioSignals"))frame.put("radioSignals",finalExport.getJSONArray("radioSignals"));if(finalExport.has("radioConfigurations"))frame.put("radioConfigurations",finalExport.getJSONArray("radioConfigurations"));frame.put("internetSharing",finalExport.getJSONArray("internetSharing"));frame.put("linkBenchmarks",finalExport.getJSONArray("linkBenchmarks"));}else frame.put("payload",finalExport.getJSONObject("payload"));encoded=frame.toString();}if(!GroupFirmwareMaintenanceCapability.outbound(outgoing.body.optString("type"),firmwareMaintenanceVersion))return;writeStartedAt=SystemClock.elapsedRealtime();try{sendSequence=nextSequence;GroupWire.write(output,encoded);}finally{writeStartedAt=0;}}
+            String encoded=frame.toString();if(outgoing.textGrant!=null&&(LinkBenchmarkTraffic.active()||!messageGrantLive(outgoing.textGrant)||!outgoing.textLive.getAsBoolean()||textVersion!=1))return;JSONObject finalExport=radioExport(durableMessages.filterMessageFrame(outgoing.body));if(finalExport!=export){if(finalExport.optString("type").equals("heartbeat")){if(finalExport.has("radioSignals"))frame.put("radioSignals",finalExport.getJSONArray("radioSignals"));if(finalExport.has("radioConfigurations"))frame.put("radioConfigurations",finalExport.getJSONArray("radioConfigurations"));frame.put("internetSharing",finalExport.getJSONArray("internetSharing"));frame.put("linkBenchmarks",finalExport.getJSONArray("linkBenchmarks"));}else frame.put("payload",finalExport.getJSONObject("payload"));encoded=frame.toString();}if(!GroupFirmwareMaintenanceCapability.outbound(outgoing.body.optString("type"),firmwareMaintenanceVersion))return;
+            if (removalQueued && !GroupProfilePhotos.MEMBERSHIP_REMOVED.equals(outgoing.body.optString("type"))) return;
+            writeStartedAt=SystemClock.elapsedRealtime();try{sendSequence=nextSequence;GroupWire.write(output,encoded);}finally{writeStartedAt=0;}}
         void startWriter(){writer=new Thread(()->{try{while(!closed.get()){Outbound next;synchronized(queue){while(queue.isEmpty()&&textQueue.isEmpty()&&bulkQueue.isEmpty()&&!closed.get())queue.wait(15000);if(closed.get())return;next=!queue.isEmpty()?queue.poll():!textQueue.isEmpty()?textQueue.poll():bulkQueue.poll();}if(next==null)continue;
             if(!next.locationSource.isEmpty()){if(next.locationSource.equals(identity.pin)&&!locationConsent.enabled())continue;synchronized(lock){Member member=members.get(next.locationSource);if(member==null||!member.sharing||!member.connected||member.fixGeneration!=next.fixGeneration)continue;}}
-            write(next);
+            boolean removal = GroupProfilePhotos.MEMBERSHIP_REMOVED.equals(next.body.optString("type"));
+            if (removal) {
+                try { write(next); } finally { close(); }
+                return;
+            }
+            if (!removalQueued) write(next);
         }}catch(Exception failure){if(GroupRecoveryDiagnostics.transientTransport(failure))closeTransport();else close();}},"AuMaNET-group-writer");writer.setDaemon(true);writer.start();}
+        void sendRemovalAndClose() throws Exception {
+            // The owner has already revoked all group authority. Discard queued
+            // data and give the writer one chance to deliver the final notice.
+            synchronized (queue) {
+                if (closed.get()) return;
+                removalQueued = true;
+                queue.clear();
+                textQueue.clear();
+                bulkQueue.clear();
+                JSONObject notice = new JSONObject().put("type", GroupProfilePhotos.MEMBERSHIP_REMOVED).put("memberId", pin);
+                queue.add(new Outbound(notice, "", 0));
+                queue.notifyAll();
+            }
+        }
         void send(JSONObject body)throws Exception{enqueue(new Outbound(body,"",0));}
         void sendBestEffort(JSONObject body){sendBestEffort(body,this::closeTransport);}
         void sendBestEffort(JSONObject body,Runnable detach){GroupPeerDelivery.offer(closed::get,()->enqueue(new Outbound(body,"",0),false),detach);}

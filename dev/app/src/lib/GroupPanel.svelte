@@ -202,7 +202,7 @@
           {#if state.identity.photoBase64}<button class="text-button" disabled={!ready||!!busy||pending} onclick={removeProfilePhoto}>Remove photo</button>{/if}
         </div>
       </div>
-      <p class="hint">Your profile photo is shared with approved members of your group.</p>
+      <p class="hint">Approved group members receive a copy of your photo. Offline phones can keep cached copies after a photo or member is removed.</p>
     {/if}
     <h3>Your name</h3>
     <form onsubmit={event=>{event.preventDefault();void saveName();}}>

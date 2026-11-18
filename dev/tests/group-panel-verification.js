@@ -68,6 +68,7 @@ async (page) => {
   await page.getByText('Your name is saved on this phone.',{exact:true}).waitFor();
   check(await page.evaluate(()=>window.__groupPanelFixture.state.identity.name)==='Updated person','Native profile readback was not rendered');
   await page.evaluate(()=>{const f=window.__groupPanelFixture;f.setState({...f.state,profilePhotosAvailable:true});});
+  await page.getByText('Approved group members receive a copy of your photo. Offline phones can keep cached copies after a photo or member is removed.',{exact:true}).waitFor();
   const image = await page.evaluate(()=>{
     const canvas = document.createElement('canvas');
     canvas.width = 240;
