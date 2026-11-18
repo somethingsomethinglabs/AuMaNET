@@ -1,0 +1,614 @@
+{
+  "title": "AuMaNET — Brand & experience guide",
+  "version": "1.0",
+  "date": "18 November 2026",
+  "sourceCommit": "83600e761ad7440bac5603987bedafd258159c42",
+  "rules": {
+    "messages": [
+      "One scrollable history. The composer and navigation stay outside it.",
+      "Preserve drafts across navigation and rotation. A failed save keeps the draft and shows Retry.",
+      "Use sender names, time and device-storage status. Never imply a human read receipt.",
+      "Keep a reader’s scroll position; follow new content only when already at the latest message."
+    ],
+    "voice": [
+      "Join muted. Enabling the microphone is a separate choice.",
+      "A fresh press starts hold-to-talk; release, backgrounding or interruption ends it.",
+      "Mute, received sound and Leave are distinct controls.",
+      "Show the persistent voice strip on other destinations. Applying voice settings mutes input."
+    ],
+    "map": [
+      "The map fills the available screen, with controls overlaid on its edges.",
+      "Private acquisition and published location are separate actions.",
+      "Label last-known positions, age and accuracy. Do not turn stale fixes into current ones.",
+      "Inspect people or coordinates in a sheet; return to the same map view."
+    ],
+    "people": [
+      "Use compact rows for people and nodes; show connected/away status in text.",
+      "Full identities and membership actions belong in details.",
+      "Invitations, approval and removal require explicit actions.",
+      "Do not infer a checked node association from a display name."
+    ],
+    "tools": [
+      "Group destinations by Network, Devices and Tools.",
+      "A row is a destination; a switch changes one explicit setting.",
+      "Show the current value or status as trailing metadata, not a paragraph.",
+      "Use a back action for secondary screens. Put deeper explanations in disclosures."
+    ],
+    "maintenance": [
+      "Keep preparation separate from activation or installation.",
+      "Give progress, cancellation and unknown outcomes distinct states.",
+      "An unknown result requires recheck; do not offer a blind repeat.",
+      "Show the exact relevant identity and conditions at the decision point."
+    ],
+    "forms": [
+      "Persistent label above the value; 16px form text and visible focus.",
+      "Keep related fields in a short group. Hide advanced assumptions in a disclosure.",
+      "Do not erase input on background refresh or recoverable failure.",
+      "Place the primary action after its inputs; return focus after closing a sheet."
+    ]
+  },
+  "components": [
+    [
+      "App bar",
+      "68px minimum; 16px side inset",
+      "Title left; connection and contextual actions right. Back only on secondary screens."
+    ],
+    [
+      "Bottom navigation",
+      "66px; 5 equal destinations",
+      "Icon + text, with a sage active container. Keep active state visible."
+    ],
+    [
+      "List group",
+      "14px outer radius; 56px tool / 76px person rows",
+      "Full row opens a destination. A 1px divider separates entries."
+    ],
+    [
+      "Message",
+      "14px text; 10px × 13px padding",
+      "Incoming left, self right. 16px corners and one 4px tail corner."
+    ],
+    [
+      "Composer",
+      "44px controls; 44–112px input height",
+      "Attach, multiline input and Send. Keep save feedback below the input."
+    ],
+    [
+      "Primary action",
+      "44px minimum; 11px radius",
+      "Forest fill, white label. Use for the next deliberate action."
+    ],
+    [
+      "Sheet",
+      "24px upper corners; 24px × 20px padding",
+      "Labelled dialog, close action, inert background, focus containment and return."
+    ],
+    [
+      "Status",
+      "Text plus colour / icon",
+      "Keep saved, queued, failed, unknown and read meanings distinct."
+    ],
+    [
+      "Input",
+      "16px value; 44px minimum height",
+      "Persistent label and inline error; preserve values on failure."
+    ],
+    [
+      "Disclosure",
+      "44px summary row",
+      "Secondary explanation or advanced settings. Avoid hiding essential decisions."
+    ]
+  ],
+  "stateRows": [
+    [
+      "Empty",
+      "No results yet",
+      "Name the missing item and give one useful next action."
+    ],
+    [
+      "Offline",
+      "Connection: offline",
+      "Retain saved history, drafts and maps; disable only unavailable actions."
+    ],
+    [
+      "Pending",
+      "Connecting / Preparing",
+      "Describe the current operation and provide Cancel when possible."
+    ],
+    [
+      "Active",
+      "Voice · muted",
+      "Show active service state beyond its owning screen."
+    ],
+    [
+      "Failed",
+      "Not saved · Retry",
+      "Keep input intact; provide an inline recovery action."
+    ],
+    [
+      "Unknown",
+      "Unknown · check delivery",
+      "Hold the original intent. Inspect status before repeating."
+    ],
+    [
+      "Stale",
+      "Last known · age · accuracy",
+      "Keep historical context visible without claiming freshness."
+    ],
+    [
+      "Denied",
+      "Permission unavailable",
+      "Explain the needed capability at the attempted action; support retry."
+    ],
+    [
+      "Destructive",
+      "Remove member / Clear history",
+      "Name the consequence and the exact scope before confirming."
+    ]
+  ],
+  "handoff": [
+    [
+      "1. Start with this package",
+      "The approved screenshot library, rules and tokens are the visual authority. The neutral functional brief remains the capability contract."
+    ],
+    [
+      "2. Keep design input separate",
+      "Do not feed original-app screenshots, styles or existing navigation into further design decisions. Record any new decisions in an addendum."
+    ],
+    [
+      "3. Map functionality to destinations",
+      "Inventory actions and state contracts first. Implement them within these layouts without importing old visual structure."
+    ],
+    [
+      "4. Implement the shared shell first",
+      "App bar, five destinations, one scroll owner, keyboard-aware composer, sheets and safe areas precede decorative refinement."
+    ],
+    [
+      "5. Verify the hard states",
+      "Check failure, offline, stale data, unknown outcomes, cancellation and recovery as well as the happy path."
+    ],
+    [
+      "6. Review against matched captures",
+      "Use the same route, state and viewport. Compare geometry and interaction, then test actual devices, text scaling and assistive technology."
+    ]
+  ],
+  "captures": [
+    {
+      "file": "screenshots/01-messages.jpg",
+      "label": "Messages",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#chat",
+      "capturedAt": "2026-11-17T23:56:34.443Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/02-voice.jpg",
+      "label": "Voice",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#voice",
+      "capturedAt": "2026-11-17T23:56:34.497Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/03-map.jpg",
+      "label": "Map",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#map",
+      "capturedAt": "2026-11-17T23:56:34.562Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/04-people.jpg",
+      "label": "People",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#people",
+      "capturedAt": "2026-11-17T23:56:34.631Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/05-tools.jpg",
+      "label": "Tools",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#kit",
+      "capturedAt": "2026-11-17T23:56:34.695Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/06-connection.jpg",
+      "label": "Connection",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#connection",
+      "capturedAt": "2026-11-17T23:56:34.762Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/07-offline-maps.jpg",
+      "label": "Offline maps",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#offline",
+      "capturedAt": "2026-11-17T23:56:34.828Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/08-shared-internet.jpg",
+      "label": "Shared internet",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#internet",
+      "capturedAt": "2026-11-17T23:56:34.891Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/09-nodes.jpg",
+      "label": "Nodes",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#nodes",
+      "capturedAt": "2026-11-17T23:56:34.962Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/10-firmware.jpg",
+      "label": "Firmware",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#firmware",
+      "capturedAt": "2026-11-17T23:56:35.030Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/11-radio.jpg",
+      "label": "Radio settings",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#radio",
+      "capturedAt": "2026-11-17T23:56:35.109Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/12-tests.jpg",
+      "label": "Connection tests",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#measurements",
+      "capturedAt": "2026-11-17T23:56:35.162Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/13-planner.jpg",
+      "label": "Capacity planner",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#planner",
+      "capturedAt": "2026-11-17T23:56:35.229Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/14-settings.jpg",
+      "label": "Settings",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#settings",
+      "capturedAt": "2026-11-17T23:56:35.295Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/15-diagnostics.jpg",
+      "label": "Diagnostics",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#diagnostics",
+      "capturedAt": "2026-11-17T23:56:35.362Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/16-setup.jpg",
+      "label": "Set up a group",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#onboarding",
+      "capturedAt": "2026-11-17T23:56:35.441Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/17-join.jpg",
+      "label": "Join a group",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#join",
+      "capturedAt": "2026-11-17T23:56:35.495Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/18-advanced.jpg",
+      "label": "Advanced tools",
+      "note": "Initial viewport; fictional isolated sample state.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#operator",
+      "capturedAt": "2026-11-17T23:56:35.563Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/19-conversation-sheet.jpg",
+      "label": "Conversation options",
+      "note": "Contextual sheet over Messages; background is inert.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#chat",
+      "capturedAt": "2026-11-17T23:56:42.271Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/20-voice-settings.jpg",
+      "label": "Voice settings",
+      "note": "Input mode, output and sensitivity; applying mutes the microphone.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#voice",
+      "capturedAt": "2026-11-17T23:56:48.270Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/21-location-sheet.jpg",
+      "label": "Location controls",
+      "note": "Acquiring a private fix and publishing it are separate actions.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#map",
+      "capturedAt": "2026-11-17T23:56:53.604Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/22-voice-muted.jpg",
+      "label": "Voice joined, muted",
+      "note": "Explicit enable is required before transmission.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#voice",
+      "capturedAt": "2026-11-17T23:57:14.926Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/23-session-strip.jpg",
+      "label": "Voice outside its screen",
+      "note": "Persistent status, Mute and Leave above Messages.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#chat",
+      "capturedAt": "2026-11-17T23:57:15.033Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/24-landscape-messages.jpg",
+      "label": "Landscape Messages",
+      "note": "844 by 390; history compresses while composer and navigation remain visible.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#chat",
+      "capturedAt": "2026-11-17T23:57:15.092Z",
+      "documentHeight": 390,
+      "documentWidth": 844,
+      "height": 390,
+      "width": 844
+    },
+    {
+      "file": "screenshots/25-landscape-voice.jpg",
+      "label": "Landscape Voice",
+      "note": "Two columns keep participants and controls reachable.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover#voice",
+      "capturedAt": "2026-11-17T23:57:15.202Z",
+      "documentHeight": 390,
+      "documentWidth": 844,
+      "height": 390,
+      "width": 844
+    },
+    {
+      "file": "screenshots/26-unsaved-draft.jpg",
+      "label": "Draft could not be saved",
+      "note": "Review-only injected failure after transient toast dismissal; draft and inline Retry remain visible.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover-final-failure&evaluate=1#chat",
+      "capturedAt": "2026-11-18T00:07:02.634Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    },
+    {
+      "file": "screenshots/27-first-use.jpg",
+      "label": "First use",
+      "note": "No group; create or join without enabling microphone or location.",
+      "url": "http://127.0.0.1:4317/index.html?showcase=handover-fresh&fresh=1#onboarding",
+      "capturedAt": "2026-11-17T23:57:16.180Z",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "width": 390
+    }
+  ],
+  "colors": {
+    "paper": "#f4f3ec",
+    "surface": "#fffef8",
+    "ink": "#243c32",
+    "muted": "#737e70",
+    "line": "#dce1d5",
+    "green": "#315e47",
+    "green-deep": "#224735",
+    "lime": "#dceca9",
+    "sage": "#e6ecdd",
+    "rust": "#b97753",
+    "blue": "#6c8e98",
+    "danger": "#a84835",
+    "brand-secondary": "#91a97e"
+  },
+  "roles": {
+    "paper": "Main canvas",
+    "surface": "App bar, controls, rows and sheets",
+    "ink": "Primary text",
+    "muted": "Secondary text in the captured prototype",
+    "line": "Quiet dividers",
+    "green": "Primary action and active navigation",
+    "green-deep": "Pressed action / active voice strip",
+    "lime": "Accent on dark green",
+    "sage": "Selected item / soft status",
+    "rust": "Avatar / illustration accent",
+    "blue": "Avatar / map accent",
+    "danger": "Destructive action",
+    "brand-secondary": "Second logo bar"
+  },
+  "type": [
+    {
+      "name": "Screen title",
+      "size": 21,
+      "weight": 600,
+      "lineHeight": 1.25,
+      "tracking": "-0.4px"
+    },
+    {
+      "name": "Sheet title",
+      "size": 22,
+      "weight": 600,
+      "lineHeight": 1.3,
+      "tracking": "-0.3px"
+    },
+    {
+      "name": "Voice state",
+      "size": 23,
+      "weight": 600,
+      "lineHeight": 1.3,
+      "tracking": "-0.5px"
+    },
+    {
+      "name": "Card heading",
+      "size": 17,
+      "weight": 600,
+      "lineHeight": 1.35,
+      "tracking": "-0.2px"
+    },
+    {
+      "name": "List title",
+      "size": 15,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "tracking": "0"
+    },
+    {
+      "name": "Message body",
+      "size": 14,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "tracking": "0"
+    },
+    {
+      "name": "Form value",
+      "size": 16,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "tracking": "0"
+    },
+    {
+      "name": "Button / field label",
+      "size": 13,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "tracking": "0"
+    },
+    {
+      "name": "Secondary label",
+      "size": 12,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "tracking": "0"
+    },
+    {
+      "name": "Navigation / receipt",
+      "size": 11,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "tracking": "0"
+    }
+  ],
+  "contrast": [
+    {
+      "label": "Primary text",
+      "foreground": "#243c32",
+      "background": "#f4f3ec",
+      "ratio": 10.68
+    },
+    {
+      "label": "Primary button",
+      "foreground": "#ffffff",
+      "background": "#315e47",
+      "ratio": 7.44
+    },
+    {
+      "label": "Secondary text",
+      "foreground": "#737e70",
+      "background": "#f4f3ec",
+      "ratio": 3.82
+    },
+    {
+      "label": "Secondary text on surface",
+      "foreground": "#737e70",
+      "background": "#fffef8",
+      "ratio": 4.2
+    },
+    {
+      "label": "Suggested secondary text",
+      "foreground": "#626d60",
+      "background": "#f4f3ec",
+      "ratio": 4.87
+    },
+    {
+      "label": "Destructive text",
+      "foreground": "#a84835",
+      "background": "#fffef8",
+      "ratio": 5.7
+    }
+  ]
+}
