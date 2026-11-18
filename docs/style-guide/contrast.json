@@ -1,0 +1,38 @@
+[
+  {
+    "label": "Primary text",
+    "foreground": "#243c32",
+    "background": "#f4f3ec",
+    "ratio": 10.68
+  },
+  {
+    "label": "Primary button",
+    "foreground": "#ffffff",
+    "background": "#315e47",
+    "ratio": 7.44
+  },
+  {
+    "label": "Secondary text",
+    "foreground": "#737e70",
+    "background": "#f4f3ec",
+    "ratio": 3.82
+  },
+  {
+    "label": "Secondary text on surface",
+    "foreground": "#737e70",
+    "background": "#fffef8",
+    "ratio": 4.2
+  },
+  {
+    "label": "Suggested secondary text",
+    "foreground": "#626d60",
+    "background": "#f4f3ec",
+    "ratio": 4.87
+  },
+  {
+    "label": "Destructive text",
+    "foreground": "#a84835",
+    "background": "#fffef8",
+    "ratio": 5.7
+  }
+]

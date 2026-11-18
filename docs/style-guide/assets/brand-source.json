@@ -1,0 +1,39 @@
+{
+  "sourceCommit": "83600e761ad7440bac5603987bedafd258159c42",
+  "source": "Independent prototype styles.css .brand / .brand-mark pseudo-elements; original field-desktop.jpg inspected only for the logo.",
+  "geometry": {
+    "barWidth": 16,
+    "barHeight": 28,
+    "cornerRadius": 2,
+    "secondBarOffsetX": 14,
+    "skewXDegrees": -19,
+    "transformOrigin": "center",
+    "secondBarClipPercent": [
+      [
+        0,
+        0
+      ],
+      [
+        100,
+        0
+      ],
+      [
+        100,
+        100
+      ],
+      [
+        70,
+        100
+      ]
+    ]
+  },
+  "wordmark": {
+    "text": "AuMaNET",
+    "font": "Arial Bold",
+    "fontSizePx": 25,
+    "trackingPx": -1.4,
+    "delivery": "Primary / mono / reverse use outlined glyphs; editable version requires the font."
+  },
+  "newPackaging": "Clear-space rules, mono/reverse variants and app-icon container are handover recommendations derived from the existing mark, not separate approved screen designs.",
+  "fontRedistribution": "Font binaries are not included."
+}

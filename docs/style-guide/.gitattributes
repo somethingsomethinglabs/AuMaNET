@@ -1,0 +1,6 @@
+# Keep portable package hashes stable across operating systems.
+* -text
+*.pdf binary
+*.zip binary
+*.png binary
+*.jpg binary

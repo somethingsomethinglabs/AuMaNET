@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "sourceCommit": "83600e761ad7440bac5603987bedafd258159c42",
+  "sourceBoundary": "Independent prototype only. No original-app implementation or visuals.",
+  "inputs": [
+    {
+      "file": "styles.css",
+      "sha256": "677ac149b595b43c9d1c7bb02ba8a263730ea7c481c14335a54c2aef8a241acc"
+    },
+    {
+      "file": "app-layout.css",
+      "sha256": "6588934394b747c3a1b6b3c958ab16e39e09a31646eb7a09765342690726a45b"
+    },
+    {
+      "file": "app.mjs",
+      "sha256": "d3714dd5e757d0fb2c5820f02adf5f35a17079d727021dcb3bc66e810ed66916"
+    },
+    {
+      "file": "index.html",
+      "sha256": "d8aaf6e8fb6960d5d3dc385afed9ac7491b54c715011f7ccdb75a2a174d43e16"
+    }
+  ],
+  "logoReference": "Existing independent styles.css .brand/.brand-mark; historical independent field-desktop.jpg checked only for logo.",
+  "approvedScreens": "Revised viewport-based mobile app. Superseded original website layouts excluded.",
+  "newGuidance": [
+    "Brand packaging variants and minimum sizes",
+    "Darker secondary text recommendation",
+    "Native touch target and integration validation requirements"
+  ],
+  "noRuntimeCopied": true
+}

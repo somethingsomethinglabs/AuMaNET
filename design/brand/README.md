@@ -1,6 +1,8 @@
 # AuMaNET identity
 
-Active logo: **Connected ridge (council option 1)**, selected by the owner on 6 November 2026. The green silhouette was traced from the selected concept and simplified into smooth vector contours, preserving its uneven peaks, broad valley and closed baseline. Council alternatives and original generated boards remain an archive in [logo-council](../concepts/logo-council/README.md).
+For the two-bar identity and Android design system, see the [Brand & Experience Guide](../../docs/design-style.md).
+
+Earlier logo: **Connected ridge (council option 1)**, selected by the owner on 6 November 2026. The green silhouette was traced from the selected concept and simplified into smooth vector contours, preserving its uneven peaks, broad valley and closed baseline. Council alternatives and original generated boards remain an archive in [logo-council](../concepts/logo-council/README.md).
 
 ## Master assets
 
