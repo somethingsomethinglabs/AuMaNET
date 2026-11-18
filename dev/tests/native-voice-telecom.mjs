@@ -7,28 +7,52 @@ const harness=join(run,'VoiceTelecomEngineHarness.java');await writeFile(harness
 const ownership=join(run,'VoiceTelecomAudioOwnershipHarness.java');
 await writeFile(ownership,`package au.aumanet.app;
 final class VoiceTelecomAudioOwnershipHarness {
-    boolean configuredAudio = true;
+    boolean configuredAudio, prepareTelecom;
     final AudioManager audio = new AudioManager();
+    final Context context = new Context();
+    int routingClaims;
+    AudioDeviceCallback deviceCallback;
+    java.util.function.Consumer<AudioDeviceInfo> routeListener;
+    static final class VoiceTelecom {
+        static boolean previousCallClosed() { return true; }
+    }
+    static final class Handler { Handler(Object looper) {} }
+    static final class Looper { static Object getMainLooper() { return new Object(); } }
+    static final class Context { java.util.concurrent.Executor getMainExecutor() { return Runnable::run; } }
+    static class AudioDeviceCallback { public void onAudioDevicesRemoved(AudioDeviceInfo[] removed) {} }
+    final Object gate = new Object();
+    boolean closed;
+    int routeId = -1;
+    void touch() {}
+    void invalidateRoute(String notice) {}
+    void communicationRouteChanged() {}
+    void claimAudioManagerRouting() { configuredAudio = true; routingClaims++; }
     static final class Build {
         static final class VERSION { static final int SDK_INT = 35; }
     }
     static final class AudioManager {
-        static final int MODE_NORMAL = 0, MODE_IN_COMMUNICATION = 3;
+        static final int MODE_NORMAL = 0, MODE_IN_CALL = 2, MODE_IN_COMMUNICATION = 3;
         // Android's mode stack contains separate app and Telecom requests.
         int appMode = MODE_IN_COMMUNICATION, telecomMode = MODE_IN_COMMUNICATION;
         boolean appRoute = true, failClear;
-        int clears;
+        int clears, deviceObservers, routeObservers;
         void clearCommunicationDevice() {
             clears++;
             if (failClear) throw new IllegalStateException("Route release failed");
             appRoute = false;
         }
         void setMode(int mode) { appMode = mode; }
+        int getMode() { return telecomMode; }
+        void registerAudioDeviceCallback(AudioDeviceCallback callback, Handler handler) { deviceObservers++; }
+        void addOnCommunicationDeviceChangedListener(java.util.concurrent.Executor executor, java.util.function.Consumer<AudioDeviceInfo> listener) { routeObservers++; }
         boolean telecomCanSelectSpeaker() {
             return appMode == MODE_NORMAL && telecomMode == MODE_IN_COMMUNICATION && !appRoute;
         }
     }
+    static final class AudioDeviceInfo { int getId() { return 0; } }
+    ${extract('private void configureAudio(')}
     ${extract('private void releaseAudioManagerRouting(')}
+    void initialize(boolean telecom) { prepareTelecom = telecom; configureAudio(); }
     void release() { releaseAudioManagerRouting(); }
 }
 `);

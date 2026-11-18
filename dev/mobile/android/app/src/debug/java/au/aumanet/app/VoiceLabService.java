@@ -130,7 +130,8 @@ public final class VoiceLabService extends Service {
         wake.acquire(2 * 60 * 60 * 1000L + 5000);
         synchronized(VoiceLabService.class){
             if(stopping||generation!=VoiceLabPlugin.joinGeneration.get()||!startReservation.matches(session,generation)){stopSession("Join cancelled before preference restoration");return START_NOT_STICKY;}
-            engine=new VoiceLabEngine(getApplicationContext(),session,this::updateNotification);
+            boolean nativeGroup = trustedResume != null || intent.getBooleanExtra("nativeGroup", false);
+            engine=new VoiceLabEngine(getApplicationContext(),session,this::updateNotification,nativeGroup);
             TrustedVoiceResumeNative.attach(this,engine);
         }
         initializeOwnedEngine(engine);
@@ -167,7 +168,7 @@ public final class VoiceLabService extends Service {
                 to.consent=((GroupSession)to.scope.source).grantTrustedVoice(to.scope,to::live);
                 synchronized(VoiceLabService.class){
                     if(stopping||active!=this||trustedResume!=to||!to.live())throw new IllegalStateException("Trusted master changed");
-                    engine=new VoiceLabEngine(getApplicationContext(),to.session,this::updateNotification);TrustedVoiceResumeNative.attach(this,engine);
+                    engine=new VoiceLabEngine(getApplicationContext(),to.session,this::updateNotification,true);TrustedVoiceResumeNative.attach(this,engine);
                 }
                 initializeOwnedEngine(engine);done.accept(true);
             }catch(Exception unavailable){done.accept(false);}

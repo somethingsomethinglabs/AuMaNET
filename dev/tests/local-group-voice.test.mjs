@@ -323,7 +323,10 @@ function nativeFixture(){
   const f=fixture(),processId='12345678-1234-1234-1234-123456789abc';
   const capability={nativeCoordinatorAvailable:true,coordinatorOwner:'javascript',coordinatorStatus:'waiting',coordinatorError:'',coordinatorRevision:0,processId};
   f.updateVoice(capability);const originalStart=f.voice.start,originalStop=f.voice.stop;
-  f.voice.start=async(...args)=>{await originalStart.apply(f.voice,args);f.updateVoice(capability);return f.voice.state;};
+  f.voice.start=async(...args)=>{
+    assert.deepEqual(args,[args[0],true,'native'],'The audio owner must be selected before native group startup');
+    await originalStart.apply(f.voice,args);f.updateVoice(capability);return f.voice.state;
+  };
   f.voice.stop=async(...args)=>{await originalStop.apply(f.voice,args);if(!f.voice.state.joined)f.updateVoice(capability);return f.voice.state;};
   f.voice.groupBind=async(id,epoch,expected,controller)=>{
     assert.equal(controller,'native');assert.equal(expected,f.group.state.voiceConsentRevision);f.calls.push(['bindNative',id,epoch,expected]);

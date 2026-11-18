@@ -264,7 +264,7 @@ export class LocalGroupVoiceCoordinator {
       this.ownedMasterId=masterId;this.ownedVoiceProcessId=native.processId;
       // This user-initiated master exists even when alone. Native may later add peers
       // while the WebView is suspended; JavaScript must never start another master.
-      await this.voice.start(masterId,true);this.guard(generation,scope);
+      await this.voice.start(masterId,true,'native');this.guard(generation,scope);
       await this.voice.groupBind(scope.groupId,scope.epoch,this.consentOwner!.revision,'native');this.guard(generation,scope);
       const bound=this.voice.state;
       if(!bound||bound.sessionId!==masterId||bound.processId!==this.ownedVoiceProcessId||!this.bound(bound,group)||bound.groupVoiceConsentRevision!==this.consentOwner?.revision||bound.coordinatorOwner!=='native'||bound.nativeCoordinatorAvailable!==true)throw new Error('Native voice coordinator did not bind its owned consent');

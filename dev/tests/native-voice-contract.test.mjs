@@ -173,6 +173,15 @@ test('a guarded startup cannot release an active different session hold before n
   await assert.rejects(f.client.stop('invalid'),/ownership/);assert.equal(f.calls.length,before);await f.client.endPtt();
 });
 
+test('native group startup requests Telecom preparation on a fresh guarded session only',async()=>{
+  const f=fixture();f.state={...snapshot,muted:true};const before=f.calls.length;
+  await assert.rejects(f.client.start(session,false,'native'),/new owned session/);
+  assert.equal(f.calls.length,before);
+  await f.client.start(session,true,'native');
+  assert.deepEqual(f.calls.at(-1),['start',{sessionId:session,requireIdle:true,coordinator:'native'}]);
+  assert.equal(f.client.state.muted,true);
+});
+
 
 test('guarded stop also cancels its pending legacy replacement when the cached state is its predecessor',async()=>{
   const f=fixture();await f.client.refresh();let finish;const replacement='e'.repeat(32),idle={...snapshot,sessionId:'',joined:false,initialized:false,muted:true,transmitting:false,connection:'idle'};

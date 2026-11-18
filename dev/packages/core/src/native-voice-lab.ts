@@ -6,7 +6,7 @@ export interface NativeVoiceLabBridge {
   bluetoothSettings?():Promise<unknown>;
   snapshot(): Promise<unknown>;
   preferences(options: VoicePreferencePatch): Promise<unknown>;
-  start(options: {sessionId: string;requireIdle?:boolean}): Promise<unknown>;
+  start(options: {sessionId: string;requireIdle?:boolean;coordinator?:'native'}): Promise<unknown>;
   stop(options?:{sessionId:string}): Promise<unknown>;
   command(options: Record<string, unknown>): Promise<unknown>;
   createOffer(options: {sessionId: string}): Promise<unknown>;
@@ -108,14 +108,15 @@ export class NativeVoiceLabClient {
     if(!this.value?.joined || !this.value.initialized || requireSync&&!this.synced)throw new Error('Join and hydrate the native session first');
     return this.value.sessionId;
   }
-  async start(sessionId=this.id(),requireIdle=false) {
+  async start(sessionId=this.id(),requireIdle=false,coordinator?:'native') {
     if(!/^[a-f0-9]{32}$/.test(sessionId))throw new Error('Invalid native voice session ID');
     if(typeof requireIdle!=='boolean')throw new Error('Invalid native voice startup ownership');
+    if(coordinator!==undefined&&(coordinator!=='native'||!requireIdle))throw new Error('A native group call needs a new owned session');
     if(requireIdle&&(this.pendingStart||this.value?.joined))throw new Error('A native voice session is already active or starting; refresh before joining');
     // An ownership-guarded attempt cannot release another call's hold before native rejects it.
     if(!requireIdle)void this.endPtt();const generation=++this.generation;
     const pending={sessionId,generation,previous:this.value};this.pendingStart=pending;
-    try{return this.accept(await this.bridge.start({sessionId,...(requireIdle?{requireIdle:true}:{})}),generation);}
+    try{return this.accept(await this.bridge.start({sessionId,...(requireIdle?{requireIdle:true}:{}),...(coordinator?{coordinator}:{})}),generation);}
     finally{if(this.pendingStart===pending)this.pendingStart=undefined;}
   }
   async stop(expectedSessionId?:string) {

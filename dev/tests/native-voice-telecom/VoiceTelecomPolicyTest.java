@@ -38,12 +38,15 @@ public final class VoiceTelecomPolicyTest {
  static void audioManagerOwnershipHandoff() {
   tests++;
   VoiceTelecomAudioOwnershipHarness fixture = new VoiceTelecomAudioOwnershipHarness();
+  fixture.initialize(false);
+  check(fixture.routingClaims==1,"Legacy call still acquires its AudioManager route");
   check(!fixture.audio.telecomCanSelectSpeaker(),"An app mode and route request competes with Telecom's communication routing");
   fixture.release();
   check(fixture.audio.telecomCanSelectSpeaker(),"Releasing only the app's mode and route requests leaves Telecom free to select speaker");
   fixture.release();
   check(fixture.audio.clears==1,"Call teardown does not re-release routing after handoff");
   VoiceTelecomAudioOwnershipHarness failedClear = new VoiceTelecomAudioOwnershipHarness();
+  failedClear.initialize(false);
   failedClear.audio.failClear = true;
   try {
    failedClear.release();
@@ -52,6 +55,10 @@ public final class VoiceTelecomPolicyTest {
    check(failedClear.audio.appMode==VoiceTelecomAudioOwnershipHarness.AudioManager.MODE_NORMAL,
      "Failed route clear still withdraws the app's competing mode request");
   }
+  VoiceTelecomAudioOwnershipHarness nativeGroup = new VoiceTelecomAudioOwnershipHarness();
+  nativeGroup.initialize(true);
+  check(nativeGroup.routingClaims==0&&!nativeGroup.configuredAudio,"A Telecom group call never claims AudioManager mode during preparation");
+  check(nativeGroup.audio.deviceObservers==1&&nativeGroup.audio.routeObservers==1,"Telecom group call still observes actual hardware and route changes");
  }
  public static void main(String[] args)throws Exception{initialAndRepeated();holdMuteAndEnd();exactEndpointAndAck();semanticRestoreAndTimeout();lateActivationCannotUndoHold();stopDuringOpenAndReplacement();stopPendingRoute();preferenceAndPhysicalRoutes();actualPreferenceCommitBoundary();audioManagerOwnershipHandoff();check(VoiceTelecomSession.availableForNew(),"Every known platform call cleaned up");System.out.println("{\"status\":\"pass\",\"testCount\":"+tests+",\"assertionCount\":"+checks+"}");}
 }
