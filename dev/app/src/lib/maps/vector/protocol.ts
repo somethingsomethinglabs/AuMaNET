@@ -6,18 +6,25 @@ import {readElevationTile} from './elevation-tile';
 export function previewProtocols(options:{terrainTemplate?:string;regionRoot?:string}={}){
   const native=Capacitor.getPlatform()==='android';
   const basemap=previewArchive('basemap.pmtiles',native),terrain=previewArchive('terrain.pmtiles',native),protocol=new Protocol();
-  protocol.add(basemap.archive);protocol.add(terrain.archive);addProtocol('pmtiles',protocol.tile);
+  protocol.add(basemap.archive);addProtocol('pmtiles',protocol.tile);
   if(options.regionRoot)addProtocol('aumanet-offline-base',async(request,controller)=>{
     const match=/^aumanet-offline-base:\/\/(\d+)\/(\d+)\/(\d+)$/.exec(request.url);if(!match)throw Error('Invalid offline tile');
     const response=await fetch(options.regionRoot+'/base/'+match.slice(1).join('/')+'.pbf',{signal:controller.signal});
     if(response.status===204){const[z,x,y]=match.slice(1).map(Number),tile=await basemap.archive.getZxy(z,x,y,controller.signal);return{data:tile?.data??new ArrayBuffer(0)};}
     if(!response.ok)throw Error('Offline map tile failed verification');const data=await response.arrayBuffer();if(data.byteLength>2*1024*1024)throw Error('Oversized offline tile');return{data};
   });
-  if(options.regionRoot)addProtocol('aumanet-offline-dem',async(request,controller)=>{
-    const match=/^aumanet-offline-dem:\/\/(\d+)\/(\d+)\/(\d+)$/.exec(request.url);if(!match)throw Error('Invalid offline elevation tile');
-    const response=await fetch(options.regionRoot+'/terrain/'+match.slice(1).join('/')+'.webp',{signal:controller.signal});
-    if(response.status===204){const[z,x,y]=match.slice(1).map(Number),tile=await terrain.archive.getZxy(z,x,y,controller.signal);if(!tile)throw Error('Offline elevation coverage is unavailable');return{data:tile.data};}
-    return{data:await (await readElevationTile(response)).arrayBuffer()};
+  addProtocol('aumanet-offline-dem',async(request,controller)=>{
+    const match=/^aumanet-offline-dem:\/\/(\d+)\/(\d+)\/(\d+)$/.exec(request.url);
+    if(!match)throw Error('Invalid offline elevation tile');
+    const coordinates=match.slice(1);
+    if(options.regionRoot){
+      const response=await fetch(options.regionRoot+'/terrain/'+coordinates.join('/')+'.webp',{signal:controller.signal});
+      if(response.status!==204)return{data:await (await readElevationTile(response)).arrayBuffer()};
+    }
+    const [z,x,y]=coordinates.map(Number);
+    const tile=await terrain.archive.getZxy(z,x,y,controller.signal);
+    // MapLibre treats an empty image response as no DEM and continues drawing roads.
+    return{data:tile?.data??new ArrayBuffer(0)};
   });
   const worker=new Worker(new URL('./terrain-worker.ts',import.meta.url),{type:'module'});
   worker.postMessage({type:'init',native,...options});
@@ -34,6 +41,6 @@ export function previewProtocols(options:{terrainTemplate?:string;regionRoot?:st
     pending.set(id,{resolve,reject,cleanup:()=>{clearTimeout(timer);controller.signal.removeEventListener('abort',abort);}});
     if(controller.signal.aborted){abort();return;}controller.signal.addEventListener('abort',abort,{once:true});worker.postMessage({type:'contour',id,z,x,y});
   }));
-  return{basemap:`pmtiles://${basemap.source.url}`,terrain:`pmtiles://${terrain.source.url}`,metrics:()=>({basemap:{...basemap.source.metrics},terrain:{...terrain.source.metrics},pendingContours:pending.size}),
-    close(){closed=true;for(const value of pending.values()){value.cleanup();value.reject(new DOMException('Map closed','AbortError'));}pending.clear();worker.terminate();removeProtocol('pmtiles');removeProtocol('aumanet-contours');if(options.regionRoot){removeProtocol('aumanet-offline-base');removeProtocol('aumanet-offline-dem');}}};
+  return{basemap:`pmtiles://${basemap.source.url}`,metrics:()=>({basemap:{...basemap.source.metrics},terrain:{...terrain.source.metrics},pendingContours:pending.size}),
+    close(){closed=true;for(const value of pending.values()){value.cleanup();value.reject(new DOMException('Map closed','AbortError'));}pending.clear();worker.terminate();removeProtocol('pmtiles');removeProtocol('aumanet-contours');removeProtocol('aumanet-offline-dem');if(options.regionRoot)removeProtocol('aumanet-offline-base');}};
 }
