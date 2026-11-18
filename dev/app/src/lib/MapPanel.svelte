@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ProfilePhoto from './ProfilePhoto.svelte';
   import BrandIcon from './BrandIcon.svelte';
   import {MapPin,LocateFixed,Navigation,Plus,Minus,Users,Map,X,Download} from '@lucide/svelte';
   import {onMount,tick} from 'svelte';
@@ -75,8 +76,8 @@
 <MapConnectionsLegend {connections}/>
 
 <section class="position-card">
-  <button class="member" class:selected={selected==='self'} onclick={()=>select('self')}><span class="member-avatar">Y</span><span><strong>You</strong><small>{fix?`${positionState(active,ageMs)} · ${age(ageMs)}`:'No location fix'}</small></span><MapPin size={18}/></button>
-  {#each roster as member(member.id)}<button class="member" class:selected={selected===member.id} onclick={()=>select(member.id)}><span class="member-avatar">{member.name.slice(0,1).toUpperCase()}</span><span><strong>{member.name}</strong><small>{!member.fix?'Position unavailable':`${positionState(member.connected&&member.locationActive!==false,member.ageMs)} · ${age(member.ageMs)}`}</small></span><MapPin size={18}/></button>{/each}
+  <button class="member" class:selected={selected==='self'} onclick={()=>select('self')}><span class="member-avatar" aria-hidden="true"><ProfilePhoto photoBase64={group?.identity.photoBase64}>Y</ProfilePhoto></span><span><strong>You</strong><small>{fix?`${positionState(active,ageMs)} · ${age(ageMs)}`:'No location fix'}</small></span><MapPin size={18}/></button>
+  {#each roster as member(member.id)}<button class="member" class:selected={selected===member.id} onclick={()=>select(member.id)}><span class="member-avatar" aria-hidden="true"><ProfilePhoto photoBase64={group?.members.find(person=>person.id===member.id)?.photoBase64}>{member.name.slice(0,1).toUpperCase()}</ProfilePhoto></span><span><strong>{member.name}</strong><small>{!member.fix?'Position unavailable':`${positionState(member.connected&&member.locationActive!==false,member.ageMs)} · ${age(member.ageMs)}`}</small></span><MapPin size={18}/></button>{/each}
   {#if !roster.length}<p class="muted">No verified peer positions are available yet.</p>{/if}
   {#if current&&!onmemberdetails}<div class="member-detail" aria-live="polite"><strong>{current.name}</strong>{#if current.fix}<p>{current.fix.latitude.toFixed(6)}, {current.fix.longitude.toFixed(6)}</p><small>Reported accuracy ±{formatAccuracy(current.fix.accuracy,units)} · {age(current.ageMs)}</small>{#if current.id==='self'}<button class="map-outline" aria-pressed={follow} disabled={!active} onclick={()=>follow=!follow}><Navigation size={16}/>Follow my position</button>{/if}{#if current.id!=='self'&&fix}<small class="peer-distance">Straight-line distance from you: {formatDistance(straightLineDistance(fix,current.fix),units)}{!active||ageMs>60000||!current.connected||current.ageMs>60000||('locationActive' in current&&current.locationActive===false)?' · Last-known positions':''}</small>{/if}{:else}<p>No shared position available.</p>{/if}</div>{/if}
 </section>

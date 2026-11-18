@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ProfilePhoto from './ProfilePhoto.svelte';
   import HelpButton from "./HelpButton.svelte";
   import {tick} from 'svelte';
   import {X,Smartphone,Router,MapPin,ChevronRight,ArrowLeft} from '@lucide/svelte';
@@ -26,7 +27,7 @@
   export let firmwareNodes:readonly NodeUpdateNode[]=[];
   export let onupdate:((nodeId:string)=>void)|undefined=undefined;
   let dialog:HTMLDialogElement,shown='';
-  $: member=selection?.kind==='phone'?group?.members.find(value=>value.id===selection!.id)??(group?.identity.id===selection.id?{id:group.identity.id,name:group.identity.name,connected:false,voiceJoined:false,sharingLocation:false}:undefined):undefined;
+  $: member=selection?.kind==='phone'?group?.members.find(value=>value.id===selection!.id)??(group?.identity.id===selection.id?{...group.identity,connected:false,voiceJoined:false,sharingLocation:false}:undefined):undefined;
   $: node=selection?.kind==='node'?nodes.find(value=>value.id===selection!.id):undefined;
   $: firmware=node?firmwareNodes.find(value=>value.nodeId===node.id):undefined;
   $: own=member?.id===group?.identity.id;
@@ -45,7 +46,7 @@
   function age(milliseconds:number){if(!Number.isFinite(milliseconds)||milliseconds<0)return'Age unavailable';if(milliseconds<1000)return'Just now';if(milliseconds<60000)return`${Math.floor(milliseconds/1000)} seconds ago`;return`${Math.floor(milliseconds/60000)} minutes ago`;}
 </script>
 <dialog class="device-details live-appearance-dialog" class:dark bind:this={dialog} aria-labelledby="device-details-title" onclose={closed} oncancel={onclose}>
-  <header><div>{#if node}<button class="square" aria-label="Show node list" onclick={()=>onselect({kind:'nodes'})}><ArrowLeft size={20}/></button>{:else if member}<Smartphone size={29}/>{:else}<Router size={31}/>{/if}<h2 id="device-details-title">{listing?'Nodes in your group':member?(own?'You':member.name):node?.name??'Device details'}</h2></div><button class="square" data-detail-close aria-label="Close device details" onclick={onclose}><X size={22}/></button></header>
+  <header><div>{#if node}<button class="square" aria-label="Show node list" onclick={()=>onselect({kind:'nodes'})}><ArrowLeft size={20}/></button>{:else if member}<span class="avatar" aria-hidden="true"><ProfilePhoto photoBase64={member.photoBase64}><Smartphone size={29}/></ProfilePhoto></span>{:else}<Router size={31}/>{/if}<h2 id="device-details-title">{listing?'Nodes in your group':member?(own?'You':member.name):node?.name??'Device details'}</h2></div><button class="square" data-detail-close aria-label="Close device details" onclick={onclose}><X size={22}/></button></header>
   {#if listing}<NodeList {nodes} {onselect}/>
   {:else if member}
     <p class="device-role">{group?.group?'Group phone':'Your phone'}{own?' · This device':''}{member.id===group?.group?.ownerId?' · Group owner':''}</p>

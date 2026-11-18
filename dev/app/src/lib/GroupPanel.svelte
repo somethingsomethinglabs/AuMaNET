@@ -1,4 +1,6 @@
 <script lang="ts">
+  import ProfilePhoto from './ProfilePhoto.svelte';
+  import {prepareProfilePhoto} from './messages/prepare-image';
   import HelpButton from './HelpButton.svelte';
   import OfflineEnrollment from './OfflineEnrollment.svelte';
   import {onDestroy,onMount} from 'svelte';
@@ -18,6 +20,7 @@
   let ownName='',groupName='',incoming='',inviteCode='',inviteExpires=0,inviteDeadline=0,inputDeadline=0;
   let ownNameDirty=false,seededIdentity='',shownGroup='',busy='',error='',notice='',copied=false;
   let profileEditorOpen=true;
+  let photoPicker: HTMLInputElement;
   let renamedGroup='',renameDirty=false;
   let invitationInspected=false;
   let invitePendingIds:ReadonlySet<string>=new Set();
@@ -88,6 +91,26 @@
   }
   function nameScope(){return `${state?.processId}:${state?.group?.id??''}:${state?.group?.epoch??0}`;}
   async function saveName(){const scope=nameScope(),input=ownName;await run('Saving your name…',async()=>{if(client.supportsNameEdits)await client.editName('self',input);else if(state?.namesAvailable!==undefined)throw new Error('Native name editing is unavailable; check the connection status');else await client.identity(normalizeGroupName(input,'self'));if(alive&&scope===nameScope()){ownNameDirty=false;notice='Your name is saved on this phone.';}});}
+  async function chooseProfilePhoto(event: Event) {
+    const picker = event.currentTarget as HTMLInputElement;
+    const file = picker.files?.[0];
+    picker.value = '';
+    if (!file) return;
+    const scope = nameScope();
+    await run('Saving profile photo…', async () => {
+      const image = await prepareProfilePhoto(file);
+      if (!alive) return;
+      if (scope !== nameScope()) throw new Error('The group changed. Choose the photo again.');
+      await client.setProfilePhoto(image);
+      notice = 'Profile photo saved.';
+    });
+  }
+  async function removeProfilePhoto() {
+    await run('Removing profile photo…', async () => {
+      await client.setProfilePhoto('');
+      notice = 'Profile photo removed.';
+    });
+  }
   async function renameGroup(){const scope=nameScope(),input=renamedGroup;await run('Saving group name…',async()=>{await client.editName('group',input);if(alive&&scope===nameScope()){renameDirty=false;notice='The group name is saved on this phone.';}});}
   async function checkNameSave(){await run('Checking saved name…',async()=>{notice=await client.recoverNameEdit()?'Name save confirmed on this phone.':'Name save is still unconfirmed. Restart the app if storage could not be confirmed.';});}
   function repairScopeKey(){return `${nameScope()}:${state?.identity.nameRevision}:${state?.group?.nameRevision??0}:${state?.nameGeneration}`;}
@@ -151,7 +174,7 @@
 
   {#if state?.group}
     <section class="card"><h3>Members <span class="hint">{state.members.length} / 5</span></h3>
-      {#each state.members as member(member.id)}<div class="group-member"><span class="avatar" aria-hidden="true">{initials(member.name)}</span><div class="member-text">
+      {#each state.members as member(member.id)}<div class="group-member"><span class="avatar" aria-hidden="true"><ProfilePhoto photoBase64={member.photoBase64}>{initials(member.name)}</ProfilePhoto></span><div class="member-text">
         {#if onmember}<button class="member-name" onclick={()=>onmember?.(member.id)}>{member.name}{member.id===state.identity.id?' · You':''}</button>{:else}<strong>{member.name}{member.id===state.identity.id?' · You':''}</strong>{/if}
         <small>{memberState(member)}{member.id===state.group.ownerId?' · Group owner':''}</small>
         {#if !onmember}<div class="help-row"><span>Phone identity</span><HelpButton title="Phone identity"><output class="pin">{member.id}</output></HelpButton></div>{/if}</div>
@@ -168,7 +191,20 @@
     {/if}
   {/if}
 
-  {#if flow==='manage'}<details class="card profile-editor" bind:open={profileEditorOpen}><summary>Edit your name</summary><h3>Your name</h3>
+  {#if flow==='manage'}<details class="card profile-editor" bind:open={profileEditorOpen}><summary>Edit your profile</summary>
+    {#if state?.profilePhotosAvailable}
+      <h3>Profile photo</h3>
+      <div class="profile-photo-controls">
+        <span class="avatar" aria-hidden="true"><ProfilePhoto photoBase64={state.identity.photoBase64}>{initials(state.identity.name)||'?'}</ProfilePhoto></span>
+        <div>
+          <input hidden type="file" accept="image/jpeg,image/png" aria-label="Choose a profile photo" bind:this={photoPicker} onchange={chooseProfilePhoto}/>
+          <button class="outline" disabled={!ready||!!busy||pending} onclick={()=>photoPicker.click()}>{state.identity.photoBase64?'Change photo':'Choose photo'}</button>
+          {#if state.identity.photoBase64}<button class="text-button" disabled={!ready||!!busy||pending} onclick={removeProfilePhoto}>Remove photo</button>{/if}
+        </div>
+      </div>
+      <p class="hint">Approved group members receive a copy of your photo. Offline phones can keep cached copies after a photo or member is removed.</p>
+    {/if}
+    <h3>Your name</h3>
     <form onsubmit={event=>{event.preventDefault();void saveName();}}>
       <label class="field">Name shown to the group<input aria-label="Your name in the group" autocomplete="off" maxlength="96" bind:value={ownName} oninput={()=>ownNameDirty=true} disabled={!state||leaving}/></label>
       <button class="outline" type="submit" disabled={!ready||!!busy||pending||!!pendingName||state?.namesAvailable===false||!nameValid||ownName.trim()===state?.identity.name}>Save name</button>
@@ -240,6 +276,8 @@
 </dialog>
 
 <style>
+  .profile-photo-controls { display: flex; align-items: center; gap: 12px; }
+  .profile-photo-controls > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .profile-editor>summary{font-size:0.875rem;font-weight:650;cursor:pointer;min-height:44px;display:list-item;align-content:center}.profile-editor[open]>summary{margin-bottom:16px}.member-name{font:inherit;font-weight:700;text-align:left;padding:0;background:transparent;border:0;color:inherit;min-height:32px;text-decoration:underline;text-underline-offset:3px}
   .group-panel{display:grid;gap:16px;min-width:0}.group-panel .card{margin:0;min-width:0}.group-panel h3{margin:0 0 10px}.group-heading{display:flex;align-items:center;gap:12px}.group-heading>div{flex:1;min-width:0}.group-heading h2{overflow-wrap:anywhere}.group-heading p{margin:5px 0 0}.group-panel form{display:grid;gap:12px}.group-panel .field{margin:0}.group-panel form .field{display:grid;gap:7px}.group-panel button{width:fit-content;max-width:100%}.group-panel .full{width:100%;margin:0}.group-panel textarea{width:100%;min-height:94px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;font:0.75rem ui-monospace,monospace;padding:10px;overflow-wrap:anywhere}.group-error{margin:0;color:var(--error-ink);background:var(--error-bg);padding:12px;border-radius:10px;overflow-wrap:anywhere}.pin{display:block;overflow-wrap:anywhere;word-break:break-all;font:0.75rem ui-monospace,monospace;line-height:1.65;user-select:all}.group-member{display:flex;align-items:flex-start;gap:11px;padding:14px 0;border-top:1px solid var(--line)}.member-text{flex:1;min-width:0}.member-text strong{overflow-wrap:anywhere}.member-text small{display:block;font-size:0.75rem;margin-top:4px;color:var(--muted)}.group-member .avatar{width:38px;height:38px;min-width:38px;font-size:1rem}.remove{align-self:center}.group-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.request{padding:14px 0;border-top:1px solid var(--line)}.request strong{overflow-wrap:anywhere}dialog{max-width:460px;width:calc(100% - 32px);padding:23px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:inherit}dialog::backdrop{background:var(--scrim)}dialog p{line-height:1.6}dialog .danger{margin-top:0}.group-panel input{min-width:0;width:100%}
 </style>
