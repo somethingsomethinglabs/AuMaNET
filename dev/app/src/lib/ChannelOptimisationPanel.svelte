@@ -37,6 +37,11 @@
   <p class="hint">On the other phone, open Tools → Connection tests and allow tests. A full comparison can take up to 14 minutes. After the starting channel is confirmed again, you can choose to apply the recommendation. If you leave early, return here and refresh radio status to check which channel is active.</p>
   {#if radioView.loaded&&!radioView.snapshot?.fieldSessionId}<p>Connect the owner’s phone and both nodes before comparing channels.</p>{/if}
   <label class="field">Test with<select bind:value={peerId} disabled={state.running}><option value="">Choose an armed phone</option>{#each peers as peer}<option value={peer.peerId}>{name(peer.peerId)}</option>{/each}</select></label>
+  {#if !state.running&&bench.loaded}
+   {#if !bench.snapshot?.armed}<p class="hint">Allow connection tests on this phone using the button above.</p>{/if}
+   {#if !peers.length}<p class="hint">No other phone is ready. On the other phone, open Tools → Connection tests and allow tests, then return here.</p>
+   {:else if !peers.some(p=>p.peerId===peerId)}<p class="hint">Choose a ready phone under Test with to compare channels.</p>{/if}
+  {/if}
   {#if bench.error}<p role="alert">{bench.error}</p>{/if}
   {#if state.running}<p role="status">{state.phase}</p><p>{state.samples.length} tests recorded</p><button class="outline full" onclick={()=>optimiser.stop()}>Stop and restore starting channel</button>
   {:else}<button class="primary full" disabled={!peerId||!peers.some(p=>p.peerId===peerId)||!bench.loaded||!bench.snapshot?.armed||bench.busy||!radioView.loaded||!radioView.snapshot?.owner||!radioView.snapshot?.fieldSessionId} onclick={()=>void start()}>Compare channels</button>{/if}
