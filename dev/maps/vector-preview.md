@@ -13,7 +13,7 @@ or **Maps → Choose area on map**. Tap or drag the pin and choose an integer
 2–25 km distance from pin to each edge. The dashed square shows the exact
 requested bounds (4–50 km across); **Fit area** shows the full selection.
 Name the area, optionally include terrain, then explicitly tap **Download area**. Downloads use partial Protomaps and Mapterhorn
-archive reads, not the live OpenFreeMap tile service. Saved areas and their fonts
+archive reads and published Vicmap elevation tiles. The live OpenFreeMap style is for online viewing. Saved areas and their fonts
 are selected automatically while viewing their coverage. Previously downloaded raster packs
 are no longer rendered or offered in the UI; no stored user files are deleted.
 

@@ -11,7 +11,7 @@ const self='AA'.repeat(32),peer='BB'.repeat(32),groupA='1'.repeat(32),groupB='2'
 const calls:{method:string;id?:string;draft?:string}[]=[];
 const voiceCalls:string[]=[];
 const voiceState={joined:true,connection:'connected',muted:true,deafened:false,transmitting:false,inputMode:'ptt',audioFocus:true,routeReady:true,error:''} as VoiceLabSnapshot;
-const voiceClient={endPtt:async()=>{voiceCalls.push('endPtt');},beginPtt:async()=>{voiceCalls.push('beginPtt');throw new Error('Fixture must not transmit');},mute:async()=>{voiceCalls.push('mute');throw new Error('Messaging must not change microphone mute');}} as unknown as NativeVoiceLabClient;
+const voiceClient={synchronized:true,endPtt:async()=>{voiceCalls.push('endPtt');},beginPtt:async()=>{voiceCalls.push('beginPtt');throw new Error('Fixture must not transmit');},mute:async()=>{voiceCalls.push('mute');throw new Error('Messaging must not change microphone mute');}} as unknown as NativeVoiceLabClient;
 const ledger=new Map<string,{row?:GroupMessageRecord;cancelled:boolean}>();
 const imageData=new Map<string,string>();
 let counter=0,loseReply=false,unknownSend=false,failDraft=false;

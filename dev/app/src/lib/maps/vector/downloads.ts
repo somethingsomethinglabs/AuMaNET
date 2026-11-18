@@ -1,6 +1,6 @@
 import {Capacitor,registerPlugin} from '@capacitor/core';
 export type MapBounds=[number,number,number,number];
-export interface VectorRegion {id:string;key:string;name:string;bounds:MapBounds;bytes:number;installedAt:number;terrain:boolean;dataDate:string;}
+export interface VectorRegion {id:string;key:string;name:string;bounds:MapBounds;bytes:number;installedAt:number;terrain:boolean;terrainSource?:''|'vicmap'|'mapterhorn';terrainLimited?:boolean;dataDate:string;}
 export interface DownloadRequest {latitude:number;longitude:number;radiusKm:number;name:string;terrain:boolean;}
 export interface VectorJob {id:string;name:string;active:boolean;phase:string;completed:number;total:number;bytes:number;error:string;request?:DownloadRequest;}
 export interface VectorState {schema:'aumanet.vector-maps.v1';ready:boolean;regions:VectorRegion[];job:VectorJob|null;}
@@ -14,7 +14,7 @@ export function downloadBounds(latitude:number,longitude:number,radiusKm:number)
 }
 export function checkedVectorState(raw:unknown):VectorState{
   const value=raw as VectorState;if(value?.schema!=='aumanet.vector-maps.v1'||typeof value.ready!=='boolean'||!Array.isArray(value.regions)||value.regions.length>4)throw Error('Offline map state is unavailable.');
-  const seen=new Set<string>();for(const r of value.regions){if(!id.test(r.id)||seen.has(r.id)||typeof r.name!=='string'||r.name.length<1||r.name.length>64||!Array.isArray(r.bounds)||r.bounds.length!==4||!r.bounds.every(Number.isFinite)||r.bounds[0]< -180||r.bounds[2]>180||r.bounds[1]< -85||r.bounds[3]>85||r.bounds[0]>=r.bounds[2]||r.bounds[1]>=r.bounds[3]||!Number.isSafeInteger(r.bytes)||r.bytes<1||r.bytes>256*1048576||!Number.isFinite(r.installedAt)||typeof r.terrain!=='boolean'||typeof r.dataDate!=='string')throw Error('An offline region has invalid metadata.');seen.add(r.id);}
+  const seen=new Set<string>();for(const r of value.regions){if(!id.test(r.id)||seen.has(r.id)||typeof r.name!=='string'||r.name.length<1||r.name.length>64||!Array.isArray(r.bounds)||r.bounds.length!==4||!r.bounds.every(Number.isFinite)||r.bounds[0]< -180||r.bounds[2]>180||r.bounds[1]< -85||r.bounds[3]>85||r.bounds[0]>=r.bounds[2]||r.bounds[1]>=r.bounds[3]||!Number.isSafeInteger(r.bytes)||r.bytes<1||r.bytes>256*1048576||!Number.isFinite(r.installedAt)||typeof r.terrain!=='boolean'||r.terrainSource!==undefined&&!['','vicmap','mapterhorn'].includes(r.terrainSource)||r.terrainLimited!==undefined&&typeof r.terrainLimited!=='boolean'||typeof r.dataDate!=='string')throw Error('An offline region has invalid metadata.');seen.add(r.id);}
   const j=value.job;if(j&&(!id.test(j.id)||typeof j.active!=='boolean'||!['starting','downloading','fonts','verifying','ready','cancelling','cancelled','interrupted','failed'].includes(j.phase)||![j.completed,j.total,j.bytes].every(n=>Number.isSafeInteger(n)&&n>=0)||j.completed>j.total||typeof j.error!=='string'||typeof j.name!=='string'))throw Error('Download status is unavailable.');return value;
 }
 export function vectorMapsClient(bridge:Bridge):VectorMapsClient{

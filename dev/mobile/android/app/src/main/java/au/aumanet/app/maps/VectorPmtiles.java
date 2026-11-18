@@ -130,6 +130,7 @@ public final class VectorPmtiles {
     }
     public static boolean allowed(URL url){String host=url.getHost(),path=url.getPath();return url.getProtocol().equals("https")&&url.getUserInfo()==null&&url.getPort()==-1&&url.getQuery()==null&&url.getRef()==null&&(
         host.equals("build.protomaps.com")&&path.matches("/[0-9]{8}\\.pmtiles")||host.equals("build-metadata.protomaps.dev")&&path.equals("/builds.json")||
+        host.equals("tiles-ap1.arcgis.com")&&path.startsWith(VicmapTerrain.PATH)&&path.substring(VicmapTerrain.PATH.length()).matches("[0-9]{1,2}/[0-9]{1,6}/[0-9]{1,6}")||
         host.equals("download.mapterhorn.com")&&path.matches("/(planet|6-[0-9]{1,2}-[0-9]{1,2})\\.pmtiles")||
         host.equals("protomaps.github.io")&&path.matches("/basemaps-assets/fonts/Noto%20Sans%20Regular/[0-9]{1,5}-[0-9]{1,5}\\.pbf"));}
     public static byte[] get(String address,int limit,Check check)throws IOException{
@@ -138,6 +139,13 @@ public final class VectorPmtiles {
     }
     private static void configure(HttpURLConnection c)throws IOException{c.setInstanceFollowRedirects(false);c.setConnectTimeout(10000);c.setReadTimeout(20000);c.setRequestProperty("User-Agent","AuMaNET-Prototype-OfflineMaps/1.0 (+https://github.com/somethingsomethinglabs/AuMaNET)");c.setRequestProperty("Accept-Encoding","identity");}
     private static final class CheckedStream extends FilterInputStream {final Check check;CheckedStream(InputStream in,Check check){super(in);this.check=check;}public int read(byte[] b,int o,int n)throws IOException{check.check();return super.read(b,o,n);}}
+    static final class HttpStatus extends IOException {
+        final int status;
+        HttpStatus(int status) {
+            super("Map archive does not support consistent partial downloads (HTTP "+status+")");
+            this.status = status;
+        }
+    }
     public static final class Remote implements Source {
         public final String address;private final Check check;private long size=-1;private String etag;
         public Remote(String address,Check check)throws IOException{if(!allowed(new URL(address)))throw new IOException("Unapproved archive source");this.address=address;this.check=check;}
@@ -147,7 +155,7 @@ public final class VectorPmtiles {
             if(offset<0||length<1||length>LIMIT||offset>Long.MAX_VALUE-length||size>=0&&offset>size-length)throw new IOException("Invalid archive range");check.check();
             HttpURLConnection c=(HttpURLConnection)new URL(address).openConnection();configure(c);c.setRequestProperty("Range","bytes="+offset+"-"+(offset+length-1));if(etag!=null)c.setRequestProperty("If-Match",etag);
             try{
-                if(c.getResponseCode()!=206)throw new IOException("Map archive does not support consistent partial downloads (HTTP "+c.getResponseCode()+")");
+                int status=c.getResponseCode();if(status!=206)throw new HttpStatus(status);
                 String range=c.getHeaderField("Content-Range"),tag=c.getHeaderField("ETag");String prefix="bytes "+offset+"-"+(offset+length-1)+"/";
                 if(range==null||!range.startsWith(prefix)||!range.substring(prefix.length()).matches("[0-9]{1,15}")||c.getContentLengthLong()!=length||tag==null||tag.startsWith("W/")||etag!=null&&!etag.equals(tag))throw new IOException("Map archive changed or returned an unexpected range");
                 long total=Long.parseLong(range.substring(prefix.length()));if(total<offset+length||size>=0&&size!=total)throw new IOException("Map archive size changed");size=total;etag=tag;
