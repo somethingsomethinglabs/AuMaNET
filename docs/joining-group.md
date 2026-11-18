@@ -1,21 +1,22 @@
-# Join a group
 
-A local group is the application's membership and communication scope. It is separate from joining the node's Wi-Fi and separate from the radio operating channel.
+# Check and join your group
+
+Your group identifies who can exchange messages, voice and shared positions. The group is separate from the node’s local Wi-Fi network and the radio channel.
+
+<span id="join-a-group"></span>
 
 ## Current saved-group workflow
 
-Open **Network → Groups & members** to inspect the saved group and membership controls. Open **Manage connection** to review the chosen node and consented voice/location options, then **Resume connection**. Wait for verified group state and check the member view before relying on peer reachability.
+Open **Network → Groups & members** or the **Group** tab to review the saved group. Check it with the person who prepared the setup. Open **Network → Manage connection**, review the node and sharing choices, then choose **Resume connection**. Wait for verification before checking another member’s reachability.
 
-The local development notes record trusted private-group connections and signed text/photos on two phones. They do not provide a complete, independently accepted public invitation/enrollment walkthrough. Do not substitute arbitrary device names or a shared Wi-Fi password for group authority.
+A node’s Wi-Fi password gets your phone onto the local network. Group access also needs trusted membership. A first-time member should use the enrollment procedure for the exact build supplied by the group’s owner.
 
 ## Stop and resume
 
-Use **Stop connection** to end the managed run. Resume is explicit after Stop, the documented two-hour run limit or an app-process restart. Automatic recovery inside an authorized run is different from silently restarting a stopped run.
+Choose **Stop connection** to end the managed run. Resume when you want to reconnect after Stop, the run’s expiry or an app-process restart. During an authorised run, the app can try to recover a lost connection.
 
-Joining voice and sharing your location are independent choices. [Mute and Leave](voice-configuration.md) are different actions. [Internet sharing](internet-sharing.md) is another explicit role, not a side effect of joining the group.
+[Voice](voice-configuration.md), [position sharing](maps-location.md) and [shared internet](internet-sharing.md) have separate controls. Review them before resuming.
 
 ## Membership work still open
 
-The documentation needs a validated clean owner/member setup, invitation expiry/revocation instructions, lost-phone recovery, group changes and a permissions table tied to the actual firmware/app versions. Existing [membership design](../design/network-and-membership.md) records intentions and requirements, not proof that every operation is available.
-
-Multi-hop and larger groups remain separate acceptance gates. A two-person group does not demonstrate relay routing through a third node.
+Clean owner/member enrollment, invitation lifecycle and lost-phone recovery need an accepted public walkthrough. The [membership design](../design/network-and-membership.md) has the engineering scope.

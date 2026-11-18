@@ -4,10 +4,10 @@ const navigation = document.querySelector('.sidebar-inner nav');
 const status = document.querySelector('#filter-status');
 const mobileNavigation = document.querySelector('.mobile-navigation');
 const pageContents = document.querySelector('.page-contents details');
-const mobile = matchMedia('(max-width: 1050px)');
+const mobile = matchMedia('(max-width: 48rem)');
 function setNavigationMode() {
   if (mobileNavigation) mobileNavigation.open = !mobile.matches;
-  if (pageContents) pageContents.open = !mobile.matches;
+  if (pageContents) pageContents.open = !matchMedia('(max-width: 70rem)').matches;
 }
 setNavigationMode();
 mobile.addEventListener('change', setNavigationMode);

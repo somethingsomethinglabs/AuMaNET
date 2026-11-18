@@ -3,85 +3,104 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#164b32">
-  <meta name="description" content="An Android companion for off-grid trips: offline maps, group messages and photos, live voice and optional shared internet. Follow the working AuMaNET prototype.">
-  <meta property="og:title" content="AuMaNET — Keep the group together">
-  <meta property="og:description" content="See the current Android interface and follow the two-phone, two-node prototype from the workbench towards the field.">
-  <meta property="og:type" content="website">
-  <title>AuMaNET — Keep the group together</title>
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta name="description" content="AuMaNET is an Android and Wi-Fi HaLow prototype for group communication beyond mobile coverage.">
+  <title>Keep the group together · AuMaNET</title>
+  <link rel="icon" href="assets/brand/logo-mark-primary.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/site.css">
   <link rel="stylesheet" href="assets/landing.css">
 </head>
 <body>
-  <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header">
-    <div class="wrap header-inner">
-      <a class="brand" href="index.html" aria-label="AuMaNET home"><img src="assets/aumanet-mark.svg" width="48" height="24" alt=""><span>AuMaNET</span></a>
-      <nav aria-label="Main navigation"><a href="#app">The app</a><a href="#progress">Progress</a><a class="nav-docs" href="handbook.html">View docs</a></nav>
-      <a class="repo-link" href="https://github.com/somethingsomethinglabs/AuMaNET">View on GitHub <span aria-hidden="true">↗</span></a>
-    </div>
-  </header>
-  <main id="main">
-    <section class="hero wrap" aria-labelledby="hero-title">
-      <div class="hero-copy">
-        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Android app · Two-phone prototype</p>
-        <h1 id="hero-title">Out of coverage.<br><em>Still together.</em></h1>
-        <p class="hero-lead">A map for your people. A message at the next turn. A familiar voice when the mobile signal ends.</p>
-        <p class="hero-detail">AuMaNET brings offline maps, messages, photos and live group voice together on Android, linked through small Wi-Fi HaLow radio nodes.</p>
-        <div class="actions"><a class="button" href="#app">Explore the app <span aria-hidden="true">↓</span></a><a class="text-link" href="#progress">Where we’re at <span aria-hidden="true">↓</span></a></div>
-        <p class="prototype-note"><strong>Working on two Android phones and two nodes.</strong> Local app functions and opt-in shared IPv4 internet have recorded physical checks. Broader field testing and a supported release are still ahead.</p>
-      </div>
-      <figure class="prototype-feature"><div class="prototype-heading"><span class="eyebrow">From the current Android build</span><span>15 NOV 2026</span></div><button class="screen-frame hero-screen" type="button" aria-haspopup="dialog" aria-controls="screenshot-dialog" aria-label="Enlarge current Network screenshot" data-screen-title="Network"><img src="assets/screenshots/app-network-current.png" width="1080" height="2392" fetchpriority="high" alt="AuMaNET’s current dark Android Network screen, showing phone-to-node Wi-Fi and group verification in progress."></button><figcaption>Real interface. Visible connection states.<br><span>Captured during reconnection · no live status implied</span></figcaption></figure>
-    </section>
-    <div class="field-strip"><div class="wrap"><span>Made for the places in between.</span><span>4WD trips <i aria-hidden="true">/</i> Bush camps <i aria-hidden="true">/</i> Your group</span></div></div>
-    <section class="app-section wrap" id="app" aria-labelledby="app-title">
-      <div class="app-intro"><div><p class="eyebrow">Inside the prototype</p><h2 id="app-title">A shared view.<br>From the track to camp.</h2></div><div><p>Four everyday tabs: Map, Messages, Voice and Network. The current interface keeps the group close, your microphone under your control and connection details within reach.</p><p class="screenshot-note">On-device captures reviewed 15 November 2026. These screens show a reconnecting session and retained test history; they do not demonstrate a live connection. Select a screen to enlarge.</p></div></div>
-      <div class="app-screens">
-<figure><button class="screen-frame" type="button" aria-haspopup="dialog" aria-controls="screenshot-dialog" aria-label="Enlarge 01 / Network app screenshot" data-screen-title="01 / Network"><img src="assets/screenshots/app-network-current.png" width="1080" height="2392" loading="lazy" decoding="async" alt="Current dark Android Network screen showing node Wi-Fi connected, group verification in progress and radio, internet and transfer settings."></button><figcaption><span class="eyebrow">01 / Network</span><h3>Know what’s connected.</h3><p>Phone, node and group are separate states. Radio settings, internet sharing and link tests live here.</p></figcaption></figure>
-<figure><button class="screen-frame" type="button" aria-haspopup="dialog" aria-controls="screenshot-dialog" aria-label="Enlarge 02 / Messages app screenshot" data-screen-title="02 / Messages"><img src="assets/screenshots/app-messages-current.png" width="1080" height="2392" loading="lazy" decoding="async" alt="Current dark Android Messages screen showing retained test text, an image entry, delivery receipts and a connecting-group status."></button><figcaption><span class="eyebrow">02 / Messages</span><h3>A check-in that stays.</h3><p>Text, photos and delivery feedback in one conversation. This capture shows retained test messages while the group reconnects.</p></figcaption></figure>
-<figure><button class="screen-frame" type="button" aria-haspopup="dialog" aria-controls="screenshot-dialog" aria-label="Enlarge 03 / Voice app screenshot" data-screen-title="03 / Voice"><img src="assets/screenshots/app-voice-current.png" width="1080" height="2392" loading="lazy" decoding="async" alt="Current dark Android Voice screen showing an unjoined group channel, push-to-talk and Always on options, earpiece selection and Join channel muted button."></button><figcaption><span class="eyebrow">03 / Voice</span><h3>Join on your terms.</h3><p>Push to talk or Always on, an explicit audio route and separate mute and leave controls. The captured channel is not joined.</p></figcaption></figure>
-</div></section>
-    <section class="idea-section wrap" id="the-idea" aria-labelledby="idea-title">
-      <div class="section-intro"><p class="eyebrow">01 / The idea</p><h2 id="idea-title">Your trip.<br>Your local network.</h2><p>Built around the small things that keep a trip moving: finding the group, checking in and talking through the next stretch. Local communication is the core; mobile internet is optional.</p></div>
-      <div class="capabilities">
-        <article><span class="feature-number">01</span><div><h3>Keep the conversation going.</h3><p>Send group text and photos, with delivery feedback and retained history. Join live voice muted, then choose push to talk or voice activation.</p><span class="feature-tag">Messages, photos + native voice / prototype</span></div></article>
-        <article><span class="feature-number">02</span><div><h3>Know where your people are.</h3><p>Import offline maps before heading out and see consented group positions. Position freshness and accuracy help you judge what the map is telling you.</p><span class="feature-tag">Offline maps + shared positions / prototype</span></div></article>
-        <article><span class="feature-number">03</span><div><h3>A little signal could go further.</h3><p>When someone has mobile data, they can choose to share it. Another phone can explicitly select that donor, with session limits and separate Stop controls.</p><span class="feature-tag">Opt-in shared IPv4 internet / two-phone checks</span></div></article>
-      </div>
-    </section>
-    <section class="architecture" id="how-it-connects" aria-labelledby="architecture-title"><div class="wrap">
-      <div class="architecture-intro"><div><p class="eyebrow">02 / Under the bonnet</p><h2 id="architecture-title">Phones for the app.<br>Nodes for the radio.</h2></div><p>In the current two-node prototype, each Android phone joins its nearby node over local Wi-Fi. Wi-Fi HaLow carries traffic between the nodes; the phone runs the maps, messages and voice experience.</p></div>
-      <figure class="network-diagram" aria-labelledby="network-caption">
-        <div class="network-flow">
-          <div class="network-device"><img src="assets/icons/smartphone.svg" width="44" height="44" alt=""><div><h3>Your Android phone</h3><p>Runs the AuMaNET app</p></div></div>
-          <div class="network-link"><span>Local Wi-Fi</span><img src="assets/icons/move-horizontal.svg" width="40" height="24" alt=""><small>Phone to node</small></div>
-          <div class="network-device network-radio"><img src="assets/icons/router.svg" width="44" height="44" alt=""><div><h3>Your radio node</h3><p>Sends and receives radio traffic</p></div></div>
-          <div class="network-link network-link-halow"><span>Wi-Fi HaLow</span><img src="assets/icons/move-horizontal.svg" width="56" height="24" alt=""><small>Node to node</small></div>
-          <div class="network-device network-radio"><img src="assets/icons/router.svg" width="44" height="44" alt=""><div><h3>Their radio node</h3><p>Passes traffic to their phone</p></div></div>
-          <div class="network-link"><span>Local Wi-Fi</span><img src="assets/icons/move-horizontal.svg" width="40" height="24" alt=""><small>Node to phone</small></div>
-          <div class="network-device"><img src="assets/icons/smartphone.svg" width="44" height="44" alt=""><div><h3>Their Android phone</h3><p>Runs the AuMaNET app</p></div></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="wordmark" href="index.html" aria-label="AuMaNET home"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand/logo-lockup-reverse.svg"><img src="assets/brand/logo-lockup-primary.svg" width="154" height="30" alt="AuMaNET"></picture></a>
+    <nav aria-label="Site"><a href="overview.html">How it works</a><a href="getting-started.html">Set up</a><a href="handbook.html">Guides</a><a href="troubleshooting.html">Get help</a></nav>
+    <a class="button compact" href="downloads.html">Downloads</a>
+  </div>
+</header>
+<main id="main" tabindex="-1">
+  <section class="intro" aria-labelledby="hero-title">
+    <div class="wrap intro-grid">
+      <div class="intro-copy">
+        <p class="eyebrow"><span></span> Android + Wi-Fi HaLow prototype</p>
+        <h1 id="hero-title">Keep the group together.</h1>
+        <p>AuMaNET uses portable radio nodes so your group can check in, talk and share positions beyond mobile coverage while the nodes have a link.</p>
+        <div class="actions">
+          <a class="button" href="getting-started.html">Choose your setup <span aria-hidden="true">→</span></a>
+          <a class="button secondary" href="overview.html">See how it works</a>
         </div>
-        <figcaption id="network-caption"><strong>Example: sending a group message.</strong> Your phone hands it to your node. The radio link carries it to their node, which passes it to their phone. The same path works in both directions.</figcaption>
-      </figure>
-      <div class="architecture-details"><p><strong>Current prototype node hardware</strong><br>XIAO ESP32-S3 + XIAO Wi-Fi HaLow</p><p><strong>Internet is an optional extra.</strong><br>Local messages, positions and voice use the group connection. Shared mobile data is a separate, opt-in function.</p></div>
-      <p class="architecture-note">This diagram describes the direct two-node setup. Autonomous multi-hop, larger groups, dependable range and endurance remain unproven. <a href="network-stack-plan.html">Read the network design <span aria-hidden="true">↗</span></a></p>
-    </div></section>
-    <section class="progress-section wrap" id="progress" aria-labelledby="progress-title">
-      <div class="section-intro"><p class="eyebrow">03 / On the workbench</p><h2 id="progress-title">Off the mockup.<br>Onto real phones.</h2><p>The project has moved from a simulated interface to a working Android and radio prototype. The immediate job is to make that experience dependable outside the bench.</p><a class="text-link" href="current-app.html">Current app update <span aria-hidden="true">↗</span></a></div>
-      <div class="progress-list"><article><span class="progress-label exists">Now · physically checked prototype</span><h3>The app experience</h3><p>Two Android phones and two ESP32-S3 / HaLow nodes have recorded checks for offline maps, shared positions, signed text and photos, native voice and opt-in shared IPv4 internet.</p></article><article><span class="progress-label">Next · repeatable field testing</span><h3>Make recovery feel routine</h3><p>Exercise reconnects, background delivery and voice during real trips. Check human listening quality, changing radio conditions and repeatable recovery across both phones.</p></article><article><span class="progress-label">Ahead · field acceptance</span><h3>Earn a place in the kit</h3><p>Prove multi-hop with at least three nodes, broader phone compatibility, range, battery endurance and enclosure fit. No supported build kit or production app release is available.</p></article></div>
-    </section>
-<section class="field-check wrap" aria-labelledby="field-check-title"><div><p class="eyebrow">A closer look / testing the link</p><h2 id="field-check-title">Measure it.<br>Then head out again.</h2><p>The app now includes a connection test with upload and download results, a directional radio reading when available, and phone-GPS separation with accuracy context.</p><p>This 12 November capture records one test session. Distance is based on phone positions and assumes the nodes were carried with them; it is not a range or throughput promise.</p><a class="text-link" href="current-app.html#testing-limits">Read the testing limits <span aria-hidden="true">↗</span></a></div><figure><button class="screen-frame" type="button" aria-haspopup="dialog" aria-controls="screenshot-dialog" aria-label="Enlarge connection test screenshot" data-screen-title="Connection test" data-screen-note="Android prototype · one test session, 12 November 2026"><img src="assets/screenshots/app-connection-test.jpg" width="578" height="1280" loading="lazy" alt="Android connection test showing one completed session, measured upload and download rates, a cached directional radio reading and GPS separation with accuracy caveats."></button><figcaption>On-device test result · 12 November 2026</figcaption></figure></section>
-    <section class="documentation" id="documentation" aria-labelledby="docs-title"><div class="wrap docs-grid"><div><p class="eyebrow">04 / Follow the build</p><h2 id="docs-title">The whole project.<br>Out in the open.</h2><p>Start with the latest app update, then explore the design decisions and development plans. Earlier handbook pages retain their dated design-stage context.</p><a class="button" href="handbook.html">View docs <span aria-hidden="true">↗</span></a></div><div class="reading-paths"><a href="current-app.html"><span><strong>The app now</strong><small>15 November update, screenshots and testing limits</small></span><span aria-hidden="true">↗</span></a><a href="delivery-plan.html"><span><strong>The plan</strong><small>Work queue, dependencies and next gates</small></span><span aria-hidden="true">↗</span></a><a href="decisions-current.html"><span><strong>The decisions</strong><small>Current scope and architecture choices</small></span><span aria-hidden="true">↗</span></a><a href="evidence.html"><span><strong>The evidence</strong><small>Recorded results and open experiments</small></span><span aria-hidden="true">↗</span></a><a href="development.html"><span><strong>Build with us</strong><small>Development setup and prototype structure</small></span><span aria-hidden="true">↗</span></a></div></div></section>
-  </main>
-  <footer class="wrap site-footer"><div><a class="brand" href="index.html"><img src="assets/aumanet-mark.svg" width="40" height="20" alt=""><span>AuMaNET</span></a><p>Keep the group together.</p></div><div><a href="https://github.com/somethingsomethinglabs/AuMaNET">GitHub <span aria-hidden="true">↗</span></a><a href="handbook.html">Docs</a><a href="archive.html">Project history</a><small>Original project material: all rights reserved pending licence selection.<br>Third-party material retains its own licences.</small></div></footer>
-  <dialog class="screenshot-dialog" id="screenshot-dialog" aria-labelledby="screenshot-dialog-title">
-    <div class="screenshot-dialog-bar">
-      <h2 id="screenshot-dialog-title">App screenshot</h2>
-      <button class="screenshot-close" type="button" aria-label="Close screenshot" autofocus><span aria-hidden="true">×</span></button>
+      </div>
+      <div class="link-figure" id="how-it-connects">
+        <figure class="link-frame">
+          <h2 id="architecture-title">The connection path</h2>
+          <div class="path-grid">
+            <div class="path-side">
+  <div class="path-device"><img class="icon" src="assets/brand/node.svg" alt="" width="24" height="24"><strong>Node A</strong></div>
+  <div class="path-wifi">Local Wi-Fi</div>
+  <div class="path-device phone"><img class="icon" src="assets/brand/phone.svg" alt="" width="24" height="24"><strong>Your phone</strong></div>
+</div>
+            <div class="radio-link"><span>Wi-Fi HaLow</span></div>
+            <div class="path-side">
+  <div class="path-device"><img class="icon" src="assets/brand/node.svg" alt="" width="24" height="24"><strong>Node B</strong></div>
+  <div class="path-wifi">Local Wi-Fi</div>
+  <div class="path-device phone"><img class="icon" src="assets/brand/phone.svg" alt="" width="24" height="24"><strong>Their phone</strong></div>
+</div>
+          </div>
+          <figcaption id="network-caption">Each phone joins its own node. The two nodes carry group traffic across a direct radio link.</figcaption>
+        </figure>
+      </div>
     </div>
-    <img class="screenshot-full" alt="">
-    <p class="screenshot-dialog-note">Android prototype · captured reconnecting state</p>
-  </dialog>
-  <script src="assets/landing.js" defer></script>
+  </section>
+
+  <section class="wrap panel-section" id="app" aria-labelledby="app-title">
+    <h2 id="app-title">Before and beyond coverage</h2>
+    <div class="feature-grid">
+      <a class="feature" href="android-app.html#messages-and-photos">
+        <span class="feature-icon"><img class="icon" src="assets/brand/chat.svg" alt="" width="24" height="24"></span><h3>Check in by message</h3>
+        <p>Send text and photos when the group has a usable link. Delivery feedback describes another device receiving the message.</p><span class="feature-more" aria-hidden="true">→</span>
+      </a>
+<a class="feature" href="voice-configuration.html">
+        <span class="feature-icon"><img class="icon" src="assets/brand/mic.svg" alt="" width="24" height="24"></span><h3>Talk to the group</h3>
+        <p>Join voice muted, choose an audio output, and use push to talk when you’re ready to speak.</p><span class="feature-more" aria-hidden="true">→</span>
+      </a>
+<a class="feature" href="maps-location.html">
+        <span class="feature-icon"><img class="icon" src="assets/brand/map.svg" alt="" width="24" height="24"></span><h3>Prepare maps ahead</h3>
+        <p>Save map areas on your phone before leaving coverage. Choose separately whether to share your position with the group.</p><span class="feature-more" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="path-section" id="documentation" aria-labelledby="docs-title">
+    <div class="wrap path-layout">
+      <div id="the-idea">
+        <h2 id="idea-title">Start with what you have.</h2>
+        <p>AuMaNET is being developed on two Android phones and two XIAO HaLow nodes. A prepared setup can follow the connection guide. A new board needs its own provisioning and recovery path.</p>
+        <a class="text-action" href="compatibility.html">Check phones and hardware <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="path-links">
+        <h2 id="docs-title" class="sr-only">Choose a path</h2>
+        <a href="initial-configuration.html"><img class="icon" src="assets/brand/phone.svg" alt="" width="24" height="24"><span><strong>I have a provisioned node</strong><small>Connect an Android phone and check your group.</small></span><span aria-hidden="true">→</span></a>
+        <a href="flash-firmware.html"><img class="icon" src="assets/brand/node.svg" alt="" width="24" height="24"><span><strong>I have a new or unresponsive board</strong><small>Identify the hardware and find the USB recovery path.</small></span><span aria-hidden="true">→</span></a>
+        <a href="handbook.html"><img class="icon" src="assets/brand/kit.svg" alt="" width="24" height="24"><span><strong>I’m exploring AuMaNET</strong><small>Browse guides, hardware references and project history.</small></span><span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap status-band" id="progress" aria-labelledby="progress-title">
+    <div><h2 id="progress-title">Where the prototype stands</h2><p id="field-check-title">Development results cover a direct two-node link. Multi-hop, broader device support and field endurance still need acceptance. Carry an independent emergency communications option.</p></div>
+    <a class="text-action" href="current-app.html">See the tested scope <span aria-hidden="true">→</span></a>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <a class="wordmark" href="index.html" aria-label="AuMaNET home"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand/logo-lockup-reverse.svg"><img src="assets/brand/logo-lockup-primary.svg" width="154" height="30" alt="AuMaNET"></picture></a>
+    <nav aria-label="Project links">
+      <a href="project-legal.html">Licensing &amp; privacy</a>
+      <a href="archive.html">Project history</a>
+      <a href="https://github.com/somethingsomethinglabs/AuMaNET">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
 </body>
 </html>

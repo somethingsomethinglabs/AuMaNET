@@ -1,31 +1,34 @@
-# Connection & recovery
 
-Read connection states in order. Avoid resetting credentials, deleting app storage or repeating unknown mutations before you know which layer failed.
+# Fix a connection
+
+Check the phone, node and group in that order. Keep your saved group, messages and provisioning details while you find the failed step.
+
+<span id="connection-amp-recovery"></span>
 
 ## The phone is not on node Wi-Fi
 
-Use the normal **Open Wi-Fi settings** action and select the intended provisioned node. Android can switch away from a local-only network. Recheck the actual Wi-Fi connection and routing; a saved SSID does not prove an active link.
+Check that your assigned node has power. In the app, use **Open Wi-Fi settings** where offered. Select the assigned node’s network and check that Android stays connected. The local network can be usable even when Android reports no internet.
 
 ## Wi-Fi is connected but verification is waiting
 
-Inspect **Your node** and **Groups & members**. The node, trust/boot state and group path still need verification. Keep the node powered and use the current saved connection flow. After Stop, session expiry or app-process restart, use Resume explicitly. See [Initial configuration](initial-configuration.md).
+Open **Network** and check **Your node** and **Groups & members**. Confirm the assigned node and saved group. Under **Manage connection**, choose **Resume connection** after Stop, expiry or an app-process restart. See [Connect a provisioned node](initial-configuration.md).
 
 ## Group is connected but another phone is absent
 
-Check the other phone's assigned node, powered radio, group and session. A two-node link does not prove a third-node relay route. Old messages and stale map markers are retained data, not current reachability evidence.
+Ask the other person to check their node’s power, Wi-Fi and verified group. Check each node is within reach of the other. A retained message or last-known map position can remain visible when that participant is out of reach.
 
 ## Voice is silent
 
-Check joined/muted state, PTT hold behavior, the selected Android call output and the other participant. Recovered calls return muted. Bluetooth pairing does not prove Android exposes a usable call endpoint. Listen in both directions; see [Voice](voice-configuration.md).
+Check that both people joined, each selected the expected output, and the speaker unmuted or is holding **Hold to talk**. Recovered calls return muted. A Bluetooth device must be available to Android as a call route. [Check voice and audio](voice-configuration.md) both ways.
 
 ## Transfers or internet are unavailable
 
-Look for managed pauses caused by a test, radio change or update. Let the exact operation reconcile. Check internet donor/consumer roles separately from group connectivity; the app does not automatically choose a replacement donor. See [Internet sharing](internet-sharing.md).
+A connection test, radio change or update can pause managed work. Let the active operation finish and check its result. Check the [internet donor and consumer roles](internet-sharing.md) separately from the group. Choose a donor explicitly if the previous one is unavailable.
 
 ## A radio change or update outcome is unknown
 
-Refresh the original operation's authenticated status. Unknown does not mean failed and is not permission to repeat Apply/Install. Preserve the operation record. Use reviewed USB recovery if the node cannot provide a valid network recovery path.
+Recheck the status of the original operation before selecting Apply or Install again. Keep the operation details. For hardware or layout recovery use the [USB guide](flash-firmware.md).
 
 ## Report a reproducible problem
 
-Capture the exact app/firmware/phone/OS, layer that failed, last action, timing and expected versus observed behavior. Review [Logs & diagnostics](diagnostics.md) before sharing artifacts. A full hardware/OS-specific recovery decision tree remains a documentation gap.
+[Prepare a diagnostic report](diagnostics.md) with your exact Android version, app commit, node firmware, the last action you took and what you saw. Review the export for private details before sharing.
