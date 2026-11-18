@@ -3,7 +3,7 @@
   import type {NativeGatewayRadioSettingsClient,GatewayRadioSettingsView} from '@aumanet/core';
   import {GATEWAY_RADIO_REPORT_FRESH_MS,type GroupSnapshot} from '@aumanet/protocol';
   import RadioSettingsPanel from './RadioSettingsPanel.svelte';
-  import type {RadioNodeView} from './radio-settings-view';
+  import {radioChangeBlocker,type RadioNodeView} from './radio-settings-view';
   import {networkNodes} from './network-topology';
   import ChannelOptimisationPanel from './ChannelOptimisationPanel.svelte';
   import type {LinkBenchmarkClient} from './link-benchmark';
@@ -26,6 +26,6 @@
   async function run(work:()=>Promise<unknown>){try{await work();}catch{/* The scoped client publishes a fixed user-facing result; never replay. */}}
   function verifyCurrentChannel(){const source=client;if(source)void run(()=>source.prepareComparison());}
 </script>
-{#if client&&!group?.group}<section class="card"><h2>Radio settings</h2><p>Join or create your group in Network before reviewing its radio settings.</p></section>{:else}<RadioSettingsPanel supported={!!client} loaded={trusted} busy={optimising||(view?.busy??false)} available={trusted&&!!snapshot?.available} owner={snapshot?.owner??false} canChange={trusted&&!!snapshot?.canChange} state={snapshot?.state??'unavailable'} error={view?.error??''} notice={view?.notice??''} operationId={matching?snapshot?.operationId??'':''} trialRemainingMs={snapshot?.trialRemainingMs??0} options={matching?snapshot?.options??[]:[]} {nodes} onrefresh={()=>{if(client)void run(()=>client.refresh());}} onverify={matching&&snapshot?.fieldSessionId&&client?verifyCurrentChannel:undefined} onapply={optionId=>{if(client)void run(()=>client.beginTrial(optionId));}} oncommit={()=>{if(client)void run(()=>client.commitTrial());}} oncancel={()=>{if(client)void run(()=>client.cancel());}}/>{/if}
+{#if client&&!group?.group}<section class="card"><h2>Radio settings</h2><p>Join or create your group in Network before reviewing its radio settings.</p></section>{:else}<RadioSettingsPanel supported={!!client} loaded={trusted} busy={optimising||(view?.busy??false)} available={trusted&&!!snapshot?.available} owner={snapshot?.owner??false} canChange={trusted&&!!snapshot?.canChange} changeBlocker={trusted&&snapshot?radioChangeBlocker(snapshot):''} state={snapshot?.state??'unavailable'} error={view?.error??''} notice={view?.notice??''} operationId={matching?snapshot?.operationId??'':''} trialRemainingMs={snapshot?.trialRemainingMs??0} options={matching?snapshot?.options??[]:[]} {nodes} onrefresh={()=>{if(client)void run(()=>client.refresh());}} onverify={matching&&snapshot?.fieldSessionId&&client?verifyCurrentChannel:undefined} onapply={optionId=>{if(client)void run(()=>client.beginTrial(optionId));}} oncommit={()=>{if(client)void run(()=>client.commitTrial());}} oncancel={()=>{if(client)void run(()=>client.cancel());}}/>{/if}
 
 {#if client&&benchmark&&group?.group}<ChannelOptimisationPanel radio={client} {benchmark} {group} onrunning={running=>optimising=running}/>{/if}
