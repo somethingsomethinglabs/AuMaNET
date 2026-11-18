@@ -24,3 +24,7 @@ The browser USB installer is [under separate review](https://github.com/somethin
 - [Download the prototype 3MF bundle](../hardware/print/AuMaNET-parts.3mf)
 - [Inspect the upstream models and download individual STLs](equipment-3d.html)
 - [Check print profiles, provenance and licensing](enclosures.md)
+
+## Design resources
+
+- [Brand & Experience Guide, dark-mode addendum and downloadable assets](design-style.md)
