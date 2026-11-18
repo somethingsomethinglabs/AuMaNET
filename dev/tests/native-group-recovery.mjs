@@ -12,24 +12,29 @@ export async function main(argv=process.argv.slice(2)){
   await mkdir(output,{recursive:true});const run=await mkdtemp(join(output,'run-')),classes=join(run,'classes');await mkdir(classes);
   const result={status:'running',scope:'Host real TCP sockets, recovery policies, exact extracted production Peer.write/writer loop with declared clock/filter/authority boundaries; no Android NSD/TLS/phones/security acceptance',testCount:0,assertionCount:0,sourceSha256:{},dependencies:[]};
   const groupSource=join(root,'dev/mobile/android/app/src/main/java/au/aumanet/app/GroupSession.java');
+  const photoSource=join(root,'dev/mobile/android/app/src/main/java/au/aumanet/app/GroupProfilePhotos.java');
   const sources=['GroupNamePolicy','GroupNameJson','GroupNameMetadata','GroupWire','GroupVoiceCohort','GroupRecoveryPolicy','GroupRecoveryDiagnostics','GroupRecoveryCode','GroupEnrollmentRecovery','GroupListenerEndpoint','GroupPeerDelivery','GroupMediaAuthority','LinkBenchmarkTraffic','GroupFirmwareMaintenanceCapability'].map(name=>join(root,'dev/mobile/android/app/src/main/java/au/aumanet/app',name+'.java')).concat(['GroupRecoveryTest','GroupPeerWriteTest'].map(name=>join(root,'dev/tests/native-group-recovery',name+'.java')));
-  const inputs=[...sources,groupSource,import.meta.filename,join(root,'dev/tests/native-group-messages-store/dependencies.json')];
+  const inputs=[...sources,groupSource,photoSource,import.meta.filename,join(root,'dev/tests/native-group-messages-store/dependencies.json')];
   try{
     const dependency=JSON.parse(await readFile(join(root,'dev/tests/native-group-messages-store/dependencies.json'),'utf8')).dependencies.find(row=>row.name==='org.json');const jar=join(root,'dev/artifacts/group-messages',dependency.file),bytes=await readFile(jar);if(bytes.length!==dependency.bytes||sha(bytes)!==dependency.sha256)throw new Error('Pinned test JSON dependency checksum mismatch');result.dependencies.push({...dependency,verified:true});
     const source=await readFile(groupSource,'utf8');
     function extract(startText,endText){const start=source.indexOf(startText),end=source.indexOf(endText,start+startText.length);if(start<0||end<0||source.indexOf(startText,start+startText.length)!==-1)throw Error('Exact production peer writer boundary changed');return source.slice(start,end);}
     const write=extract('        void write(Outbound outgoing)throws Exception{','\n        void startWriter()');
+    const removalType=(await readFile(photoSource,'utf8')).match(/^    static final String MEMBERSHIP_REMOVED = "[a-z-]+";$/m)?.[0];
+    if(!removalType)throw Error('Production membership removal frame type changed');
     const loop=extract('        void startWriter(){','\n        void send(JSONObject body)');
     const template=body=>`package au.aumanet.app;
 import java.io.*;import java.util.*;import java.util.concurrent.atomic.*;import java.util.function.*;import org.json.*;
 /** Actual production methods below; host boundaries do not model Android/TLS authority. */
+final class GroupProfilePhotos {
+${removalType}
+}
 final class GroupPeerWriteHarness {
  interface Probe{void run()throws Exception;}
  final AtomicBoolean closed=new AtomicBoolean(),grantLive=new AtomicBoolean(true);final AtomicInteger grantChecks=new AtomicInteger(),closeCount=new AtomicInteger(),transportCloseCount=new AtomicInteger();
  Probe secondGrantCheck,finalFilter;int textVersion=1,firmwareMaintenanceVersion;long sendSequence,writeStartedAt,voiceRevision=1;
- boolean inboundSocket,authorized,removalQueued;
- final String pin="BB".repeat(32);
- static final class GroupProfilePhotos{static final String MEMBERSHIP_REMOVED="profile-photo-membership-removed";}
+ boolean inboundSocket,authorized;
+ volatile boolean removalQueued;
  final GatewayRadioSettingsController applicationContext=new GatewayRadioSettingsController();
  static final class GatewayRadioSettingsController{
    JSONObject status; boolean failStatus;
@@ -39,11 +44,13 @@ final class GroupPeerWriteHarness {
  JSONObject advertiseRadioStatus(GroupPeerWriteHarness peer,JSONObject status,long frameEpoch){
    return peer==this&&status!=null&&status.optLong("epoch")==frameEpoch?status:null;
  }
- final String groupId="a".repeat(32),connection="b".repeat(32);final Object lock=new Object();
+ final String groupId="a".repeat(32),connection="b".repeat(32),pin="BB".repeat(32);final Object lock=new Object();
  final Map<String,Member> members=new HashMap<>();final Identity identity=new Identity();final Consent locationConsent=new Consent();
  static final class Identity{final String pin="AA".repeat(32);}static final class Consent{boolean enabled(){return true;}}static final class Member{boolean sharing,connected;long fixGeneration;}
  static final class SystemClock{static long elapsedRealtime(){return System.nanoTime()/1000000L;}}
- static final class Outbound{final JSONObject body;final Object textGrant;final BooleanSupplier textLive;final long frameEpoch=1;long frameVoiceRevision=1,fixGeneration;final String locationSource="";Outbound(JSONObject body,Object grant,BooleanSupplier live){this.body=body;textGrant=grant;textLive=live;}Outbound(JSONObject body,String source,long fixGeneration){this(body,null,()->true);this.fixGeneration=fixGeneration;}}
+ static final class Outbound{final JSONObject body;final Object textGrant;final BooleanSupplier textLive;final long frameEpoch=1;long frameVoiceRevision=1,fixGeneration;final String locationSource;
+ Outbound(JSONObject body,Object grant,BooleanSupplier live){this.body=body;textGrant=grant;textLive=live;locationSource="";}
+ Outbound(JSONObject body,String source,long generation){this.body=body;locationSource=source;fixGeneration=generation;textGrant=null;textLive=()->true;}}
  final ArrayDeque<Outbound> queue=new ArrayDeque<>(),textQueue=new ArrayDeque<>(),bulkQueue=new ArrayDeque<>();Thread writer;final DataOutputStream output;
  boolean replaceAtFinalFilter,failAtFinalFilter;int filterCalls;
  final Filter durableMessages=new Filter();final class Filter{JSONObject filterMessageFrame(JSONObject original)throws Exception{if(++filterCalls==2){if(finalFilter!=null)finalFilter.run();if(failAtFinalFilter)throw new JSONException("fixture final filter failed");if(replaceAtFinalFilter)return new JSONObject(original.toString()).put("payload",new JSONObject().put("scrubbed",true));}return original;}}

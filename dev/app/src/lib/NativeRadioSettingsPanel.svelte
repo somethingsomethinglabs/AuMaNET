@@ -17,6 +17,7 @@
   $: snapshot=view?.snapshot;
   $: matching=!!group?.group&&snapshot?.scope?.groupId===group.group.id&&snapshot.scope.selfId===group.identity.id&&snapshot.scope.epoch===group.group.epoch;
   $: trusted=!!view?.loaded&&!view.error&&matching;
+  $: delegated=matching&&snapshot?.delegated===true;
   $: names=networkNodes(group);
   $: nodes=(snapshot?.nodes??[]).map(node=>{
     const actual=snapshot?.options.find(option=>option.id===node.actualOptionId);
@@ -30,14 +31,15 @@
   <section class="card"><h2>Radio settings</h2><p>Join or create a group before checking its radio settings.</p></section>
 {:else}
   <RadioSettingsPanel supported={!!client} loaded={trusted} busy={optimising||(view?.busy??false)}
-    operator={matching&&!!(snapshot?.owner||snapshot?.delegated)} canChange={trusted&&!!snapshot?.canChange}
+    operator={matching&&!!(snapshot?.owner||delegated)} explicitCommit={!delegated}
+    canChange={trusted&&!!snapshot?.canChange}
     changeBlocker={trusted&&snapshot?radioChangeBlocker(snapshot):''}
     state={snapshot?.state??'unavailable'} error={view?.error??''} notice={view?.notice??''}
     operationId={matching?snapshot?.operationId??'':''} trialRemainingMs={snapshot?.trialRemainingMs??0}
     options={matching?snapshot?.options??[]:[]} {nodes}
     onrefresh={()=>{if(client)void run(()=>client.refresh());}}
     onverify={matching&&snapshot?.fieldSessionId&&client?verifyCurrentChannel:undefined}
-    onapply={optionId=>{if(client)void run(()=>client.apply(optionId));}}
+    onapply={optionId=>{if(client)void run(()=>delegated?client.apply(optionId):client.beginTrial(optionId));}}
     oncommit={()=>{if(client)void run(()=>client.commitTrial());}}
     oncancel={()=>{if(client)void run(()=>client.cancel());}}/>
 {/if}

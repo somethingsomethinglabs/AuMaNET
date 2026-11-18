@@ -12,8 +12,10 @@ Catalog version 1 contains 23 permitted AU operating tuples: twelve at 1 MHz, si
 
 1. Stop shared internet and finish any connection test or maintenance operation.
 2. Choose a permitted channel and check its frequency and width.
-3. Tap **Apply selected channel**. Connected phones pause managed calls and transfers and acknowledge readiness.
-4. The base tries the setting and the field node follows. The host saves the setting after fresh signed reports from both nodes confirm the trial. The screen reports the outcome after checking both nodes again.
+3. On the host phone, tap **Save proposal**, then **Begin bounded trial**. Tap **Commit verified setting** once both nodes verify the trial.
+4. On an approved member phone, **Apply selected channel** requests a trial and authorizes the host to save the channel after both nodes verify it.
+
+Connected phones pause managed calls and transfers for the trial. The base tries the setting and the field node follows. The screen reports the outcome after checking both nodes again.
 
 Voice returns muted; interrupted image progress is retained. An uncommitted trial has a 30-second deadline. An unknown persistent-write outcome must be reconciled; rollback in RAM does not prove which persistent record a reboot will load.
 

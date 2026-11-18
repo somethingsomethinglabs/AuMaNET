@@ -32,9 +32,10 @@
 <ol>
 <li>Stop shared internet and finish any connection test or maintenance operation.</li>
 <li>Choose a permitted channel and check its frequency and width.</li>
-<li>Tap <strong>Apply selected channel</strong>. Connected phones pause managed calls and transfers and acknowledge readiness.</li>
-<li>The base tries the setting and the field node follows. The host saves the setting after fresh signed reports from both nodes confirm the trial. The screen reports the outcome after checking both nodes again.</li>
+<li>On the host phone, tap <strong>Save proposal</strong>, then <strong>Begin bounded trial</strong>. Tap <strong>Commit verified setting</strong> once both nodes verify the trial.</li>
+<li>On an approved member phone, <strong>Apply selected channel</strong> requests a trial and authorizes the host to save the channel after both nodes verify it.</li>
 </ol>
+<p>Connected phones pause managed calls and transfers for the trial. The base tries the setting and the field node follows. The screen reports the outcome after checking both nodes again.</p>
 <p>Voice returns muted; interrupted image progress is retained. An uncommitted trial has a 30-second deadline. An unknown persistent-write outcome must be reconciled; rollback in RAM does not prove which persistent record a reboot will load.</p>
 <h2 id="section-3"><span id="baseline-and-checked-scope">Baseline and checked scope</span></h2>
 <p>Local radio notes record the original baseline as AU channel 36, 920 MHz, 1 MHz width, configured ceiling 24 dBm. Owner-side app changes at 1/2/4/8 MHz and persistence/rollback checks were recorded, but not every tuple or field path was tested. The second phone was away for the final increment, so complete two-phone coordination/throughput acceptance remains open. These values document a prototype configuration, not regulatory approval or a recommended universal setting.</p>

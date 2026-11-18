@@ -19,18 +19,32 @@ try{
   await page.evaluate(()=>window.__networkOverviewFixture.enableRadio());
   await openTool(page,'Radio settings');
   const panel=page.getByRole('region',{name:'Radio settings',exact:true});
+  const proposal=panel.getByRole('combobox',{name:'Proposed channel',exact:true});
+  const save=panel.getByRole('button',{name:'Save proposal',exact:true});
+  const begin=panel.getByRole('button',{name:'Begin bounded trial',exact:true});
   const channel=panel.getByRole('combobox',{name:'New channel',exact:true});
   const apply=panel.getByRole('button',{name:'Apply selected channel',exact:true});
   const fresh=panel.getByText('Verified on both nodes.',{exact:true});
-  await channel.waitFor();
+  await proposal.waitFor();
   assert((await calls()).every(call=>call.method==='snapshot'));
-  await channel.selectOption('23');
+  await proposal.selectOption('23');
+  assert(await begin.isDisabled());
+  await save.click();
+  await panel.getByText('Proposal saved for Channel 43 · 8 MHz · 923.5 MHz.',{exact:true}).waitFor();
+  await page.evaluate(()=>window.__networkOverviewFixture.expiredRadioCapabilities());
+  await panel.getByText(/The node reports have expired/).waitFor();
+  assert(await begin.isDisabled());
   assert.equal((await commandCalls('apply')).length,0);
-  await apply.click();
+  await panel.getByRole('button',{name:'Refresh radio status',exact:true}).click();
+  await fresh.waitFor();
+  assert.equal(await proposal.inputValue(),'23');
+  assert.equal((await commandCalls('refresh')).length,1);
+  assert.equal(await apply.count(),0);
+  await begin.click();
   await panel.getByText('Trying the selected channel',{exact:true}).waitFor();
   const request=(await commandCalls('apply'))[0].options;
   assert.equal(request.optionId,23);
-  assert.equal(request.commitPolicy,undefined);
+  assert.equal(request.commitPolicy,'explicit');
   assert.equal(request.expectedGatewayRevision,4);
   assert.equal(request.expectedFieldGeneration,1);
   assert.equal(request.expectedScope.sourceRun,1);
@@ -42,24 +56,43 @@ try{
   await page.evaluate(()=>window.__networkOverviewFixture.radioRollback());
   await panel.getByText('Previous channel restored',{exact:true}).waitFor();
 
+  await begin.click();
+  await panel.getByText('Trying the selected channel',{exact:true}).waitFor();
+  const ownerRetry=(await commandCalls('apply'))[1].options;
+  assert.equal(ownerRetry.commitPolicy,'explicit');
+  assert.notEqual(ownerRetry.operationId,request.operationId);
+  await page.evaluate(()=>window.__networkOverviewFixture.radioVerified());
+  const commit=panel.getByRole('button',{name:'Commit verified setting',exact:true});
+  await commit.waitFor();
+  assert.equal((await commandCalls('commit')).length,0);
+  await commit.click();
+  await panel.getByText('Channel applied',{exact:true}).waitFor();
+  const committed=(await commandCalls('commit'))[0].options;
+  assert.equal(committed.optionId,23);
+  assert.equal(committed.operationId,ownerRetry.operationId);
+  assert.equal(committed.expectedScope.sourceRun,1);
+  assert.equal(committed.acknowledgement,'commit-verified-radio-trial');
+
   await page.evaluate(()=>{window.__networkOverviewFixture.radioDelegated();window.__networkOverviewFixture.expiredRadioCapabilities();});
   await panel.getByText(/Last verified on both nodes/).waitFor();
   await panel.getByText(/The node reports have expired/).waitFor();
   await channel.selectOption('1');
   assert(await apply.isDisabled());
-  assert(await panel.getByText('Channel 31 · 4 MHz · 917.5 MHz',{exact:true}).first().isVisible());
+  assert(await panel.getByText('Channel 43 · 8 MHz · 923.5 MHz',{exact:true}).first().isVisible());
   await panel.getByRole('button',{name:'Refresh radio status',exact:true}).click();
   await fresh.waitFor();
-  assert.equal((await commandCalls('refresh')).length,1);
+  assert.equal((await commandCalls('refresh')).length,2);
   assert(await apply.isEnabled());
   assert.equal(await channel.inputValue(),'1');
   await apply.click();
   await panel.getByText('Trying the selected channel',{exact:true}).waitFor();
-  assert.equal((await commandCalls('apply'))[1].options.optionId,1);
-  assert.equal(await panel.getByRole('button',{name:'Commit verified setting'}).count(),0);
+  const delegatedRequest=(await commandCalls('apply'))[2].options;
+  assert.equal(delegatedRequest.optionId,1);
+  assert.equal(delegatedRequest.commitPolicy,undefined);
+  assert.equal(await commit.count(),0);
   await page.evaluate(()=>window.__networkOverviewFixture.radioCommit());
   await panel.getByText('Channel applied',{exact:true}).waitFor();
-  assert.equal((await commandCalls('commit')).length,0);
+  assert.equal((await commandCalls('commit')).length,1);
   assert(await panel.getByText('Channel 28 · 1 MHz · 916 MHz',{exact:true}).first().isVisible());
 
   await panel.getByText('Node reports (2)',{exact:true}).click();
@@ -76,12 +109,13 @@ try{
   const readbacks=await commandCalls('prepareComparison');
   assert.equal(readbacks.length,1);
   assert.equal(readbacks[0].options.acknowledgement,'pause-traffic-and-verify-channels');
-  assert.equal((await commandCalls('apply')).length,2);
-  assert.equal((await commandCalls('commit')).length,0);
+  assert.equal((await commandCalls('apply')).length,3);
+  assert.equal((await commandCalls('commit')).length,1);
   assert.deepEqual(errors,[]);
   await page.screenshot({path:output+'/applied-390.png'});
   await writeFile(output+'/result.json',JSON.stringify({status:'pass',physical:false,checks:[
-    'Scoped apply and cancellation from the owner',
+    'Owner proposal survives refresh and requires separate trial and commit actions',
+    'Owner cancellation targets the original trial',
     'Last verified setting remains visible as reports age',
     'Connected member can refresh, keep the selected channel, and apply without a second gesture',
     'Disassociated nodes cannot confirm a channel',
