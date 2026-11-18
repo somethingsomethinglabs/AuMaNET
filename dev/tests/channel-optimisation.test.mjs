@@ -31,6 +31,7 @@ test('finite comparison repeats finalists, restores baseline, and only applies w
 });
 test('unconfirmed mutation is never replayed or ranked; recovery remains explicitly unconfirmed',async()=>{
  const f=fixture({unknown:true});await f.controller.run('peer');assert.equal(f.calls.filter(Array.isArray).filter(c=>c[0]==='apply').length,1);assert.equal(f.controller.state.restored,false);assert.equal(f.controller.state.recommendationId,undefined);assert.match(f.controller.state.error,/restoration is unconfirmed/);
+ assert.match(f.controller.state.error,/Could not verify channel 30 on both nodes/);
 });
 function commitWithLostConfirmation({replaceOperation=false}={}){
  const f=fixture();

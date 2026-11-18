@@ -13,6 +13,7 @@
   export let nodes:readonly RadioNodeView[]=[];
 
   export let onrefresh:()=>void=()=>{};
+  export let onverify:(()=>void)|undefined=undefined;
 
   export let onapply:(optionId:number)=>void=()=>{};
 
@@ -64,6 +65,11 @@
   </section>
 
   {#if supported}<section class="card"><div class="radio-heading"><h2>Apply channel</h2><span class="pill unknown" role="status">{loaded?states[state]??'Unavailable':'Checking…'}</span></div><p class="hint">A trial pauses transfers and may end group calls. Keep both nodes powered. An uncommitted setting rolls back after 30 seconds.</p>
+
+    {#if loaded&&owner&&state==='unknown'&&onverify}
+      <p>Verify both nodes to check which channel is active. This pauses transfers and may end group calls.</p>
+      <button class="primary full" disabled={busy} onclick={onverify}>Verify current channel</button>
+    {/if}
 
     {#if switching}{#if trialRemainingMs>0}<p class="hint">Trial window: up to {Math.ceil(trialRemainingMs/1000)} seconds remaining.</p>{/if}{#if state==='awaiting-commit'}<p>Both nodes verified the trial setting. Commit before the window ends, or cancel and recheck restoration.</p><button class="primary full" disabled={busy||trialRemainingMs<=0} onclick={oncommit}>Commit verified setting</button>{/if}{#if operationId&&state!=='committing'}<button class="outline full" onclick={oncancel}>Cancel change</button>{/if}
 
