@@ -2,6 +2,10 @@
 
 Open index.html in a browser, or read AuMaNET-design-handover.pdf. This folder is portable: it uses relative links, local images and no remote scripts, fonts, analytics or APIs. The ZIP is the handover unit.
 
+## Dark-mode addendum
+
+[Review the dark-mode preview](dark-mode.html) and [implementation specification](DARK-MODE.md). The proposal extends the approved light reference with semantic dark tokens, component states and acceptance checks.
+
 ## What is authoritative
 
 - The 27 screenshots record the approved independent mobile prototype at 83600e761ad7440bac5603987bedafd258159c42.

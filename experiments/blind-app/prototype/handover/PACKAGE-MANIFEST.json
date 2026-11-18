@@ -377,6 +377,36 @@
       "sha256": "de09eb6def659562529a23569b965fa3db06e43ea7bebd5700cf6bbf79c855aa"
     },
     {
+      "path": "dark-mode-preview.jpg",
+      "bytes": 118890,
+      "sha256": "74eebe09cf7427a55cb655ccc89e08d1900e198dea3f06a407d917793ce55cb4"
+    },
+    {
+      "path": "dark-mode.css",
+      "bytes": 6893,
+      "sha256": "03f2b1d26476224f36b4fc40e1ee4c58571d0339301d22462985cc429b05089b"
+    },
+    {
+      "path": "dark-mode.html",
+      "bytes": 9164,
+      "sha256": "09a57d5b5837ad635954a2b909aea71b041326d61e7b5c49515dbc03dd49cea2"
+    },
+    {
+      "path": "DARK-MODE.md",
+      "bytes": 5537,
+      "sha256": "d95e468b6ff684633c324367de308a9e8627b04033d73d6db6ba91872e54bbac"
+    },
+    {
+      "path": "dark-mode.tokens.css",
+      "bytes": 1402,
+      "sha256": "30c464b026f777bd363bae11b8954b246b808805d013b3c57aa9065d12116278"
+    },
+    {
+      "path": "dark-mode.tokens.json",
+      "bytes": 6041,
+      "sha256": "2f7cf471e6b17015d85c2e2536654d31c3843350d4591fe5596068268e8c7538"
+    },
+    {
       "path": "guide-content.json",
       "bytes": 19911,
       "sha256": "7b6b9cc5d2066bc67421eeccc6afd7b1b55c3457d165d75f162e26fd6cf120e9"
@@ -403,8 +433,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 41610,
-      "sha256": "ec191785fb89bcbfd18581dc0941ed8b6394d3d54bdd083a8e2e22d92597d00b"
+      "bytes": 41682,
+      "sha256": "912664409f3d792f961c728a1439331ce52f8a019fcf6e92e29b9c26403049d4"
     },
     {
       "path": "pdf-pages.json",
@@ -413,8 +443,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 3495,
-      "sha256": "51f41050c140988006eabf44de698d10d4891f3bbc2aa05a220d7988a7b86be6"
+      "bytes": 3733,
+      "sha256": "715a1237fe0ab8b86577640a506ab12911f56ca326aaa06084180334d5c634dc"
     },
     {
       "path": "screenshots/01-messages.jpg",
