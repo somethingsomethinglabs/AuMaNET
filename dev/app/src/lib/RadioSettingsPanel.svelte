@@ -63,7 +63,7 @@
 
   </section>
 
-  {#if supported}<section class="card"><div class="radio-heading"><h2>Apply channel</h2><span class="pill unknown" role="status">{loaded?states[state]??'Unavailable':'Checking…'}</span></div><p class="hint">A trial pauses calls and transfers. Keep both nodes powered. An uncommitted setting rolls back after 30 seconds.</p>
+  {#if supported}<section class="card"><div class="radio-heading"><h2>Apply channel</h2><span class="pill unknown" role="status">{loaded?states[state]??'Unavailable':'Checking…'}</span></div><p class="hint">A trial pauses transfers and may end group calls. Keep both nodes powered. An uncommitted setting rolls back after 30 seconds.</p>
 
     {#if switching}{#if trialRemainingMs>0}<p class="hint">Trial window: up to {Math.ceil(trialRemainingMs/1000)} seconds remaining.</p>{/if}{#if state==='awaiting-commit'}<p>Both nodes verified the trial setting. Commit before the window ends, or cancel and recheck restoration.</p><button class="primary full" disabled={busy||trialRemainingMs<=0} onclick={oncommit}>Commit verified setting</button>{/if}{#if operationId&&state!=='committing'}<button class="outline full" onclick={oncancel}>Cancel change</button>{/if}
 

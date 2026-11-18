@@ -65,6 +65,18 @@ final class GroupSession {
     }
     static boolean holdVoice(VoiceBinding binding,Object owner){GroupSession source=instance;return binding!=null&&source==binding.source&&source.nativeVoiceOwner.hold(owner,binding);}
     static long boundVoiceConsentRevision(VoiceBinding binding){return binding==null?0:binding.consent;}
+    static void releaseVoiceBinding(VoiceBinding binding){
+        if(binding==null)return;
+        GroupSession source=binding.source;
+        synchronized(source.lock){
+            if(instance==source&&source.generation==binding.run&&source.voiceConsent.denyIfCurrent(binding.consent,true)){
+                source.nativeVoiceOwner.clear();
+                source.mediaAuthority.denyAll();
+                source.nativeVoiceCoordinator.interrupt();
+                source.privacyCleanup.request();
+            }
+        }
+    }
     static boolean holdsVoice(Object owner){GroupSession source=instance;return source!=null&&source.nativeVoiceOwner.heldBy(owner);}
     static void releaseVoice(Object owner){GroupSession source=instance;if(source!=null)source.nativeVoiceOwner.release(owner);}
     static final class VoiceCoordinatorSignal {

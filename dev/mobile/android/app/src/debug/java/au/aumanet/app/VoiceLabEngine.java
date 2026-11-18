@@ -1375,6 +1375,8 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
         });
     }
     synchronized boolean maintenanceQuiet(){return closed&&closeFinished&&telecomQuiet();}
+    boolean hasGroupVoiceBinding(){return groupMode&&callAuthority!=null;}
+    void releaseGroupVoiceBinding(){GroupSession.releaseVoiceBinding(callAuthority);}
     private void completeClose(){ArrayList<Runnable> callbacks;synchronized(this){if(closeFinished)return;closeFinished=true;callbacks=new ArrayList<>(closeWaiters);closeWaiters.clear();}for(Runnable callback:callbacks)callback.run();}
     private static String concise(String text) { if (text == null) return "Native voice operation failed"; return text.replace('\n', ' ').substring(0, Math.min(text.length(), 180)); }
     private static class DescriptionObserver implements SdpObserver {

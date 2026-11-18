@@ -3,6 +3,7 @@
 import {execFileSync,spawn} from 'node:child_process';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
+import {openTool} from './ui-navigation.mjs';
 if(!process.argv.includes('--run'))throw Error('Use --run to authorise the two-phone channel comparison.');
 const adb='C:/Users/rowan/.codex/tools/android/platform-tools/adb.exe',output='dev/artifacts/channel-optimisation-device';
 const phones=[{id:'R5CTA309DMW',port:9231},{id:'00170158Q001707',port:9232}];
@@ -14,10 +15,10 @@ try{
  for(const p of phones){shell(p,'shell','input','keyevent','KEYCODE_WAKEUP');shell(p,'shell','wm','dismiss-keyguard');shell(p,'shell','am','start','-W','-n','au.aumanet.app/.MainActivity');const pid=shell(p,'shell','pidof','au.aumanet.app');if(!/^\d+$/.test(pid))throw Error('Missing app process');shell(p,'forward',`tcp:${p.port}`,`localabstract:webview_devtools_remote_${pid}`);p.browser=await chromium.connectOverCDP(`http://127.0.0.1:${p.port}`,{noDefaults:true});p.page=p.browser.contexts().flatMap(c=>c.pages()).find(p=>p.url().startsWith('https://localhost'));if(!p.page)throw Error('Missing app WebView');p.before=await call(p,'AuMaNETGroupMessages');}
  const [owner,member]=phones,g=await call(owner,'AuMaNETGroup');if(g.role!=='owner'||!g.group)throw Error('Expected connected owner phone');
  const radioPanel=owner.page.getByRole('region',{name:'Radio settings',exact:true});
- if(!await radioPanel.count())await owner.page.getByRole('button',{name:/Radio settings/}).click();
+ if(!await radioPanel.isVisible())await openTool(owner.page,'Radio settings');
  const initial=await call(owner,'AuMaNETRadioSettings');
  await call(owner,'AuMaNETRadioSettings','prepareComparison',{expectedScope:initial.scope,acknowledgement:'pause-traffic-and-verify-channels'});
- await radioPanel.getByText('Both nodes report this setting.',{exact:true}).waitFor({timeout:35000});
+ await radioPanel.getByText('Fresh associated reports agree',{exact:true}).waitFor({timeout:35000});
  const before=await call(owner,'AuMaNETRadioSettings');report.before=before.nodes.map(n=>({nodeId:n.nodeId,sourceRun:n.sourceRun,actualOptionId:n.actualOptionId,power:n.configuredTxPowerDbm}));
  if(!before.canChange)throw Error('Native radio change capability unavailable');
  const memberTest=await call(member,'AuMaNETLinkBenchmark');if(!memberTest.armed)await call(member,'AuMaNETLinkBenchmark','arm',{acknowledgement:'arm-link-test-for-15-minutes'});

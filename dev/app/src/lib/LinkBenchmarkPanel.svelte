@@ -37,7 +37,7 @@
   {#if showHistory&&historyUnavailable}<p role="alert">Result history is unavailable. Existing files have been preserved.</p>{/if}
   <div class="test-navigation"><button class:active={!showHistory} aria-pressed={!showHistory} onclick={()=>showHistory=false}>Run test</button><button class:active={showHistory} aria-pressed={showHistory} onclick={()=>showHistory=true}>Test history ({snapshot?.results.length??0})</button></div>
   {#if ontools}<button class="outline" onclick={ontools}>All tools &amp; checks</button>{/if}
-  {#if showHistory&&latest&&!running}<section class="card latest-result" aria-labelledby="latest-test-title"><div class="test-heading"><h2 id="latest-test-title">Latest result</h2><span class="hint">{latest.status==='complete'?'Complete':latest.status==='cancelled'?'Stopped':'Failed'}</span></div>
+  {#if latest&&!running&&(showHistory||selected&&snapshot?.state==='complete')}<section class="card latest-result" aria-labelledby="latest-test-title"><div class="test-heading"><h2 id="latest-test-title">Latest result</h2><span class="hint">{latest.status==='complete'?'Complete':latest.status==='cancelled'?'Stopped':'Failed'}</span></div>
     <div class="latest-rates"><div><small>Upload</small><strong>{resultRate(latest.upload)}</strong>{#if benchmarkCapHit(latest.upload)}<small class="cap-note">Byte limit reached; link capacity may be higher.</small>{/if}</div><div><small>Download</small><strong>{resultRate(latest.download)}</strong>{#if benchmarkCapHit(latest.download)}<small class="cap-note">Byte limit reached; link capacity may be higher.</small>{/if}</div></div>
     {#if latest.testProfile==='channel-comparison'}<p class="hint">Short channel-comparison test · three-second measurements in each direction.</p>{/if}
     <p class="latest-signal">Radio at test end: <strong>{latestReading?.value??'Unavailable'}</strong>{#if latestReading} · {latestReading.direction}{/if}</p><p class="hint">Cached directional reading; RF sample age unknown.</p>
@@ -46,7 +46,7 @@
       <button class="outline" onclick={()=>onplan?.(latest)}>Plan use cases with these rates</button><p class="hint">Copies this historical test's speeds into the estimator. Other workloads and quality checks remain assumptions.</p>
     {/if}
   </section>{/if}
-  {#if !showHistory||running}<section class="card"><div class="test-heading"><Gauge size={26}/><h2>Test connection</h2></div><p class="test-warning">Pauses calls and transfers on both phones. Microphones return muted.</p>
+  {#if !showHistory||running}<section class="card"><div class="test-heading"><Gauge size={26}/><h2>Test connection</h2></div><p class="test-warning">Testing pauses transfers and may end group calls on both phones. Rejoin voice muted when ready.</p>
     {#if !client}<p role="status">Connection testing is unavailable in this version. Open a supported Android build.</p>{:else}
 
       <div class="test-status"><p class="phase" role="status">{state?.loaded?snapshot?.errorCode==='LINK_TEST_CANCELLED'?'Test stopped':phaseNames[snapshot?.state??'idle']:'Checking test status…'}</p>{#if snapshot?.armId}<button class="outline" onclick={()=>void client?.stop()}><Square size={17}/>{running?'Stop test':'Stop accepting tests'}</button>{/if}</div>
@@ -57,7 +57,7 @@
       {:else}
         {#if !snapshot?.armed}<button class="outline full" disabled={!state?.loaded||!snapshot?.canArm||!!state?.busy} onclick={()=>void client?.arm()}>Allow tests for 15 minutes</button>{/if}
         <label class="field">Test with<select bind:value={peerId} disabled={!state?.loaded||!!state?.busy}><option value="">Choose an armed phone</option>{#each peers as peer(peer.peerId)}<option value={peer.peerId}>{name(peer.peerId)}</option>{/each}</select></label>
-        {#if !peers.length}<p class="hint">Ask the other person to open Test connection and allow tests.</p>{/if}
+        {#if !peers.length}<p class="hint">Ask the other person to open Tools → Connection tests and allow tests on their phone.</p>{/if}
         <button class="primary full" disabled={!state?.loaded||!selected||!snapshot?.armed||!peerId||!!state?.busy} onclick={()=>void client?.start(peerId)}>Pause traffic &amp; start test</button>
       {/if}
       <button class="text-button refresh-test" onclick={()=>void client?.refresh()}><RefreshCw size={16}/>Refresh test status</button>

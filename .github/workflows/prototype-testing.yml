@@ -71,6 +71,10 @@ jobs:
           node dev/tests/native-diagnostic-export.mjs --output output/native-diagnostic-export
           node dev/tests/native-gateway-radio-settings.mjs --jdk "$JAVA_HOME" --output output/native-radio-settings
           node dev/tests/native-appearance-preferences.mjs --output output/native-appearance
+      - name: Verify connection-test transport and voice pause
+        run: |
+          node dev/tests/native-link-benchmark.mjs --jdk "$JAVA_HOME" --output output/native-link-benchmark
+          node dev/tests/native-link-benchmark-voice.mjs --output output/native-link-benchmark-voice
       - run: npm run sync -w @aumanet/mobile
       - name: Install Android platform
         run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0"'

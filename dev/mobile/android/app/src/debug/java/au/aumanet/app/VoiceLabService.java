@@ -76,6 +76,23 @@ public final class VoiceLabService extends Service {
     /** Privacy-only pause may close an exact managed engine before group bind
      * completes. It grants no call participation or microphone readiness. */
     boolean holdsTrustedMedia(TrustedVoiceResumeNative.Request request){return active==this&&!stopping&&foregroundStarted&&trustedResume==request&&engine!=null&&engine==request.engine&&wake!=null&&wake.isHeld()&&NotificationSessionScope.matches(ownedSession,ownedGeneration,request.session,request.nativeGeneration);}
+    boolean holdsOrdinaryGroupMedia(VoiceLabEngine expected){
+        return expected!=null&&active==this&&!stopping&&foregroundStarted&&trustedResume==null&&engine==expected&&
+            ownedSession.equals(expected.session)&&expected.hasGroupVoiceBinding()&&
+            (!startReservation.pending()||startReservation.matches(ownedSession,ownedGeneration));
+    }
+    void pauseOrdinaryGroupMedia(VoiceLabEngine expected,java.util.function.BooleanSupplier permitted,Runnable retired){
+        main.post(()->{
+            synchronized(VoiceLabService.class){
+                if(!permitted.getAsBoolean()||!holdsOrdinaryGroupMedia(expected))return;
+            }
+            // This is the exact foreground group call. End its consent and let
+            // the user rejoin explicitly after the test, with the mic muted.
+            expected.interrupt("Connection maintenance; rejoin voice muted when ready");
+            expected.releaseGroupVoiceBinding();
+            stopSession("Paused for connection maintenance",retired);
+        });
+    }
     /** The pending start reservation may be released when its Activity dies;
      * the native service still owns this exact call and its notification. */
     boolean ownsNotification(String session,long generation){
@@ -208,6 +225,9 @@ public final class VoiceLabService extends Service {
         stopSession(reason);
     }
     void stopSession(String reason) {
+        stopSession(reason,()->{});
+    }
+    private void stopSession(String reason,Runnable retired) {
         if (stopping) return; stopping = true;
         main.removeCallbacks(notificationHealth);
         getSharedPreferences("voice-lab-state", MODE_PRIVATE).edit().putBoolean("active", false).putString("lastStop", reason).apply();
@@ -221,6 +241,7 @@ public final class VoiceLabService extends Service {
                     startReservation.release(ownedSession,ownedGeneration);
                 }
                 stopForeground(STOP_FOREGROUND_REMOVE); stopSelf();
+                retired.run();
             });
         };
         if(retirementPending)retirementFinishes.add(finished);else if (engine == null) finished.run(); else engine.close(finished);
