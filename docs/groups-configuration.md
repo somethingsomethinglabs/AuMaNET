@@ -1,6 +1,6 @@
 # Groups & membership
 
-Use **Network → Groups & members** to inspect the group and its members. Use **Manage connection** for saved-node and session choices. A device label, Wi-Fi association or appearance in a list does not by itself establish trusted membership.
+Use **Network → Groups & members** to inspect the group and its members. Open **Network → Connection details** to review your connection and saved choices. Choose **Resume connection** when available. A device label, Wi-Fi association or appearance in a list does not by itself establish trusted membership.
 
 ## Separate the roles
 

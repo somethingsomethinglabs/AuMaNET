@@ -1,32 +1,30 @@
-# Compatibility
 
-Reviewed 15 November 2026. Recorded development use is narrower than release support. The [6 November matrix](compatibility-baseline.md) is retained as a dated candidate snapshot; it is no longer the latest implementation inventory.
+# Phones and hardware
+
+Use the exact board, firmware and phone/app pairing recommended for your prototype setup. The [earlier compatibility matrix](compatibility-baseline.md) records historical candidates.
+
+<span id="compatibility"></span>
 
 <span id="node-and-mechanical-configurations"></span><span id="phone-and-runtime-configurations"></span>
 
 ## Development combinations
 
-| Component | Known scope | Limit |
-| --- | --- | --- |
-| Plain XIAO ESP32-S3 + XIAO HaLow | Current two-node direction; tooling checks 8 MB ESP32-S3 | Received revisions and approved antenna/hardware set still need publication |
-| Samsung Z Flip3 | Owner-side app, radio and gateway.15 update work recorded | Applies to exact tested builds/configuration, not all Samsung/Android devices |
-| Nothing Phone (3a) Pro | Two-phone app/internet and field-node checks recorded | Away for later final radio/update increments; no inherited second-phone acceptance |
-| Android emulator | UI/navigation and shell development | Cannot prove physical RF, GPS, routing, audio or headset behavior |
-| Browser UI/demo | Shared interface and explicit fixtures | Native Android services are not browser guarantees |
-| Legacy BLE bench | Earlier ordinary firmware/browser contract | Gateway builds disable the old unauthenticated BLE endpoint |
-| iPhone | Optional future investigation | No accepted install/build or feature support |
-| Linux/OpenWrt/Pi alternatives | Architecture/historical references | Not supported substitutes for the current checked gateway |
+| Equipment | Development scope |
+| --- | --- |
+| Seeed XIAO ESP32-S3 with the XIAO HaLow carrier | Two-node prototype. Current checked firmware tooling targets the 8 MB ESP32-S3. Check the carrier revision and approved antenna for your build. |
+| Samsung Z Flip3 | Recorded group use and later owner-phone radio and firmware update work. |
+| Nothing Phone (3a) Pro | Recorded two-phone group and shared-internet development. Later owner-side increments have separate evidence. |
+| Android 7.0 and later | API 24 is the build minimum. Phone, OS, Wi-Fi, audio and lifecycle behaviour need device-specific verification. |
+| iPhone, desktop and browser | No accepted iPhone build. Browser development surfaces have their own capabilities. Android’s native group services require the Android build. |
+
+See [boards and node roles](devices.md) and [CAD and print files](enclosures.md).
 
 ## Firmware and layout
 
-The checked [SDK lock](../dev/firmware/sdk-lock.json) identifies immutable inputs, BCF, target and flash size. Role, board/layout, AU profile, image identity and publisher verification are separate checks. Application OTA cannot repair an incompatible bootloader/layout; initial migration requires USB.
-
-The live Nightly catalog includes clean CI and dirty local development source identities. A version string alone is insufficient for artifact selection. See [Install firmware](flash-firmware.md) and [Firmware updates](firmware-updates.md).
+Board, role, firmware identity and partition layout need to match. Check the [pinned build inputs](../dev/firmware/sdk-lock.json) and exact package. Wireless updates work on compatible provisioned nodes. Bootloader and layout migration require USB. See [USB firmware and recovery](flash-firmware.md).
 
 <span id="promotion-rules"></span>
 
 ## Requirements for a support row
 
-Record actual board/carrier/antenna revisions, firmware/app hashes, phone model and exact OS/audio/network configuration. State pass/fail/not-run for local connection, group, routes, voice, maps/location, donor/consumer, screen-off, restart and recovery. Changed inputs reopen affected acceptance.
-
-No broadly supported phone/kit family or guaranteed range/runtime is established. See [Project status](capabilities.md) and [Documentation roadmap](documentation-roadmap.md).
+For a useful compatibility report, record board and carrier revisions, antenna, firmware and app hashes, Android build, and actual results for connection, restart, voice, maps and internet roles. The [diagnostics guide](diagnostics.md) explains what to share.
