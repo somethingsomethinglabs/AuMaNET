@@ -128,7 +128,8 @@
   export function fitMembers(){interact();framePositions();}
   function openPin(event:{latlng:LatLng;originalEvent:Event}){
     if(!map||(event.originalEvent?.target as Element)?.closest('.leaflet-interactive,.leaflet-tooltip,.leaflet-marker-icon'))return;
-    const {lat,lng}=map.wrapLatLng(event.latlng);
+    const pinMap=map;
+    const {lat,lng}=pinMap.wrapLatLng(event.latlng);
     const point={latitude:lat,longitude:lng};
     if(areaSelection){
       if(!areaLocked)onareapin?.(point);
@@ -143,7 +144,7 @@
     const actions=document.createElement('div');
     actions.className='map-pin-actions';
     content.append(coordinates,actions);
-    const popup=new Popup({autoPanPaddingTopLeft:[16,104],autoPanPaddingBottomRight:[72,104]})
+    const popup=new Popup({className:'map-pin-popup'})
       .setLatLng(event.latlng).setContent(content);
 
     if(onofflinepick){
@@ -192,7 +193,20 @@
       actions.append(open);
     }
 
-    popup.openOn(map);
+    function fitPopup(){
+      const height=pinMap.getSize().y;
+      // Keep room for the actions and feedback before reserving space for map controls.
+      const padding=Math.max(8,Math.min(104,Math.floor((height-200)/2)));
+      // Leaflet's wrapper, content margins and tip take 48 px beyond the scrollable content.
+      popup.options.autoPanPaddingTopLeft=[16,padding];
+      popup.options.autoPanPaddingBottomRight=[72,padding];
+      popup.options.maxHeight=Math.max(1,height-2*padding-48);
+      popup.update();
+    }
+    fitPopup();
+    pinMap.on('resize',fitPopup);
+    popup.on('remove',()=>pinMap.off('resize',fitPopup));
+    popup.openOn(pinMap);
   }
   onMount(()=>{let stopped=false,loading=false;const client=nativeVectorMaps();const refresh=async()=>{if(!client||loading)return;loading=true;try{const state=await client.snapshot();if(!stopped)regions=state.regions;}catch{}finally{loading=false;}};void refresh();const poll=setInterval(()=>void refresh(),5000);startVector();map=new LeafletMap(container,{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:18,scrollWheelZoom:true,zoomAnimation:false,fadeAnimation:false});map.createPane('connections').style.zIndex='350';map.createPane('offline-area').style.zIndex='390';map.on('click',openPin);map.on('dragstart',interact);map.on('move zoom',syncVector);map.on('moveend zoomend',reportCoverage);const first=freshGroupPositions(fix,ageMs,active,members)[0];map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);syncConnections();syncMarkers();syncArea();defaultView();const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();reportCoverage();});observer.observe(container);container.addEventListener('pointerdown',interact);container.addEventListener('wheel',interact,{passive:true});container.addEventListener('keydown',interact);return()=>{stopped=true;clearInterval(poll);container.removeEventListener('pointerdown',interact);container.removeEventListener('wheel',interact);container.removeEventListener('keydown',interact);observer.disconnect();vector?.remove();vector=undefined;protocols?.close();map?.remove();map=undefined;markers.clear();connectionLines.clear();};});
 </script>
@@ -205,4 +219,8 @@
 :global(.leaflet-popup-content .pin-save-area){background:var(--green);color:var(--on-action);border-color:transparent}
 :global(.map-pin-status){max-width:175px}
 :global(.map-pin-status:not(:empty)){margin-top:5px}
+/* A short map can put the pin over the toolbars. Raise the Leaflet pane, keeping the map surface behind them. */
+:global(.geographic-map:has(.map-pin-popup)){isolation:auto}
+:global(.geographic-map:has(.map-pin-popup) > .leaflet-map-pane){z-index:520}
+:global(.map-pin-popup .leaflet-popup-scrolled){overscroll-behavior:contain;touch-action:pan-y}
 :global(.leaflet-tooltip){font-family:inherit;border-radius:8px;color:var(--ink);background:var(--raised);border:1px solid var(--control-line);font-weight:700}:global(.leaflet-control-container){display:none}</style>
