@@ -68,15 +68,33 @@ public final class VectorRegions {
         if(build.isEmpty())throw new IOException("No compatible vector map build is available");
         VectorPmtiles.Remote baseSource=new VectorPmtiles.Remote("https://build.protomaps.com/"+build,check);VectorPmtiles base=new VectorPmtiles(baseSource);if(base.type!=1||base.maxZoom<15)throw new IOException("Unsupported basemap archive");
         JSONObject metadata=new JSONObject(new String(base.metadata(),StandardCharsets.UTF_8));if(!metadata.optString("version").startsWith("4.")||!metadata.has("vector_layers"))throw new IOException("Unsupported vector map schema");
-        JSONObject files=new JSONObject(),sources=new JSONObject();sources.put(baseSource.address,baseSource.etag());Set<Integer> glyphs=new TreeSet<>();glyphs.add(0);long[] bytes={0};int done=0,total=plan.count();Map<String,VectorPmtiles> terrains=new LinkedHashMap<>();
-        for(int[] tile:plan.base){check.check();byte[] value=base.tile(tile[0],tile[1],tile[2]);if(value==null)value=new byte[0];Glyphs.collect(value,glyphs);save(staging,"base/"+tile[0]+"/"+tile[1]+"/"+tile[2]+".pbf",value,files,bytes);progress.update(++done,total,bytes[0],"downloading");}
-        for(int[] tile:plan.dem){check.check();String name=tile[0]<=12?"planet":("6-"+(tile[1]>>(tile[0]-6))+"-"+(tile[2]>>(tile[0]-6)));VectorPmtiles dem=terrains.get(name);
-            if(dem==null){VectorPmtiles.Remote source=new VectorPmtiles.Remote("https://download.mapterhorn.com/"+name+".pmtiles",check);dem=new VectorPmtiles(source);if(dem.type!=4||!new JSONObject(new String(dem.metadata(),StandardCharsets.UTF_8)).optString("encoding","terrarium").equals("terrarium"))throw new IOException("Unsupported elevation archive");terrains.put(name,dem);sources.put(source.address,source.etag());}
-            byte[] value=dem.tile(tile[0],tile[1],tile[2]);if(value==null)throw new IOException("Elevation is unavailable for part of this area; retry with roads and tracks only");
-            if(value.length<12||value[0]!='R'||value[1]!='I'||value[2]!='F'||value[3]!='F'||value[8]!='W'||value[9]!='E'||value[10]!='B'||value[11]!='P')throw new IOException("Invalid elevation image");
-            save(staging,"terrain/"+tile[0]+"/"+tile[1]+"/"+tile[2]+".webp",value,files,bytes);progress.update(++done,total,bytes[0],"downloading");
+        JSONObject files=new JSONObject(),sources=new JSONObject();sources.put(baseSource.address,baseSource.etag());Set<Integer> glyphs=new TreeSet<>();glyphs.add(0);long[] bytes={0};
+        int[] done={0};
+        int tileTotal=plan.count();
+        base.readTiles(plan.base,check,(tile,value)->{
+            if(value==null)value=new byte[0];
+            Glyphs.collect(value,glyphs);
+            save(staging,"base/"+tile[0]+"/"+tile[1]+"/"+tile[2]+".pbf",value,files,bytes);
+            progress.update(++done[0],tileTotal,bytes[0],"downloading");
+        });
+        Map<String,List<int[]>> terrains=new LinkedHashMap<>();
+        for(int[] tile:plan.dem){
+            String name=tile[0]<=12?"planet":"6-"+(tile[1]>>(tile[0]-6))+"-"+(tile[2]>>(tile[0]-6));
+            terrains.computeIfAbsent(name,key->new ArrayList<>()).add(tile);
         }
-        if(glyphs.size()>128)throw new IOException("Too many font ranges for this area; choose a smaller region");total+=glyphs.size();for(int start:glyphs){check.check();String range=start+"-"+(start+255);byte[] value=VectorPmtiles.get("https://protomaps.github.io/basemaps-assets/fonts/Noto%20Sans%20Regular/"+range+".pbf",VectorPmtiles.LIMIT,check);if(value.length<2)throw new IOException("Map font is unavailable");save(staging,"glyphs/"+range+".pbf",value,files,bytes);progress.update(++done,total,bytes[0],"fonts");}
+        for(Map.Entry<String,List<int[]>> archive:terrains.entrySet()){
+            VectorPmtiles.Remote source=new VectorPmtiles.Remote("https://download.mapterhorn.com/"+archive.getKey()+".pmtiles",check);
+            VectorPmtiles dem=new VectorPmtiles(source);
+            if(dem.type!=4||!new JSONObject(new String(dem.metadata(),StandardCharsets.UTF_8)).optString("encoding","terrarium").equals("terrarium"))throw new IOException("Unsupported elevation archive");
+            sources.put(source.address,source.etag());
+            dem.readTiles(archive.getValue(),check,(tile,value)->{
+                if(value==null)throw new IOException("Elevation is unavailable for part of this area; retry with roads and tracks only");
+                if(value.length<12||value[0]!='R'||value[1]!='I'||value[2]!='F'||value[3]!='F'||value[8]!='W'||value[9]!='E'||value[10]!='B'||value[11]!='P')throw new IOException("Invalid elevation image");
+                save(staging,"terrain/"+tile[0]+"/"+tile[1]+"/"+tile[2]+".webp",value,files,bytes);
+                progress.update(++done[0],tileTotal,bytes[0],"downloading");
+            });
+        }
+        if(glyphs.size()>128)throw new IOException("Too many font ranges for this area; choose a smaller region");int total=tileTotal+glyphs.size();for(int start:glyphs){check.check();String range=start+"-"+(start+255);byte[] value=VectorPmtiles.get("https://protomaps.github.io/basemaps-assets/fonts/Noto%20Sans%20Regular/"+range+".pbf",VectorPmtiles.LIMIT,check);if(value.length<2)throw new IOException("Map font is unavailable");save(staging,"glyphs/"+range+".pbf",value,files,bytes);progress.update(++done[0],total,bytes[0],"fonts");}
         check.check();return new JSONObject().put("schema","aumanet.vector-region.v1").put("id",id).put("key",plan.key).put("name",plan.name).put("bounds",new JSONArray(plan.bounds)).put("bytes",bytes[0]).put("installedAt",System.currentTimeMillis()).put("terrain",plan.terrain).put("dataDate",metadata.optString("planetiler:osm:osmosisreplicationtime",build.substring(0,8))).put("sources",sources).put("files",files).put("attribution","© OpenStreetMap contributors / Protomaps; elevation: Mapterhorn and underlying sources; Noto Sans: SIL OFL. See bundled terrain sources and licences.");
     }
     private static void save(File dir,String path,byte[] value,JSONObject files,long[] bytes)throws Exception{if(!path(path)||value.length>VectorPmtiles.LIMIT||bytes[0]>MAX_BYTES-value.length)throw new IOException("Region exceeds the 256 MiB download limit; choose a smaller area");File f=new File(dir,path);if(!f.getParentFile().isDirectory()&&!f.getParentFile().mkdirs())throw new IOException("Map storage unavailable");try(FileOutputStream out=new FileOutputStream(f)){out.write(value);out.getFD().sync();}bytes[0]+=value.length;files.put(path,new JSONObject().put("bytes",value.length).put("sha256",sha(value)));}

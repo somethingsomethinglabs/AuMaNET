@@ -11,8 +11,11 @@ import java.util.zip.GZIPInputStream;
  * https://github.com/protomaps/PMTiles/blob/main/spec/v3/spec.md */
 public final class VectorPmtiles {
     public static final int LIMIT=2*1024*1024;
+    private static final int BATCH_LIMIT=1024*1024;
+    private static final int BATCH_GAP=16*1024;
     public interface Check { void check() throws IOException; }
     public interface Source { byte[] read(long offset,int length)throws IOException; long size(); }
+    interface TileConsumer { void accept(int[] tile,byte[] value)throws Exception; }
     public final int minZoom,maxZoom,type,compression;
     private final Source source;
     private final long rootOffset,rootLength,leafOffset,leafLength,tileOffset,tileLength,metadataOffset,metadataLength;
@@ -32,16 +35,72 @@ public final class VectorPmtiles {
     private void section(long offset,long length)throws IOException{if(offset<0||length<0||offset>source.size()-length)throw new IOException("Archive section is outside its file");}
     public byte[] metadata()throws IOException{return metadataLength==0?new byte[]{'{','}'}:decode(source.read(metadataOffset,(int)metadataLength),internal);}
     public byte[] tile(int z,int x,int y)throws IOException{
+        Entry entry=findTile(z,checkedTileId(z,x,y));
+        return entry==null?null:decode(source.read(tileOffset+entry.offset,entry.length),compression);
+    }
+    private static long checkedTileId(int z,int x,int y)throws IOException{
         if(z<0||z>26||x<0||y<0||x>=(1L<<z)||y>=(1L<<z))throw new IOException("Invalid vector tile coordinates");
-        if(z<minZoom||z>maxZoom)return null;long id=tileId(z,x,y),offset=rootOffset;int length=(int)rootLength;
+        return tileId(z,x,y);
+    }
+    private Entry findTile(int zoom,long id)throws IOException{
+        if(zoom<minZoom||zoom>maxZoom)return null;
+        long offset=rootOffset;int length=(int)rootLength;
         for(int depth=0;depth<4;depth++){
             Entry[] entries=directories.get(offset);if(entries==null){entries=directory(decode(source.read(offset,length),internal));directories.put(offset,entries);}
             int low=0,high=entries.length-1;while(low<=high){int mid=(low+high)>>>1;if(entries[mid].id<=id)low=mid+1;else high=mid-1;}
             if(high<0)return null;Entry e=entries[high];
-            if(e.run>0){if(id-e.id>=e.run)return null;if(e.offset>tileLength-e.length)throw new IOException("Tile escapes archive section");return decode(source.read(tileOffset+e.offset,e.length),compression);}
+            if(e.run>0){if(id-e.id>=e.run)return null;if(e.offset>tileLength-e.length)throw new IOException("Tile escapes archive section");return e;}
             if(e.offset>leafLength-e.length)throw new IOException("Directory escapes archive section");offset=leafOffset+e.offset;length=e.length;
         }
         throw new IOException("Vector archive directory is too deep");
+    }
+    private static final class RequestedTile {
+        final int[] coordinates;
+        final long id;
+        Entry entry;
+        RequestedTile(int[] coordinates)throws IOException{
+            this.coordinates=coordinates;
+            id=checkedTileId(coordinates[0],coordinates[1],coordinates[2]);
+        }
+    }
+    void readTiles(List<int[]> coordinates,Check check,TileConsumer consumer)throws Exception{
+        List<RequestedTile> requested=new ArrayList<>(coordinates.size());
+        for(int[] tile:coordinates)requested.add(new RequestedTile(tile));
+        // Resolve IDs in directory order so nearby tiles reuse cached leaf directories.
+        requested.sort(Comparator.comparingLong(tile->tile.id));
+        List<RequestedTile> available=new ArrayList<>(requested.size());
+        for(RequestedTile tile:requested){
+            check.check();
+            tile.entry=findTile(tile.coordinates[0],tile.id);
+            if(tile.entry==null)consumer.accept(tile.coordinates,null);
+            else available.add(tile);
+        }
+        // Fetch in physical order, including shared payloads and small gaps in a single GET.
+        available.sort(Comparator.comparingLong(tile->tile.entry.offset));
+        for(int first=0;first<available.size();){
+            check.check();
+            Entry initial=available.get(first).entry;
+            long start=initial.offset,end=start+initial.length;
+            int next=first+1;
+            while(next<available.size()){
+                Entry entry=available.get(next).entry;
+                long entryEnd=entry.offset+entry.length;
+                if(entry.offset-end>BATCH_GAP||entryEnd-start>Math.max(BATCH_LIMIT,initial.length))break;
+                end=Math.max(end,entryEnd);
+                next++;
+            }
+            byte[] range=source.read(tileOffset+start,(int)(end-start));
+            if(range.length!=end-start)throw new IOException("Map archive range was truncated");
+            for(int i=first;i<next;i++){
+                check.check();
+                RequestedTile tile=available.get(i);
+                int offset=(int)(tile.entry.offset-start);
+                byte[] value=offset==0&&tile.entry.length==range.length
+                    ?range:Arrays.copyOfRange(range,offset,offset+tile.entry.length);
+                consumer.accept(tile.coordinates,decode(value,compression));
+            }
+            first=next;
+        }
     }
     public static long tileId(int z,int x,int y){
         long id=((1L<<(2*z))-1)/3;int tx=x,ty=y;
