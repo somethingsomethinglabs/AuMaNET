@@ -40,10 +40,12 @@
     {:else if !group?.group}<p>Connect to your approved group before checking a node’s firmware.</p>
     {:else}
       {#if view?.error}<p class="update-error" role="alert">{view.error}</p>{/if}{#if snapshot?.errorCode}<p class="update-error" role="alert">{updateError(snapshot.errorCode)}</p>{/if}{#if view?.notice}<p role="status">{view.notice}</p>{/if}
-      <label class="field">Node<select value={selectedNodeId} disabled={active} onchange={event=>chooseNode(event.currentTarget.value)}><option value="">Choose a node</option>{#each nodes as item(item.nodeId)}<option value={item.nodeId}>{name(item.nodeId)}</option>{/each}</select></label>
       {#if !scoped}<p role="status">{view?.loaded||view?.error?'Firmware status is unavailable. Reopen this page after checking your group connection.':'Checking firmware status…'}</p>
+      {:else if !owned}<p role="status">Use the group owner’s phone to check or update node firmware.</p>
       {:else if !nodes.length}<p class="hint">No checked nodes are available. Keep the nodes powered and reconnect to your group.</p>
-      {:else if node}
+      {:else}
+        <label class="field">Node<select value={selectedNodeId} disabled={active} onchange={event=>chooseNode(event.currentTarget.value)}><option value="">Choose a node</option>{#each nodes as item(item.nodeId)}<option value={item.nodeId}>{name(item.nodeId)}</option>{/each}</select></label>
+        {#if node}
         <div class="installed-firmware"><h3>Installed on {name(node.nodeId)}</h3><strong>{firmwareSummary(node)}</strong>
           {#if installed}<p class="hint">Authenticated node report · received {Math.ceil(node.observedAgeMs/1000)} seconds ago.</p><p class="hint">{installed.health==='valid'?'Boot confirmed':installed.health==='pending'?'New boot is awaiting confirmation':installed.health==='rollback'?'Node reports a rollback':installed.health==='failed'?'Node reports a failed boot':'Boot health unavailable'}</p>
             <div class="help-row"><span>Build information</span><HelpButton title="Build information"><dl><div><dt>Commit</dt><dd>{installed.commit}</dd></div><div><dt>Image SHA-256</dt><dd>{installed.imageSha256}</dd></div><div><dt>Running slot</dt><dd>{installed.runningSlot}</dd></div></dl></HelpButton></div>
@@ -51,24 +53,24 @@
           {:else}<p class="hint">The node’s installed version has not been verified. It will not be inferred from the phone app or a previous upload.</p>{/if}
           <button class="text-button" disabled={view?.busy||active} onclick={()=>client&&void run(()=>client.refreshNode(node!.nodeId))}><RefreshCw size={17}/>Check node status</button>
         </div>
+        {/if}
       {/if}
     {/if}
   </section>
   {#if client&&group?.group&&scoped}
-    {#if operation}<section class="card update-operation" aria-live="polite"><h3>{operation.phase==='complete'&&!operation.nodeId?'Package verified and ready':updatePhases[operation.phase]}</h3><p class="hint">{operation.nodeId?name(operation.nodeId):'Package on this phone'}</p>
+    {#if owned&&operation}<section class="card update-operation" aria-live="polite"><h3>{operation.phase==='complete'&&!operation.nodeId?'Package verified and ready':updatePhases[operation.phase]}</h3><p class="hint">{operation.nodeId?name(operation.nodeId):'Package on this phone'}</p>
       {#if ['downloading','uploading'].includes(operation.phase)}{#if progress!==undefined}<progress max="100" value={progress} aria-label={operation.phase==='downloading'?'Firmware download':'Firmware upload'}></progress><p>{bytes(operation.bytes)} of {bytes(operation.totalBytes)} · {Math.floor(progress)}%</p>{:else}<p>Waiting for a measured transfer size…</p>{/if}{/if}
       {#if ['activating','waiting-reboot','confirming','unknown'].includes(operation.phase)}<p class="hint">Keep the node powered. A lost connection does not prove the update failed. Check its firmware before another installation.</p>{/if}
       {#if operation.phase==='complete'}<p><CheckCircle size={17}/>{operation.nodeId?'The native update process confirmed the selected firmware on a new boot.':'The package is verified on this phone. Nothing has been installed on a node.'}</p>{/if}
       {#if operation.phase==='rolled-back'}<p>The native update process confirmed the previous firmware. Check the node before trying a different release.</p>{/if}
       {#if operation.canCancel}<button class="outline full" onclick={()=>client&&void run(()=>client.cancel())}><Square size={17}/>Cancel this operation</button>{/if}
     </section>{/if}
-    {#if node}<section class="card"><h2>Choose an update</h2><p class="hint">Downloading saves a verified package on this phone. Installation is a separate action for one named node.</p>
+    {#if owned&&node}<section class="card"><h2>Choose an update</h2><p class="hint">Downloading saves a verified package on this phone. Installation is a separate action for one named node.</p>
       <fieldset class="choice-field" disabled={view?.busy||active}><legend>Release channel</legend><div class="choice-control">{#each [{value:'stable',label:'Stable'},{value:'beta',label:'Beta'},{value:'nightly',label:'Nightly'},...(snapshot?.branches.length?[{value:'branch',label:'Git build'}]:[])] as option}<button type="button" aria-pressed={channel===option.value} onclick={()=>channel=option.value as typeof channel}>{option.label}</button>{/each}</div></fieldset>
       <p class="hint">{channel==='stable'?'Stable is the normal release channel. Only published, signed packages appear.':channel==='beta'?'Beta releases are for testing changes before stable release.':channel==='nightly'?'Nightly builds may contain unfinished changes.':'Git builds are development artifacts, not stable releases.'}</p>
       {#if channel==='branch'}<details open class="advanced-build"><summary>Advanced Git build selection</summary><label class="field">Advertised Git ref<select bind:value={branch} disabled={view?.busy||active}><option value="">Choose an advertised ref</option>{#each snapshot?.branches??[] as ref}<option value={ref}>{ref}</option>{/each}</select></label><p class="hint">Only advertised signed builds are offered. A branch resolves to an exact commit and image; this phone does not compile arbitrary Git URLs.</p></details>{/if}
       <button class="outline full" disabled={view?.busy||active||channel==='branch'&&!branch} onclick={()=>client&&void run(()=>client.checkReleases(channel,channel==='branch'?branch:undefined))}><RefreshCw size={17}/>Check releases</button>
       <p class="hint">{snapshot?.feed.status==='not-checked'?'The signed release catalog has not been checked.':snapshot?.feed.status==='unavailable'?'The release catalog is unavailable. This does not mean your firmware is up to date.':snapshot?.feed.status==='invalid'?'The catalog could not be verified. Its releases cannot be selected.':`${snapshot?.feed.source==='usb-fixture'?'Local USB test catalog':'Verified catalog'} · checked ${date(snapshot?.feed.checkedAt)}`}</p>
-      {#if !owned}<p class="hint">Use the group owner phone to download or install node firmware.</p>{/if}
       {#if node}
         {#if visibleReleases.length}<label class="field release-picker">Available or cached package<select bind:value={selectedRelease} disabled={view?.busy||active}><option value="">Choose a version</option>{#each visibleReleases as item(item.releaseDigest)}<option value={item.releaseDigest}>{item.version} · {item.buildId}{snapshot?.cachedPackages.some(value=>value.releaseDigest===item.releaseDigest)?' · Cached':''}</option>{/each}</select></label>
         {:else}<p class="hint">No verified {releaseChannelNames[channel]} package for this node is available in the current catalog or cache.</p>{/if}
