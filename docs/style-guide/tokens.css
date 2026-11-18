@@ -1,0 +1,25 @@
+:root {
+  --auma-paper: #f4f3ec;
+  --auma-surface: #fffef8;
+  --auma-ink: #243c32;
+  --auma-muted: #737e70;
+  --auma-line: #dce1d5;
+  --auma-green: #315e47;
+  --auma-green-deep: #224735;
+  --auma-lime: #dceca9;
+  --auma-sage: #e6ecdd;
+  --auma-rust: #b97753;
+  --auma-blue: #6c8e98;
+  --auma-danger: #a84835;
+  --auma-brand-secondary: #91a97e;
+  --auma-font-ui: Arial, Helvetica, sans-serif;
+  --auma-radius-card: 16px;
+  --auma-radius-sheet: 24px;
+  --auma-space-screen: 16px;
+  --auma-appbar-height: 68px;
+  --auma-tabbar-height: 66px;
+  --auma-control-min-height: 44px;
+  /* Proposed adoption values; not silently substituted into reference screenshots. */
+  --auma-text-secondary-accessible: #626d60;
+  --auma-native-touch-target: 48px;
+}

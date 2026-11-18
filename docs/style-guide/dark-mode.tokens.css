@@ -1,0 +1,43 @@
+/* AuMaNET dark-mode proposal. Scope to the active dark appearance. */
+[data-theme="dark"] {
+  --auma-dark-canvas: #182A24;
+  --auma-dark-surface: #20362C;
+  --auma-dark-raised: #294238;
+  --auma-dark-field: #162720;
+  --auma-dark-text: #EDF3E8;
+  --auma-dark-secondary: #B8C9B8;
+  --auma-dark-quiet: #3A5042;
+  --auma-dark-outline: #799482;
+  --auma-dark-action: #B9D4A8;
+  --auma-dark-on-action: #17291F;
+  --auma-dark-pressed: #A5C493;
+  --auma-dark-selection: #314736;
+  --auma-dark-accent: #D3E6A4;
+  --auma-dark-focus: #DCECA9;
+  --auma-dark-outbound: #304D3D;
+  --auma-dark-session: #10271F;
+  --auma-dark-disabled-fill: #34483F;
+  --auma-dark-disabled-text: #A9BCAF;
+  --auma-dark-success-fill: #294637;
+  --auma-dark-success: #B9D4A8;
+  --auma-dark-pending-fill: #463B26;
+  --auma-dark-pending: #F1D49A;
+  --auma-dark-error-fill: #482F2C;
+  --auma-dark-error: #FFB9AB;
+  --auma-dark-unknown-fill: #34443C;
+  --auma-dark-unknown: #D2DED4;
+  --auma-dark-blue-fill: #2B4650;
+  --auma-dark-blue: #BADEE8;
+  --auma-dark-rust-fill: #503D32;
+  --auma-dark-rust: #F1C3A9;
+  --auma-dark-sand-fill: #423D2A;
+  --auma-dark-sand: #EDDDAD;
+  --auma-dark-map-land: #25392F;
+  --auma-dark-map-forest: #344A36;
+  --auma-dark-map-water: #416478;
+  --auma-dark-map-route: #C7D9AC;
+  --auma-dark-map-label: #EDF3E8;
+  --auma-dark-map-minor: #799482;
+  --auma-dark-sheet-scrim: #0000008f;
+  color-scheme: dark;
+}

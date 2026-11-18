@@ -29,7 +29,7 @@ const sections = [
     ['capabilities.html', 'Project status'], ['software.html', 'Software overview'],
     ['web-app.html', 'Web development interface'], ['cli.html', 'Planned operator CLI'],
     ['node-firmware.html', 'Node firmware'], ['release-channels.html', 'Release channels'],
-    ['project-legal.html', 'Licensing and privacy'], ['glossary.html', 'Glossary'],
+    ['design-style.html', 'Brand & Experience Guide'], ['project-legal.html', 'Licensing and privacy'], ['glossary.html', 'Glossary'],
     ['contributing.html', 'Contribute'], ['development-guide.html', 'Development'],
     ['documentation-roadmap.html', 'Documentation roadmap'], ['maintaining-docs.html', 'Maintain the site']
   ], 'Engineering records'],

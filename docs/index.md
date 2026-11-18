@@ -24,6 +24,7 @@ Connect a prepared Android setup, get ready for a trip, or find the right refere
 
 - [How AuMaNET works](overview.md)
 - [Builds and tested scope](current-app.md)
+- [Brand & Experience Guide and dark-mode addendum](design-style.md)
 - <span id="section-4"></span><span id="keep-building-this-handbook"></span>[Development and acceptance](development-guide.md)
 - [Licensing and privacy](project-legal.md)
 - [Historical documentation](archive.md)
