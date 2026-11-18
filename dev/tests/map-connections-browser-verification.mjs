@@ -3,14 +3,22 @@ import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}),page=await browser.newPage({viewport:{width:360,height:800}});
-const errors=[],sideEffects=[];let checks=0;
+const errors=[],sideEffects=[];let checks=0,styleRequests=0,styleAvailable=false;
 const line=()=>page.locator('[data-map-connection]');
 const call=(name,value)=>page.evaluate(([name,value])=>window.__mapConnectionsFixture[name](value),[name,value]);
 try{
   page.on('pageerror',error=>errors.push(error.message));
   await page.route('**/api/hardware/**',route=>{sideEffects.push('hardware');return route.fulfill({status:404,body:'Fixture blocks hardware'});});
   await page.addInitScript(()=>{navigator.geolocation.getCurrentPosition=()=>{throw new Error('Unexpected GPS start');};navigator.geolocation.watchPosition=()=>{throw new Error('Unexpected GPS watch');};navigator.mediaDevices.getUserMedia=async()=>{throw new Error('Unexpected microphone start');};});
-  await page.route('https://tiles.openfreemap.org/styles/**',route=>route.abort());
+  const styleUrl='https://tiles.openfreemap.org/styles/**';
+  await page.route(styleUrl,route=>{
+    styleRequests++;
+    const headers={'access-control-allow-origin':'*'};
+    if(!styleAvailable)return route.fulfill({status:503,headers});
+    return route.fulfill({headers,json:{version:8,sources:{},layers:[
+      {id:'background',type:'background',paint:{'background-color':'#567862'}},
+    ]}});
+  });
   await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5181/');await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
   await page.evaluate(async()=>await import('/src/lib/__tests__/map-connections-fixture.svelte.ts'));
   await line().waitFor();assert.equal(await line().count(),1);assert.equal(await line().getAttribute('stroke-dasharray'),null);assert.equal(await line().getAttribute('stroke'),'#3c5c41');checks++;
@@ -39,6 +47,17 @@ try{
     const map=window.__mapConnectionsFixture.vectorState();
     return map.zoom===1&&map.style==='AuMaNET Outdoor'&&!map.hillshade;
   });checks++;
+  // Simulate a style service recovery while the browser remains connected.
+  assert.equal(await page.evaluate(()=>navigator.onLine),true);
+  const requestsBeforeRecovery=styleRequests;
+  styleAvailable=true;
+  await call('pan');
+  await page.locator('.coverage-label').getByText('Online map · Internet required',{exact:true}).waitFor({timeout:5000});
+  await page.locator('.online-basemap').waitFor({state:'visible'});
+  assert.equal((await call('state')).zoom,2);
+  assert.equal(styleRequests,requestsBeforeRecovery+1);
+  styleAvailable=false;
+  checks++;
   await call('viewAt',{latitude:-37.6535,longitude:145.5159,zoom:15});
   await page.waitForFunction(()=>{
     const map=window.__mapConnectionsFixture.vectorState();

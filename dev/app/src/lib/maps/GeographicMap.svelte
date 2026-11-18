@@ -40,6 +40,7 @@
   let protocols:ReturnType<typeof previewProtocols>|undefined;
   let vectorMode='',protocolRoot:string|undefined,offlineLabel='',offlineError=false;
   let onlineTheme:boolean|undefined,onlineReady=false,onlineFailed=false,onlineWanted=false;
+  let lastOnlineView:{center:LatLng;zoom:number}|undefined;
   let connectionDetail:MapConnection|undefined,detailDialog:HTMLDialogElement;
   function openConnection(id:string){connectionDetail=connections.find(item=>item.id===id);if(connectionDetail)detailDialog.showModal();}
 
@@ -81,26 +82,32 @@
     onlineReady=false;
     onlineFailed=false;
     onlineTheme=undefined;
-    onlineVector?.remove();
+    lastOnlineView=undefined;
+    const previous=onlineVector;
     onlineVector=undefined;
+    previous?.remove();
   }
 
   function startOnline(dark:boolean){
+    if(!map)return;
     stopOnline();
     onlineTheme=dark;
+    const attemptedView={center:map.getCenter(),zoom:map.getZoom()};
+    lastOnlineView=attemptedView;
     if(!navigator.onLine){onlineFailed=true;return;}
     try{
       const candidate=createVector(onlineContainer);
       onlineVector=candidate;
       syncCamera();
       candidate.on('error',()=>{
+        if(onlineVector!==candidate)return;
         onlineReady=false;
         onlineFailed=true;
         reportBasemap();
       });
       // Wait for the style and its visible tiles before covering the saved map.
       candidate.on('idle',()=>{
-        if(onlineFailed||onlineReady||!candidate.isStyleLoaded()||!candidate.areTilesLoaded())return;
+        if(onlineVector!==candidate||onlineFailed||onlineReady||!candidate.isStyleLoaded()||!candidate.areTilesLoaded())return;
         onlineReady=true;
         reportBasemap();
       });
@@ -110,11 +117,12 @@
     }catch{
       stopOnline();
       onlineTheme=dark;
+      lastOnlineView=attemptedView;
       onlineFailed=true;
     }
   }
 
-  function syncVector(){
+  function syncVector(moved=false){
     if(!map||!vector)return;
     const [w,s,e,n]=manifest.bounds;
     const viewport=map.getBounds(),bounds:MapBounds=[viewport.getWest(),viewport.getSouth(),viewport.getEast(),viewport.getNorth()];
@@ -141,7 +149,13 @@
     }
     onlineWanted=!viewportCovered(bounds,areas);
     if(!onlineWanted)stopOnline();
-    else if(onlineTheme!==dark)startOnline(dark);
+    else{
+      // After a provider failure, try once at the next distinct settled view.
+      // Keep the saved map visible and avoid retrying on polling or duplicate events.
+      const retry=moved&&onlineFailed&&navigator.onLine&&lastOnlineView
+        &&(map.getZoom()!==lastOnlineView.zoom||!map.getCenter().equals(lastOnlineView.center));
+      if(onlineTheme!==dark||retry)startOnline(dark);
+    }
     reportBasemap();
   }
   import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup,Rectangle,Marker,DivIcon,type LatLng} from 'leaflet';
@@ -174,7 +188,7 @@
     if(focusBounds){if(viewport.next(false,true)==='coverage'){viewport.interact();const[w,s,e,n]=focusBounds;map.fitBounds(new LatLngBounds([s,w],[n,e]),{animate:false,padding:[18,18],maxZoom:16});}return;}
     if(viewport.next(freshGroupPositions(fix,ageMs,active,members).length>0,false)==='group')framePositions();
   }
-  function reportCoverage(){syncCamera();syncVector();}
+  function reportCoverage(moved=false){syncCamera();syncVector(moved);}
   function activateMember(id:string,details=false){if(areaSelection){const p=markers.get(id)?.point.getLatLng();if(p&&!areaLocked)onareapin?.({latitude:p.lat,longitude:p.lng});}else (details?(onnameselect??onselect):onselect)(id);}
   function syncMarkers(){
     if(!map)return;const entries:Array<{id:string;name:string;fix:Position;fresh:boolean}>=[];
@@ -322,7 +336,7 @@
     map.on('click',openPin);
     map.on('dragstart',interact);
     map.on('move zoom',syncCamera);
-    map.on('moveend zoomend',reportCoverage);
+    map.on('moveend',()=>reportCoverage(true));
     const first=freshGroupPositions(fix,ageMs,active,members)[0];
     map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);
     syncConnections();syncMarkers();syncArea();defaultView();
