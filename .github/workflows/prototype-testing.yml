@@ -63,6 +63,8 @@ jobs:
       - run: npm run check -w @aumanet/app
       - run: node --test dev/tests/map-connections.test.mjs dev/tests/vector-map-contract.test.mjs dev/tests/vector-downloads.test.mjs
       - run: node dev/tests/native-vector-downloads.mjs
+      - name: Verify native voice routing ownership
+        run: node dev/tests/native-voice-telecom.mjs --output output/native-voice-telecom
       - name: Verify preserved message storage and trusted connection recovery
         run: |
           node dev/tests/native-group-messages-store.mjs --jdk "$JAVA_HOME" --output output/native-message-store

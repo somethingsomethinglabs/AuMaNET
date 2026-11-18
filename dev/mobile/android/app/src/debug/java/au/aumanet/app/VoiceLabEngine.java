@@ -113,7 +113,6 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
     private String wifiText = "";
     private final AudioManager audio;
     private AudioFocusRequest focusRequest;
-    private int oldMode;
     private boolean configuredAudio;
     private volatile int routeId = -1;
     private volatile VoiceRouteObservation.Selection selectedRoute=new VoiceRouteObservation.Selection(-1);
@@ -324,8 +323,7 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
     }
     private void configureAudio() {
         if(!VoiceTelecom.previousCallClosed())throw new IllegalStateException("Previous Android call routing is still stopping; wait before joining again");
-        oldMode = audio.getMode();
-        if (oldMode == AudioManager.MODE_IN_CALL) throw new IllegalStateException("A phone call is in progress");
+        if (audio.getMode() == AudioManager.MODE_IN_CALL) throw new IllegalStateException("A phone call is in progress");
         AudioManager.OnAudioFocusChangeListener listener = change -> {
             if(telecom!=null)return; // Telecom owns focus once the group call is registered.
             hasFocus = change == AudioManager.AUDIOFOCUS_GAIN;
@@ -367,6 +365,17 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
         if (Build.VERSION.SDK_INT >= 31) {
             routeListener = ignored -> communicationRouteChanged();
             audio.addOnCommunicationDeviceChangedListener(context.getMainExecutor(), routeListener);
+        }
+    }
+    private void releaseAudioManagerRouting() {
+        if (!configuredAudio) return;
+        try {
+            if (Build.VERSION.SDK_INT >= 31) audio.clearCommunicationDevice();
+        } finally {
+            // getMode() is the system's effective mode. Reapplying it here
+            // can leave our process competing with Telecom for routing.
+            audio.setMode(AudioManager.MODE_NORMAL);
+            configuredAudio = false;
         }
     }
     private void acceptRoute(int id,boolean ready,String state,String notice){synchronized(gate){routeId=id;selectedRoute=new VoiceRouteObservation.Selection(id,routeInvalidations);routeReady=ready;outputRoutePreferenceState=state;outputRouteNotice=notice;}}
@@ -426,7 +435,7 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
             public void closed(){VoiceLabService service=VoiceLabService.active;if(service!=null)service.telecomEnded(VoiceLabEngine.this);}
         },preferenceState.outputRoute);
         telecom=next;synchronized(gate){if(initialRoute!=null)initialRoute.cancel();initialRoute=null;interruptCapture();hasFocus=false;routeReady=false;}
-        if(configuredAudio){audio.clearCommunicationDevice();audio.setMode(oldMode);configuredAudio=false;}
+        releaseAudioManagerRouting();
         if(focusRequest!=null){audio.abandonAudioFocusRequest(focusRequest);focusRequest=null;}
         next.start();
     }
@@ -1352,8 +1361,7 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
                 if (voiceNetworks!=null)voiceNetworks.close();
                 if (deviceCallback != null) audio.unregisterAudioDeviceCallback(deviceCallback);
                 if (Build.VERSION.SDK_INT >= 31 && routeListener != null) audio.removeOnCommunicationDeviceChangedListener(routeListener);
-                if (configuredAudio && Build.VERSION.SDK_INT >= 31) audio.clearCommunicationDevice();
-                if (configuredAudio) audio.setMode(oldMode);
+                releaseAudioManagerRouting();
                 if (Build.VERSION.SDK_INT >= 26 && focusRequest != null) audio.abandonAudioFocusRequest(focusRequest);
             } finally { VoiceGatheringRoute.close(this);VoiceSourceRouteProbe.close(this);captureActive = false; playbackActive = false; control.shutdownNow(); partFinished.run(); }
         });
