@@ -57,6 +57,20 @@ public final class GroupPeerWriteTest {
         quiet.write(new GroupPeerWriteHarness.Outbound(heartbeat(),null,()->true));check(quiet.sendSequence==1&&quietBytes.size()>0);LinkBenchmarkTraffic.release(benchmark);LinkBenchmarkTraffic.install(null);
         tests++;ByteArrayOutputStream legacyBytes=new ByteArrayOutputStream();GroupPeerWriteHarness legacy=new GroupPeerWriteHarness(new DataOutputStream(legacyBytes));JSONObject maintenance=new JSONObject().put("type","firmware-maintenance").put("payload",new JSONObject().put("action","prepare"));legacy.write(new GroupPeerWriteHarness.Outbound(maintenance,null,()->true));check(legacyBytes.size()==0&&legacy.sendSequence==0&&!legacy.closed.get());legacy.write(new GroupPeerWriteHarness.Outbound(heartbeat(),null,()->true));check(legacy.sendSequence==1&&legacyBytes.size()>0);
         tests++;ByteArrayOutputStream withdrewBytes=new ByteArrayOutputStream();GroupPeerWriteHarness withdrew=new GroupPeerWriteHarness(new DataOutputStream(withdrewBytes));withdrew.firmwareMaintenanceVersion=1;withdrew.finalFilter=()->withdrew.firmwareMaintenanceVersion=0;withdrew.write(new GroupPeerWriteHarness.Outbound(maintenance,null,()->true));check(withdrewBytes.size()==0&&withdrew.sendSequence==0&&!withdrew.closed.get());
+        tests++;
+        ByteArrayOutputStream radioBytes=new ByteArrayOutputStream();
+        GroupPeerWriteHarness radio=new GroupPeerWriteHarness(new DataOutputStream(radioBytes));
+        radio.inboundSocket=true;
+        radio.authorized=true;
+        radio.applicationContext.status=new JSONObject().put("epoch",1).put("checkpointToken","a".repeat(32));
+        radio.write(new GroupPeerWriteHarness.Outbound(heartbeat(),null,()->true));
+        JSONObject radioFrame=new JSONObject(GroupWire.read(new DataInputStream(new ByteArrayInputStream(radioBytes.toByteArray()))));
+        check(radioFrame.getJSONObject("radioControl").getString("checkpointToken").equals("a".repeat(32)));
+        radioBytes.reset();
+        radio.applicationContext.failStatus=true;
+        radio.write(new GroupPeerWriteHarness.Outbound(heartbeat(),null,()->true));
+        JSONObject fallback=new JSONObject(GroupWire.read(new DataInputStream(new ByteArrayInputStream(radioBytes.toByteArray()))));
+        check(!fallback.has("radioControl")&&fallback.getLong("seq")==2&&!radio.closed.get());
         System.out.println(new JSONObject().put("status","passed").put("testCount",tests).put("assertionCount",checks));
     }
 }

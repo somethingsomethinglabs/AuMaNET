@@ -260,7 +260,7 @@ final class GroupSession {
             GroupRadioControl.Pending pending=new GroupRadioControl.Pending(peer,epoch,GroupWire.random(16));
             JSONObject request=new JSONObject().put("type",GroupRadioControl.REQUEST).put("requestId",pending.id)
                 .put("action",action).put("operationId",operationId).put("optionId",optionId)
-                .put("checkpoint",checked.getJSONObject("checkpoint"));
+                .put("checkpointToken",checked.getString("checkpointToken"));
             peer.enqueue(new Outbound(request,"",0),false);
             pendingRadioRequest=pending;
             timer.schedule(()->{
@@ -273,11 +273,13 @@ final class GroupSession {
 
     private void acceptRadioStatus(Peer peer,JSONObject frame,long frameEpoch) {
         JSONObject value=frame.optJSONObject("radioControl");
-        if(value==null||value.optInt("version")!=1||frameEpoch!=epoch||peer!=ownerConnection||!peer.authorized||!peer.pin.equals(owner))return;
+        if(value==null||value.optInt("version")!=GroupRadioControl.VERSION||value.optLong("epoch")!=epoch
+            ||!GroupWire.id(value.optString("checkpointToken"))||value.optJSONObject("checkpoint")==null
+            ||frameEpoch!=epoch||peer!=ownerConnection||!peer.authorized||!peer.pin.equals(owner))return;
         delegatedRadioStatus=new GroupRadioControl.Status(peer,epoch,SystemClock.elapsedRealtime(),value);
     }
 
-    private void receiveRadioControl(Peer peer,JSONObject frame,String type,long frameEpoch) {
+    private void receiveRadioControl(Peer peer,JSONObject frame,String type,long frameEpoch) throws Exception {
         if(!peer.authorized||frameEpoch!=epoch||!members.containsKey(peer.pin))return;
         if(type.equals(GroupRadioControl.REPLY)) {
             if(peer!=ownerConnection||!peer.pin.equals(owner)||pendingRadioRequest==null||
@@ -293,17 +295,23 @@ final class GroupSession {
         if(!role.equals("owner")||member.peer!=peer||!member.connected||peer.removalQueued||!GroupWire.id(requestId))return;
         InternetSharingScope scope=internetScope();
         if(scope==null)return;
+        JSONObject checkpoint=peer.radioRequests.admit(peer,epoch,SystemClock.elapsedRealtime(),frame.optString("checkpointToken"),requestId);
+        if(checkpoint==null) {
+            sendRadioReply(peer,requestId,"RADIO_CHANGE_NOT_ACCEPTED",null);
+            return;
+        }
         if(handlingRadioRequest) {
             sendRadioReply(peer,requestId,"RADIO_HOST_BUSY",null);
             return;
         }
+        JSONObject request=new JSONObject(frame.toString()).put("checkpoint",checkpoint);
         handlingRadioRequest=true;
         timer.execute(()->{
             String result="RADIO_CHANGE_NOT_ACCEPTED";
             JSONObject status=null;
             try {
                 GatewayRadioSettingsController control=GatewayRadioSettingsController.get(applicationContext);
-                result=control.delegatedRequest(scope,peer.pin,frame,()->radioRequesterCurrent(scope,peer));
+                result=control.delegatedRequest(scope,peer.pin,request,()->radioRequesterCurrent(scope,peer));
                 status=control.relayStatus();
             }catch(Exception ignored) {
                 // The controller distinguishes admission failures from uncertain outcomes.
@@ -324,10 +332,21 @@ final class GroupSession {
         }
     }
 
+    private JSONObject advertiseRadioStatus(Peer peer,JSONObject status,long frameEpoch) throws Exception {
+        synchronized(lock) {
+            if(status==null||status.optLong("epoch")!=frameEpoch||frameEpoch!=epoch||!role.equals("owner")
+                ||peer.closed.get()||!peer.authorized||peer.removalQueued||peer.run!=generation)return null;
+            Member member=members.get(peer.pin);
+            if(member==null||!member.connected||member.peer!=peer)return null;
+            String token=peer.radioRequests.offer(peer,epoch,SystemClock.elapsedRealtime(),status.getJSONObject("checkpoint"));
+            return new JSONObject(status.toString()).put("checkpointToken",token);
+        }
+    }
+
     private void sendRadioReply(Peer peer,String requestId,String result,JSONObject status) {
         try {
             peer.enqueue(new Outbound(new JSONObject().put("type",GroupRadioControl.REPLY).put("requestId",requestId)
-                .put("result",result).put("radioControl",status),"",0),false);
+                .put("result",result).put("radioControl",advertiseRadioStatus(peer,status,epoch)),"",0),false);
         }catch(Exception unavailable) { /* The requester will time out without replaying the request. */ }
     }
 
@@ -1247,6 +1266,7 @@ final class GroupSession {
         final AtomicBoolean closed=new AtomicBoolean();final String authorityToken=GroupWire.random(16);volatile boolean authorized;volatile long writeStartedAt;
         GroupRecoveryPolicy.Attempt recoveryAttempt;GroupRecoveryDiagnostics.Trace recoveryTrace;String recoveryHost;int recoveryPort;String pin="",name="",connection="";volatile int textVersion,messageVersion,firmwareMaintenanceVersion;long nameRevision,pendingUntil,sendSequence;GroupWire.Sequence inbound;
         volatile boolean removalQueued;
+        final GroupRadioControl.Requests radioRequests=new GroupRadioControl.Requests();
         JSONObject profilePhotosSeen;
         long profilePhotoEpoch;
         DataInputStream input;DataOutputStream output;Thread writer;final ArrayDeque<Outbound> queue=new ArrayDeque<>(),textQueue=new ArrayDeque<>(),bulkQueue=new ArrayDeque<>();
@@ -1264,7 +1284,7 @@ final class GroupSession {
             JSONObject export=radioExport(durableMessages.filterMessageFrame(outgoing.body));long nextSequence=sendSequence+1;JSONObject frame=new JSONObject(export.toString()).put("schema","aumanet.group.frame.v2").put("groupId",groupId).put("connectionId",connection).put("epoch",outgoing.frameEpoch).put("voiceRevision",outgoing.frameVoiceRevision).put("seq",nextSequence);
             if(inboundSocket&&authorized&&"heartbeat".equals(outgoing.body.optString("type")))try {
                 JSONObject status=GatewayRadioSettingsController.get(applicationContext).relayStatus();
-                if(status!=null&&status.getLong("epoch")==outgoing.frameEpoch)frame.put("radioControl",status);
+                frame.put("radioControl",advertiseRadioStatus(this,status,outgoing.frameEpoch));
             }catch(Exception unavailable) { /* A status read must never interrupt group transport. */ }
             // Preparation may be cancelled. Only an actual write attempt consumes a transport sequence.
             String encoded=frame.toString();if(outgoing.textGrant!=null&&(LinkBenchmarkTraffic.active()||!messageGrantLive(outgoing.textGrant)||!outgoing.textLive.getAsBoolean()||textVersion!=1))return;JSONObject finalExport=radioExport(durableMessages.filterMessageFrame(outgoing.body));if(finalExport!=export){if(finalExport.optString("type").equals("heartbeat")){if(finalExport.has("radioSignals"))frame.put("radioSignals",finalExport.getJSONArray("radioSignals"));if(finalExport.has("radioConfigurations"))frame.put("radioConfigurations",finalExport.getJSONArray("radioConfigurations"));frame.put("internetSharing",finalExport.getJSONArray("internetSharing"));frame.put("linkBenchmarks",finalExport.getJSONArray("linkBenchmarks"));}else frame.put("payload",finalExport.getJSONObject("payload"));encoded=frame.toString();}if(!GroupFirmwareMaintenanceCapability.outbound(outgoing.body.optString("type"),firmwareMaintenanceVersion))return;
