@@ -102,7 +102,7 @@
     {
       "id": "firmware-catalog",
       "status": "BLOCKED",
-      "finding": "No usable signed firmware release catalog; no OTA download, install, rollback or post-OTA acceptance performed."
+      "finding": "In the follow-up, the production verification tool validated the live signed catalog from the PC. The owner phone had only node Wi-Fi and no separate validated internet connection, so its catalog request remained unavailable. OTA package download, installation, rollback and post-update acceptance were not run."
     }
   ],
   "notRun": [
@@ -892,8 +892,8 @@
     {
       "device": "phone-2",
       "case": "Check signed firmware catalog without installing",
-      "status": "BLOCKED",
-      "note": "Member maintenance target/control metadata unavailable; owner checks are separate cases."
+      "status": "NOT_APPLICABLE",
+      "note": "This is the member phone. Firmware node selection, status and release checks belong to the owner. The installed app incorrectly suggested reconnecting instead of explaining the role restriction."
     },
     {
       "device": "phone-2",
@@ -983,26 +983,26 @@
     {
       "device": "phone-2",
       "case": "Firmware channel Beta",
-      "status": "BLOCKED",
-      "note": "Member maintenance target/control metadata unavailable; owner checks are separate cases."
+      "status": "NOT_APPLICABLE",
+      "note": "This is the member phone. Firmware node selection, status and release checks belong to the owner. The installed app incorrectly suggested reconnecting instead of explaining the role restriction."
     },
     {
       "device": "phone-2",
       "case": "Firmware channel Nightly",
-      "status": "BLOCKED",
-      "note": "Member maintenance target/control metadata unavailable; owner checks are separate cases."
+      "status": "NOT_APPLICABLE",
+      "note": "This is the member phone. Firmware node selection, status and release checks belong to the owner. The installed app incorrectly suggested reconnecting instead of explaining the role restriction."
     },
     {
       "device": "phone-2",
       "case": "Firmware channel Stable",
-      "status": "BLOCKED",
-      "note": "Member maintenance target/control metadata unavailable; owner checks are separate cases."
+      "status": "NOT_APPLICABLE",
+      "note": "This is the member phone. Firmware node selection, status and release checks belong to the owner. The installed app incorrectly suggested reconnecting instead of explaining the role restriction."
     },
     {
       "device": "phone-2",
       "case": "Firmware node selector and fresh installed reports",
-      "status": "BLOCKED",
-      "note": "Member maintenance target/control metadata unavailable; owner checks are separate cases."
+      "status": "NOT_APPLICABLE",
+      "note": "This is the member phone. Firmware node selection, status and release checks belong to the owner. The installed app incorrectly suggested reconnecting instead of explaining the role restriction."
     },
     {
       "device": "phone-2",
@@ -1509,7 +1509,8 @@
   },
   "caseCounts": {
     "PASS": 255,
-    "BLOCKED": 10,
-    "FAIL": 2
+    "BLOCKED": 5,
+    "FAIL": 2,
+    "NOT_APPLICABLE": 5
   }
 }
