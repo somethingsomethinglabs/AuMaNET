@@ -84,6 +84,10 @@ public final class VoiceLabPlugin extends Plugin {
         Object idle=call.getData().opt("requireIdle");
         if(!GroupWire.id(session)||idle!=null&&!(idle instanceof Boolean)){call.reject("Invalid native start ownership request");return;}
         boolean requireIdle=Boolean.TRUE.equals(idle);
+        Object coordinator=call.getData().opt("coordinator");
+        if (coordinator != null && (!"native".equals(coordinator) || !requireIdle)) {
+            call.reject("A native group call needs a new owned session");return;
+        }
         synchronized(VoiceLabService.class){
             if(LinkBenchmarkTraffic.active()){call.reject("Wait for the connection test to finish before joining voice");return;}
             VoiceLabService service=VoiceLabService.active;
@@ -144,7 +148,9 @@ public final class VoiceLabPlugin extends Plugin {
             if(existing!=null){call.reject("A native service already owns media; refresh before joining");releaseStart(call);return;}
         }
         try {
-            Intent join = new Intent(getContext(), VoiceLabService.class).setAction(VoiceLabService.JOIN).putExtra("sessionId", session).putExtra("generation", generation);
+            Intent join = new Intent(getContext(), VoiceLabService.class).setAction(VoiceLabService.JOIN)
+                .putExtra("sessionId", session).putExtra("generation", generation)
+                .putExtra("nativeGroup", "native".equals(call.getData().opt("coordinator")));
             ContextCompat.startForegroundService(getContext(), join);
             waitForStart(call, session, SystemClock.elapsedRealtime() + 15000);
         } catch (Exception failure) {

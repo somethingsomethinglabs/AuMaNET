@@ -74,7 +74,7 @@ export class LocalGroupVoiceCoordinator {
     return {processId:group.processId,groupId:group.group.id,revision:group.voiceConsentRevision};
   }
   private sameOwner(owner:ConsentOwner,group:GroupSnapshot|undefined){return !!group&&group.processId===owner.processId&&group.group?.id===owner.groupId&&group.voiceConsentRevision===owner.revision;}
-  async join(){
+  async join(isCurrent?:()=>boolean){
     if(this.voice.state?.trustedConnectionOwned===true)throw new Error('The remembered connection owns this voice session; leave it before starting another call');
     this.observe();const generation=++this.generation;this.intent=true;this.startingConsent=true;this.initialized=true;
     this.publish({status:'joining',working:true,error:'',peerId:'',peerIds:[],connectedPeers:0});
@@ -82,8 +82,10 @@ export class LocalGroupVoiceCoordinator {
       await this.group.refresh();this.groupState=this.group.state;const requested=this.context();
       const joinScope=()=>{
         if(generation!==this.generation)throw new Cancelled();
+        if(isCurrent&&!isCurrent())throw new Error('Voice rejoin expired. Join again explicitly.');
         for(const current of [this.context(),this.group.state])if(current&&(current.processId!==requested.processId||current.identity.id!==requested.identity.id||current.group?.id!==requested.group!.id||current.group.epoch!==requested.group!.epoch))throw new Error('Group changed while joining voice; join again explicitly');
       };
+      joinScope();
       await this.voice.refresh();joinScope();
       if(!this.voice.supportsGroupMesh)throw new Error('This native build does not support group voice peers');
       const controller=this.voice.state?.nativeCoordinatorAvailable===true?'native':'javascript';
@@ -264,7 +266,7 @@ export class LocalGroupVoiceCoordinator {
       this.ownedMasterId=masterId;this.ownedVoiceProcessId=native.processId;
       // This user-initiated master exists even when alone. Native may later add peers
       // while the WebView is suspended; JavaScript must never start another master.
-      await this.voice.start(masterId,true);this.guard(generation,scope);
+      await this.voice.start(masterId,true,'native');this.guard(generation,scope);
       await this.voice.groupBind(scope.groupId,scope.epoch,this.consentOwner!.revision,'native');this.guard(generation,scope);
       const bound=this.voice.state;
       if(!bound||bound.sessionId!==masterId||bound.processId!==this.ownedVoiceProcessId||!this.bound(bound,group)||bound.groupVoiceConsentRevision!==this.consentOwner?.revision||bound.coordinatorOwner!=='native'||bound.nativeCoordinatorAvailable!==true)throw new Error('Native voice coordinator did not bind its owned consent');

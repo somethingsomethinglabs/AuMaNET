@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#315E47</color><color name="colorPrimaryDark">#224735</color><color name="colorAccent">#315E47</color>
+    <color name="aumanet_canvas">#F4F3EC</color><color name="aumanet_surface">#FFFEF8</color><color name="aumanet_text">#243C32</color><color name="aumanet_secondary">#626D60</color>
+</resources>

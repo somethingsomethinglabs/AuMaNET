@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   webDir: '../app/build',
   // Bridge calls include private messages and checked setup credentials.
   loggingBehavior: 'none',
-  android: { backgroundColor: '#fbf8ef' },
+  android: { backgroundColor: '#f4f3ec' },
   plugins: { SystemBars: { insetsHandling: 'native' } }
 };
 export default config;

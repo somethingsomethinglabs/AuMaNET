@@ -7,6 +7,7 @@
   import {Users,UserPlus,Copy,ShieldCheck,LogOut} from '@lucide/svelte';
 
   export let client:NativeGroupClient;
+  export let flow:'manage'|'create'|'join'='manage';
   export let state:GroupSnapshot|undefined;
   export let sourceError='';
   export let onleave:(()=>Promise<void>|void)|undefined=undefined;
@@ -18,6 +19,7 @@
   let ownNameDirty=false,seededIdentity='',shownGroup='',busy='',error='',notice='',copied=false;
   let profileEditorOpen=true;
   let renamedGroup='',renameDirty=false;
+  let invitationInspected=false;
   let invitePendingIds:ReadonlySet<string>=new Set();
   let now=Date.now(),elapsed=typeof performance==='undefined'?0:performance.now(),alive=true,operation=0,leaving=false;
   let confirmation:Confirmation|undefined,confirmDialog:HTMLDialogElement|undefined;
@@ -77,7 +79,7 @@
       return {expiresAt:candidate.expiresAt,groupName:candidate.groupName,ownerId:candidate.pin};
     }catch{return;}
   }
-  function invitationInput(value:string){incoming=value;if(value&&!inputDeadline)inputDeadline=performance.now()+300000;if(!value)inputDeadline=0;notice='';expireSecrets();}
+  function invitationInput(value:string){invitationInspected=false;incoming=value;if(value&&!inputDeadline)inputDeadline=performance.now()+300000;if(!value)inputDeadline=0;notice='';expireSecrets();}
   async function refresh(){try{await client.refresh();}catch(failure){if(alive)error=explain(failure);}}
   async function run(label:string,action:()=>Promise<unknown>){
     if(busy||leaving)return;const token=++operation;busy=label;error='';notice='';
@@ -93,8 +95,8 @@
   async function checkNameRepair(){await run('Checking name metadata repair…',async()=>{notice=await client.checkNameRepair()?'Name metadata repair confirmed.':'Name metadata repair is still unconfirmed. Restart the app if storage could not be confirmed.';});}
   async function createGroup(){await run('Creating group…',async()=>{clearSecrets();await client.create(ownName.trim(),groupName.trim());ownNameDirty=false;});}
   async function joinGroup(){
-    const code=incoming.trim();incoming='';inputDeadline=0;
-    await run('Connecting to group…',async()=>{await client.join(code,ownName.trim());ownNameDirty=false;});
+    const code=incoming.trim();
+    await run('Connecting to group…',async()=>{await client.join(code,ownName.trim());incoming='';inputDeadline=0;ownNameDirty=false;});
   }
   async function createInvitation(){
     const groupId=state?.group?.id;
@@ -139,16 +141,14 @@
 </script>
 
 <div class="group-panel">
-  <section class="card group-heading"><Users size={25}/><div><h2>{state?.group?.name||'Your group'}</h2>
+  {#if state?.group||flow==='manage'}<section class="card group-heading"><Users size={25}/><div><h2>{state?.group?.name||'Your group'}</h2>
     <p class="hint" role="status">{!state?'Loading group…':state.status==='hosting'?'Group open on this phone':state.status==='connected'?'Connected to group':state.status==='pending'?'Waiting for the owner’s approval':recovering?(state.recovery?.message||'Looking for the saved group owner…'):state.status==='connecting'?'Connecting to group…':state.group?'Group disconnected':'Create a group or join with an invitation'}</p></div>
-    {#if active}<span class="pill">{connectedCount} connected</span>{/if}</section>
+    {#if active}<span class="pill">{connectedCount} connected</span>{/if}</section>{/if}
   {#if error||sourceError||state?.error}<p class="group-error" role="alert">{error||sourceError||state?.error}</p>{/if}
   {#if sourceError}<button class="outline" disabled={!!busy} onclick={()=>void refresh()}>Check connection status</button>{/if}
   {#if notice}<p class="hint" role="status">{notice}</p>{/if}
   {#if busy}<p class="hint" role="status">{busy}</p>{/if}
 
-  {#if owner&&active}<OfflineEnrollment {client} owner={true}/>{/if}
-  {#if !state?.group&&!pending}<OfflineEnrollment {client} name={ownName} invitation={incoming}/>{/if}
   {#if state?.group}
     <section class="card"><h3>Members <span class="hint">{state.members.length} / 5</span></h3>
       {#each state.members as member(member.id)}<div class="group-member"><span class="avatar" aria-hidden="true">{initials(member.name)}</span><div class="member-text">
@@ -168,13 +168,13 @@
     {/if}
   {/if}
 
-  <details class="card profile-editor" bind:open={profileEditorOpen}><summary>Edit your name</summary><h3>Your name</h3>
+  {#if flow==='manage'}<details class="card profile-editor" bind:open={profileEditorOpen}><summary>Edit your name</summary><h3>Your name</h3>
     <form onsubmit={event=>{event.preventDefault();void saveName();}}>
       <label class="field">Name shown to the group<input aria-label="Your name in the group" autocomplete="off" maxlength="96" bind:value={ownName} oninput={()=>ownNameDirty=true} disabled={!state||leaving}/></label>
       <button class="outline" type="submit" disabled={!ready||!!busy||pending||!!pendingName||state?.namesAvailable===false||!nameValid||ownName.trim()===state?.identity.name}>Save name</button>
     </form>
     {#if state}<div class="help-row"><span>This phone’s identity</span><HelpButton title="This phone’s identity"><p>Compare the complete identity when the owner approves this phone.</p><output class="pin" aria-label="This phone's identity">{state.identity.id}</output></HelpButton></div>{/if}
-  </details>
+  </details>{/if}
   {#if state?.nameStorage==='repairable'}<section class="card"><h3>Name metadata needs repair</h3><p class="hint">The saved names are verified, but their edit records cannot be read. Repair preserves the current names and group, retires old name edits, and leaves voice and location sharing as they are.</p><button class="outline" disabled={!ready||!!busy||pending} onclick={()=>void prepareNameRepair()}>Repair name metadata</button></section>
   {:else if state?.nameStorage==='uncertain'}<p class="group-error" role="status">Name storage could not be confirmed. Restart the app before editing or repairing names. Your group data has been preserved.</p>
   {:else if state?.nameStorage==='unavailable'}<p class="group-error" role="status">Saved name values cannot be verified. Name editing and metadata repair are unavailable. Your saved group data has been preserved.</p>
@@ -189,18 +189,20 @@
   {/if}
 
   {#if !state?.group&&!pending&&!active}
-    <section class="card"><h3>Create a group</h3><p class="hint">Connect the phones to the same local network, then invite the people you want to join. For radio nodes, each phone uses its own node’s Wi-Fi.</p>
+    {#if flow!=='join'}<section class="card"><h3>Create a group</h3><p class="hint">Connect the phones to the same local network, then invite the people you want to join. For radio nodes, each phone uses its own node’s Wi-Fi.</p>
       <form onsubmit={event=>{event.preventDefault();void createGroup();}}>
+        {#if flow!=='manage'}<label class="field">Your display name<input aria-label="Your name in the group" maxlength="96" bind:value={ownName} oninput={()=>ownNameDirty=true}/></label>{/if}
         <label class="field">Group name<input aria-label="New group name" autocomplete="off" maxlength="128" bind:value={groupName}/></label>
         <button class="primary" type="submit" disabled={!ready||!!busy||state?.namesAvailable===false||!nameValid||!validLabel(groupName,64)}><Users size={19}/>Create group</button>
-      </form></section>
-    <section class="card"><h3>Join a group</h3><p class="hint">Ask the owner for a private invitation. The owner will approve this phone before it can join.</p>
-      <form onsubmit={event=>{event.preventDefault();void joinGroup();}}>
+      </form></section>{/if}
+    {#if flow!=='create'}<section class="card"><h3>Your private invitation</h3><p class="hint">Ask the owner for a private invitation. The owner will approve this phone before it can join.</p>
+      <form onsubmit={event=>{event.preventDefault();if(invitationInspected)void joinGroup();}}>
+        {#if flow!=='manage'}<label class="field">Your display name<input aria-label="Your name in the group" maxlength="96" bind:value={ownName} oninput={()=>ownNameDirty=true}/></label>{/if}
         <label class="field">Invitation<textarea aria-label="Group invitation" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="4096" bind:value={incoming} oninput={event=>invitationInput(event.currentTarget.value)} placeholder="Paste the complete invitation"></textarea></label>
-        {#if incomingInfo}<p class="hint">Joining <strong>{incomingInfo.groupName}</strong> · Invitation expires in {duration(incomingRemaining)}</p>
+        {#if incomingInfo&&invitationInspected}<p class="hint">Joining <strong>{incomingInfo.groupName}</strong> · Invitation expires in {duration(incomingRemaining)}</p>
           <div class="help-row"><span>Group owner’s identity</span><HelpButton title="Group owner’s identity"><output class="pin">{incomingInfo.ownerId}</output><p class="hint">Check this identity with the person who sent the invitation.</p></HelpButton></div>{/if}
-        <button class="primary" type="submit" disabled={!ready||!!busy||state?.namesAvailable===false||!nameValid||!incomingInfo||incomingRemaining<=0}><UserPlus size={19}/>Join group</button>
-      </form></section>
+        {#if !invitationInspected}<button class="primary" type="button" disabled={!ready||!!busy||!nameValid} onclick={()=>{if(incomingInfo&&incomingRemaining>0){invitationInspected=true;error='';}else error='Enter a complete, current invitation from the group owner.';}}>Inspect invitation</button>{:else}<button class="primary" type="submit" disabled={!ready||!!busy||state?.namesAvailable===false||!nameValid||!incomingInfo||incomingRemaining<=0}><UserPlus size={19}/>Request to join</button>{/if}
+      </form></section>{/if}
   {:else if pending}
     <section class="card"><h3>{recovering?'Reconnecting to your saved group':state?.status==='pending'?'Waiting for approval':'Connecting'}</h3><p>{recovering?'Open the group on the owner phone and keep both phones on the same local network. For radio nodes, each phone uses its own node’s Wi-Fi. Your saved membership is verified before reconnecting; voice and location sharing stay off.':'The group owner needs to approve your phone. Keep both phones on the same local network. For radio nodes, each phone uses its own node’s Wi-Fi.'}</p>
       <button class="outline" disabled={leaving} onclick={()=>void leaveGroup()}>{recovering?'Cancel reconnect':'Cancel connection'}</button></section>
@@ -223,6 +225,9 @@
     <div class="help-row"><span>Group connection</span><HelpButton title="Keeping the group connected"><p>Keep the owner’s phone connected to the same local network. For radio nodes, each phone uses its own node’s Wi-Fi. This version uses that phone to keep the group connected; if it disconnects, members need to reconnect.</p></HelpButton></div>
     {#if !pending}<button class="danger full" disabled={leaving} onclick={()=>confirm({kind:'leave'})}><LogOut size={19}/>Disconnect group</button>{/if}
   {/if}
+  <details><summary>Offline membership exchange</summary>  {#if owner&&active}<OfflineEnrollment {client} owner={true}/>{/if}
+  {#if !state?.group&&!pending&&flow!=='create'}<OfflineEnrollment {client} name={ownName} invitation={incoming}/>{/if}
+</details>
 </div>
 
 <dialog bind:this={confirmDialog} aria-labelledby="group-confirm-title" oncancel={()=>confirmation=undefined} onclose={()=>{if(!leaving)confirmation=undefined;}}>
@@ -235,6 +240,6 @@
 </dialog>
 
 <style>
-  .profile-editor>summary{font-size:14px;font-weight:650;cursor:pointer;min-height:44px;display:list-item;align-content:center}.profile-editor[open]>summary{margin-bottom:16px}.member-name{font:inherit;font-weight:700;text-align:left;padding:0;background:transparent;border:0;color:inherit;min-height:32px;text-decoration:underline;text-underline-offset:3px}
-  .group-panel{display:grid;gap:16px;min-width:0}.group-panel .card{margin:0;min-width:0}.group-panel h3{margin:0 0 10px}.group-heading{display:flex;align-items:center;gap:12px}.group-heading>div{flex:1;min-width:0}.group-heading h2{overflow-wrap:anywhere}.group-heading p{margin:5px 0 0}.group-panel form{display:grid;gap:12px}.group-panel .field{margin:0}.group-panel form .field{display:grid;gap:7px}.group-panel button{width:fit-content;max-width:100%}.group-panel .full{width:100%;margin:0}.group-panel textarea{width:100%;min-height:94px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;font:12px ui-monospace,monospace;padding:10px;overflow-wrap:anywhere}.group-error{margin:0;color:#9f301f;background:#fff0e7;padding:12px;border-radius:10px;overflow-wrap:anywhere}.pin{display:block;overflow-wrap:anywhere;word-break:break-all;font:12px ui-monospace,monospace;line-height:1.65;user-select:all}.group-member{display:flex;align-items:flex-start;gap:11px;padding:14px 0;border-top:1px solid var(--line)}.member-text{flex:1;min-width:0}.member-text strong{overflow-wrap:anywhere}.member-text small{display:block;font-size:12px;margin-top:4px;color:var(--muted)}.group-member .avatar{width:38px;height:38px;min-width:38px;font-size:16px}.remove{align-self:center}.group-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.request{padding:14px 0;border-top:1px solid var(--line)}.request strong{overflow-wrap:anywhere}dialog{max-width:460px;width:calc(100% - 32px);padding:23px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:inherit}dialog::backdrop{background:#10251fb3}dialog p{line-height:1.6}dialog .danger{margin-top:0}.group-panel input{min-width:0;width:100%}
+  .profile-editor>summary{font-size:0.875rem;font-weight:650;cursor:pointer;min-height:44px;display:list-item;align-content:center}.profile-editor[open]>summary{margin-bottom:16px}.member-name{font:inherit;font-weight:700;text-align:left;padding:0;background:transparent;border:0;color:inherit;min-height:32px;text-decoration:underline;text-underline-offset:3px}
+  .group-panel{display:grid;gap:16px;min-width:0}.group-panel .card{margin:0;min-width:0}.group-panel h3{margin:0 0 10px}.group-heading{display:flex;align-items:center;gap:12px}.group-heading>div{flex:1;min-width:0}.group-heading h2{overflow-wrap:anywhere}.group-heading p{margin:5px 0 0}.group-panel form{display:grid;gap:12px}.group-panel .field{margin:0}.group-panel form .field{display:grid;gap:7px}.group-panel button{width:fit-content;max-width:100%}.group-panel .full{width:100%;margin:0}.group-panel textarea{width:100%;min-height:94px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;font:0.75rem ui-monospace,monospace;padding:10px;overflow-wrap:anywhere}.group-error{margin:0;color:var(--error-ink);background:var(--error-bg);padding:12px;border-radius:10px;overflow-wrap:anywhere}.pin{display:block;overflow-wrap:anywhere;word-break:break-all;font:0.75rem ui-monospace,monospace;line-height:1.65;user-select:all}.group-member{display:flex;align-items:flex-start;gap:11px;padding:14px 0;border-top:1px solid var(--line)}.member-text{flex:1;min-width:0}.member-text strong{overflow-wrap:anywhere}.member-text small{display:block;font-size:0.75rem;margin-top:4px;color:var(--muted)}.group-member .avatar{width:38px;height:38px;min-width:38px;font-size:1rem}.remove{align-self:center}.group-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.request{padding:14px 0;border-top:1px solid var(--line)}.request strong{overflow-wrap:anywhere}dialog{max-width:460px;width:calc(100% - 32px);padding:23px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:inherit}dialog::backdrop{background:var(--scrim)}dialog p{line-height:1.6}dialog .danger{margin-top:0}.group-panel input{min-width:0;width:100%}
 </style>

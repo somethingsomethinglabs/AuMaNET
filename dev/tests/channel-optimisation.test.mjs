@@ -32,6 +32,54 @@ test('finite comparison repeats finalists, restores baseline, and only applies w
 test('unconfirmed mutation is never replayed or ranked; recovery remains explicitly unconfirmed',async()=>{
  const f=fixture({unknown:true});await f.controller.run('peer');assert.equal(f.calls.filter(Array.isArray).filter(c=>c[0]==='apply').length,1);assert.equal(f.controller.state.restored,false);assert.equal(f.controller.state.recommendationId,undefined);assert.match(f.controller.state.error,/restoration is unconfirmed/);
 });
+function commitWithLostConfirmation({replaceOperation=false}={}){
+ const f=fixture();
+ const apply=f.radio.apply.bind(f.radio),prepare=f.radio.prepareComparison.bind(f.radio),snapshot=f.radio.snapshot.bind(f.radio);
+ let uncertain=false,queries=0,retiringPolls=0;
+ f.radio.apply=async option=>{
+  const issued=await apply(option);
+  if(!uncertain&&option===2){
+   uncertain=true;
+   f.radio.state.snapshot={...issued,state:'unknown',canChange:false};
+   return snapshot();
+  }
+  return issued;
+ };
+ f.radio.prepareComparison=async()=>{
+  const before=await snapshot();
+  if(before.state!=='unknown')return prepare();
+  if(++queries===1)return before; // Native worker has not released its ticket.
+  const fresh=await prepare();
+  f.calls.push('journal-confirmed');
+  f.radio.state.snapshot={...fresh,state:'applied',operationId:replaceOperation?'another-operation':before.operationId,canChange:false};
+  retiringPolls=2;
+  return snapshot();
+ };
+ f.radio.snapshot=async()=>{
+  const state=await snapshot();
+  if(retiringPolls>0&&--retiringPolls===0)f.radio.state.snapshot.canChange=true;
+  return state;
+ };
+ return f;
+}
+test('exact journal confirmation after a lost commit readback resumes the sweep without replay',async()=>{
+ const f=commitWithLostConfirmation();
+ await f.controller.run('peer');
+ assert.equal(f.controller.state.complete,true);
+ assert.equal(f.controller.state.restored,true);
+ assert.equal(f.controller.state.recommendationId,2);
+ assert.deepEqual(f.calls.filter(c=>Array.isArray(c)&&c[0]==='apply').map(c=>c[1]),[2,3,2,1]);
+ const committed=f.calls.findIndex(c=>c==='journal-confirmed');
+ assert(committed>0&&committed<f.calls.findIndex(c=>Array.isArray(c)&&c[0]==='test'&&c[1]===2));
+});
+test('readback from a replacement operation cannot authorize a measurement or restoration',async()=>{
+ const f=commitWithLostConfirmation({replaceOperation:true});
+ await f.controller.run('peer');
+ assert.equal(f.controller.state.complete,false);
+ assert.equal(f.controller.state.restored,false);
+ assert.deepEqual(f.calls.filter(Array.isArray),[['test',1],['apply',2]]);
+ assert.match(f.controller.state.error,/radio operation changed/i);
+});
 test('node reboot aborts further tests and mutations, including restoration into a different boot',async()=>{
  const f=fixture({reboot:true});await f.controller.run('peer');assert.equal(f.calls.filter(c=>Array.isArray(c)&&c[0]==='apply').length,1);assert.equal(f.calls.filter(c=>Array.isArray(c)&&c[0]==='test').length,1);assert.equal(f.controller.state.restored,false);
 });

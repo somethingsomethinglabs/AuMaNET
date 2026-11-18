@@ -1,3 +1,4 @@
+import {openConnection} from './ui-navigation.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
@@ -8,10 +9,10 @@ const result={status:'running',scope:'Synthetic authenticated native readbacks; 
 try{
   await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5181/');await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
   await page.evaluate(async()=>await import('/src/lib/__tests__/network-overview-fixture.svelte.ts'));
-  await page.getByRole('button',{name:'Connection details',exact:true}).click();
-  const row=page.getByRole('button',{name:'Open radio signal details',exact:true});await row.getByText('Radio signal · Unavailable',{exact:true}).waitFor();check('Legacy/unknown native signal remains unavailable, never zero or phone Wi-Fi');
-  await page.evaluate(()=>window.__networkOverviewFixture.setRadio('direct'));await row.getByText('Radio signal · −67 dBm',{exact:true}).waitFor();await row.click();
-  const detail=page.getByRole('dialog',{name:'Radio signal',exact:true});await detail.getByText('HaLow · Last known AP signal',{exact:true}).waitFor();await detail.getByText('AP → station',{exact:true}).waitFor();
+  await openConnection(page);if(!await page.locator('details').filter({has:page.getByText('Last signal report',{exact:true})}).evaluate(el=>el.open))await page.getByText('Last signal report',{exact:true}).click();
+  const row=page.locator('details').filter({has:page.getByText('Last signal report',{exact:true})});await row.getByText('No authenticated radio observation available.',{exact:true}).waitFor();check('Legacy/unknown native signal remains unavailable, never zero or phone Wi-Fi');
+  await page.evaluate(()=>window.__networkOverviewFixture.setRadio('direct'));await row.getByText('−67 dBm',{exact:true}).waitFor();
+  const detail=row;await detail.getByText('HaLow · Last known AP signal',{exact:true}).waitFor();await detail.getByText('AP → station',{exact:true}).waitFor();
   await detail.getByText(/Pinned node report verified on this phone/).waitFor();await detail.getByText(/Read within last \d+ s · RF sample age unknown/).waitFor();
   assert.equal(await detail.getByText(/quality|\d+%|\d+ km|Tx power/i).count(),0);check('Real dBm format, direction, association source, bounded cache-read age and unknown sample age');
   await page.evaluate(()=>window.__networkOverviewFixture.setRadio('stale'));await detail.getByText('Stale report',{exact:true}).waitFor();await detail.getByText('−67 dBm',{exact:true}).waitFor();check('Old read keeps its measured value with stale REPORT wording, never RF freshness');
@@ -20,10 +21,10 @@ try{
   await page.evaluate(()=>window.__networkOverviewFixture.setRadio('unavailable'));await detail.getByText('Unavailable',{exact:true}).waitFor();assert.equal(await detail.getByText(/−\d+ dBm/).count(),0);check('Unavailable authenticated report contains no invented measurement');
   await page.evaluate(()=>window.__networkOverviewFixture.setRadio('relayed'));await detail.getByText('−67 dBm',{exact:true}).waitFor();
   for(const theme of ['Light','Dark']){await page.evaluate(theme=>window.__networkOverviewFixture.theme(theme),theme);for(const width of [320,390]){await page.setViewportSize({width,height:844});assert.equal(await detail.evaluate(dialog=>dialog.scrollWidth>dialog.clientWidth),false);await page.screenshot({path:`${output}/signal-detail-${theme.toLowerCase()}-${width}.png`});}}
-  await detail.getByRole('button',{name:'Close radio signal details',exact:true}).click();await page.locator('main').evaluate(main=>main.scrollTo(0,0));await page.screenshot({path:`${output}/network-signal-dark-390.png`});
+  await page.locator('main').evaluate(main=>main.scrollTo(0,0));await page.screenshot({path:`${output}/network-signal-dark-390.png`});
   await page.evaluate(()=>window.__networkOverviewFixture.theme('Light'));await page.screenshot({path:`${output}/network-signal-light-390.png`});check('Compact row/detail works at 320/390 widths and dark/light with no horizontal overflow');
-  await page.getByRole('button',{name:'Connection details',exact:true}).click();await row.click();await page.evaluate(()=>window.__networkOverviewFixture.setStage('reconnecting'));await detail.getByText('No authenticated radio observation available.',{exact:true}).waitFor();assert.equal(await detail.getByText('−67 dBm',{exact:true}).count(),0);
-  await detail.getByRole('button',{name:'Close radio signal details',exact:true}).click();assert.ok((await page.evaluate(()=>window.__networkOverviewFixture.calls)).every(call=>call.endsWith('.snapshot')));check('Disconnected group hides current radio authority; inspection never connects, scans or publishes');
+  await openConnection(page);if(!await page.locator('details').filter({has:page.getByText('Last signal report',{exact:true})}).evaluate(el=>el.open))await page.getByText('Last signal report',{exact:true}).click();await page.evaluate(()=>window.__networkOverviewFixture.setStage('reconnecting'));await detail.getByText('No authenticated radio observation available.',{exact:true}).waitFor();assert.equal(await detail.getByText('−67 dBm',{exact:true}).count(),0);
+  assert.ok((await page.evaluate(()=>window.__networkOverviewFixture.calls)).every(call=>call.endsWith('.snapshot')));check('Disconnected group hides current radio authority; inspection never connects, scans or publishes');
   await page.evaluate(()=>window.__networkOverviewFixture.destroy());
   await page.evaluate(async()=>await import('/src/lib/__tests__/group-messages-fixture.svelte.ts'));
   await page.evaluate(async()=>{await window.__groupMessagesFixture.incoming('Older message');await window.__groupMessagesFixture.incoming('Observed at first receipt',undefined,[{status:'available',authenticated:true,receiverNodeId:'b'.repeat(32),transmitterNodeId:'a'.repeat(32),sourceRun:'c'.repeat(32),observationId:'DD'.repeat(32),direction:'ap-to-station',verification:'owner-relayed',rssiDbm:-67,kind:'associated-ap-last-known',readAgeMs:2000,relayAgeMs:2000,sampleAgeKnown:false,observedElapsedMs:99999999,configRevision:4}]);});

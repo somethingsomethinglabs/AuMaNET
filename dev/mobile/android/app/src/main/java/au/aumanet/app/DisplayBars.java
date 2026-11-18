@@ -16,6 +16,13 @@ final class DisplayBars {
       int flags=decor.getSystemUiVisibility();decor.setSystemUiVisibility(dark?flags&~mask:flags|mask);
     }
     // Android 15+ enforces transparent edge-to-edge bars; leave its layout intact.
-    if(Build.VERSION.SDK_INT<35){int color=dark?0xff15291f:0xfffbf8ef;window.setStatusBarColor(color);window.setNavigationBarColor(color);}
+    if(Build.VERSION.SDK_INT<35){int color=dark?0xff20362c:0xfffffef8;window.setStatusBarColor(color);window.setNavigationBarColor(color);}
+  }
+  static void theme(Activity activity,boolean dark){
+    if(activity instanceof androidx.appcompat.app.AppCompatActivity){
+      ((androidx.appcompat.app.AppCompatActivity)activity).getDelegate().setLocalNightMode(dark?androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES:androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+    }
+    activity.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(dark?0xff182a24:0xfff4f3ec));
+    if(activity instanceof com.getcapacitor.BridgeActivity){com.getcapacitor.Bridge bridge=((com.getcapacitor.BridgeActivity)activity).getBridge();if(bridge!=null&&bridge.getWebView()!=null)bridge.getWebView().setBackgroundColor(dark?0xff182a24:0xfff4f3ec);}
   }
 }

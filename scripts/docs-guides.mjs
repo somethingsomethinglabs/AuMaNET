@@ -1,5 +1,6 @@
 // Maintained reader guides; engineering references stay in docs-pages.mjs.
 export const guidePages = [
+  ['docs/downloads.md', 'docs/downloads.html', 'guide'],
   [
     "docs/overview.md",
     "docs/overview.html",

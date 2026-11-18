@@ -1,26 +1,29 @@
-# Voice & audio
 
-The Android prototype has native group voice. The browser design demo's speaking states are simulated; local browser microphone recording is not the native group-call implementation.
+# Voice and audio
+
+Use the Android app on a verified group connection. Test the route both ways with another person before relying on it.
+
+<span id="voice-amp-audio"></span>
 
 ## Join and choose a route
 
-Open **Voice**, join with the microphone muted and inspect the audio output. Choose the intended speaker, earpiece or available Android call endpoint. Selecting an output keeps the microphone muted; unmute separately when ready.
+Open **Voice** and choose the muted join action. Select the speaker, earpiece or another call output Android makes available. Selecting an output keeps the microphone muted. Enable the microphone separately when you’re ready to speak.
 
-Paired Bluetooth devices appear only when Android makes them available for call audio. A paired name alone does not prove the microphone/output route is active. Check both directions by listening on the actual devices.
+If a paired Bluetooth device is missing from the call list, check whether Android offers it as a call route. Test what both people can hear.
 
 ## Choose an input mode
 
-- **Push to talk:** unmute as required, hold **Hold to talk** to speak and release to stop.
-- **Always on:** uses native voice activation in the current app; inspect the actual microphone state and environment.
-- **Mute:** stops your microphone contribution while retaining channel participation.
-- **Leave:** ends your channel participation. It is different from mute and from stopping the entire node/group connection.
+- **Push to talk.** Enable the microphone when required. Hold **Hold to talk** to speak and release to stop.
+- **Always on.** Voice activation can send speech while your microphone is enabled. Check the microphone state before using it.
+- **Mute.** Stop sending sound while staying in the channel.
+- **Leave.** End your participation in the channel.
 
-The voice strip keeps call controls available on other tabs. A joined channel, available route and confirmed audio path are separate observations.
+The voice strip provides call controls while you’re on another tab.
 
 ## After interruptions
 
-Connection tests, radio changes and firmware maintenance coordinate pauses where supported. Calls return muted. After recovery, confirm the route and microphone state before assuming speech is being sent. Earlier development stages needed manual route reselection on Samsung; identify the actual installed build when investigating a recurrence.
+Recovered calls return muted. Check the output and microphone state after reconnection or maintenance. If either person still hears silence, follow [Fix a connection](troubleshooting.md#voice-is-silent).
 
 ## Acceptance still needed
 
-Two-phone native media checks are recorded, but sustained human listening quality, broad headset/OS compatibility, field interference and all lifecycle conditions remain separate. Local notes record owner-confirmed watch audio on the Nothing phone; that is not a general watch support claim. See the [voice design](../design/voice-audio-plan.md) for further engineering requirements.
+Recorded results cover native voice on two development phones. Headsets, Android variants, sustained listening quality and background operation need wider tests.

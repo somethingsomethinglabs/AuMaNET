@@ -12,5 +12,5 @@
   <div class="heading-actions"><slot/>{#if page}<button class="square" type="button" aria-label="Back to settings" onclick={onback}><ArrowLeft size={22}/></button>{/if}</div>
 </div>
 <style>
-  .panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;min-width:0}.panel-heading :global(h1),.panel-heading :global(h2){display:flex;align-items:center;gap:8px;margin:0;min-width:0;overflow-wrap:anywhere;font-size:20px;line-height:1.25}.panel-heading.page :global(h1){font-size:24px;letter-spacing:-.6px}.heading-actions{display:flex;align-items:center;flex-shrink:0;gap:4px}
+  .panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;min-width:0}.panel-heading :global(h1),.panel-heading :global(h2){display:flex;align-items:center;gap:8px;margin:0;min-width:0;overflow-wrap:anywhere;font-size:1.0625rem;line-height:1.35}.panel-heading.page :global(h1){font-size:1.5rem;letter-spacing:-.6px}.heading-actions{display:flex;align-items:center;flex-shrink:0;gap:4px}
 </style>

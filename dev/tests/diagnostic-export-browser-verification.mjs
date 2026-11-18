@@ -9,7 +9,7 @@ try{
   await page.goto(process.env.AUMANET_TEST_URL??'http://127.0.0.1:5174/');
   await page.getByRole('navigation',{name:'Primary navigation'}).waitFor();
   await page.evaluate(async()=>await import('/src/lib/__tests__/diagnostic-export-fixture.ts'));
-  await page.getByRole('button',{name:'Collect report',exact:true}).click();await preview().waitFor();
+  await page.getByRole('button',{name:'Collect snapshot',exact:true}).click();await preview().waitFor();
   const reviewed=await preview().inputValue();assert.equal(await page.getByRole('link',{name:'Save reviewed JSON'}).count(),0);
   await save().click();await page.getByRole('button',{name:'Saving reviewed JSON…',exact:true}).waitFor();
   assert.equal(await page.getByRole('button',{name:'Saving reviewed JSON…'}).isDisabled(),true);
@@ -23,7 +23,7 @@ try{
   assert.equal(await page.getByRole('alert').count(),0);
   // Clearing a pending save and collecting a new report fences the old receipt.
   await save().click();await page.getByRole('button',{name:'Clear report',exact:true}).click();
-  await page.getByRole('button',{name:'Collect report',exact:true}).click();await preview().waitFor();
+  await page.getByRole('button',{name:'Collect snapshot',exact:true}).click();await preview().waitFor();
   await page.evaluate(()=>window.__diagnosticExportFixture.finish());
   assert.equal(await page.getByRole('status').filter({hasText:'Saved to Downloads/AuMaNET/'}).count(),0);
   assert.equal(await save().isEnabled(),true);

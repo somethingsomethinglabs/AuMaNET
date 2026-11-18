@@ -23,5 +23,5 @@
   <button class="outline" onclick={()=>{details.close();ontest();}}>Open connection tests</button>
 </dialog>
 <style>
-  .quality-status{display:flex;align-items:center;gap:5px;background:transparent;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:11px;white-space:nowrap;color:var(--muted);min-height:38px}.quality-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.quality-heading h2{font-size:20px}dialog{box-sizing:border-box;width:min(480px,calc(100vw - 24px));max-height:85dvh;overflow:auto;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--surface,#fff);color:inherit}p{font-size:13px;line-height:1.6;color:var(--muted)}
+  .quality-status{display:flex;align-items:center;gap:5px;background:transparent;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:0.6875rem;white-space:nowrap;color:var(--muted);min-height:38px}.quality-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.quality-heading h2{font-size:1.25rem}dialog{box-sizing:border-box;width:min(480px,calc(100vw - 24px));max-height:85dvh;overflow:auto;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--surface,#fff);color:inherit}p{font-size:0.8125rem;line-height:1.6;color:var(--muted)}
 </style>

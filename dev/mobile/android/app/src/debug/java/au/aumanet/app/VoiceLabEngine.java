@@ -112,8 +112,8 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
     private int wifiAddress, prefixLength;
     private String wifiText = "";
     private final AudioManager audio;
+    private final boolean prepareTelecom;
     private AudioFocusRequest focusRequest;
-    private int oldMode;
     private boolean configuredAudio;
     private volatile int routeId = -1;
     private volatile VoiceRouteObservation.Selection selectedRoute=new VoiceRouteObservation.Selection(-1);
@@ -124,8 +124,9 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
     private ConnectivityManager.NetworkCallback networkCallback;
     private AudioDeviceCallback deviceCallback;
 
-    VoiceLabEngine(Context context, String session, Runnable changed) {
+    VoiceLabEngine(Context context, String session, Runnable changed, boolean nativeGroup) {
         this.context = context; this.session = session; this.changed = changed;
+        prepareTelecom = nativeGroup && VoiceTelecom.supported(context);
         networks = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         preferenceState=VoiceLabService.preferences(context);detectorSensitivity=preferenceState.sensitivity;speechDetector.sensitivity(detectorSensitivity);
@@ -324,8 +325,23 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
     }
     private void configureAudio() {
         if(!VoiceTelecom.previousCallClosed())throw new IllegalStateException("Previous Android call routing is still stopping; wait before joining again");
-        oldMode = audio.getMode();
-        if (oldMode == AudioManager.MODE_IN_CALL) throw new IllegalStateException("A phone call is in progress");
+        if (audio.getMode() == AudioManager.MODE_IN_CALL) throw new IllegalStateException("A phone call is in progress");
+        // A temporary AudioManager mode claim can leave Android's routing broker
+        // pointing at this process after Telecom takes over the same system mode.
+        if (!prepareTelecom) claimAudioManagerRouting();
+        deviceCallback = new AudioDeviceCallback() {
+            @Override public void onAudioDevicesRemoved(AudioDeviceInfo[] removed) {
+                boolean interrupted=false;synchronized(gate){for(AudioDeviceInfo device:removed)if(!closed&&device.getId()==routeId){invalidateRoute("Audio route removed; select a route and rearm explicitly");interrupted=true;}}
+                if(interrupted)touch();
+            }
+        };
+        audio.registerAudioDeviceCallback(deviceCallback, new Handler(Looper.getMainLooper()));
+        if (Build.VERSION.SDK_INT >= 31) {
+            routeListener = ignored -> communicationRouteChanged();
+            audio.addOnCommunicationDeviceChangedListener(context.getMainExecutor(), routeListener);
+        }
+    }
+    private void claimAudioManagerRouting() {
         AudioManager.OnAudioFocusChangeListener listener = change -> {
             if(telecom!=null)return; // Telecom owns focus once the group call is registered.
             hasFocus = change == AudioManager.AUDIOFOCUS_GAIN;
@@ -357,16 +373,16 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
             if(!routeReady)outputRouteNotice="This Android version cannot restore the saved headset preference; choose a supported route explicitly.";
         }
         if(!outputRouteNotice.isEmpty())interruption=outputRouteNotice;
-        deviceCallback = new AudioDeviceCallback() {
-            @Override public void onAudioDevicesRemoved(AudioDeviceInfo[] removed) {
-                boolean interrupted=false;synchronized(gate){for(AudioDeviceInfo device:removed)if(!closed&&device.getId()==routeId){invalidateRoute("Audio route removed; select a route and rearm explicitly");interrupted=true;}}
-                if(interrupted)touch();
-            }
-        };
-        audio.registerAudioDeviceCallback(deviceCallback, new Handler(Looper.getMainLooper()));
-        if (Build.VERSION.SDK_INT >= 31) {
-            routeListener = ignored -> communicationRouteChanged();
-            audio.addOnCommunicationDeviceChangedListener(context.getMainExecutor(), routeListener);
+    }
+    private void releaseAudioManagerRouting() {
+        if (!configuredAudio) return;
+        try {
+            if (Build.VERSION.SDK_INT >= 31) audio.clearCommunicationDevice();
+        } finally {
+            // getMode() is the system's effective mode. Reapplying it here
+            // can leave our process competing with Telecom for routing.
+            audio.setMode(AudioManager.MODE_NORMAL);
+            configuredAudio = false;
         }
     }
     private void acceptRoute(int id,boolean ready,String state,String notice){synchronized(gate){routeId=id;selectedRoute=new VoiceRouteObservation.Selection(id,routeInvalidations);routeReady=ready;outputRoutePreferenceState=state;outputRouteNotice=notice;}}
@@ -426,7 +442,7 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
             public void closed(){VoiceLabService service=VoiceLabService.active;if(service!=null)service.telecomEnded(VoiceLabEngine.this);}
         },preferenceState.outputRoute);
         telecom=next;synchronized(gate){if(initialRoute!=null)initialRoute.cancel();initialRoute=null;interruptCapture();hasFocus=false;routeReady=false;}
-        if(configuredAudio){audio.clearCommunicationDevice();audio.setMode(oldMode);configuredAudio=false;}
+        releaseAudioManagerRouting();
         if(focusRequest!=null){audio.abandonAudioFocusRequest(focusRequest);focusRequest=null;}
         next.start();
     }
@@ -692,7 +708,7 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
     }
     private void selectRoute(int id) {
         interruptCapture();
-        if(telecom!=null)throw new IllegalStateException("Choose an Android call endpoint; Telecom owns this call's routing");
+        if(prepareTelecom||telecom!=null)throw new IllegalStateException("Choose an Android call endpoint; Telecom owns this call's routing");
         if (Build.VERSION.SDK_INT < 31) throw new IllegalStateException("Explicit route selection requires API 31 in this experiment");
         for (AudioDeviceInfo device : audio.getAvailableCommunicationDevices()) if (device.getId() == id && supportedRoute(device)) {
             applyPreferences(new VoicePreferences.Patch(null,null,routePreference(device.getType())),false,device);return;
@@ -825,6 +841,7 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
                 if(!groupId.matches("[a-f0-9]{32}")||epoch<1)throw new IllegalArgumentException("Invalid group call binding");
                 if(!coordinatorOwner.equals("native")&&!coordinatorOwner.equals("javascript"))throw new IllegalArgumentException("Invalid voice coordinator owner");
                 boolean nativeOwner=coordinatorOwner.equals("native");
+                if(prepareTelecom&&!nativeOwner)throw new IllegalArgumentException("This session was started for a native group call");
                 if(nativeOwner&&(expectedVoiceConsentRevision==null||expectedVoiceConsentRevision<1))throw new IllegalArgumentException("Native negotiation needs the exact explicit voice consent revision");
                 if(groupMode){
                     if(!boundGroup.equals(groupId)||boundEpoch!=epoch||!GroupSession.voiceAuthorized(context,groupId,epoch,callAuthority)||
@@ -1026,7 +1043,7 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
     }
     private void applyPreferences(VoicePreferences.Patch patch,boolean repair,AudioDeviceInfo explicitRoute){
         interruptCapture();
-        if(telecom!=null&&patch.outputRoute!=null)throw new IllegalStateException("Choose an Android call endpoint; saved numeric route selection does not control this call");
+        if((prepareTelecom||telecom!=null)&&patch.outputRoute!=null)throw new IllegalStateException("Choose an Android call endpoint; saved numeric route selection does not control this call");
         VoicePreferences.State before=VoiceLabService.preferences(context);
         if(before.needsRepair()&&!repair)throw new IllegalStateException("Repair saved voice preferences in Voice / Audio settings before changing them");
         VoicePreferences.State desired=before.patch(patch);AudioDeviceInfo previous=null,target=null;VoiceRouteObservation.Selection pending=null;
@@ -1352,8 +1369,7 @@ final class VoiceLabEngine implements VoicePostApm.Handler {
                 if (voiceNetworks!=null)voiceNetworks.close();
                 if (deviceCallback != null) audio.unregisterAudioDeviceCallback(deviceCallback);
                 if (Build.VERSION.SDK_INT >= 31 && routeListener != null) audio.removeOnCommunicationDeviceChangedListener(routeListener);
-                if (configuredAudio && Build.VERSION.SDK_INT >= 31) audio.clearCommunicationDevice();
-                if (configuredAudio) audio.setMode(oldMode);
+                releaseAudioManagerRouting();
                 if (Build.VERSION.SDK_INT >= 26 && focusRequest != null) audio.abandonAudioFocusRequest(focusRequest);
             } finally { VoiceGatheringRoute.close(this);VoiceSourceRouteProbe.close(this);captureActive = false; playbackActive = false; control.shutdownNow(); partFinished.run(); }
         });

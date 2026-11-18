@@ -1,71 +1,51 @@
 <script lang="ts">
-  import HelpButton from "./HelpButton.svelte";
   import {onDestroy} from 'svelte';
   import type {NativeVoiceLabClient,VoiceLabSnapshot} from '@aumanet/core';
-  import {AudioLines} from '@lucide/svelte';
-  type Profile='low'|'balanced'|'high';
-  type PreferenceState=VoiceLabSnapshot&{readonly detectorSensitivity:number;readonly detectorProfile:Profile;readonly detectorPreferenceNotice?:string};
-  type PreferenceClient=NativeVoiceLabClient;
-  export let client:PreferenceClient;
-  export let state:PreferenceState|undefined;
+  import type {VoiceOutputPreference} from '@aumanet/protocol';
+  export let client:NativeVoiceLabClient;
+  export let state:VoiceLabSnapshot|undefined;
   export let sourceError='';
-
-  let draft=50,editing=false,busy=false,error='',notice='',alive=true,operation=0;
-  $: if(state&&!editing&&!busy)draft=state.detectorSensitivity;
-  $: draftValid=Number.isInteger(draft)&&draft>=0&&draft<=100;
-  $: selectedProfile=profileFor(draft);
-  $: changed=!!state&&draft!==state.detectorSensitivity;
-  $: needsSave=changed||!!state?.detectorPreferenceNotice||!!state?.voicePreferences?.needsRepair;
+  let mode:'ptt'|'always-on'='ptt',output='default',sensitivity=50,editing=false,busy=false,error='',notice='',alive=true,operation=0;
+  let editingScope='';
+  $: {const next=state?`${state.processId}:${state.sessionId}`:'';if(next!==editingScope){editingScope=next;++operation;editing=false;busy=false;error='';notice='';}}
+  const outputTypes:Readonly<Record<number,VoiceOutputPreference>>={1:'earpiece',2:'speaker',3:'wired-headset',4:'wired-headphones',22:'usb-headset',7:'bluetooth',26:'bluetooth',23:'hearing-aid'};
+  const names:Readonly<Record<VoiceOutputPreference,string>>={default:'Default',earpiece:'Phone earpiece',speaker:'Phone speaker','wired-headset':'Wired headset','wired-headphones':'Wired headphones','usb-headset':'USB headset',bluetooth:'Bluetooth call audio','hearing-aid':'Hearing aid'};
+  $: telecom=state?.routeOwner==='telecom';
   $: ready=!!state&&!sourceError&&client.synchronized;
-  function profileFor(value:number):Profile{return value<=33?'low':value<=66?'balanced':'high';}
-  function profileName(value:Profile){return value==='low'?'Low sensitivity':value==='high'?'High sensitivity':'Balanced';}
-  function choose(value:number){draft=value;editing=true;notice='';error='';}
-  function discard(){if(!state)return;draft=state.detectorSensitivity;editing=false;notice='';error='';}
-  async function save(){
-    if(!ready||busy||!draftValid||!needsSave)return;
-    const requested=draft,repairing=!!state?.detectorPreferenceNotice||!!state?.voicePreferences?.needsRepair,token=++operation;busy=true;error='';notice='';
+  $: outputs=telecom?(state?.telecomEndpoints??[]).map(endpoint=>({value:endpoint.id,label:endpoint.label,disabled:['streaming','unknown'].includes(endpoint.type)})):[{value:'default',label:'Default',disabled:false},...new Map((state?.routes??[]).filter(route=>outputTypes[route.type]).map(route=>{const preference=outputTypes[route.type]!;return[preference,{value:preference,label:route.label||names[preference],disabled:false}];})).values()];
+  $: if(state&&!editing&&!busy){mode=state.joined?state.inputMode:state.voicePreferences?.inputMode??state.inputMode;output=telecom?state.telecomEndpointId??'':state.voicePreferences?.outputRoute??'default';sensitivity=state.detectorSensitivity;}
+  function edit(){editing=true;error='';notice='';}
+  function discard(){editing=false;error='';notice='';}
+  async function reload(){if(busy)return;try{await client.refresh();editing=false;error='';notice='Saved settings reloaded.';}catch{error='Saved settings are unavailable. Retry when the service is available.';}}
+  async function apply(){
+    if(!ready||busy||!state)return;const token=++operation,captured=state.sessionId,process=state.processId,inputMode=mode,selectedOutput=output,value=Number(sensitivity);busy=true;error='';notice='';
+    const current=()=>alive&&token===operation&&client.state?.processId===process&&client.state.sessionId===captured;
     try{
-      await client.preferences({sensitivity:requested,...(state?.voicePreferences?.needsRepair?{repair:true}:{})});
-      const confirmed=client.state as PreferenceState|undefined;
-      if(!alive||token!==operation)return;
-      if(!confirmed||confirmed.detectorSensitivity!==requested||confirmed.detectorProfile!==profileFor(requested)||repairing&&(!!confirmed.detectorPreferenceNotice||!!confirmed.voicePreferences?.needsRepair))
-        throw new Error('The saved setting could not be confirmed. Reload it before trying again.');
-      if(confirmed.joined&&!confirmed.muted)
-        throw new Error('The setting is saved, but microphone mute could not be confirmed. Use the voice controls to mute.');
-      editing=false;draft=confirmed.detectorSensitivity;
-      notice=confirmed.joined?'Sensitivity saved. Your microphone is muted; unmute when you are ready.':'Sensitivity saved for your next voice session.';
-    }catch(failure){if(alive&&token===operation)error=failure instanceof Error?failure.message:'Sensitivity could not be saved.';}
-    finally{if(alive&&token===operation)busy=false;}
-  }
-  async function reload(){
-    if(busy)return;const token=++operation;busy=true;error='';notice='';
-    try{
-      await client.refresh();if(!alive||token!==operation)return;
-      const current=client.state as PreferenceState|undefined;
-      if(!current||!client.synchronized)throw new Error('The saved setting is unavailable. Please try again.');
-      draft=current.detectorSensitivity;editing=false;notice='Saved setting reloaded.';
-    }catch(failure){if(alive&&token===operation)error=failure instanceof Error?failure.message:'Saved setting is unavailable.';}
+      if(state.joined)await client.mute(true);
+      if(!current())throw new Error('Voice session changed. Reload settings before applying.');
+      await client.preferences({inputMode,sensitivity:value,...(!telecom&&selectedOutput!==(state.voicePreferences?.outputRoute??'default')?{outputRoute:selectedOutput as VoiceOutputPreference}:{}),...(state.voicePreferences?.needsRepair?{repair:true}:{})});
+      if(!current())throw new Error('Voice session changed. Reload settings before applying.');
+      if(telecom&&selectedOutput&&client.state?.telecomEndpointId!==selectedOutput){await client.requestTelecomEndpoint(selectedOutput);}
+      const confirmed=client.state;
+      if(!current())return;
+      if(!confirmed||confirmed.detectorSensitivity!==value||confirmed.voicePreferences?.inputMode!==inputMode||confirmed.joined&&!confirmed.muted)throw new Error('Voice settings or microphone mute could not be confirmed. Reload before trying again.');
+      editing=false;notice=confirmed.joined?'Settings saved. Your microphone is muted.':'Settings saved for your next voice session.';
+    }catch(failure){if(alive&&token===operation)error=failure instanceof Error?failure.message:'Voice settings could not be confirmed.';}
     finally{if(alive&&token===operation)busy=false;}
   }
   onDestroy(()=>{alive=false;++operation;});
 </script>
-
-<section class="card voice-preferences" aria-labelledby="voice-preferences-title" aria-busy={busy}>
-  <div class="panel-heading"><h2 id="voice-preferences-title">Speech detection</h2><HelpButton title="Speech detection profiles"><p>Always on uses one of three profiles. Low may miss quiet speech; High may transmit background noise or nearby voices. Push to talk works independently.</p><dl><div><dt>Low</dt><dd>Saved values 0–33</dd></div><div><dt>Balanced</dt><dd>Saved values 34–66 · default 50</dd></div><div><dt>High</dt><dd>Saved values 67–100</dd></div></dl><p>Changing a profile during a call mutes your microphone. Unmute explicitly when ready.</p></HelpButton></div>
-  {#if error||sourceError}<p class="preferences-error" role="alert">{error||sourceError}</p>{/if}
+<section class="voice-preferences" aria-label="Voice settings" aria-busy={busy}>
+  <p class="hint">Changes mute your microphone.</p>
+  <label class="field">Input mode<select aria-label="Input mode" bind:value={mode} onchange={edit} disabled={!ready||busy}><option value="ptt">Press and hold</option><option value="always-on" disabled={!!state?.joined&&!state.detectorAvailable}>Hands-free</option></select></label>
+  <label class="field">Audio output<select aria-label="Native audio output" bind:value={output} onchange={edit} disabled={!ready||busy||telecom&&!client.supportsTelecomEndpoints}>{#each outputs as route}<option value={route.value} disabled={route.disabled}>{route.label}</option>{/each}{#if !outputs.some(route=>route.value===output)}<option value={output} disabled>Saved output · unavailable</option>{/if}</select></label>
+  <label class="field">Speech sensitivity<select aria-label="Speech sensitivity" value={String(sensitivity<=33?0:sensitivity<=66?50:100)} onchange={event=>{sensitivity=Number(event.currentTarget.value);edit();}} disabled={!ready||busy}><option value="0">Low</option><option value="50">Balanced</option><option value="100">High</option></select></label>
+  {#if state?.detectorPreferenceNotice||state?.voicePreferences?.notice}<p class="hint" role="status">{state.detectorPreferenceNotice||state.voicePreferences?.notice}</p>{/if}
+  {#if client.supportsBluetoothAudio}{#if state?.bluetoothPermission==='prompt'}<button class="text-button" disabled={busy} onclick={()=>void client.requestBluetooth().catch(()=>error='Bluetooth permission could not be requested.')}>Enable Bluetooth audio</button>{:else}<button class="text-button" disabled={busy} onclick={()=>void client.bluetoothSettings().catch(()=>error='Bluetooth settings could not be opened.')}>Connect Bluetooth audio</button>{/if}{/if}
+  {#if error||sourceError}<p class="preferences-error" role="alert">{error||sourceError}</p><button class="outline" disabled={busy} onclick={()=>void reload()}>Reload saved settings</button>{/if}
   {#if notice}<p class="hint" role="status">{notice}</p>{/if}
-  {#if state?.detectorPreferenceNotice}<p class="hint" role="status">{state.detectorPreferenceNotice}</p>{/if}
-  {#if !state}<p role="status">Loading saved voice settings…</p>{/if}
-  <fieldset class="choice-field" aria-label="Always on voice sensitivity" disabled={!ready||busy}><legend>Always on sensitivity</legend><div class="choice-control">{#each [{label:'Low',profile:'low',value:0},{label:'Balanced',profile:'balanced',value:50},{label:'High',profile:'high',value:100}] as option}<button type="button" aria-pressed={selectedProfile===option.profile} onclick={()=>{if(selectedProfile!==option.profile)choose(option.value)}}>{option.label}</button>{/each}</div></fieldset>
-  <p id="voice-sensitivity-help" class="hint">{selectedProfile==='low'?'Quiet speech may be missed.':selectedProfile==='high'?'Nearby voices and noise may trigger transmission.':'Background sounds may still trigger transmission.'}</p>
-  {#if state?.joined}<p class="hint">Applying a change mutes your microphone. Unmute when ready.</p>{/if}
-  {#if state&&changed}<p class="saved-setting">Saved: <strong>{profileName(state.detectorProfile)}</strong></p>{/if}
-  <div class="preferences-actions"><button class="primary" disabled={!ready||busy||!draftValid||!needsSave} onclick={()=>void save()}>{busy?'Saving…':'Apply sensitivity'}</button>
-    {#if changed}<button class="outline" disabled={!state||busy} onclick={discard}>Discard changes</button>{/if}</div>
-  {#if error||sourceError}<button class="outline reload" disabled={busy} onclick={()=>void reload()}>Reload saved setting</button>{/if}
+  <button class="primary full" disabled={!ready||busy} onclick={()=>void apply()}>{busy?'Applying…':'Apply & mute'}</button>
+  {#if editing}<button class="text-button" disabled={busy} onclick={discard}>Discard changes</button>{/if}
+  <details><summary>Microphone & privacy</summary><p>Joining starts microphone access with transmission muted. Press and hold needs a fresh press; release or interruption stops it. Leave ends microphone access.</p><p>Hands-free detects speech locally. It cannot identify your voice or exclude other people. Low sensitivity may miss quiet speech; High may transmit nearby voices or noise. Press and hold works independently.</p><p>Sound off also mutes your microphone. Restoring sound keeps it muted. Saved output and Android’s actual output may differ; unavailable devices require your choice.</p>{#if telecom}<p>Android manages the current call output. Choose an available endpoint explicitly.</p>{/if}</details>
 </section>
-
-<style>
-  .voice-preferences{min-width:0}.preferences-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:17px}.preferences-actions button{max-width:100%}.saved-setting{font-size:12px;margin-top:18px}.preferences-error{color:#9f301f;background:#fff0e7;padding:12px;border-radius:10px;overflow-wrap:anywhere}.reload{margin-top:12px}
-  :global(.dark) .preferences-error{color:#ffc58e;background:#493325}
-</style>
+<style>.voice-preferences{min-width:0}.preferences-error{color:var(--error-ink);background:var(--error-bg);border-radius:11px;padding:12px;overflow-wrap:anywhere}.voice-preferences details{font-size:0.8125rem}.voice-preferences .full{margin-top:4px}</style>

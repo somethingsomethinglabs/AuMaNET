@@ -36,7 +36,7 @@
 </script>
 
 <section class="card native-location">
-  <div class="panel-heading"><h2><MapPin size={22}/>Your position</h2><HelpButton title="Location & privacy"><p>Your own map view uses location only while the app is open. Group sharing can continue with the screen off; the Android notification has a stop control.</p><p>Accuracy is Android’s estimate. Positions older than one minute, or from stopped updates, are shown as last known.</p></HelpButton></div>
+  <div class="panel-heading"><h2><MapPin size={22}/>Your location</h2></div>
   {#if error||sourceError}<p class="location-error" role="alert">{error||sourceError}</p>{/if}
   {#if state?.message}<p role="status">{state.message}</p>{/if}
   {#if state?.fix}
@@ -46,7 +46,7 @@
       <div><dt>Fix age</dt><dd>{Math.floor((view.ageMs??0)/1000)} s · {freshness}</dd></div>
       <div><dt>Observed at</dt><dd>{new Date(state.fix.timestamp).toLocaleString()}</dd></div></dl>
     {#if state.fix.mock}<p role="status">Android labels this observation as a mock location.</p>{/if}
-    
+
   {:else}<p>{state?.active?'Waiting for a location fix. A clear view of the sky may help GPS.':'No observed position. Start location to request access.'}</p>{/if}
   <div class="location-actions">
     {#if state?.active}<button class="outline" onclick={()=>void stop()}><Square size={18}/>Stop own location</button>
@@ -60,8 +60,9 @@
     disabled={sharingBusy||(!sharingEnabled&&(!sharingAvailable||!state||!!sourceError))} onchange={event=>void changeSharing(event.currentTarget)}/></label>
   {#if sharingError}<p class="location-error" role="alert">{sharingError}</p>{/if}
   <p class="hint" id="location-sharing-hint" role="status">{sharingHint} No track is saved.</p>
+  <div class="help-row"><span>Location &amp; privacy</span><HelpButton title="Location & privacy"><p>Your own map view uses location only while the app is open. Group sharing can continue with the screen off; the Android notification has a stop control.</p><p>Accuracy is Android’s estimate. Positions older than one minute, or from stopped updates, are shown as last known.</p></HelpButton></div>
 </section>
 <style>
-  .native-location h2{display:flex;align-items:center;gap:8px}.position-state{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.position-state span{font-size:12px}.location-actions{display:flex;flex-wrap:wrap;gap:8px}.location-actions button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}.location-error{color:var(--error-ink,#9f301f);background:var(--error-bg,#fff0e7);border-radius:8px;padding:10px}dl{margin:16px 0}dl div{display:flex;justify-content:space-between;gap:10px;padding:5px 0}dt{color:var(--muted)}dd{margin:0;text-align:right;overflow-wrap:anywhere}.hint{line-height:1.5}
+  .native-location h2{display:flex;align-items:center;gap:8px}.position-state{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.position-state span{font-size:0.75rem}.location-actions{display:flex;flex-wrap:wrap;gap:8px}.location-actions button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}.location-error{color:var(--error-ink);background:var(--error-bg);border-radius:8px;padding:10px}dl{margin:16px 0}dl div{display:flex;justify-content:space-between;gap:10px;padding:5px 0}dt{color:var(--muted)}dd{margin:0;text-align:right;overflow-wrap:anywhere}.hint{line-height:1.5}
   .sharing-row{margin-top:18px}
 </style>

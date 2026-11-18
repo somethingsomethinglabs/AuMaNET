@@ -28,6 +28,7 @@
     pointer=event.pointerId;void start();
   }
   function up(event:PointerEvent){if(pointer===event.pointerId)stop();}
+  function move(event:PointerEvent){if(pointer!==event.pointerId)return;const bounds=button.getBoundingClientRect();if(event.clientX<bounds.left||event.clientX>bounds.right||event.clientY<bounds.top||event.clientY>bounds.bottom)stop();}
   function keyDown(event:KeyboardEvent){
     if(!['Space','Enter'].includes(event.code)||event.repeat||disabled||!voicePttReadiness(state,client.synchronized).ready||pointer!==undefined||key!==undefined)return;
     event.preventDefault();key=event.code;void start();
@@ -45,9 +46,9 @@
 </script>
 <button bind:this={button} type="button" class="primary native-ptt" {disabled} aria-label="Hold native push to talk" aria-pressed={state?.transmitting??false}
   title={readiness.message||undefined} aria-describedby={readiness.message?hintId:undefined}
-  onpointerdown={down} onpointerup={up} onpointercancel={up} onlostpointercapture={up} onblur={stop}
+  onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={up} onlostpointercapture={up} onblur={stop}
   onkeydown={keyDown} onkeyup={keyUp}>
-  {state?.transmitting?'Transmitting':readiness.ready?'Hold to talk':readiness.reason==='audio-route'&&state?.routeInitializing?'Preparing audio':blockedLabels[readiness.reason]??'Voice not ready'}
+  {state?.transmitting?'Transmitting':readiness.ready||['muted','deafened'].includes(readiness.reason)?'Hold to talk':readiness.reason==='audio-route'&&state?.routeInitializing?'Preparing audio':blockedLabels[readiness.reason]??'Voice not ready'}
 </button>
 {#if readiness.message}<span id={hintId} class="ptt-help">{readiness.message}</span>{/if}
 <style>.native-ptt{touch-action:none;user-select:none;min-height:48px;white-space:nowrap}.ptt-help{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}</style>

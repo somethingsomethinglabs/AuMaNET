@@ -1,28 +1,28 @@
-# Logs & diagnostics
 
-Start with what the normal screens can establish: exact phone/node/group state, installed versions where verified, directional radio availability, transfer state and the outcome of a connection test. Missing observations should stay unavailable rather than becoming zeros or guessed values.
+# Report a problem
+
+Start with [Fix a connection](troubleshooting.md). If the problem persists, note which step failed and record what you saw.
+
+<span id="logs-amp-diagnostics"></span>
 
 ## Useful report contents
 
-| Include | Why |
-| --- | --- |
-| App build/hash and node firmware/build | Distinguishes source and installed state |
-| Phone model and exact Android build | Networking/audio/lifecycle behavior is device dependent |
-| Board/carrier revision and role | Avoids applying a result to an untested assembly |
-| What happened and when | Relates the failure to Resume, Stop, route change, radio trial or update |
-| Expected/observed behavior and recovery | Makes the problem reproducible |
-| Partial/failed observations | Prevents success-only reporting |
+- Phone model, Android version and exact app commit.
+- Node board, carrier, firmware build and role.
+- What you selected, what you expected and what happened.
+- Whether the phone was on node Wi-Fi, the node verified and another group member reachable.
+- Whether the problem persisted after the normal recovery steps.
 
 ## Available tools
 
-Use [connection-test exports](connection-tests.md) for measured payload and available radio/configuration observations. The checked USB helper has read-only `identify` and `radio-status` actions; use the exact reviewed version and physical port. Firmware's signed telemetry reports have their own age and provenance limits.
+Open **Settings → Diagnostics & about** to check versions and status. Choose **Collect report**, review the redacted JSON shown, then choose **Save reviewed JSON** or **Copy reviewed JSON**. The app saves locally. If saving is uncertain, check **Downloads / AuMaNET** before trying again.
 
-The [planned CLI](cli.md) includes structured logs, follow/gap handling, passive checks and redacted diagnostic bundles. Those commands are not available today. Existing build logs and USB scripts do not constitute the planned management API or general log service.
+For a link problem, [connection-test exports](connection-tests.md) can add measurements and available radio observations. A missing measurement may be unavailable for that session.
 
 ## Before sharing
 
-Review for coordinates, tracks, invitations, group/member identifiers, messages/photos, private keys, provisioning data and unrelated phone information. Raw flash backups and private bootstrap images stay private. Exporting a file locally is not authorization to upload it elsewhere.
+Check the report for names, identifiers, positions, messages, invitations and provisioning data. Keep keys, credentials and raw flash backups private. You can open an [issue on GitHub](https://github.com/somethingsomethinglabs/AuMaNET/issues) with the steps and material you’re willing to share publicly.
 
 ## Work remaining
 
-A standardized redacted bundle schema, source/freshness labels, known-error catalog, per-OS collection steps and a documented private security-reporting channel. Use the [documentation roadmap](documentation-roadmap.md) to track coverage rather than inventing error meanings from a screenshot.
+The [documentation roadmap](documentation-roadmap.md) tracks a private reporting route and device-specific recovery instructions.

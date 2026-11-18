@@ -29,7 +29,7 @@ export function parseAppearance(value:unknown):AppearanceSnapshot{
 export class AppearanceClient {
   private current:AppearanceState={...defaults(),loaded:false,busy:false};
   private listeners=new Set<(state:AppearanceState)=>void>();
-  constructor(private readonly bridge:()=>AppearanceBridge,source:'device'|'browser'='browser'){this.current={...this.current,source};}
+  constructor(private readonly bridge:()=>AppearanceBridge,source:'device'|'browser'='browser',initialTheme:Theme='Light'){this.current={...this.current,source,theme:initialTheme==='Dark'?'Dark':'Light'};}
   subscribe=(listener:(state:AppearanceState)=>void)=>{this.listeners.add(listener);listener(this.current);return()=>this.listeners.delete(listener);};
   get state(){return this.current;}
   private publish(value:AppearanceState){this.current=value;for(const listener of this.listeners)listener(value);}

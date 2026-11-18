@@ -1,23 +1,27 @@
-# Install node firmware
 
-Initial USB provisioning and later wireless application updates are different operations. Start by identifying your exact board, installed layout, node role and recovery path. No single public one-click first-install procedure is accepted yet.
+# USB firmware and recovery
+
+Start by identifying your exact board, role, installed layout and recovery path. A new board needs firmware and group provisioning. An already provisioned node may be eligible for a [wireless update](firmware-updates.md).
+
+<span id="install-node-firmware"></span>
 
 ## Initial installation by USB
 
-The checked firmware tools target an 8 MB ESP32-S3. The SDK and build inputs are pinned in [sdk-lock.json](../dev/firmware/sdk-lock.json); reviewed builds also require the correct board configuration and AU profile.
+Open the [USB and serial guide](serial-connection.md) to identify the target. The checked firmware tooling targets an 8 MB ESP32-S3 with pinned [build inputs](../dev/firmware/sdk-lock.json). Check the exact HaLow carrier and AU profile for the intended build.
 
-The ordinary development flasher takes a role-specific artifact manifest, identifies the target and keeps an original flash backup before writing. Its existence does not make every artifact safe for every node. Inspect the layout and credential requirements before using it. Do not erase NVS as a generic troubleshooting step.
-
-Gateway OTA support requires an explicit, reviewed USB migration of the bootloader/partition layout and retained credentials. An application-only wireless update cannot perform that migration. Private bootstrap images and raw flash backups can contain secrets and are never public downloads.
+For development, the role-specific flasher checks the target and saves a private flash backup before writing. Maintain access to the backup. It can contain device keys and other provisioning material. Layout changes require a reviewed migration that preserves credentials and group state.
 
 ## Updating a provisioned node
 
-Use the Android [Firmware updates](firmware-updates.md) workflow when the installed node supports it. The app verifies a signed release, the exact node/role/layout and boot health. A missing or expired catalog is an unavailable update check, not proof that the node is current.
+Use the [wireless update guide](firmware-updates.md) when the node and signed package match. Wireless application updates preserve the bootloader and partition layout. When update status is unclear, check the original operation before attempting another install.
 
 ## Maintainer build references
 
-See [Node firmware](node-firmware.md), [Release channels & publishing](../dev/releases/README.md), the checked [OTA contract](../dev/firmware/gateway/OTA.md) and [boot recovery](../dev/firmware/gateway/BOOT-RECOVERY.md). These are engineering references, not an invitation to run commands against an unidentified board.
+- [Published firmware Nightlies and release policy](downloads.md#node-firmware)
+- [Node firmware](node-firmware.md)
+- [Wireless update contract](../dev/firmware/gateway/OTA.md)
+- [Boot recovery](../dev/firmware/gateway/BOOT-RECOVERY.md)
 
 ## Missing first-install material
 
-Publish a reviewed, credential-free artifact set; document exact board photos, ports, backup verification, role selection, enrollment, recovery and post-flash acceptance on a clean device. Until that work passes, this page describes the installation boundary rather than inventing a universal flash command.
+Public browser USB installation and clean-board group enrollment still need accepted procedures. The separate [browser installer](https://github.com/somethingsomethinglabs/AuMaNET/tree/d5959f6fa1a664345b5f88dd9713c09b8cc702ce/dev/web-installer) has browser and host checks, and still needs physical flashing acceptance and a published signed package.

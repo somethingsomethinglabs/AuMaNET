@@ -62,17 +62,30 @@ export class ChannelOptimisation {
  async run(peerId:string){
   if(this.active)return;this.active=true;this.stopped=false;this.recommendationContext=undefined;
   this.publish({running:true,phase:'Checking both nodes…',samples:[],rankings:[],restored:false,complete:false,error:'',baselineId:undefined,recommendationId:undefined,appliedId:undefined});
-  let original:GatewayRadioSettingsSnapshot|undefined;let baseline:GatewayRadioOption|undefined;let mutationPossible=false;let testPossible=false;
+  let original:GatewayRadioSettingsSnapshot|undefined;let baseline:GatewayRadioOption|undefined;let mutationPossible=false;let testPossible=false;let operationReplaced=false;
   const scopeKey=(s:GatewayRadioSettingsSnapshot)=>`${s.processId}:${s.scope?.groupId}:${s.scope?.selfId}:${s.scope?.epoch}:${s.scope?.sourceRun}:${s.fieldSessionId}:${s.fieldGeneration}`;
   const same=(s:GatewayRadioSettingsSnapshot|undefined):s is GatewayRadioSettingsSnapshot=>!!s&&!!original&&scopeKey(s)===scopeKey(original)&&(s.nodes.length===0||s.nodes.length===2&&s.nodes.every(n=>original!.nodes.some(o=>o.nodeId===n.nodeId&&o.sourceRun===n.sourceRun&&o.role===n.role&&o.configuredTxPowerDbm===n.configuredTxPowerDbm)));
   const check=(s:GatewayRadioSettingsSnapshot|undefined)=>{if(!same(s))throw Error('The group, node boots or radio authority changed. Refresh before continuing.');return s;};
-  const read=async()=>check(await this.radio.snapshot());
-  const refresh=async(allowStopped=false)=>{
-   const before=check(await this.radio.snapshot()),ids=before.nodes.map(n=>n.observationId).sort().join();
+  const read=async()=>{
+   if(operationReplaced)throw Error('The radio operation changed.');
+   return check(await this.radio.snapshot());
+  };
+  const checkOperation=(s:GatewayRadioSettingsSnapshot,expected:string)=>{
+   if(s.operationId===expected)return;
+   operationReplaced=true;
+   throw Error('The radio operation changed.');
+  };
+  const refresh=async(allowStopped=false,expectedOperation?:string)=>{
+   const readForRefresh=async()=>{
+    const s=await read();
+    if(expectedOperation)checkOperation(s,expectedOperation);
+    return s;
+   };
+   const before=await readForRefresh(),ids=before.nodes.map(n=>n.observationId).sort().join();
    await this.radio.prepareComparison();let queries=1,nextQuery=this.clock()+5000;
    // A lost read-only UDP query can be replaced with a new challenge. A radio
    // mutation is never retried. Do not queue queries behind an active worker.
-   return this.until(async()=>{const s=await read();if(queries<3&&this.clock()>=nextQuery&&['unavailable','unknown'].includes(s.state)){await this.radio.prepareComparison();queries++;nextQuery=this.clock()+5000;}return s;},s=>fresh(s.nodes)&&!['refreshing','trial','verifying','committing','unknown','unavailable'].includes(s.state)&&s.nodes.map(n=>n.observationId).sort().join()!==ids,45000,allowStopped);
+   return this.until(async()=>{const s=await readForRefresh();if(queries<3&&this.clock()>=nextQuery&&['unavailable','unknown'].includes(s.state)){await this.radio.prepareComparison();queries++;nextQuery=this.clock()+5000;}return s;},s=>fresh(s.nodes)&&!['refreshing','trial','verifying','committing','unknown','unavailable'].includes(s.state)&&(!expectedOperation||s.state!=='applied'||s.canChange)&&s.nodes.map(n=>n.observationId).sort().join()!==ids,45000,allowStopped);
   };
   const switchTo=async(optionId:number,restoring=false)=>{
    let s=await read();if(!fresh(s.nodes)||['refreshing','trial','verifying','committing','unknown','unavailable'].includes(s.state))s=await refresh(restoring);if(s.nodes[0].actualOptionId===optionId)return;
@@ -80,11 +93,22 @@ export class ChannelOptimisation {
    if(this.stopped&&!restoring)throw Error('Optimisation stopped.');
    mutationPossible=true;const issued=await this.radio.apply(optionId);const operation=issued?.operationId;
    if(!operation)throw Error('Channel change was not confirmed.');
-   await this.until(read,next=>{
-    if(next.operationId!==operation)throw Error('The radio operation changed.');
-    if(['unknown','failed','cancelled','rolled-back','unavailable'].includes(next.state))throw Error('Channel change was not confirmed. Refresh to reconcile its outcome.');
-    return next.state==='applied'&&next.canChange&&fresh(next.nodes)&&next.nodes.every(n=>n.actualOptionId===optionId);
+   const applied=(next:GatewayRadioSettingsSnapshot)=>next.state==='applied'&&next.canChange&&fresh(next.nodes)&&next.nodes.every(n=>n.actualOptionId===optionId);
+   const outcome=await this.until(read,next=>{
+    checkOperation(next,operation);
+    if(['failed','cancelled','rolled-back','unavailable'].includes(next.state))throw Error('Channel change was not confirmed. Refresh to reconcile its outcome.');
+    return next.state==='unknown'||applied(next);
    },65000,restoring);
+   if(outcome.state==='unknown'){
+    // The commit can persist before peer transport or signed readback is
+    // confirmed. Let the native journal reconcile it under a new quiet ticket.
+    // Only confirmation of this exact operation can authorize a measurement.
+    const phase=this.value.phase;
+    if(!restoring)this.publish({phase:'Checking the channel change…'});
+    const settled=await refresh(restoring,operation);
+    if(!applied(settled))throw Error('Channel change was not confirmed. Refresh to reconcile its outcome.');
+    if(!restoring)this.publish({phase});
+   }
   };
   try{
    const seed=await this.radio.snapshot();if(!seed?.scope||!seed.owner||!seed.fieldSessionId)throw Error('Connect the group owner and both nodes before optimising.');

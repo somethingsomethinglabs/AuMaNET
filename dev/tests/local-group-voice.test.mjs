@@ -34,6 +34,23 @@ test('read-only observation cannot start a microphone or join a channel',async()
   const f=fixture();f.peerJoin();await f.settle();assert.deepEqual(f.calls,[]);assert.equal(f.coordinator.state.status,'idle');f.dispose();
 });
 
+test('a scoped rejoin that expires during group refresh cannot withdraw or grant voice consent',async()=>{
+  const f=fixture();
+  try{
+    let release;
+    f.group.refresh=()=>new Promise(resolve=>{release=resolve;});
+    const originalGroup=f.group.state.group;
+    const pending=f.coordinator.join(()=>f.group.state.group===originalGroup);
+    assert.ok(release);
+    f.updateGroup({group:{...originalGroup,epoch:2}});
+    release(f.group.state);
+    await pending;
+    await f.settle();
+    assert.deepEqual(f.calls,[]);
+    assert.match(f.coordinator.state.error,/rejoin expired/);
+  }finally{f.dispose();}
+});
+
 test('remembered native voice remains observation-only across group loss and fresh master recovery',async()=>{
   const f=fixture();try{
     f.updateGroup({voiceJoined:true,voiceConsentRevision:3});
@@ -323,7 +340,10 @@ function nativeFixture(){
   const f=fixture(),processId='12345678-1234-1234-1234-123456789abc';
   const capability={nativeCoordinatorAvailable:true,coordinatorOwner:'javascript',coordinatorStatus:'waiting',coordinatorError:'',coordinatorRevision:0,processId};
   f.updateVoice(capability);const originalStart=f.voice.start,originalStop=f.voice.stop;
-  f.voice.start=async(...args)=>{await originalStart.apply(f.voice,args);f.updateVoice(capability);return f.voice.state;};
+  f.voice.start=async(...args)=>{
+    assert.deepEqual(args,[args[0],true,'native'],'The audio owner must be selected before native group startup');
+    await originalStart.apply(f.voice,args);f.updateVoice(capability);return f.voice.state;
+  };
   f.voice.stop=async(...args)=>{await originalStop.apply(f.voice,args);if(!f.voice.state.joined)f.updateVoice(capability);return f.voice.state;};
   f.voice.groupBind=async(id,epoch,expected,controller)=>{
     assert.equal(controller,'native');assert.equal(expected,f.group.state.voiceConsentRevision);f.calls.push(['bindNative',id,epoch,expected]);
