@@ -11,6 +11,14 @@ try{
  const panel=page.getByRole('region',{name:'Channel optimisation'});
  await panel.getByRole('heading',{name:'Optimise channel'}).waitFor();
  assert.equal(await panel.getByRole('button',{name:'Compare channels'}).isDisabled(),true);
+ await panel.getByText('Choose a ready phone under Test with to compare channels.',{exact:true}).waitFor();
+ await page.evaluate(()=>window.__channelOptimisationFixture.setReadiness(false,false));
+ await panel.getByText('Allow connection tests on this phone using the button above.',{exact:true}).waitFor();
+ await panel.getByText('No other phone is ready. On the other phone, open Tools → Connection tests and allow tests, then return here.',{exact:true}).waitFor();
+ await page.evaluate(()=>window.__channelOptimisationFixture.setReadiness(true,false));
+ assert.equal(await panel.getByText('Allow connection tests on this phone using the button above.',{exact:true}).count(),0);
+ assert.equal(await panel.getByRole('button',{name:'Compare channels'}).isDisabled(),true);
+ await page.evaluate(()=>window.__channelOptimisationFixture.setReadiness(true,true));
  assert.deepEqual(await page.evaluate(()=>window.__channelOptimisationFixture.calls),[],'Opening the optimiser never starts RF tests or changes channels');
  await panel.getByRole('combobox',{name:'Test with'}).selectOption('peer');
  await panel.getByRole('button',{name:'Compare channels'}).click();

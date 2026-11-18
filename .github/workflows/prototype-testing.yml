@@ -2,9 +2,9 @@ name: Prototype app review build
 
 on:
   pull_request:
-    branches: [testing]
+    branches: [testing, nightly, stable]
   push:
-    branches: [testing]
+    branches: [testing, nightly]
   workflow_dispatch:
 
 permissions:
@@ -19,6 +19,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Verify stable promotion preserves the candidate tree
+        if: github.event_name == 'pull_request' && github.base_ref == 'stable'
+        env:
+          CANDIDATE_COMMIT: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          merge_tree=$(git rev-parse 'HEAD^{tree}')
+          candidate_tree=$(git rev-parse "${CANDIDATE_COMMIT}^{tree}")
+          if [[ "$merge_tree" != "$candidate_tree" ]]; then
+            echo "::error::The stable merge changes the candidate tree. Promote the exact phone-tested tree."
+            exit 1
+          fi
       - uses: actions/setup-node@v4
         with:
           node-version: 24

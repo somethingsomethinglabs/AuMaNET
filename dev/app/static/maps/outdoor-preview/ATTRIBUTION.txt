@@ -25,6 +25,16 @@ hill shading and derived contour lines generated on device by AuMaNET.
 Underlying source resolutions, capture dates and vertical accuracy vary.
 Archive names and extracted-file checksums are recorded in manifest.json.
 
+Some downloaded areas use Vicmap Elevation 10m DEM.
+© State of Victoria (Department of Transport and Planning), licensed CC BY 4.0.
+https://discover.data.vic.gov.au/dataset/vicmap-elevation-dem-10m
+https://creativecommons.org/licenses/by/4.0/
+AuMaNET resamples the elevation grid to render hill shading and contours.
+The State of Victoria and its suppliers do not warrant the accuracy or
+completeness of this information and accept no liability for errors or omissions.
+Lerc decoder: Copyright 2015-2021 Esri, Apache License 2.0.
+https://www.apache.org/licenses/LICENSE-2.0
+
 Fonts: Noto Sans, SIL Open Font License 1.1; see FONT-LICENSE.txt.
 Bundled glyph range(s) are enumerated and checksummed in manifest.json.
 

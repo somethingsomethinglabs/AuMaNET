@@ -2,6 +2,7 @@ import {Capacitor} from '@capacitor/core';
 import {addProtocol,removeProtocol} from 'maplibre-gl';
 import {Protocol} from 'pmtiles';
 import {previewArchive} from './archive';
+import {readElevationTile} from './elevation-tile';
 export function previewProtocols(options:{terrainTemplate?:string;regionRoot?:string}={}){
   const native=Capacitor.getPlatform()==='android';
   const basemap=previewArchive('basemap.pmtiles',native),terrain=previewArchive('terrain.pmtiles',native),protocol=new Protocol();
@@ -16,7 +17,7 @@ export function previewProtocols(options:{terrainTemplate?:string;regionRoot?:st
     const match=/^aumanet-offline-dem:\/\/(\d+)\/(\d+)\/(\d+)$/.exec(request.url);if(!match)throw Error('Invalid offline elevation tile');
     const response=await fetch(options.regionRoot+'/terrain/'+match.slice(1).join('/')+'.webp',{signal:controller.signal});
     if(response.status===204){const[z,x,y]=match.slice(1).map(Number),tile=await terrain.archive.getZxy(z,x,y,controller.signal);if(!tile)throw Error('Offline elevation coverage is unavailable');return{data:tile.data};}
-    if(!response.ok)throw Error('Offline elevation tile failed verification');const data=await response.arrayBuffer();if(data.byteLength>2*1024*1024)throw Error('Oversized elevation tile');return{data};
+    return{data:await (await readElevationTile(response)).arrayBuffer()};
   });
   const worker=new Worker(new URL('./terrain-worker.ts',import.meta.url),{type:'module'});
   worker.postMessage({type:'init',native,...options});

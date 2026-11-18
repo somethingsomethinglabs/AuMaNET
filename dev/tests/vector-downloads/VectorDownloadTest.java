@@ -54,6 +54,24 @@ public final class VectorDownloadTest {
         },(tile,value)->stop[0]=true));
         require(payloadReads.equals(List.of(2)),"cancellation stops the next range");
     }
+    static void verifyVicmap() throws Exception {
+        require(VicmapTerrain.includes(new double[]{145,-38,146,-37}),"Victorian area selects Vicmap");
+        require(!VicmapTerrain.includes(new double[]{134,-26,136,-24}),"Other areas keep global terrain");
+        byte[] sample=new byte[69];
+        ByteBuffer header=ByteBuffer.wrap(sample).order(ByteOrder.LITTLE_ENDIAN);
+        header.put("CntZImage ".getBytes(StandardCharsets.US_ASCII));
+        header.putInt(10,11).putInt(14,8).putInt(18,257).putInt(22,257);
+        header.putFloat(46,1).putInt(50,1).putInt(54,1).putInt(58,3);
+        require(VicmapTerrain.completeGrid(sample),"Bounded grid accepted");
+        header.putInt(22,258);
+        require(!VicmapTerrain.completeGrid(sample),"Unexpected grid size rejected");
+        header.putInt(22,257).putInt(42,1);
+        require(!VicmapTerrain.completeGrid(sample),"Masked grid rejected");
+        require(VectorPmtiles.allowed(new java.net.URL(VicmapTerrain.SERVICE+"/tile/14/10044/14814")),"Vicmap tile allowed");
+        require(!VectorPmtiles.allowed(new java.net.URL(VicmapTerrain.SERVICE+"/exportImage")),"Unneeded service paths denied");
+        require(VectorRegions.path("terrain/14/14814/10044.lerc")&&!VectorRegions.path("base/14/14814/10044.lerc"),"Only elevation may use LERC");
+    }
+
     public static void main(String[] args)throws Exception{
         File bundle=new File(args[0]),output=new File(args[1]);output.mkdirs();
         if(args.length>2&&args[2].equals("download")){
@@ -64,6 +82,7 @@ public final class VectorDownloadTest {
         }
         require(VectorPmtiles.tileId(0,0,0)==0,"root Hilbert");require(VectorPmtiles.tileId(1,0,0)==1,"Hilbert 1");require(VectorPmtiles.tileId(1,0,1)==2,"Hilbert 2");require(VectorPmtiles.tileId(1,1,1)==3,"Hilbert 3");require(VectorPmtiles.tileId(1,1,0)==4,"Hilbert 4");require(VectorPmtiles.tileId(12,3423,1763)==19078479,"spec Hilbert example");
         verifyBatchedReads();
+        verifyVicmap();
         JSONObject expected=new JSONObject(Files.readString(new File(output,"expected.json").toPath()));
         for(String name:new String[]{"basemap.pmtiles","terrain.pmtiles"}){VectorPmtiles archive=new VectorPmtiles(new FileSource(new File(bundle,name)));JSONArray rows=expected.getJSONArray(name);for(int i=0;i<rows.length();i++){JSONObject row=rows.getJSONObject(i);byte[] tile=archive.tile(row.getInt("z"),row.getInt("x"),row.getInt("y"));require(tile!=null&&VectorRegions.sha(tile).equals(row.getString("sha256")),"tile differs from official PMTiles JS reader");if(name.equals("basemap.pmtiles")){Set<Integer> ranges=new TreeSet<>();VectorRegions.Glyphs.collect(tile,ranges);require(ranges.contains(0)||ranges.isEmpty(),"glyph ranges decoded");}}rejects(()->archive.tile(15,-1,0));}
         JSONArray plans=expected.getJSONArray("plans");for(int i=0;i<plans.length();i++){JSONObject row=plans.getJSONObject(i);if(row.getInt("count")>VectorRegions.MAX_TILES)rejects(()->new VectorRegions.Plan(row.getDouble("latitude"),row.getDouble("longitude"),row.getInt("radius"),"Area",true));else require(new VectorRegions.Plan(row.getDouble("latitude"),row.getDouble("longitude"),row.getInt("radius"),"Area",true).count()==row.getInt("count"),"preview/native tile count parity");}

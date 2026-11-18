@@ -16,6 +16,7 @@
     "core-js": "3.51.0",
     "geotiff": "3.0.5",
     "leaflet": "2.0.0-beta.1",
+    "lerc": "3.0.0",
     "maplibre-contour": "0.1.1",
     "maplibre-gl": "6.18.0",
     "pmtiles": "4.5.0",

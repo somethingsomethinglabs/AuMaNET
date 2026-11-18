@@ -1,0 +1,46 @@
+# Blind app task review
+
+18 November 2026 · AuMaNET companion at [testing b25037b](https://github.com/somethingsomethinglabs/AuMaNET/commit/b25037b476aa638bb45c60f1c199bada7b7beacf).
+
+Three Terra 6.1 agents received the task prompts and local app URLs with fresh context. They used the rendered app and its accessibility tree. The runtime still had shared workspace tools, so the restriction to the UI was procedural. The study ran the real companion UI against synthetic native responses. Participants captured screens in their browser tool outputs. No phones or nodes were changed.
+
+Use the [software register](../../software-requirements.md), [voice plan](../../voice-audio-plan.md), [bandwidth and channel work](../../bandwidth-use-cases.md), and [companion checklist](reference-principles.md#consolidated-feature-coverage-checklist) to trace scenarios to product behavior. The results describe first-time agent use and the browser state exercised.
+
+## Tasks
+
+| # | Prompt | Requirement and success signal | Observation |
+| --- | --- | --- | --- |
+| 1 | Friends are already talking. Join so you can listen without others hearing you. Say a short sentence, stop sending, check the chat and leave. | SW-07, SW-11, SW-13, V-03, V-10, V-12. Join muted, enable the mic explicitly, see hold/release state, retain call controls across screens. | Join voice, muted made the starting state clear. Enable mic and hold were discoverable. After muting, the chat strip offered active “Mute” beside “Voice · muted”. Leave removed the strip. The existing browser regression observed simulated transmit and release. Acoustic and background behavior remain open. |
+| 2 | Send “Meet at the footbridge at four.” Find out who received or read it. Start a second message, check another screen and return. | SW-04, SW-13. Distinguish storage receipts from reads and preserve a draft. | The message showed “2/3 stored”. A small information button explained that storage does not mean a person read it. The participant saw a count without recipient names. The draft survived navigation. Peer receipt and durable offline queuing need device evidence. |
+| 3 | Find who is offline and what you know about their last position. | SW-05, SW-13. Distinguish offline, stale and unavailable. | Noor's row said “Away”. Details clarified “Not connected” and “No position available”. Map agreed. This session lacked a stale but available fix. |
+| 4 | Find your own location privately, then share it and stop. | SW-05. Separate private acquisition from explicit, reversible publication. | Start own location showed accuracy and age with sharing off. The switch described sharing while the screen was off and could be turned off. The map then said “Private location”. Actual transmission and Android permissions remain open. |
+| 5 | Try sending a photo and cancel without sending. | SW-04 and images. Opening or abandoning a picker sends nothing. | The plus button produced no visible browser picker or feedback. No photo was sent. Android selection, preview and cancel remain open. |
+| 6 | You used this equipment before. Get back to the group and tell when you are ready. | SW-01, SW-11, SW-13. Resume saved attachment and group membership with clear readiness. | The participant followed the membership count to Group settings and hit a web-only error. The initial connected count came from the study's starting snapshot. A corrected start exposed the connection control and “Resume connection”, then “Connecting to your node…” with checks still unverified. Ready state and DHCP remain open. |
+| 7 | Start Creek Crew as Sam and get what a friend needs to join. On a fresh start, enter an invalid invitation. | SW-01, SW-03, SW-12. Create a private invitation with expiry and provide actionable input feedback. | Creation showed a five-minute invitation and approval instructions. The seeded roster name displaced Sam in the fixture. Inspect was disabled before saving a name without local guidance. The invalid invitation error appeared above the visible form. Real invitations, approval, expiry and revocation remain open. |
+| 8 | Save a 10 km wide area for a trip out of coverage and recover an earlier failed download. | SW-06. Review bounds, find a failed job and retry the original area. | The participant selected the 5 km pin-to-edge setting and began a simulated download. The first study page omitted map styles. With styles restored, the map rendered and Retry download reopened the failed job's original label and 16 × 16 km selection. Actual storage, cancellation and offline restart remain open. |
+| 9 | Change distances to miles, silence group alerts and get something suitable to share with support. | Appearance, notifications, diagnostics. Find settings and review the snapshot before exporting. | Distance units → Imperial → Save worked. Group alerts was disabled with a web explanation. Diagnostics showed a redacted preview and explicit Save and Copy choices. Android alert behavior, file export and restart persistence remain open. |
+| 10 | A two-node link is shaky. Compare channels, explain what applying does and verify the outcome. | SW-13 and radio settings. Explain consent and interruptions, restore the starting channel after comparing, apply explicitly and verify. | Tools → Radio settings → Optimise channel. Local consent alone left Compare disabled. The pre-armed session restored the starting channel, recommended 32, and reported verification on both synthetic nodes after Apply. The 3/3 and 2/2 sample counts made reliability harder to interpret. Real channel tests, rollback and recovery remain open. |
+| 11 | Find how fast the link was, then estimate whether four people can talk while sharing positions and photos. | SW-14, connection tests and capacity planning. Show measurement provenance and label assumptions. | An 80/80 kbps history entry seeded a capacity plan. Four simultaneous talkers exceeded the modeled budget. The participant distinguished the dated measurement from the estimate. New tests, partial results, cancellation and mixed-load capacity remain open. |
+| 12 | Share a small amount of mobile data, stop and find how to use someone else's data. | SW-10. Explicit limits, source and stop state with consumer VPN consent. | The participant started and stopped a simulated 100 MB / 30 min session. The offer and Android VPN requirement were visible. Actual traffic, VPN and donor loss remain open. |
+| 13 | Decide what the radio strength reading tells you about delivery to the group. | SW-13 and connection health. Explain link scope, age and end-to-end limits. | Node details exposed stale directional −67 dBm and unknown sample age. The participant drew no delivery guarantee. “Last known” in the list was less useful than details. |
+| 14 | Find the node's firmware version and check whether an update is available. | SW-15 and companion updates. Provide version/availability and gate installation. | The node version was unavailable. Firmware updates explained wireless updates were unavailable in this app version. The participant could not check a release. No installation attempted. |
+
+## Changes from the review
+
+- Keep the call strip's one-way Mute action available when mute is unconfirmed or the microphone is enabled. Show a disabled Muted state when mute is confirmed. Leaving and opening Voice remain available.
+- Put invalid and expired invitation feedback below the invitation field, associate it with the field for assistive technology, and clear it as the participant edits. Explain the display-name prerequisite next to Inspect.
+- Explain which phone needs connection test consent and when a ready phone must be selected. Explain how the repeat-count requirement affects the recommendation. Channel ranking, eligibility, consent and apply verification use the existing logic.
+
+## Device and lab acceptance
+
+| Requirement | Scenario and evidence still needed |
+| --- | --- |
+| SW-01, SW-03, SW-12 | Join without internet, approve a member, recover or revoke membership, and test expiry and role enforcement on test identities. |
+| SW-02 and stable gateway work | Walk the middle phone away, interrupt and restore a three-node relay with the direct path excluded, and measure disruption and recovery. |
+| SW-04–SW-06 | Lose coverage while sending text/photos, sharing a fix or saving maps. Check queues and map storage after restart, actual receipts, stale positions and offline rendering. |
+| SW-07–SW-09, SW-11, SW-13 and V-01–V-12 | Use overlapping speech and speech activation, switch headset, lock the phone and recover from interruption. Measure intelligibility, delay, mute privacy and recovery using the voice trials. |
+| SW-10, SW-14 | Change or lose a donor while voice, position, text and photos compete. Measure actual all-app connectivity, disruption, thermal and power outcomes. |
+| SW-15, SW-16 and planned CLI parity | Inspect exact versions and diagnose offline. Exercise authorised updates, persistent settings, version/readback parity and rollback on the intended targets. |
+| Connection health and channel work | Arm both intended phones, run bounded tests, compare channels and check actual applied values, rollback and an inconclusive comparison. |
+
+Private bench evidence stays out of Git. The study did not run the physical DHCP gate.
