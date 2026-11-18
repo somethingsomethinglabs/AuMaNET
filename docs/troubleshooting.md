@@ -11,7 +11,7 @@ Check that your assigned node has power. In the app, use **Open Wi-Fi settings**
 
 ## Wi-Fi is connected but verification is waiting
 
-Open **Network** and check **Your node** and **Groups & members**. Confirm the assigned node and saved group. Under **Manage connection**, choose **Resume connection** after Stop, expiry or an app-process restart. See [Connect a provisioned node](initial-configuration.md).
+Open **Network** and check **Your node** and **Groups & members**. Confirm the assigned node and saved group. Open **Network → Connection details** and choose **Resume connection** when available after Stop, expiry or an app-process restart. If the app shows **Reconnect**, use it when enabled. See [Connect a provisioned node](initial-configuration.md).
 
 ## Group is connected but another phone is absent
 

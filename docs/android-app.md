@@ -19,7 +19,7 @@ This guide describes the committed testing build. Check [builds and tested scope
 
 ## Start a saved session
 
-Open **Network → Manage connection** and review the node, group, voice and location choices. Choose **Resume connection**. After Stop, expiry or an app-process restart, choose Resume again. See [Connect a provisioned node](initial-configuration.md).
+Open **Network → Connection details** and check the node, group and saved voice and location choices. Choose **Resume connection** when available. After Stop, expiry or an app-process restart, return here to resume. See [Connect a provisioned node](initial-configuration.md).
 
 ## Messages and photos
 
