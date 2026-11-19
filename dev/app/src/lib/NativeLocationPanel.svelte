@@ -11,6 +11,7 @@
   export let sourceError='';
   export let sharingAvailable=false;
   export let sharingEnabled=false;
+  export let onconnect:(()=>void)|undefined=undefined;
   export let onsharingchange:(enabled:boolean)=>Promise<unknown>=async()=>{throw new Error('Location sharing is unavailable.');};
   let busy=false,sharingBusy=false,sharingError='',error='',now=0,receivedAt=0;
   $: sharingHint=sharingBusy?'Updating location sharing…':sharingEnabled?'New position fixes are shared with the connected group, including while the screen is off. Turn sharing off or use Stop sharing in the Android notification to stop new updates.':!sharingAvailable?'Connect to a verified group to share your position.':sourceError?'Location status is unavailable. Wait for it to refresh before enabling sharing.':!state?'Loading location status…':state.backgroundSharing==='starting'?'Preparing location sharing…':'Sharing is off. Turn it on to request location access and share new fixes with the connected group.';
@@ -60,6 +61,9 @@
     disabled={sharingBusy||(!sharingEnabled&&(!sharingAvailable||!state||!!sourceError))} onchange={event=>void changeSharing(event.currentTarget)}/></label>
   {#if sharingError}<p class="location-error" role="alert">{sharingError}</p>{/if}
   <p class="hint" id="location-sharing-hint" role="status">{sharingHint} No track is saved.</p>
+  {#if onconnect&&!sharingAvailable&&!sharingEnabled&&!sharingBusy}
+    <button class="outline" onclick={onconnect}>Open group connection</button>
+  {/if}
   <div class="help-row"><span>Location &amp; privacy</span><HelpButton title="Location & privacy"><p>Your own map view uses location only while the app is open. Group sharing can continue with the screen off; the Android notification has a stop control.</p><p>Accuracy is Android’s estimate. Positions older than one minute, or from stopped updates, are shown as last known.</p></HelpButton></div>
 </section>
 <style>

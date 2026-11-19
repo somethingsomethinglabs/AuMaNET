@@ -7,6 +7,7 @@ final class LocationOwnership {
     static final class View {
         final boolean foreground,background,pending;private final State marker;
         private View(State state){foreground=!state.foreground.isEmpty();background=!state.background.isEmpty();pending=!state.pending.isEmpty();marker=state;}
+        boolean hasSharingDemand(){return pending||background;}
     }
     private static final class State {
         final String foreground,background,pending;final long revision;

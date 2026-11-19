@@ -1,5 +1,5 @@
 import {regionSetRoot} from './downloads';
-import type {StyleSpecification,ExpressionSpecification,LayerSpecification} from 'maplibre-gl';
+import type {StyleSpecification,ExpressionSpecification,LayerSpecification,RasterDEMSourceSpecification} from 'maplibre-gl';
 import {manifest} from './archive';
 const name:ExpressionSpecification=['coalesce',['get','name:en'],['get','name'],''];
 const font=['Noto Sans Regular'];
@@ -7,11 +7,20 @@ const walking:ExpressionSpecification=['in',['get','kind_detail'],['literal',['f
 const track:ExpressionSpecification=['==',['get','kind_detail'],'track'];
 const road:ExpressionSpecification=['all',['!',walking],['!',track],['!=',['get','kind'],'rail']];
 const width:ExpressionSpecification=['interpolate',['linear'],['zoom'],10,1,13,2.5,16,5,19,10];
-export function outdoorStyle(basemap:string,terrain:string):StyleSpecification {
+export const mapBackground={light:'#f3f0e5',dark:'#25392F'};
+
+function elevationSource(bounds:[number,number,number,number]):RasterDEMSourceSpecification {
+  return{type:'raster-dem',tiles:['aumanet-offline-dem://{z}/{x}/{y}'],encoding:'terrarium',tileSize:512,maxzoom:manifest.terrainMaxZoom,bounds};
+}
+export function outdoorStyle(basemap:string):StyleSpecification {
   const layers:LayerSpecification[]=[
-    {id:'background',type:'background',paint:{'background-color':'#f3f0e5'}},
+    {id:'background',type:'background',paint:{'background-color':mapBackground.light}},
     {id:'landuse',type:'fill',source:'base','source-layer':'landuse',paint:{'fill-color':['match',['get','kind'],'forest','#d5e3cb','wood','#d5e3cb','nature_reserve','#e0e9d3','park','#e0e9d3','grass','#e6ebd5','farmland','#eee9cd','residential','#e9e5dd','#e9e8d7'],'fill-opacity':.65}},
-    {id:'hillshade',type:'hillshade',source:'terrain',paint:{'hillshade-exaggeration':.25,'hillshade-shadow-color':'#626d61','hillshade-highlight-color':'#fffdf5','hillshade-accent-color':'#8a937c'}},
+    // At wide views shading shows the footprint of sparse DEM tiles. At close views
+    // contours and roads still overzoom, while enlarged DEM pixels wash out the map.
+    {id:'hillshade',type:'hillshade',source:'terrain',minzoom:10,maxzoom:17,paint:{
+      'hillshade-exaggeration':['interpolate',['linear'],['zoom'],10,0,11,.25,15,.25,17,0],
+      'hillshade-shadow-color':'#626d61','hillshade-highlight-color':'#fffdf5','hillshade-accent-color':'#8a937c'}},
     {id:'water',type:'fill',source:'base','source-layer':'water',filter:['==',['geometry-type'],'Polygon'],paint:{'fill-color':'#aed5e0'}},
     {id:'waterways',type:'line',source:'base','source-layer':'water',filter:['==',['geometry-type'],'LineString'],paint:{'line-color':'#639fb4','line-width':['interpolate',['linear'],['zoom'],10,.5,16,1.8]}},
     {id:'contour-lines',type:'line',source:'contours','source-layer':'contours',minzoom:13,paint:{'line-color':'#81775f','line-opacity':.5,'line-width':['case',['>', ['get','level'],0],1,.45]}},
@@ -29,16 +38,16 @@ export function outdoorStyle(basemap:string,terrain:string):StyleSpecification {
     {id:'place-labels',type:'symbol',source:'base','source-layer':'places',layout:{'text-field':name,'text-font':font,'text-size':['interpolate',['linear'],['zoom'],10,12,15,17],'text-max-width':8},paint:{'text-color':'#394b3b','text-halo-color':'#fffdf3','text-halo-width':1.5}},
   ];
   return{version:8,name:'AuMaNET Outdoor',glyphs:`${globalThis.location.origin}/maps/outdoor-preview/fonts/{fontstack}/{range}.pbf`,
-    sources:{base:{type:'vector',url:basemap,bounds:manifest.bounds as [number,number,number,number]},terrain:{type:'raster-dem',url:terrain,encoding:'terrarium',tileSize:512,maxzoom:14},contours:{type:'vector',tiles:['aumanet-contours://{z}/{x}/{y}'],minzoom:13,maxzoom:14,bounds:manifest.bounds as [number,number,number,number]}},layers};
+    sources:{base:{type:'vector',url:basemap,bounds:manifest.bounds as [number,number,number,number]},terrain:elevationSource(manifest.terrainBounds as [number,number,number,number]),contours:{type:'vector',tiles:['aumanet-contours://{z}/{x}/{y}'],minzoom:13,maxzoom:14,bounds:manifest.bounds as [number,number,number,number]}},layers};
 }
 
 export function downloadedStyle(value:import('./downloads').VectorRegion|readonly import('./downloads').VectorRegion[]):StyleSpecification{
   const regions=Array.isArray(value)?value:[value as import('./downloads').VectorRegion],root=regionSetRoot(regions);
-  const union=(items:readonly import('./downloads').VectorRegion[]):[number,number,number,number]=>[Math.min(manifest.bounds[0],...items.map(r=>r.bounds[0])),Math.min(manifest.bounds[1],...items.map(r=>r.bounds[1])),Math.max(manifest.bounds[2],...items.map(r=>r.bounds[2])),Math.max(manifest.bounds[3],...items.map(r=>r.bounds[3]))];
-  const style=outdoorStyle('','');style.name='AuMaNET Offline';style.glyphs=root+'/glyphs/{fontstack}/{range}.pbf';
+  const union=(items:readonly import('./downloads').VectorRegion[],[w,s,e,n]=manifest.bounds):[number,number,number,number]=>[Math.min(w,...items.map(r=>r.bounds[0])),Math.min(s,...items.map(r=>r.bounds[1])),Math.max(e,...items.map(r=>r.bounds[2])),Math.max(n,...items.map(r=>r.bounds[3]))];
+  const style=outdoorStyle('');style.name='AuMaNET Offline';style.glyphs=root+'/glyphs/{fontstack}/{range}.pbf';
   style.sources.base={type:'vector',tiles:['aumanet-offline-base://{z}/{x}/{y}'],minzoom:0,maxzoom:15,bounds:union(regions)};
   const terrain=regions.filter(r=>r.terrain);
-  if(terrain.length){style.sources.terrain={type:'raster-dem',tiles:['aumanet-offline-dem://{z}/{x}/{y}'],encoding:'terrarium',tileSize:512,minzoom:0,maxzoom:14,bounds:union(terrain)};style.sources.contours={type:'vector',tiles:['aumanet-contours://{z}/{x}/{y}'],minzoom:13,maxzoom:14,bounds:union(terrain)};}
+  if(terrain.length){style.sources.terrain=elevationSource(union(terrain,manifest.terrainBounds));style.sources.contours={type:'vector',tiles:['aumanet-contours://{z}/{x}/{y}'],minzoom:13,maxzoom:14,bounds:union(terrain)};}
   else{delete style.sources.terrain;delete style.sources.contours;style.layers=style.layers.filter(layer=>!['hillshade','contour-lines','contour-labels'].includes(layer.id));}
   return style;
 }

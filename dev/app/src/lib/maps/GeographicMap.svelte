@@ -1,14 +1,21 @@
+<script module lang="ts">
+  import {Capacitor,registerPlugin} from '@capacitor/core';
+  import type {Position} from './format';
+
+  const navigation=registerPlugin<{openDestination(point:Pick<Position,'latitude'|'longitude'>):Promise<void>}>('AuMaNETMapNavigation');
+</script>
+
 <script lang="ts">
   import {appearance} from '../appearance';
-  import {mapAppearance,connectionAppearance} from './vector/appearance';
+  import {mapAppearance,onlineDarkAppearance,connectionAppearance} from './vector/appearance';
   import {onMount} from 'svelte';
   import {Map as VectorMap,setWorkerUrl} from 'maplibre-gl';
   import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
   import 'maplibre-gl/dist/maplibre-gl.css';
   import {previewProtocols} from './vector/protocol';
-  import {outdoorStyle,downloadedStyle} from './vector/style';
+  import {outdoorStyle,downloadedStyle,mapBackground} from './vector/style';
   import {manifest} from './vector/archive';
-  import {offlineCoverageLabel} from './coverage';
+  import {offlineCoverageLabel,viewportCovered} from './coverage';
   import {nativeVectorMaps,visibleRegions,regionSetRoot,downloadBounds,type VectorRegion,type MapBounds} from './vector/downloads';
   export let focusBounds:MapBounds|undefined=undefined;
   let regions:VectorRegion[]=[];
@@ -28,21 +35,132 @@
   }
 
   export let onbasemap:(label:string)=>void=()=>{};
-  let vectorContainer:HTMLDivElement,vector:VectorMap|undefined,protocols:ReturnType<typeof previewProtocols>|undefined;
-  let vectorMode='',connectionDetail:MapConnection|undefined,detailDialog:HTMLDialogElement;
+  let vectorContainer:HTMLDivElement,onlineContainer:HTMLDivElement;
+  let vector:VectorMap|undefined,onlineVector:VectorMap|undefined;
+  let protocols:ReturnType<typeof previewProtocols>|undefined;
+  let vectorMode='',protocolRoot:string|undefined,offlineLabel='',offlineError=false;
+  let onlineTheme:boolean|undefined,onlineReady=false,onlineFailed=false,onlineWanted=false;
+  let lastOnlineView:{center:LatLng;zoom:number}|undefined;
+  let connectionDetail:MapConnection|undefined,detailDialog:HTMLDialogElement;
   function openConnection(id:string){connectionDetail=connections.find(item=>item.id===id);if(connectionDetail)detailDialog.showModal();}
-  function startVector(){try{setWorkerUrl(mapWorkerUrl);vector=new VectorMap({container:vectorContainer,style:{version:8,sources:{},layers:[]},interactive:false,attributionControl:false,maxTileCacheSize:48});vector.on('style.load',()=>{if(!vector||!vectorMode.startsWith('online')||!vectorMode.endsWith('/dark'))return;for(const layer of vector.getStyle().layers){if(layer.type==='symbol'&&layer.layout?.['text-field']){vector.setPaintProperty(layer.id,'text-color','#EDF3E8');vector.setPaintProperty(layer.id,'text-halo-color','#182A24');vector.setPaintProperty(layer.id,'text-halo-width',1.6);}if(layer.type==='line'&&/road|highway|path|rail/i.test(layer.id)&&!/casing|case|tunnel/i.test(layer.id))vector.setPaintProperty(layer.id,'line-color','#C7D9AC');}});vector.on('error',(event)=>{if(String(event.error?.message).includes('Offline elevation coverage is unavailable'))return;onbasemap(vectorMode.startsWith('online')?'Online map unavailable · Check your internet connection':'Offline vector map unavailable');});}catch{vector?.remove();vector=undefined;protocols?.close();protocols=undefined;onbasemap('Vector map unavailable on this device');}}
-  function syncVector(){
-    if(!map||!vector)return;const center=map.getCenter(),[w,s,e,n]=manifest.bounds;
-    const viewport=map.getBounds(),bounds:MapBounds=[viewport.getWest(),viewport.getSouth(),viewport.getEast(),viewport.getNorth()];
-    const visible=visibleRegions(regions,bounds),region=visible[0],local=map.getZoom()>=11&&bounds[0]<=e&&bounds[2]>=w&&bounds[1]<=n&&bounds[3]>=s,root=region?regionSetRoot(regions):'',mode=(region?'regions/'+root:local?'local':'online')+($appearance.theme==='Dark'?'/dark':'/light');
-    if(vectorMode!==mode){vectorMode=mode;protocols?.close();protocols=region||local?previewProtocols(region?{regionRoot:root,terrainTemplate:root+'/terrain/{z}/{x}/{y}.webp'}:{}):undefined;vector.setStyle(region?mapAppearance(downloadedStyle(regions),$appearance.theme==='Dark'):local?mapAppearance(outdoorStyle(protocols!.basemap,protocols!.terrain),$appearance.theme==='Dark'):$appearance.theme==='Dark'?'https://tiles.openfreemap.org/styles/dark':'https://tiles.openfreemap.org/styles/liberty',{diff:false});}
-    vector.jumpTo({center:[center.lng,center.lat],zoom:map.getZoom()-1});
-    onbasemap(region?offlineCoverageLabel(bounds,visible.map(area=>area.bounds),visible.length===1?region.name:undefined):local?offlineCoverageLabel(bounds,[manifest.bounds as MapBounds],'Outdoor map'):'Online map · Internet required');
+
+  function createVector(container:HTMLDivElement){
+    return new VectorMap({container,interactive:false,attributionControl:false,maxTileCacheSize:48});
   }
-  import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup,Rectangle,Marker,DivIcon} from 'leaflet';
+
+  function reportBasemap(){
+    if(onlineWanted&&onlineReady)onbasemap('Online map · Internet required');
+    else if(offlineLabel)onbasemap(offlineError?'Offline vector map unavailable':offlineLabel);
+    else if(onlineFailed)onbasemap('Online map unavailable · Check your internet connection');
+    else onbasemap('Loading online map…');
+  }
+
+  function startVector(){
+    try{
+      setWorkerUrl(mapWorkerUrl);
+      vector=createVector(vectorContainer);
+      vector.on('error',event=>{
+        // Missing elevation leaves a gap in shading while the basemap stays usable.
+        if('sourceId' in event&&(event.sourceId==='terrain'||event.sourceId==='contours'))return;
+        offlineError=true;
+        reportBasemap();
+      });
+    }catch{
+      onbasemap('Vector map unavailable on this device');
+    }
+  }
+
+  function syncCamera(){
+    if(!map)return;
+    const center=map.getCenter();
+    const camera={center:[center.lng,center.lat] as [number,number],zoom:map.getZoom()-1};
+    vector?.jumpTo(camera);
+    onlineVector?.jumpTo(camera);
+  }
+
+  function stopOnline(){
+    onlineReady=false;
+    onlineFailed=false;
+    onlineTheme=undefined;
+    lastOnlineView=undefined;
+    const previous=onlineVector;
+    onlineVector=undefined;
+    previous?.remove();
+  }
+
+  function startOnline(dark:boolean){
+    if(!map)return;
+    stopOnline();
+    onlineTheme=dark;
+    const attemptedView={center:map.getCenter(),zoom:map.getZoom()};
+    lastOnlineView=attemptedView;
+    if(!navigator.onLine){onlineFailed=true;return;}
+    try{
+      const candidate=createVector(onlineContainer);
+      onlineVector=candidate;
+      syncCamera();
+      candidate.on('error',()=>{
+        if(onlineVector!==candidate)return;
+        onlineReady=false;
+        onlineFailed=true;
+        reportBasemap();
+      });
+      // Wait for the style and its visible tiles before covering the saved map.
+      candidate.on('idle',()=>{
+        if(onlineVector!==candidate||onlineFailed||onlineReady||!candidate.isStyleLoaded()||!candidate.areTilesLoaded())return;
+        onlineReady=true;
+        reportBasemap();
+      });
+      candidate.setStyle('https://tiles.openfreemap.org/styles/'+(dark?'dark':'liberty'),{
+        diff:false,transformStyle:(_,style)=>dark?onlineDarkAppearance(style):style,
+      });
+    }catch{
+      stopOnline();
+      onlineTheme=dark;
+      lastOnlineView=attemptedView;
+      onlineFailed=true;
+    }
+  }
+
+  function syncVector(moved=false){
+    if(!map||!vector)return;
+    const [w,s,e,n]=manifest.bounds;
+    const viewport=map.getBounds(),bounds:MapBounds=[viewport.getWest(),viewport.getSouth(),viewport.getEast(),viewport.getNorth()];
+    const visible=visibleRegions(regions,bounds),region=visible[0];
+    const local=map.getZoom()-1>=manifest.minZoom&&bounds[0]<=e&&bounds[2]>=w&&bounds[1]<=n&&bounds[3]>=s;
+    const dark=$appearance.theme==='Dark';
+    const areas=region?visible.map(area=>area.bounds):local?[manifest.bounds as MapBounds]:[];
+    offlineLabel=areas.length?offlineCoverageLabel(bounds,areas,region?(visible.length===1?region.name:undefined):'Outdoor map'):'';
+    if(region||local){
+      const root=region?regionSetRoot(regions):'';
+      const mode=root+(dark?'/dark':'/light');
+      if(vectorMode!==mode){
+        vectorMode=mode;
+        offlineError=false;
+        const sourceChanged=protocolRoot!==root;
+        if(sourceChanged||!protocols){
+          protocols?.close();
+          protocols=previewProtocols(root?{regionRoot:root,terrainTemplate:root+'/terrain/{z}/{x}/{y}.webp'}:{});
+          protocolRoot=root;
+        }
+        const style=region?downloadedStyle(regions):outdoorStyle(protocols.basemap);
+        vector.setStyle(mapAppearance(style,dark),{diff:!sourceChanged});
+      }
+    }
+    onlineWanted=!viewportCovered(bounds,areas);
+    if(!onlineWanted)stopOnline();
+    else{
+      // After a provider failure, try once at the next distinct settled view.
+      // Keep the saved map visible and avoid retrying on polling or duplicate events.
+      const retry=moved&&onlineFailed&&navigator.onLine&&lastOnlineView
+        &&(map.getZoom()!==lastOnlineView.zoom||!map.getCenter().equals(lastOnlineView.center));
+      if(onlineTheme!==dark||retry)startOnline(dark);
+    }
+    reportBasemap();
+  }
+  import {LeafletMap,LatLngBounds,Circle,CircleMarker,Polyline,Popup,Rectangle,Marker,DivIcon,type LatLng} from 'leaflet';
   import 'leaflet/styles.css';
-  import type {Position,MapMember} from './format';
+  import type {MapMember} from './format';
   import {freshGroupPositions,validPosition,MapNavigationView} from './map-view';
   import type {MapConnection} from './connections';
   export let fix:Position|undefined=undefined;
@@ -70,7 +188,7 @@
     if(focusBounds){if(viewport.next(false,true)==='coverage'){viewport.interact();const[w,s,e,n]=focusBounds;map.fitBounds(new LatLngBounds([s,w],[n,e]),{animate:false,padding:[18,18],maxZoom:16});}return;}
     if(viewport.next(freshGroupPositions(fix,ageMs,active,members).length>0,false)==='group')framePositions();
   }
-  function reportCoverage(){syncVector();}
+  function reportCoverage(moved=false){syncCamera();syncVector(moved);}
   function activateMember(id:string,details=false){if(areaSelection){const p=markers.get(id)?.point.getLatLng();if(p&&!areaLocked)onareapin?.({latitude:p.lat,longitude:p.lng});}else (details?(onnameselect??onselect):onselect)(id);}
   function syncMarkers(){
     if(!map)return;const entries:Array<{id:string;name:string;fix:Position;fresh:boolean}>=[];
@@ -119,9 +237,144 @@
   export function zoomOut(){interact();map?.zoomOut();}
   export function focusPosition(p:Position){interact();if(valid(p))map?.setView([p.latitude,p.longitude],Math.max(map?.getZoom()??0,14),{animate:false});}
   export function fitMembers(){interact();framePositions();}
-  onMount(()=>{let stopped=false,loading=false;const client=nativeVectorMaps();const refresh=async()=>{if(!client||loading)return;loading=true;try{const state=await client.snapshot();if(!stopped)regions=state.regions;}catch{}finally{loading=false;}};void refresh();const poll=setInterval(()=>void refresh(),5000);startVector();map=new LeafletMap(container,{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:18,scrollWheelZoom:true,zoomAnimation:false,fadeAnimation:false});map.createPane('connections').style.zIndex='350';map.createPane('offline-area').style.zIndex='390';map.on('click',event=>{if((event.originalEvent?.target as Element)?.closest('.leaflet-interactive,.leaflet-tooltip,.leaflet-marker-icon'))return;const point={latitude:event.latlng.lat,longitude:event.latlng.lng};if(areaSelection){if(!areaLocked)onareapin?.(point);return;}const text=document.createElement('div');text.textContent=`${event.latlng.lat.toFixed(6)}, ${event.latlng.lng.toFixed(6)}`;text.setAttribute('aria-label','Pinned coordinates');if(onofflinepick){const button=document.createElement('button');button.textContent='Save this area offline';button.className='pin-save-area';button.addEventListener('click',()=>{map?.closePopup();onofflinepick?.(point);});text.append(document.createElement('br'),button);}new Popup({autoPanPaddingTopLeft:[16,104],autoPanPaddingBottomRight:[72,104]}).setLatLng(event.latlng).setContent(text).openOn(map!);});map.on('dragstart',interact);map.on('move zoom',syncVector);map.on('moveend zoomend',reportCoverage);const first=freshGroupPositions(fix,ageMs,active,members)[0];map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);syncConnections();syncMarkers();syncArea();defaultView();const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();reportCoverage();});observer.observe(container);container.addEventListener('pointerdown',interact);container.addEventListener('wheel',interact,{passive:true});container.addEventListener('keydown',interact);return()=>{stopped=true;clearInterval(poll);container.removeEventListener('pointerdown',interact);container.removeEventListener('wheel',interact);container.removeEventListener('keydown',interact);observer.disconnect();vector?.remove();vector=undefined;protocols?.close();map?.remove();map=undefined;markers.clear();connectionLines.clear();};});
+  function openPin(event:{latlng:LatLng;originalEvent:Event}){
+    if(!map||(event.originalEvent?.target as Element)?.closest('.leaflet-interactive,.leaflet-tooltip,.leaflet-marker-icon'))return;
+    const pinMap=map;
+    const {lat,lng}=pinMap.wrapLatLng(event.latlng);
+    const point={latitude:lat,longitude:lng};
+    if(areaSelection){
+      if(!areaLocked)onareapin?.(point);
+      return;
+    }
+
+    const content=document.createElement('div');
+    const coordinates=document.createElement('div');
+    const latitude=lat.toFixed(6),longitude=lng.toFixed(6);
+    coordinates.textContent=`${latitude}, ${longitude}`;
+    coordinates.setAttribute('aria-label','Pinned coordinates');
+    const actions=document.createElement('div');
+    actions.className='map-pin-actions';
+    content.append(coordinates,actions);
+    const popup=new Popup({className:'map-pin-popup'})
+      .setLatLng(event.latlng).setContent(content);
+
+    if(onofflinepick){
+      const save=document.createElement('button');
+      save.type='button';
+      save.textContent='Save this area offline';
+      save.className='map-pin-action pin-save-area';
+      save.addEventListener('click',()=>{
+        map?.closePopup();
+        onofflinepick?.(point);
+      });
+      actions.append(save);
+    }
+
+    if(Capacitor.getPlatform()==='android'){
+      const open=document.createElement('button');
+      open.type='button';
+      open.className='map-pin-action';
+      open.textContent='Open in navigation';
+      const status=document.createElement('div');
+      status.className='map-pin-status';
+      status.setAttribute('role','status');
+      open.addEventListener('click',async()=>{
+        open.disabled=true;
+        status.textContent='';
+        try{
+          await navigation.openDestination(point);
+        }catch(error){
+          status.textContent=(error as {code?:string})?.code==='NO_MAP_APP'
+            ?'No compatible map app is installed.'
+            :'Could not open a map app.';
+          popup.update();
+        }finally{
+          open.disabled=false;
+        }
+      });
+      actions.append(open);
+      content.append(status);
+    }else{
+      const open=document.createElement('a');
+      open.className='map-pin-action';
+      open.textContent='Open in navigation';
+      open.href='https://www.google.com/maps/dir/?'+new URLSearchParams({api:'1',destination:`${latitude},${longitude}`});
+      open.target='_blank';
+      open.rel='noreferrer';
+      actions.append(open);
+    }
+
+    function fitPopup(){
+      const height=pinMap.getSize().y;
+      // Keep room for the actions and feedback before reserving space for map controls.
+      const padding=Math.max(8,Math.min(104,Math.floor((height-200)/2)));
+      // Leaflet's wrapper, content margins and tip take 48 px beyond the scrollable content.
+      popup.options.autoPanPaddingTopLeft=[16,padding];
+      popup.options.autoPanPaddingBottomRight=[72,padding];
+      popup.options.maxHeight=Math.max(1,height-2*padding-48);
+      popup.update();
+    }
+    fitPopup();
+    pinMap.on('resize',fitPopup);
+    popup.on('remove',()=>pinMap.off('resize',fitPopup));
+    popup.openOn(pinMap);
+  }
+  onMount(()=>{
+    let stopped=false,loading=false;
+    const client=nativeVectorMaps();
+    const refresh=async()=>{
+      if(!client||loading)return;
+      loading=true;
+      try{const state=await client.snapshot();if(!stopped)regions=state.regions;}catch{}finally{loading=false;}
+    };
+    void refresh();
+    const poll=setInterval(()=>void refresh(),5000);
+    startVector();
+    map=new LeafletMap(container,{zoomControl:false,attributionControl:false,minZoom:2,maxZoom:18,scrollWheelZoom:true,zoomAnimation:false,fadeAnimation:false});
+    map.createPane('connections').style.zIndex='350';
+    map.createPane('offline-area').style.zIndex='390';
+    map.on('click',openPin);
+    map.on('dragstart',interact);
+    map.on('move zoom',syncCamera);
+    map.on('moveend',()=>reportCoverage(true));
+    const first=freshGroupPositions(fix,ageMs,active,members)[0];
+    map.setView(first?[first.latitude,first.longitude]:[-25,135],first?15:4);
+    syncConnections();syncMarkers();syncArea();defaultView();
+    const observer=new ResizeObserver(()=>{map?.invalidateSize({pan:true,animate:false});vector?.resize();onlineVector?.resize();reportCoverage();});
+    observer.observe(container);
+    container.addEventListener('pointerdown',interact);
+    container.addEventListener('wheel',interact,{passive:true});
+    container.addEventListener('keydown',interact);
+    const reconnect=()=>{if(onlineWanted)startOnline($appearance.theme==='Dark');reportBasemap();};
+    window.addEventListener('online',reconnect);
+    window.addEventListener('offline',reconnect);
+    return()=>{
+      stopped=true;clearInterval(poll);
+      container.removeEventListener('pointerdown',interact);
+      container.removeEventListener('wheel',interact);
+      container.removeEventListener('keydown',interact);
+      window.removeEventListener('online',reconnect);
+      window.removeEventListener('offline',reconnect);
+      stopOnline();
+      observer.disconnect();vector?.remove();vector=undefined;protocols?.close();
+      map?.remove();map=undefined;markers.clear();connectionLines.clear();
+    };
+  });
 </script>
-<div class="vector-background" bind:this={vectorContainer} aria-hidden="true"></div>
+<div class="vector-background" style:background-color={$appearance.theme==='Dark'?mapBackground.dark:mapBackground.light} aria-hidden="true">
+  <div class="vector-background" bind:this={vectorContainer}></div>
+  <div class="vector-background online-basemap" class:ready={onlineWanted&&onlineReady} bind:this={onlineContainer}></div>
+</div>
 <div class="geographic-map" bind:this={container} aria-label="Geographic map and group positions"></div>
 <dialog bind:this={detailDialog} aria-label="Connection signal" class="signal-detail"><button class="close-signal" onclick={()=>detailDialog.close()} aria-label="Close connection signal">Close</button>{#if connectionDetail}<h3>{connectionDetail.from.name} ↔ {connectionDetail.to.name}</h3><strong>{connectionDetail.strength}</strong><p>{connectionDetail.detail}</p>{/if}</dialog>
-<style>.vector-background,.geographic-map{position:absolute;inset:0;height:100%;min-height:0}.geographic-map{background:transparent!important}.signal-detail{max-width:420px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:22px;padding:22px;background:var(--card);color:var(--ink);box-shadow:0 12px 60px #0003}.signal-detail::backdrop{background:var(--scrim)}.signal-detail p{font-size:0.8125rem;line-height:1.6}.close-signal{float:right;border:0;background:transparent;color:inherit;min-height:44px;padding:8px}.signal-detail h3{font-size:1.125rem;clear:both}:global(.offline-area-pin){display:block;box-sizing:border-box;width:27px;height:27px;border:3px solid var(--raised);border-radius:50% 50% 50% 0;background:var(--accent);transform:rotate(-45deg);box-shadow:0 2px 7px #0004}:global(.pin-save-area){min-height:36px;margin-top:5px;border:0;border-radius:8px;padding:6px 10px;background:var(--green);color:var(--on-action);font:inherit;font-weight:700}:global(.leaflet-tooltip){font-family:inherit;border-radius:8px;color:var(--ink);background:var(--raised);border:1px solid var(--control-line);font-weight:700}:global(.leaflet-control-container){display:none}</style>
+<style>.vector-background,.geographic-map{position:absolute;inset:0;height:100%;min-height:0}.online-basemap{visibility:hidden}.online-basemap.ready{visibility:visible}.geographic-map{background:transparent!important}.signal-detail{max-width:420px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:22px;padding:22px;background:var(--card);color:var(--ink);box-shadow:0 12px 60px #0003}.signal-detail::backdrop{background:var(--scrim)}.signal-detail p{font-size:0.8125rem;line-height:1.6}.close-signal{float:right;border:0;background:transparent;color:inherit;min-height:44px;padding:8px}.signal-detail h3{font-size:1.125rem;clear:both}:global(.offline-area-pin){display:block;box-sizing:border-box;width:27px;height:27px;border:3px solid var(--raised);border-radius:50% 50% 50% 0;background:var(--accent);transform:rotate(-45deg);box-shadow:0 2px 7px #0004}
+:global(.map-pin-actions){display:grid;gap:5px;margin-top:5px}
+:global(.leaflet-popup-content .map-pin-action){display:grid;place-items:center;min-height:44px;border:1px solid var(--control-line);border-radius:8px;padding:6px 10px;background:var(--raised);color:var(--ink);font:inherit;font-weight:700;text-decoration:none}
+:global(.leaflet-popup-content .pin-save-area){background:var(--green);color:var(--on-action);border-color:transparent}
+:global(.map-pin-status){max-width:175px}
+:global(.map-pin-status:not(:empty)){margin-top:5px}
+/* A short map can put the pin over the toolbars. Raise the Leaflet pane, keeping the map surface behind them. */
+:global(.geographic-map:has(.map-pin-popup)){isolation:auto}
+:global(.geographic-map:has(.map-pin-popup) > .leaflet-map-pane){z-index:520}
+:global(.map-pin-popup .leaflet-popup-scrolled){overscroll-behavior:contain;touch-action:pan-y}
+:global(.leaflet-tooltip){font-family:inherit;border-radius:8px;color:var(--ink);background:var(--raised);border:1px solid var(--control-line);font-weight:700}:global(.leaflet-control-container){display:none}</style>

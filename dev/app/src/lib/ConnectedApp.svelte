@@ -145,6 +145,12 @@
     void restoreScroll(true);
   }
   function openMapManagement(center?:{latitude:number;longitude:number}){mapDownloadCenter=center;openSettings('Maps & storage');returnToMap=true;}
+  function openLocationConnection(){
+    if(locationDialog?.open)locationDialog.close();
+    const trusted=trustedConnectionState?.snapshot;
+    if(groupError||!groupState||trusted?.canConnect||trusted?.runId){openSettings('Connection');return;}
+    openSettings(groupState.group||['connecting','pending'].includes(groupState.status)?'Group & members':'Set up a group');
+  }
   function backSettings(){
     saveScroll();void voiceClient?.endPtt();const previous=backStack.pop();
     if(previous){settings=!previous.tab;tab=previous.tab||tab;settingsCategory=previous.category;developerOptions=previous.developer;}
@@ -281,6 +287,6 @@
   <DeviceDetails {firmwareNodes} onupdate={showNodeUpdates} selection={selectedDevice} group={groupState} nodes={deviceNodes} ownFix={locationState?.fix} ownAgeMs={ownLocationView.ageMs??Infinity} ownActive={locationState?.status==='active'&&!!locationState.active&&!nativeLocationError} elapsedMs={Math.max(0,locationClock-groupReceivedAt)} groupUnavailable={!!groupError} units={$appearance.units} dark={$appearance.theme==='Dark'} onselect={selection=>selectedDevice=selection} onclose={()=>selectedDevice=undefined}/>
 </div>
 {#snippet locationControls()}
-  {#if locationClient}<NativeLocationPanel units={$appearance.units} client={locationClient} state={locationState} sourceError={nativeLocationError} sharingAvailable={!groupError&&!!groupState?.group&&['hosting','connected'].includes(groupState.status)} sharingEnabled={groupState?.sharingLocation??false} onsharingchange={async enabled=>{if(!groupClient)throw new Error('Group connection is unavailable.');await groupClient.sharing(enabled);}}/>
+  {#if locationClient}<NativeLocationPanel units={$appearance.units} client={locationClient} state={locationState} sourceError={nativeLocationError} sharingAvailable={!groupError&&!!groupState?.group&&['hosting','connected'].includes(groupState.status)} sharingEnabled={groupState?.sharingLocation??false} onconnect={groupClient?openLocationConnection:undefined} onsharingchange={async enabled=>{if(!groupClient)throw new Error('Group connection is unavailable.');await groupClient.sharing(enabled);}}/>
   {:else}<section><h2>Your location</h2><p class="hint">Location stays private until you share it. Group sharing requires the Android app.</p><button class="outline" disabled={!locationSupported||locating} onclick={locate}>{locating?'Finding position…':'Find my position'}</button>{#if fix}<button class="outline" onclick={()=>{fix=undefined;fixAt=0;}}>Clear last position</button>{/if}{#if locationError}<p role="alert">{locationError}</p>{/if}</section>{/if}
 {/snippet}

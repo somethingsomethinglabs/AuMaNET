@@ -57,6 +57,31 @@ public final class GroupPeerWriteTest {
         quiet.write(new GroupPeerWriteHarness.Outbound(heartbeat(),null,()->true));check(quiet.sendSequence==1&&quietBytes.size()>0);LinkBenchmarkTraffic.release(benchmark);LinkBenchmarkTraffic.install(null);
         tests++;ByteArrayOutputStream legacyBytes=new ByteArrayOutputStream();GroupPeerWriteHarness legacy=new GroupPeerWriteHarness(new DataOutputStream(legacyBytes));JSONObject maintenance=new JSONObject().put("type","firmware-maintenance").put("payload",new JSONObject().put("action","prepare"));legacy.write(new GroupPeerWriteHarness.Outbound(maintenance,null,()->true));check(legacyBytes.size()==0&&legacy.sendSequence==0&&!legacy.closed.get());legacy.write(new GroupPeerWriteHarness.Outbound(heartbeat(),null,()->true));check(legacy.sendSequence==1&&legacyBytes.size()>0);
         tests++;ByteArrayOutputStream withdrewBytes=new ByteArrayOutputStream();GroupPeerWriteHarness withdrew=new GroupPeerWriteHarness(new DataOutputStream(withdrewBytes));withdrew.firmwareMaintenanceVersion=1;withdrew.finalFilter=()->withdrew.firmwareMaintenanceVersion=0;withdrew.write(new GroupPeerWriteHarness.Outbound(maintenance,null,()->true));check(withdrewBytes.size()==0&&withdrew.sendSequence==0&&!withdrew.closed.get());
+        tests++;
+        ByteArrayOutputStream removalBytes = new ByteArrayOutputStream();
+        GroupPeerWriteHarness removal = new GroupPeerWriteHarness(new DataOutputStream(removalBytes));
+        removal.queue.add(new GroupPeerWriteHarness.Outbound(heartbeat(), null, () -> true));
+        removal.queue.add(new GroupPeerWriteHarness.Outbound(heartbeat(), null, () -> true));
+        removal.textQueue.add(new GroupPeerWriteHarness.Outbound(text(), new Object(), () -> true));
+        removal.bulkQueue.add(new GroupPeerWriteHarness.Outbound(text(), new Object(), () -> true));
+        CountDownLatch preparing = new CountDownLatch(1), revoked = new CountDownLatch(1);
+        removal.finalFilter = () -> { preparing.countDown(); await(revoked); };
+        removal.startWriter();
+        try {
+            await(preparing);
+            removal.sendRemovalAndClose();
+        } finally {
+            revoked.countDown();
+        }
+        removal.writer.join(3000);
+        check(!removal.writer.isAlive() && removal.closed.get());
+        check(removal.queue.isEmpty() && removal.textQueue.isEmpty() && removal.bulkQueue.isEmpty());
+        DataInputStream frames = new DataInputStream(new ByteArrayInputStream(removalBytes.toByteArray()));
+        JSONObject notice = new JSONObject(GroupWire.read(frames));
+        check(notice.getString("type").equals(GroupProfilePhotos.MEMBERSHIP_REMOVED));
+        check(notice.getString("memberId").equals(removal.pin));
+        accept(new GroupWire.Sequence(removal.groupId, removal.connection), notice);
+        check(frames.read() == -1 && removal.sendSequence == 1 && removal.closeCount.get() == 1);
         System.out.println(new JSONObject().put("status","passed").put("testCount",tests).put("assertionCount",checks));
     }
 }

@@ -30,7 +30,11 @@ public final class VectorRegions {
     private static void tiles(List<int[]> out,double[] bounds,int max,int buffer){for(int z=0;z<=max;z++){int padding=z>=13?buffer:0;int n=1<<z,x0=(int)Math.floor((bounds[0]+180)/360*n)-padding,x1=(int)Math.floor((bounds[2]+180)/360*n)+padding,y0=(int)Math.floor(y(bounds[3],n))-padding,y1=(int)Math.floor(y(bounds[1],n))+padding;for(int x=Math.max(0,x0);x<=Math.min(n-1,x1);x++)for(int y=Math.max(0,y0);y<=Math.min(n-1,y1);y++)out.add(new int[]{z,x,y});}}
     private static double y(double lat,int n){double r=Math.toRadians(lat);return(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n;}
     public static boolean id(String value){return value!=null&&value.matches("[a-f0-9]{32}");}
-    public static boolean path(String value){return value!=null&&(value.matches("(base|terrain)/[0-9]{1,2}/[0-9]{1,6}/[0-9]{1,6}\\.(pbf|webp)")||value.matches("glyphs/[0-9]{1,5}-[0-9]{1,5}\\.pbf"));}
+    public static boolean path(String value){
+        return value!=null&&(value.matches("base/[0-9]{1,2}/[0-9]{1,6}/[0-9]{1,6}\\.pbf")
+            ||value.matches("terrain/[0-9]{1,2}/[0-9]{1,6}/[0-9]{1,6}\\.(webp|lerc)")
+            ||value.matches("glyphs/[0-9]{1,5}-[0-9]{1,5}\\.pbf"));
+    }
     public static JSONObject manifest(File dir)throws Exception{
         File file=new File(dir,"manifest.json");if(!file.isFile()||file.length()<2||file.length()>2*1024*1024)throw new IOException("Invalid offline region manifest");
         synchronized(CACHE){Cached cached=CACHE.get(file.getAbsolutePath());if(cached!=null&&cached.modified==file.lastModified()&&cached.length==file.length())return cached.value;}
@@ -42,13 +46,26 @@ public final class VectorRegions {
         JSONObject files=m.getJSONObject("files");if(files.length()<1||files.length()>MAX_TILES+257)throw new IOException("Invalid region file count");long bytes=0;Iterator<String> keys=files.keys();while(keys.hasNext()){String p=keys.next();JSONObject row=files.getJSONObject(p);long length=row.getLong("bytes");if(!path(p)||length<0||length>VectorPmtiles.LIMIT||!row.getString("sha256").matches("[a-f0-9]{64}"))throw new IOException("Invalid region file");bytes+=length;}if(bytes!=m.getLong("bytes"))throw new IOException("Invalid region byte count");synchronized(CACHE){CACHE.put(file.getAbsolutePath(),new Cached(file,m));}return m;
     }
     public static List<JSONObject> list(File root){List<JSONObject> list=new ArrayList<>();File[] dirs=root.listFiles();if(dirs!=null)for(File dir:dirs)if(id(dir.getName()))try{list.add(manifest(dir));}catch(Exception ignored){}list.sort((a,b)->Long.compare(b.optLong("installedAt"),a.optLong("installedAt")));return list;}
-    public static JSONObject summary(JSONObject m)throws JSONException{JSONObject row=new JSONObject();for(String key:new String[]{"id","key","name","bounds","bytes","installedAt","terrain","dataDate"})row.put(key,m.get(key));return row;}
+    public static JSONObject summary(JSONObject m)throws JSONException{JSONObject row=new JSONObject();for(String key:new String[]{"id","key","name","bounds","bytes","installedAt","terrain","dataDate"})row.put(key,m.get(key));if(m.has("terrainSource"))row.put("terrainSource",m.get("terrainSource"));if(m.has("terrainLimited"))row.put("terrainLimited",m.get("terrainLimited"));return row;}
     /** Resolve one verified tile across immutable regions, in caller supplied priority order. */
     public static File fileFromSet(File root,String set,String path)throws Exception{
         if(set==null||!set.matches("[a-f0-9]{32}(_[a-f0-9]{32}){0,3}")||!path(path))throw new IOException("Invalid vector region set");
         Set<String> seen=new HashSet<>(Arrays.asList(set.split("_")));if(seen.size()!=set.split("_").length)throw new IOException("Duplicate vector region");
-        for(String id:set.split("_")){File dir=new File(root,id);if(!new File(dir,"manifest.json").isFile())continue;JSONObject m=manifest(dir);if(m.getJSONObject("files").has(path))return file(root,id,path);}
+        for(String id:set.split("_")){File dir=new File(root,id);if(!new File(dir,"manifest.json").isFile())continue;JSONObject m=manifest(dir);String present=storedPath(m,path);if(present!=null)return file(root,id,present);}
         return null;
+    }
+    public static File availableFile(File root,String id,String path)throws Exception{
+        if(!id(id)||!path(path))throw new IOException("Invalid vector tile path");
+        String present=storedPath(manifest(new File(root,id)),path);
+        return present==null?null:file(root,id,present);
+    }
+    private static String storedPath(JSONObject manifest,String path)throws JSONException{
+        JSONObject files=manifest.getJSONObject("files");
+        if(path.startsWith("terrain/")&&path.endsWith(".webp")){
+            String vicmap=path.substring(0,path.length()-5)+".lerc";
+            if(files.has(vicmap))return vicmap;
+        }
+        return files.has(path)?path:null;
     }
     public static File file(File root,String id,String path)throws Exception{
         if(!id(id)||!path(path))throw new IOException("Invalid vector tile path");File dir=new File(root,id);JSONObject m=manifest(dir),entry=m.getJSONObject("files").optJSONObject(path);if(entry==null)throw new FileNotFoundException("Tile outside downloaded coverage");
@@ -77,25 +94,51 @@ public final class VectorRegions {
             save(staging,"base/"+tile[0]+"/"+tile[1]+"/"+tile[2]+".pbf",value,files,bytes);
             progress.update(++done[0],tileTotal,bytes[0],"downloading");
         });
-        Map<String,List<int[]>> terrains=new LinkedHashMap<>();
-        for(int[] tile:plan.dem){
-            String name=tile[0]<=12?"planet":"6-"+(tile[1]>>(tile[0]-6))+"-"+(tile[2]>>(tile[0]-6));
-            terrains.computeIfAbsent(name,key->new ArrayList<>()).add(tile);
+        int[] terrainSaved={0,0};
+        boolean vicmap=plan.terrain&&VicmapTerrain.includes(plan.bounds);
+        String extension=vicmap?"lerc":"webp";
+        VectorPmtiles.TileConsumer collectTerrain=(tile,value)->{
+            if(value!=null){
+                save(staging,"terrain/"+tile[0]+"/"+tile[1]+"/"+tile[2]+"."+extension,value,files,bytes);
+                terrainSaved[0]++;
+                if(tile[0]>=13)terrainSaved[1]++;
+            }
+            progress.update(++done[0],tileTotal,bytes[0],"downloading");
+        };
+        if(vicmap){
+            VicmapTerrain.read(plan.dem,check,collectTerrain);
+            if(terrainSaved[0]>0)sources.put(VicmapTerrain.SERVICE,"Vicmap Elevation 10m DEM");
+        }else{
+            readMapterhorn(plan.dem,check,collectTerrain,sources);
         }
-        for(Map.Entry<String,List<int[]>> archive:terrains.entrySet()){
+        boolean terrainLimited=plan.terrain&&(terrainSaved[0]==0||terrainSaved[1]<plan.dem.stream().filter(tile->tile[0]>=13).count());
+        String terrainSource=terrainSaved[0]==0?"":vicmap?"vicmap":"mapterhorn";
+        if(glyphs.size()>128)throw new IOException("Too many font ranges for this area; choose a smaller region");int total=tileTotal+glyphs.size();for(int start:glyphs){check.check();String range=start+"-"+(start+255);byte[] value=VectorPmtiles.get("https://protomaps.github.io/basemaps-assets/fonts/Noto%20Sans%20Regular/"+range+".pbf",VectorPmtiles.LIMIT,check);if(value.length<2)throw new IOException("Map font is unavailable");save(staging,"glyphs/"+range+".pbf",value,files,bytes);progress.update(++done[0],total,bytes[0],"fonts");}
+        check.check();return new JSONObject().put("schema","aumanet.vector-region.v1").put("id",id).put("key",plan.key).put("name",plan.name).put("bounds",new JSONArray(plan.bounds)).put("bytes",bytes[0]).put("installedAt",System.currentTimeMillis()).put("terrain",terrainSaved[0]>0).put("terrainLimited",terrainLimited).put("terrainSource",terrainSource).put("dataDate",metadata.optString("planetiler:osm:osmosisreplicationtime",build.substring(0,8))).put("sources",sources).put("files",files).put("attribution","© OpenStreetMap contributors / Protomaps; Noto Sans: SIL OFL. "+(vicmap?VicmapTerrain.ATTRIBUTION:"Elevation: Mapterhorn and underlying sources. See bundled terrain sources and licences."));
+    }
+    private static void readMapterhorn(List<int[]> tiles,VectorPmtiles.Check check,VectorPmtiles.TileConsumer consumer,JSONObject sources)throws Exception{
+        Map<String,List<int[]>> archives=new LinkedHashMap<>();
+        for(int[] tile:tiles){
+            String name=tile[0]<=12?"planet":"6-"+(tile[1]>>(tile[0]-6))+"-"+(tile[2]>>(tile[0]-6));
+            archives.computeIfAbsent(name,key->new ArrayList<>()).add(tile);
+        }
+        for(Map.Entry<String,List<int[]>> archive:archives.entrySet()){
             VectorPmtiles.Remote source=new VectorPmtiles.Remote("https://download.mapterhorn.com/"+archive.getKey()+".pmtiles",check);
-            VectorPmtiles dem=new VectorPmtiles(source);
+            VectorPmtiles dem;
+            try{
+                dem=new VectorPmtiles(source);
+            }catch(VectorPmtiles.HttpStatus unavailable){
+                if(unavailable.status!=404&&unavailable.status!=410)throw unavailable;
+                for(int[] tile:archive.getValue()){check.check();consumer.accept(tile,null);}
+                continue;
+            }
             if(dem.type!=4||!new JSONObject(new String(dem.metadata(),StandardCharsets.UTF_8)).optString("encoding","terrarium").equals("terrarium"))throw new IOException("Unsupported elevation archive");
             sources.put(source.address,source.etag());
             dem.readTiles(archive.getValue(),check,(tile,value)->{
-                if(value==null)throw new IOException("Elevation is unavailable for part of this area; retry with roads and tracks only");
-                if(value.length<12||value[0]!='R'||value[1]!='I'||value[2]!='F'||value[3]!='F'||value[8]!='W'||value[9]!='E'||value[10]!='B'||value[11]!='P')throw new IOException("Invalid elevation image");
-                save(staging,"terrain/"+tile[0]+"/"+tile[1]+"/"+tile[2]+".webp",value,files,bytes);
-                progress.update(++done[0],tileTotal,bytes[0],"downloading");
+                if(value!=null&&(value.length<12||value[0]!='R'||value[1]!='I'||value[2]!='F'||value[3]!='F'||value[8]!='W'||value[9]!='E'||value[10]!='B'||value[11]!='P'))throw new IOException("Invalid elevation image");
+                consumer.accept(tile,value);
             });
         }
-        if(glyphs.size()>128)throw new IOException("Too many font ranges for this area; choose a smaller region");int total=tileTotal+glyphs.size();for(int start:glyphs){check.check();String range=start+"-"+(start+255);byte[] value=VectorPmtiles.get("https://protomaps.github.io/basemaps-assets/fonts/Noto%20Sans%20Regular/"+range+".pbf",VectorPmtiles.LIMIT,check);if(value.length<2)throw new IOException("Map font is unavailable");save(staging,"glyphs/"+range+".pbf",value,files,bytes);progress.update(++done[0],total,bytes[0],"fonts");}
-        check.check();return new JSONObject().put("schema","aumanet.vector-region.v1").put("id",id).put("key",plan.key).put("name",plan.name).put("bounds",new JSONArray(plan.bounds)).put("bytes",bytes[0]).put("installedAt",System.currentTimeMillis()).put("terrain",plan.terrain).put("dataDate",metadata.optString("planetiler:osm:osmosisreplicationtime",build.substring(0,8))).put("sources",sources).put("files",files).put("attribution","© OpenStreetMap contributors / Protomaps; elevation: Mapterhorn and underlying sources; Noto Sans: SIL OFL. See bundled terrain sources and licences.");
     }
     private static void save(File dir,String path,byte[] value,JSONObject files,long[] bytes)throws Exception{if(!path(path)||value.length>VectorPmtiles.LIMIT||bytes[0]>MAX_BYTES-value.length)throw new IOException("Region exceeds the 256 MiB download limit; choose a smaller area");File f=new File(dir,path);if(!f.getParentFile().isDirectory()&&!f.getParentFile().mkdirs())throw new IOException("Map storage unavailable");try(FileOutputStream out=new FileOutputStream(f)){out.write(value);out.getFD().sync();}bytes[0]+=value.length;files.put(path,new JSONObject().put("bytes",value.length).put("sha256",sha(value)));}
     /** Reads only MVT property messages, not geometry, to retain glyph ranges used by our labels. */

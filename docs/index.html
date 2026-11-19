@@ -27,7 +27,7 @@
         <p>AuMaNET uses portable radio nodes so your group can check in, talk and share positions beyond mobile coverage while the nodes have a link.</p>
         <div class="actions">
           <a class="button" href="getting-started.html">Choose your setup <span aria-hidden="true">→</span></a>
-          <a class="button secondary" href="overview.html">See how it works</a>
+          <a class="button secondary" href="#the-idea">See how it works</a>
         </div>
       </div>
       <div class="link-figure" id="how-it-connects">
@@ -52,44 +52,183 @@
     </div>
   </section>
 
-  <section class="wrap panel-section" id="app" aria-labelledby="app-title">
-    <h2 id="app-title">Before and beyond coverage</h2>
-    <div class="feature-grid">
-      <a class="feature" href="android-app.html#messages-and-photos">
-        <span class="feature-icon"><img class="icon" src="assets/brand/chat.svg" alt="" width="24" height="24"></span><h3>Check in by message</h3>
-        <p>Send text and photos when the group has a usable link. Delivery feedback describes another device receiving the message.</p><span class="feature-more" aria-hidden="true">→</span>
-      </a>
-<a class="feature" href="voice-configuration.html">
-        <span class="feature-icon"><img class="icon" src="assets/brand/mic.svg" alt="" width="24" height="24"></span><h3>Talk to the group</h3>
-        <p>Join voice muted, choose an audio output, and use push to talk when you’re ready to speak.</p><span class="feature-more" aria-hidden="true">→</span>
-      </a>
-<a class="feature" href="maps-location.html">
-        <span class="feature-icon"><img class="icon" src="assets/brand/map.svg" alt="" width="24" height="24"></span><h3>Prepare maps ahead</h3>
-        <p>Save map areas on your phone before leaving coverage. Choose separately whether to share your position with the group.</p><span class="feature-more" aria-hidden="true">→</span>
-      </a>
+  <section class="wrap panel-section product-grid" id="the-idea" aria-labelledby="idea-title">
+    <div class="section-copy">
+      <h2 id="idea-title">A local network you carry.</h2>
+      <p>AuMaNET is an open-source prototype for small groups travelling beyond mobile coverage. It combines an Android app with a portable radio box, called a node. In the current two-person setup, each person has a phone and a node.</p>
+    </div>
+    <dl class="product-parts">
+      <div>
+        <dt><span class="part-icon"><img class="icon" src="assets/brand/phone.svg" alt="" width="24" height="24"></span> Android app</dt>
+        <dd>Your phone joins the nearby node using its usual Wi-Fi. The app is where you message, talk and see the map.</dd>
+      </div>
+      <div>
+        <dt><span class="part-icon"><img class="icon" src="assets/brand/node.svg" alt="" width="24" height="24"></span> Portable radio node</dt>
+        <dd>The two nodes talk directly over Wi-Fi HaLow, a type of Wi-Fi built for longer radio links. This carries group traffic without a mobile tower or internet connection.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="field-section" aria-labelledby="field-title">
+    <div class="wrap panel-section field-grid">
+      <div class="section-copy">
+        <h2 id="field-title">A check-in past the last bar.</h2>
+        <p>Imagine two vehicles on a gravel road. Mobile service drops out, and the lead vehicle needs to tell the other where to stop.</p>
+        <ol class="field-steps">
+          <li><strong>Before leaving</strong> Connect each phone to its node, join the same group and save the map area.</li>
+          <li><strong>With a radio link</strong> From the turnout, send “I’m here” with a photo of the entrance, or give directions over group voice.</li>
+          <li><strong>If the link drops</strong> The saved map still opens. Live voice and new updates need a working link again.</li>
+        </ol>
+      </div>
+      <figure class="field-photo">
+        <img src="assets/landing/high-country-track.jpg" width="1536" height="1024" alt="Two vehicles separated along a winding gravel road through eucalyptus forest" loading="lazy" decoding="async">
+        <figcaption>Illustrative scene · generated image</figcaption>
+      </figure>
     </div>
   </section>
 
-  <section class="path-section" id="documentation" aria-labelledby="docs-title">
-    <div class="wrap path-layout">
-      <div id="the-idea">
-        <h2 id="idea-title">Start with what you have.</h2>
-        <p>AuMaNET is being developed on two Android phones and two XIAO HaLow nodes. A prepared setup can follow the connection guide. A new board needs its own provisioning and recovery path.</p>
-        <a class="text-action" href="compatibility.html">Check phones and hardware <span aria-hidden="true">→</span></a>
+  <section class="showcase" id="app" aria-labelledby="app-title">
+    <div class="wrap panel-section">
+      <div class="section-copy">
+        <h2 id="app-title">See what’s on the phone.</h2>
+        <p>Design previews show example conversations and positions. Hardware tests so far cover two phones.</p>
       </div>
-      <div class="path-links">
-        <h2 id="docs-title" class="sr-only">Choose a path</h2>
-        <a href="initial-configuration.html"><img class="icon" src="assets/brand/phone.svg" alt="" width="24" height="24"><span><strong>I have a provisioned node</strong><small>Connect an Android phone and check your group.</small></span><span aria-hidden="true">→</span></a>
-        <a href="flash-firmware.html"><img class="icon" src="assets/brand/node.svg" alt="" width="24" height="24"><span><strong>I have a new or unresponsive board</strong><small>Identify the hardware and find the USB recovery path.</small></span><span aria-hidden="true">→</span></a>
-        <a href="handbook.html"><img class="icon" src="assets/brand/kit.svg" alt="" width="24" height="24"><span><strong>I’m exploring AuMaNET</strong><small>Browse guides, hardware references and project history.</small></span><span aria-hidden="true">→</span></a>
+      <div class="screen-grid">
+        <figure class="app-screen">
+          <a class="screen-image" href="style-guide/screenshots/01-messages.jpg" aria-label="View full-size messages preview">
+            <img src="style-guide/screenshots/01-messages.jpg" width="390" height="844" alt="A group conversation with a text check-in and a photo" loading="lazy" decoding="async">
+            <span>View full size <span aria-hidden="true">↗</span></span>
+          </a>
+          <figcaption><h3>Messages</h3><p>Send a check-in or a photo of the turnoff. Delivery feedback tells you when another phone received it.</p></figcaption>
+        </figure>
+<figure class="app-screen">
+          <a class="screen-image" href="style-guide/screenshots/02-voice.jpg" aria-label="View full-size group voice preview">
+            <img src="style-guide/screenshots/02-voice.jpg" width="390" height="844" alt="A voice channel showing who is listening and a button to join muted" loading="lazy" decoding="async">
+            <span>View full size <span aria-hidden="true">↗</span></span>
+          </a>
+          <figcaption><h3>Group voice</h3><p>Join the group voice channel and hold to talk when a decision is easier to say out loud.</p></figcaption>
+        </figure>
+<figure class="app-screen">
+          <a class="screen-image" href="style-guide/screenshots/03-map.jpg" aria-label="View full-size offline map preview">
+            <img src="style-guide/screenshots/03-map.jpg" width="390" height="844" alt="A saved map with position markers for group members" loading="lazy" decoding="async">
+            <span>View full size <span aria-hidden="true">↗</span></span>
+          </a>
+          <figcaption><h3>Offline map</h3><p>Save the map before leaving. See positions from members who choose to share while the group has a link.</p></figcaption>
+        </figure>
       </div>
+      <a class="text-action" href="android-app.html">Explore the Android app <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <section class="wrap panel-section" id="compare" aria-labelledby="compare-title">
+    <div class="section-copy">
+      <h2 id="compare-title">Which connection fits the trip?</h2>
+      <p>Start with what you need to send. A quick voice call, a short check-in and a photo with a location each ask something different of a radio link.</p>
+    </div>
+    <p class="matrix-scroll-hint">Scroll the table to compare all four options.</p>
+    <div class="comparison-scroll" role="region" aria-label="Scrollable communication comparison" tabindex="0">
+      <table class="comparison-matrix">
+        <caption class="sr-only">Features and equipment by communication option</caption>
+        <thead><tr><th scope="col">Feature</th><th scope="col">Mobile network</th><th scope="col">UHF CB radio</th><th scope="col">Meshtastic</th><th scope="col">AuMaNET</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Best for</th><td>Calls and internet wherever you have service</td><td>Quick spoken calls on a shared channel</td><td>Short check-ins and positions over a low-power mesh</td><td>Voice, photos and a shared map for a nearby group off-grid</td></tr>
+<tr><th scope="row">Live voice</th><td>Phone calls</td><td>Push-to-talk</td><td><a href="https://meshtastic.org/docs/configuration/module/audio/">Experimental on select hardware</a></td><td>In-app group voice</td></tr>
+<tr><th scope="row">Text</th><td>SMS and messaging apps</td><td>No</td><td>Short mesh messages</td><td>Group messages</td></tr>
+<tr><th scope="row">Photos</th><td>Via messaging apps</td><td>No</td><td>No in standard chat</td><td>Group photos</td></tr>
+<tr><th scope="row">Shared position</th><td>Via compatible apps</td><td>Voice directions</td><td>GPS position updates</td><td>Opt-in group positions</td></tr>
+<tr><th scope="row">Saved maps</th><td>With an offline map app</td><td>Separate device</td><td><a href="https://meshtastic.org/docs/software/android/user/map-and-waypoints/">Supported in the Android app</a></td><td>Download areas in the app</td></tr>
+<tr><th scope="row">Internet for apps</th><td>Mobile data</td><td>No</td><td>No general internet access</td><td><a href="internet-sharing.html">Opt-in sharing</a> from a phone with mobile data</td></tr>
+<tr><th scope="row">How it reaches</th><td>Through a carrier tower and network</td><td>Direct radio or via a repeater</td><td>Direct LoRa or relayed by other mesh radios</td><td>Direct link between two HaLow nodes in the tested setup</td></tr>
+<tr><th scope="row">What you carry</th><td>Phone with carrier service</td><td>UHF CB radio at each end</td><td>Compatible LoRa radio at each end</td><td>Android phone and powered HaLow node at each end</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="comparison-sources"><a href="https://www.acma.gov.au/mobile-network-coverage-maps-standard">Mobile coverage</a><a href="https://www.acma.gov.au/licences/citizen-band-radio-stations-class-licence">Australian UHF CB</a><a href="https://meshtastic.org/docs/introduction/">Meshtastic</a><a href="current-app.html">AuMaNET test scope</a></p>
+
+    <section class="coverage-section" aria-labelledby="coverage-title">
+      <div class="section-copy">
+        <h3 id="coverage-title">Same valley, four ways to connect</h3>
+        <p>Three vehicles are spread along one track. Each view uses the same positions. Lines show usable links in this example, and shading shows assumed coverage.</p>
+      </div>
+      <p class="coverage-note">Illustrative paths on generated terrain. Actual reach depends on terrain, equipment, settings and available repeaters. AuMaNET’s field range is still being tested.</p>
+      <div class="coverage-grid">
+        <figure class="coverage-card">
+    <h4>Mobile network</h4>
+    <div class="coverage-map" aria-hidden="true">
+      <img src="assets/landing/high-country-overhead.jpg" width="1200" height="800" alt="" loading="lazy" decoding="async">
+      <svg viewBox="0 0 480 320" focusable="false">
+        <g class="coverage-area"><path d="M309 20C340 2 414 4 460 25L480 56V138C455 161 417 162 386 149C355 136 367 115 344 92C324 72 296 55 309 20Z"/></g>
+        <g class="coverage-route"><polyline points="391,105 418,48"/></g>
+        <g class="vehicle-marker" transform="translate(82 233)"><circle r="14"/><text y="5">A</text></g><g class="vehicle-marker" transform="translate(214 195)"><circle r="14"/><text y="5">B</text></g><g class="vehicle-marker reachable" transform="translate(391 105)"><circle r="14"/><text y="5">C</text></g><g class="station-marker" transform="translate(418 48)"><path d="M0 -7 7 0 0 7 -7 0Z"/><text y="-15">Cell tower</text></g>
+      </svg>
+    </div>
+    <figcaption>Vehicle C has service near the tower. Vehicles A and B are outside this example coverage area.</figcaption>
+  </figure>
+<figure class="coverage-card">
+    <h4>UHF CB radio</h4>
+    <div class="coverage-map" aria-hidden="true">
+      <img src="assets/landing/high-country-overhead.jpg" width="1200" height="800" alt="" loading="lazy" decoding="async">
+      <svg viewBox="0 0 480 320" focusable="false">
+        <g class="coverage-area"></g>
+        <g class="coverage-route"><polyline points="82,233 266,80 391,105"/></g>
+        <g class="vehicle-marker reachable" transform="translate(82 233)"><circle r="14"/><text y="5">A</text></g><g class="vehicle-marker" transform="translate(214 195)"><circle r="14"/><text y="5">B</text></g><g class="vehicle-marker reachable" transform="translate(391 105)"><circle r="14"/><text y="5">C</text></g><g class="station-marker" transform="translate(266 80)"><path d="M0 -7 7 0 0 7 -7 0Z"/><text y="-15">Ridge repeater</text></g>
+      </svg>
+    </div>
+    <figcaption>Vehicles A and C can talk because both can reach the ridge repeater. A direct call also works where two radios can hear each other.</figcaption>
+  </figure>
+<figure class="coverage-card">
+    <h4>Meshtastic</h4>
+    <div class="coverage-map" aria-hidden="true">
+      <img src="assets/landing/high-country-overhead.jpg" width="1200" height="800" alt="" loading="lazy" decoding="async">
+      <svg viewBox="0 0 480 320" focusable="false">
+        <g class="coverage-area"></g>
+        <g class="coverage-route"><polyline points="82,233 214,195 391,105"/></g>
+        <g class="vehicle-marker reachable" transform="translate(82 233)"><circle r="14"/><text y="5">A</text></g><g class="vehicle-marker reachable" transform="translate(214 195)"><circle r="14"/><text y="5">B</text></g><g class="vehicle-marker reachable" transform="translate(391 105)"><circle r="14"/><text y="5">C</text></g>
+      </svg>
+    </div>
+    <figcaption>Vehicle B relays a short text from A to C. Each leg only has to reach the next compatible LoRa radio.</figcaption>
+  </figure>
+<figure class="coverage-card">
+    <h4>AuMaNET</h4>
+    <div class="coverage-map" aria-hidden="true">
+      <img src="assets/landing/high-country-overhead.jpg" width="1200" height="800" alt="" loading="lazy" decoding="async">
+      <svg viewBox="0 0 480 320" focusable="false">
+        <g class="coverage-area"><ellipse cx="151" cy="216" rx="127" ry="64" transform="rotate(-18 151 216)"/></g>
+        <g class="coverage-route"><polyline points="82,233 214,195"/></g>
+        <g class="vehicle-marker reachable" transform="translate(82 233)"><circle r="14"/><text y="5">A</text></g><g class="vehicle-marker reachable" transform="translate(214 195)"><circle r="14"/><text y="5">B</text></g><g class="vehicle-marker" transform="translate(391 105)"><circle r="14"/><text y="5">C</text></g>
+      </svg>
+    </div>
+    <figcaption>Nearby vehicles A and B have a direct HaLow link for voice, text, photos and positions. Vehicle C is beyond this example link.</figcaption>
+  </figure>
+      </div>
+    </section>
+
+    <div class="comparison-takeaway">
+      <h3>Where AuMaNET fits</h3>
+      <p>Two nearby crews lose mobile service at a fork. They can talk through the decision, send a photo of the turn and share a position on a saved map while their radios stay linked. If one phone later picks up mobile data, its owner can <a href="internet-sharing.html">choose to share that connection</a> with the other phone.</p>
     </div>
   </section>
 
   <section class="wrap status-band" id="progress" aria-labelledby="progress-title">
-    <div><h2 id="progress-title">Where the prototype stands</h2><p id="field-check-title">Development results cover a direct two-node link. Multi-hop, broader device support and field endurance still need acceptance. Carry an independent emergency communications option.</p></div>
+    <div><h2 id="progress-title">What’s been tested?</h2><p id="field-check-title">Development tests cover two specific Android phones and two directly linked nodes. Range, battery life, larger groups and forwarding through a third node still need field validation. Carry independent emergency communications.</p></div>
     <a class="text-action" href="current-app.html">See the tested scope <span aria-hidden="true">→</span></a>
   </section>
+
+  <section class="path-section" id="documentation" aria-labelledby="docs-title">
+    <div class="wrap path-layout">
+      <div>
+        <h2 id="docs-title">Try the prototype.</h2>
+        <p>Check the hardware used in development and choose the guide that matches the equipment you have.</p>
+        <a class="text-action" href="compatibility.html">Check phones and hardware <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="path-links">
+        <a href="initial-configuration.html"><img class="icon" src="assets/brand/phone.svg" alt="" width="24" height="24"><span><strong>Connect to a prepared node</strong><small>Pair your Android phone and check the group connection.</small></span><span aria-hidden="true">→</span></a>
+        <a href="flash-firmware.html"><img class="icon" src="assets/brand/node.svg" alt="" width="24" height="24"><span><strong>Set up or recover a radio board</strong><small>Identify the board and find its USB instructions.</small></span><span aria-hidden="true">→</span></a>
+        <a href="handbook.html"><img class="icon" src="assets/brand/kit.svg" alt="" width="24" height="24"><span><strong>Browse the guides</strong><small>Read setup, hardware and troubleshooting guides.</small></span><span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
 </main>
 <footer class="site-footer">
   <div class="wrap footer-inner">
