@@ -7,6 +7,18 @@ import java.util.concurrent.TimeUnit;
 
 /** Actual native ownership/consent policies; no provider, physical fix or screen-off result is fabricated. */
 public class LocationOwnershipTest {
+    @Test public void onlySharingDemandBlocksAConnectionSwitch(){
+        LocationOwnership owner=new LocationOwnership();
+        owner.foreground("private view");
+        assertFalse(owner.view().hasSharingDemand());
+        long request=owner.prepareBackground("sharing");
+        assertTrue(owner.view().hasSharingDemand());
+        assertTrue(owner.activateBackground("sharing",request));
+        assertTrue(owner.view().hasSharingDemand());
+        owner.endBackground("sharing");
+        assertFalse(owner.view().hasSharingDemand());
+        assertTrue(owner.ownsForeground("private view"));
+    }
     @Test public void backgroundLeaseSurvivesForegroundViewPauseWithoutStartingAnotherDemand(){
         LocationOwnership owner=new LocationOwnership();owner.foreground("view");long request=owner.prepareBackground("sharing");
         assertTrue(owner.activateBackground("sharing",request));owner.endForeground("view");

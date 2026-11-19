@@ -534,7 +534,8 @@ final class GroupSession {
     Network trustedConnectionNetwork(TrustedConnectionScope expected){synchronized(lock){return trustedConnectionCurrent(expected,true)?wifi:null;}}
     boolean trustedConnectionSwitchIdle(TrustedConnectionScope expected){synchronized(lock){
         if(!trustedConnectionCurrent(expected,false))return false;LocationOwner local=LocationOwner.peek();LocationOwnership.View location=local==null?null:local.ownership.view();ConsentRequest voicePending=pendingVoiceRequest,sharingPending=pendingSharingRequest.get();
-        return !voiceConsent.enabled()&&!nativeVoiceOwner.held()&&!(voicePending!=null&&voicePending.run==generation&&voiceConsent.current(voicePending.revision))&&!locationConsent.enabled()&&!(sharingPending!=null&&sharingPending.run==generation&&locationConsent.current(sharingPending.revision))&&!LocationSharingService.holdsNativeIntent()&&(location==null||!location.foreground&&!location.pending&&!location.background);
+        // A private GPS view has no group or network ownership.
+        return !voiceConsent.enabled()&&!nativeVoiceOwner.held()&&!(voicePending!=null&&voicePending.run==generation&&voiceConsent.current(voicePending.revision))&&!locationConsent.enabled()&&!(sharingPending!=null&&sharingPending.run==generation&&locationConsent.current(sharingPending.revision))&&!LocationSharingService.holdsNativeIntent()&&(location==null||!location.hasSharingDemand());
     }}
     ConsentRequest reserveTrustedSharing(TrustedConnectionScope expected,LocationSharingService.Pending retained,java.util.function.BooleanSupplier intent){synchronized(lock){
         ConsentRequest previous=pendingSharingRequest.get();
@@ -553,7 +554,7 @@ final class GroupSession {
         ConsentRequest voicePending=pendingVoiceRequest,sharingPending=pendingSharingRequest.get();
         boolean pendingVoice=voicePending!=null&&voicePending.run==generation&&voiceConsent.current(voicePending.revision);
         boolean pendingSharing=sharingPending!=null&&sharingPending.run==generation&&locationConsent.current(sharingPending.revision);
-        if(voiceConsent.enabled()||nativeVoiceOwner.held()||pendingVoice||locationConsent.enabled()||pendingSharing||LocationSharingService.holdsNativeIntent()||location!=null&&(location.foreground||location.pending||location.background))throw new IllegalStateException("Stop the active voice or location request before changing connections");
+        if(voiceConsent.enabled()||nativeVoiceOwner.held()||pendingVoice||locationConsent.enabled()||pendingSharing||LocationSharingService.holdsNativeIntent()||location!=null&&location.hasSharingDemand())throw new IllegalStateException("Stop the active voice or location sharing request before changing connections");
         disconnect(true,true);return trustedConnectionScope();
     }}
     TrustedConnectionScope stopTrustedConnection(TrustedConnectionScope expected){synchronized(lock){
